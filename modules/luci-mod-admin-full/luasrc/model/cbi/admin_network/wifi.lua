@@ -267,6 +267,11 @@ if hwtype == "mac80211" then
 
 	s:taboption("advanced", Value, "frag", translate("Fragmentation Threshold"))
 	s:taboption("advanced", Value, "rts", translate("RTS/CTS Threshold"))
+
+	beacon_int = s:taboption("advanced", Value, "beacon_int", translate("Beacon Interval"))
+	beacon_int.optional = true
+	beacon_int.placeholder = 100
+	beacon_int.datatype = "range(15, 65535)"
 end
 
 
@@ -507,7 +512,15 @@ if hwtype == "mac80211" then
 	ifname = s:taboption("advanced", Value, "ifname", translate("Interface name"), translate("Override default interface name"))
 	ifname.optional = true
 
-	disassoc_low_ack = s:taboption("general", Flag, "disassoc_low_ack", translate("Disassociate On Low Acknowledgement"),
+	short_preamble = s:taboption("advanced", Flag, "short_preamble", translate("Short Preamble"))
+	short_preamble.default = short_preamble.enabled
+
+	dtim_period = s:taboption("advanced", Value, "dtim_period", translate("DTIM Interval"),
+		translate("Delivery Traffic Indication Message Interval"))
+	dtim_period.optional = true
+	dtim_period.placeholder = 2
+
+	disassoc_low_ack = s:taboption("advanced", Flag, "disassoc_low_ack", translate("Disassociate On Low Acknowledgement"),
 		translate("Allow AP mode to disconnect STAs based on low ACK condition"))
 	disassoc_low_ack.default = disassoc_low_ack.enabled
 end
