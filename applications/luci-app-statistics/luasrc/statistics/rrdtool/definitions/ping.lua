@@ -3,7 +3,12 @@
 
 module("luci.statistics.rrdtool.definitions.ping", package.seeall)
 
+function item()
+	return luci.i18n.translate("Ping")
+end
+
 function rrdargs( graph, plugin, plugin_instance, dtype )
+
 	return {
 		-- Ping roundtrip time
 		{ title = "%H: ICMP Round Trip Time",

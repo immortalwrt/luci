@@ -1,5 +1,5 @@
 <script type="text/javascript">//<![CDATA[
-XHR.poll(5, '<%=luci.dispatcher.build_url("admin/nas/aria2/status")%>', null,
+XHR.poll(-1, '<%=luci.dispatcher.build_url("admin/services/aria2/status")%>', null,
 	function(x, data) {
 		var tb = document.getElementById('aria2_status');
 		if (data && tb) {
@@ -27,7 +27,7 @@ function randomString(len) {
 	var $chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
 	var maxPos = $chars.length;
 	var pwd = '';
-	for (i = 0; i < len; i++) {
+	for (var i = 0; i < len; i++) {
 		pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
 	}
 	return pwd;
@@ -44,11 +44,15 @@ function showRPCURL() {
 	var newTextNode = document.getElementById("aria2rpcpath");
 	var auth_method = document.getElementById("cbid.aria2.main.rpc_auth_method");
 	var auth_port = document.getElementById("cbid.aria2.main.rpc_listen_port");
+	var auth_port_value;
+	if (window.location.protocol == "https:") {                                  
+		protocol += "s";                                                     
+	}
 	if (auth_port.value == "") {
-		auth_port_value = "6800"
+		auth_port_value = "6800";
 	} else {
-		auth_port_value = auth_port.value
-	};
+		auth_port_value = auth_port.value;
+	}
 	if (auth_method.value == "token") {
 		var auth_token = document.getElementById("cbid.aria2.main.rpc_secret");
 		newTextNode.value = protocol + "://token:" + auth_token.value + "@" + document.domain + ":" + auth_port_value + "/jsonrpc";
@@ -66,8 +70,8 @@ function openWebUI(path) {
 	var pathName = window.document.location.pathname;
 	var pos = curWwwPath.indexOf(pathName);
 	var localhostPath = curWwwPath.substring(0, pos);
-	var url = "http:" + localhostPath.substring(window.location.protocol.length) + "/" + path;
-	window.open(url)
+	var url = localhostPath + "/" + path;
+	window.open(url);
 };
 //]]>
 </script>

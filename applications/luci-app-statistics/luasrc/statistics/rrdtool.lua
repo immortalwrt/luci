@@ -3,46 +3,46 @@
 
 module("luci.statistics.rrdtool", package.seeall)
 
-require("luci.statistics.datatree")
-require("luci.statistics.rrdtool.colors")
-require("luci.statistics.i18n")
-require("luci.model.uci")
-require("luci.util")
-require("luci.sys")
+local tree   = require("luci.statistics.datatree")
+local colors = require("luci.statistics.rrdtool.colors")
+local i18n   = require("luci.statistics.i18n")
+local uci    = require("luci.model.uci").cursor()
+local util   = require("luci.util")
+local sys    = require("luci.sys")
+local fs     = require("nixio.fs")
 
-local fs = require "nixio.fs"
 
-
-Graph = luci.util.class()
+Graph = util.class()
 
 function Graph.__init__( self, timespan, opts )
 
 	opts = opts or { }
 
-	local uci = luci.model.uci.cursor()
 	local sections = uci:get_all( "luci_statistics" )
 
 	-- options
 	opts.timespan  = timespan       or sections.rrdtool.default_timespan or 900
 	opts.rrasingle = opts.rrasingle or ( sections.collectd_rrdtool.RRASingle == "1" )
 	opts.rramax    = opts.rramax    or ( sections.collectd_rrdtool.RRAMax == "1" )
-	opts.host      = opts.host      or sections.collectd.Hostname        or luci.sys.hostname()
+	opts.host      = opts.host      or sections.collectd.Hostname        or sys.hostname()
 	opts.width     = opts.width     or sections.rrdtool.image_width      or 400
+	opts.height    = opts.height    or sections.rrdtool.image_height     or 100
 	opts.rrdpath   = opts.rrdpath   or sections.collectd_rrdtool.DataDir or "/tmp/rrd"
 	opts.imgpath   = opts.imgpath   or sections.rrdtool.image_path       or "/tmp/rrdimg"
 	opts.rrdpath   = opts.rrdpath:gsub("/$","")
 	opts.imgpath   = opts.imgpath:gsub("/$","")
 
 	-- helper classes
-	self.colors = luci.statistics.rrdtool.colors.Instance()
-	self.tree   = luci.statistics.datatree.Instance(opts.host)
-	self.i18n   = luci.statistics.i18n.Instance( self )
+	self.colors = colors.Instance()
+	self.tree   = tree.Instance(opts.host)
+	self.i18n   = i18n.Instance( self )
 
 	-- rrdtool default args
 	self.args = {
 		"-a", "PNG",
 		"-s", "NOW-" .. opts.timespan,
-		"-w", opts.width
+		"-w", opts.width,
+		"-h", opts.height
 	}
 
 	-- store options
@@ -62,7 +62,7 @@ function Graph._mkpath( self, plugin, plugin_instance, dtype, dtype_instance )
 end
 
 function Graph.mkrrdpath( self, ... )
-	return string.format( "%s/%s.rrd", self.opts.rrdpath, self:_mkpath( ... ) )
+	return string.format( "%s/%s.rrd", self.opts.rrdpath, self:_mkpath( ... ):gsub("\\", "\\\\"):gsub(":", "\\:") )
 end
 
 function Graph.mkpngpath( self, ... )
@@ -102,7 +102,7 @@ function Graph._rrdtool( self, def, rrd )
 			opt = opt:gsub( "{file}", rrd )
 		end
 
-		cmdline[#cmdline+1] = luci.util.shellquote(opt)
+		cmdline[#cmdline+1] = util.shellquote(opt)
 	end
 
 	-- execute rrdtool
@@ -136,7 +136,7 @@ function Graph._generic( self, opts, plugin, plugin_instance, dtype, index )
 	function __def(source)
 
 		local inst = source.sname
-		local rrd  = source.rrd
+		local rrd  = source.rrd:gsub(":", "\\:")
 		local ds   = source.ds
 
 		if not ds or ds:len() == 0 then ds = "value" end
