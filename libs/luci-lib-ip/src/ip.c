@@ -987,14 +987,8 @@ static int _route_dump(lua_State *L, struct dump_filter *filter)
 
 	nlmsg_append(msg, &rtm, sizeof(rtm), 0);
 
-
 	if (filter->get)
 		nla_put(msg, RTA_DST, filter->dst.len, &filter->dst.addr.v6);
-
-		if (filter->src.family)
-			nla_put(msg, RTA_SRC, AF_BYTES(filter->src.family),
-			        &filter->src.addr.v6);
-	}
 
 	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, cb_dump_route, &s);
 	nl_cb_set(cb, NL_CB_FINISH, NL_CB_CUSTOM, cb_done, &s);
@@ -1012,31 +1006,16 @@ static int _route_dump(lua_State *L, struct dump_filter *filter)
 
 out:
 	nl_cb_put(cb);
-
-	if (s.callback)
-		return 0;
-
-	if (!filter->get)
-		return 1;
-
-	return (s.index > 0);
+	return (s.callback == 0);
 }
 
 static int route_get(lua_State *L)
 {
 	struct dump_filter filter = { .get = true };
 	const char *dest = luaL_checkstring(L, 1);
-	const char *from = luaL_optstring(L, 2, NULL);
 
 	if (!parse_cidr(dest, &filter.dst))
 		return _error(L, -1, "Invalid destination");
-
-	if (from && !parse_cidr(from, &filter.src))
-		return _error(L, -1, "Invalid source");
-
-	if (filter.src.family != 0 &&
-	    filter.src.family != filter.dst.family)
-		return _error(L, -1, "Different source/destination family");
 
 	filter.family = filter.dst.family;
 
