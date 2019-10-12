@@ -48,7 +48,7 @@
 
 		local rv = {
 			uptime     = sysinfo.uptime or 0,
-			localtime  = os.date("%Y年%m月%d日") .. " " .. translate(os.date("%A")) .. " " .. os.date("%X"),
+			localtime  = os.date(),
 			loadavg    = sysinfo.load or { 0, 0, 0 },
 			memory     = meminfo,
 			memcached  = mem_cached,
@@ -109,7 +109,7 @@
 
 <%+header%>
 
-<script type="text/javascript" src="<%=resource%>/cbi.js?v=git-19.121.62139-9ee402e"></script>
+<script type="text/javascript" src="<%=resource%>/cbi.js?v=git-18.296.11678-2bbc1e3"></script>
 <script type="text/javascript">//<![CDATA[
 	function progressbar(v, m)
 	{
@@ -678,15 +678,13 @@
 
 	<table width="100%" cellspacing="10">
 		<tr><td width="33%"><%:Hostname%></td><td><%=luci.sys.hostname() or "?"%></td></tr>
-		<tr><td width="33%"><%:Model%></td><td><%=pcdata(boardinfo.model or "?")%> <%=luci.sys.exec("cat /etc/bench.log") or " "%></td></tr>
-		<tr><td width="33%"><%:Architecture%></td><td><%=pcdata(boardinfo.system or "?")%>：<%=luci.sys.exec("cat /proc/cpuinfo | grep 'model' | sort -u | wc -l ")%>Core<%=luci.sys.exec("cat /proc/cpuinfo | grep 'processor' | wc -l")%>Thread</td></tr>
-		<tr><td width="33%"><%:CPU Info%></td><td><%=luci.sys.exec("grep 'BogoMIPS' /proc/cpuinfo | cut -c11- |sed -n '1p'")%> MHz <%=luci.sys.exec("sensors | grep 'processor 0' | cut -c10-24")%></td></tr>
+		<tr><td width="33%"><%:Model%></td><td><%=pcdata(boardinfo.model or "?")%></td></tr>
+		<tr><td width="33%"><%:Architecture%></td><td><%=pcdata(boardinfo.system or "?")%></td></tr>
 		<tr><td width="33%"><%:Firmware Version%></td><td>
 			<%=pcdata(ver.distname)%> <%=pcdata(ver.distversion)%> /
 			<%=pcdata(ver.luciname)%> (<%=pcdata(ver.luciversion)%>)
 		</td></tr>
 		<tr><td width="33%"><%:Kernel Version%></td><td><%=unameinfo.release or "?"%></td></tr>
-		<tr><td width="33%"><%:CPU Temperature%></td><td><%=luci.sys.exec("sensors | grep 'processor 0' | cut -c1-2 /sys/class/thermal/thermal_zone0/temp")%>℃  <%=luci.sys.exec("sensors | grep 'processor 1' | cut -c1-2 /sys/class/thermal/thermal_zone0/temp")%>℃</td></tr>
 		<tr><td width="33%"><%:Local Time%></td><td id="localtime">-</td></tr>
 		<tr><td width="33%"><%:Uptime%></td><td id="uptime">-</td></tr>
 		<tr><td width="33%"><%:Load Average%></td><td id="loadavg">-</td></tr>
@@ -796,3 +794,4 @@
 <% end %>
 
 <%+footer%>
+
