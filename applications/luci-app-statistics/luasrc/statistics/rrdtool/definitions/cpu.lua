@@ -3,10 +3,6 @@
 
 module("luci.statistics.rrdtool.definitions.cpu",package.seeall)
 
-function item()
-	return luci.i18n.translate("Processor")
-end
-
 function rrdargs( graph, plugin, plugin_instance, dtype )
 
 	return {

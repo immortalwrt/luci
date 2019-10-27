@@ -4,44 +4,84 @@ This is free software, licensed under the Apache License, Version 2.0
 -%>
 
 <%-
-local anonclass  = (not self.anonymous or self.sectiontitle) and "named" or "anonymous"
+local rowcnt = 1
+function rowstyle()
+	rowcnt = rowcnt + 1
+	return (rowcnt % 2) + 1
+end
+
+function width(o)
+	if o.width then
+		if type(o.width) == 'number' then
+			return ' style="width:%dpx"' % o.width
+		end
+		return ' style="width:%s"' % o.width
+	end
+	return ''
+end
 -%>
 
-<%+adblock/adblock_css%>
+<style type="text/css">
+table.cbi-section-table th,
+table.cbi-section-table td,
+.cbi-section-table-cell,
+.cbi-section-table-row,
+.cbi-input-text
+{
+	text-align:left;
+	vertical-align:top;
+	margin-right:auto;
+	margin-left:0px;
+}
+.cbi-input-text
+{
+	outline:none;
+	box-shadow:none;
+	background:transparent;
+	padding-left:2px;
+	line-height:25px;
+	height:25px;
+	width:10em;
+}
+</style>
 
-<div class="cbi-section" id="cbi-<%=self.config%>-<%=self.sectiontype%>">
+<fieldset class="cbi-section" id="cbi-<%=self.config%>-<%=self.sectiontype%>">
 	<% if self.title then -%>
-		<h3><%=self.title%></h3>
+		<legend><%=self.title%></legend>
 	<%- end %>
 	<div class="cbi-section-descr"><%=self.description%></div>
 	<div class="cbi-section-node">
-		<div class="table cbi-section-table">
-			<div class="tr cbi-section-table-titles <%=anonclass%>">
-			<%- for i, k in pairs(self.children) do -%>
-				<div class="th cbi-section-table-cell">
-					<%-=k.title-%>
-				</div>
+		<table class="cbi-section-table">
+			<tr class="cbi-section-table-titles">
+			<%- if self.sectionhead then -%>
+				<th class="cbi-section-table-cell"><%=self.sectionhead%></th>
+			<%- else -%>
+				<th>&#160;</th>
 			<%- end -%>
-			</div>
-			<%- local section, scope, isempty = true
+			<%- for i, k in pairs(self.children) do -%>
+				<th class="cbi-section-table-cell"<%=width(k)%>>
+					<%-=k.title-%>
+				</th>
+			<%- end -%>
+			</tr>
+			<%- local isempty = true
 				for i, k in ipairs(self:cfgsections()) do
 					section = k
-					local sectionname  = striptags((type(self.sectiontitle) == "function") and self:sectiontitle(section) or k)
-					local sectiontitle = ifattr(sectionname and (not self.anonymous or self.sectiontitle), "data-title", sectionname, true)
 					isempty = false
 					scope = { valueheader = "cbi/cell_valueheader", valuefooter = "cbi/cell_valuefooter" }
 			-%>
-			<div class="tr cbi-section-table-row" id="cbi-<%=self.config%>-<%=section%>"<%=sectiontitle%>>
+			<tr class="cbi-section-table-row" id="cbi-<%=self.config%>-<%=section%>">
+				<th><%=k%></th>
 				<%-
 					for k, node in ipairs(self.children) do
 						node:render(section, scope or {})
 					end
 					if not scope.cbid:match("adb_src_cat") then
 				-%>
-					<div class="td cbi-value-field">&#160;</div>
+					<td class="cbi-value-field">&#160;</td>
 				<%- end -%>
-			</div>
+			</tr>
 			<%- end -%>
-		</div>
+		</table>
 	</div>
-</div>
+</fieldset>

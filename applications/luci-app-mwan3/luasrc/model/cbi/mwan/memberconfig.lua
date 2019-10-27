@@ -2,21 +2,19 @@
 -- Copyright 2018 Florian Eckert <fe@dev.tdt.de>
 -- Licensed to the public under the GNU General Public License v2.
 
-local dsp = require "luci.dispatcher"
-
-local m, mwan_member, interface, metric, weight
-
+dsp = require "luci.dispatcher"
 arg[1] = arg[1] or ""
 
-m = Map("mwan3", translatef("MWAN Member Configuration - %s", arg[1]))
-m.redirect = dsp.build_url("admin", "network", "mwan", "member")
 
-mwan_member = m:section(NamedSection, arg[1], "member", "")
+m5 = Map("mwan3", translatef("MWAN Member Configuration - %s", arg[1]))
+m5.redirect = dsp.build_url("admin", "network", "mwan", "member")
+
+mwan_member = m5:section(NamedSection, arg[1], "member", "")
 mwan_member.addremove = false
 mwan_member.dynamic = false
 
 interface = mwan_member:option(Value, "interface", translate("Interface"))
-m.uci:foreach("mwan3", "interface",
+m5.uci:foreach("mwan3", "interface",
 	function(s)
 		interface:value(s['.name'], s['.name'])
 	end
@@ -30,4 +28,4 @@ weight = mwan_member:option(Value, "weight", translate("Weight"),
 	translate("Acceptable values: 1-1000. Defaults to 1 if not set"))
 weight.datatype = "range(1, 1000)"
 
-return m
+return m5
