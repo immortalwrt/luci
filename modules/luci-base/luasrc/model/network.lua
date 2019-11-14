@@ -130,7 +130,7 @@ function _wifi_iface(x)
 			return true
 		end
 	end
-	return false
+	return (nfs.access("/sys/class/net/%s/phy80211" % x) == true)
 end
 
 function _wifi_state(key, val, field)
