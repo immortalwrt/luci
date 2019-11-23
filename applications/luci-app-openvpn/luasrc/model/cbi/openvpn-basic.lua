@@ -4,7 +4,6 @@
 require("luci.ip")
 require("luci.model.uci")
 
-
 local basicParams = {
 	--								
 	-- Widget, Name, Default(s), Description
@@ -14,17 +13,13 @@ local basicParams = {
 	{ Value, "nice",0, translate("Change process priority") },
 	{ Value,"port",1194, translate("TCP/UDP port # for both local and remote") },
 	{ ListValue,"dev_type",{ "tun", "tap" }, translate("Type of used device") },
-	{ Flag,"tun_ipv6",0, translate("Make tun device IPv6 capable") },
 
 	{ Value,"ifconfig","10.200.200.3 10.200.200.1", translate("Set tun/tap adapter parameters") },
 	{ Value,"server","10.200.200.0 255.255.255.0", translate("Configure server mode") },
 	{ Value,"server_bridge","192.168.1.1 255.255.255.0 192.168.1.128 192.168.1.254", translate("Configure server bridge") },
 	{ Flag,"nobind",0, translate("Do not bind to local address and port") },
 
-	{ ListValue,"comp_lzo",{"yes","no","adaptive"}, translate("Use fast LZO compression") },
 	{ Value,"keepalive","10 60", translate("Helper directive to simplify the expression of --ping and --ping-restart in server mode configurations") },
-
-	{ ListValue,"proto",{ "udp", "tcp-client", "tcp-server" }, translate("Use protocol") },
 
 	{ Flag,"client",0, translate("Configure client mode") },
 	{ Flag,"client_to_client",0, translate("Allow client-to-client traffic") },
@@ -39,6 +34,20 @@ local basicParams = {
 	{ FileUpload,"key","/etc/easy-rsa/keys/some-client.key", translate("Local private key") },
 }
 
+local has_ipv6 = nixio.fs.access("/proc/net/ipv6_route")
+if has_ipv6 then
+	table.insert( basicParams, { ListValue,
+		"proto",
+		{ "udp", "tcp-client", "tcp-server", "udp6", "tcp6-client", "tcp6-server" },
+		translate("Use protocol")
+	})
+else
+	table.insert( basicParams, { ListValue,
+		"proto",
+		{ "udp", "tcp-client", "tcp-server" },
+		translate("Use protocol")
+	})
+end
 
 local m = Map("openvpn")
 local p = m:section( SimpleSection )
