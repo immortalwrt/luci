@@ -7,7 +7,7 @@ msgstr ""
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.3\n"
+"X-Generator: Poedit 2.0.7\n"
 "Last-Translator: INAGAKI Hiroshi <musashino.open@gmail.com>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Language: ja\n"
@@ -43,6 +43,9 @@ msgstr "利用可能な値: 1-256。空欄の場合のデフォルトは1です�
 msgid "Check IP rules"
 msgstr "IP ルールのチェック"
 
+msgid "Check link quality"
+msgstr "リンク品質のチェック"
+
 msgid "Check routing table"
 msgstr "ルーティング テーブルのチェック"
 
@@ -56,7 +59,7 @@ msgid "Destination port"
 msgstr "宛先ポート"
 
 msgid "Detail"
-msgstr ""
+msgstr "詳細"
 
 msgid "Diagnostics"
 msgstr "診断機能"
@@ -77,7 +80,7 @@ msgid "Enter value in hex, starting with <code>0x</code>"
 msgstr "<code>0x</code> で始まる16進数の値を入力してください。"
 
 msgid "Execute"
-msgstr ""
+msgstr "実行"
 
 msgid "Expect interface state on up event"
 msgstr "Up イベント時に予想されるインターフェースの状態です。"
@@ -89,10 +92,12 @@ msgid "Firewall mask"
 msgstr "ファイアウォール マスク"
 
 msgid "Flush conntrack table"
-msgstr ""
+msgstr "conntrack テーブルのクリア"
 
 msgid "Flush global firewall conntrack table on interface events"
 msgstr ""
+"インターフェース イベント時にグローバル ファイアウォール conntrack テーブルを"
+"クリアします。"
 
 msgid "Globals"
 msgstr "全般"
@@ -104,7 +109,7 @@ msgid "Hotplug ifup"
 msgstr "ホットプラグ ifup"
 
 msgid "INFO: MWAN not running"
-msgstr ""
+msgstr "情報: MWAN は実行されていません"
 
 msgid "IPset"
 msgstr "IPset"
@@ -157,28 +162,28 @@ msgid "Local source interface"
 msgstr ""
 
 msgid "MWAN - Globals"
-msgstr ""
+msgstr "MWAN - グローバル"
 
 msgid "MWAN - Interfaces"
-msgstr ""
+msgstr "MWAN - インターフェース"
 
 msgid "MWAN - Members"
-msgstr ""
+msgstr "MWAN - メンバー"
 
 msgid "MWAN - Notification"
-msgstr ""
+msgstr "MWAN - 通知"
 
 msgid "MWAN - Policies"
-msgstr ""
+msgstr "MWAN - ポリシー"
 
 msgid "MWAN - Rules"
-msgstr ""
+msgstr "MWAN - ルール"
 
 msgid "MWAN Interface Configuration - %s"
 msgstr "MWAN インターフェース設定 - %s"
 
 msgid "MWAN Interfaces"
-msgstr ""
+msgstr "MWAN インターフェース"
 
 msgid "MWAN Member Configuration - %s"
 msgstr "MWAN メンバー設定 - %s"
@@ -190,13 +195,13 @@ msgid "MWAN Rule Configuration - %s"
 msgstr "MWAN ルール設定 - %s"
 
 msgid "MWAN Status - Detail"
-msgstr ""
+msgstr "MWAN ステータス - 詳細"
 
 msgid "MWAN Status - Diagnostics"
-msgstr ""
+msgstr "MWAN ステータス - 診断"
 
 msgid "MWAN Status - Troubleshooting"
-msgstr ""
+msgstr "MWAN ステータス - トラブルシューティング"
 
 msgid ""
 "MWAN supports up to 252 physical and/or logical interfaces<br />MWAN "
@@ -213,6 +218,12 @@ msgstr ""
 "ればなりません。<br />名前は A-Z, a-z, 0-9, _ を含むことができますが、スペー"
 "スは使用できません。<br />インターフェースには、設定済みのメンバーやポリ"
 "シー、ルールと同じ名前を使用することはできません。"
+
+msgid "Max packet latency [ms]"
+msgstr "最大パケットレイテンシ [ms]"
+
+msgid "Max packet loss [%]"
+msgstr "最大パケットロス [%]"
 
 msgid ""
 "May be entered as a single or multiple port(s) (eg \"22\" or \"80,443\") or "
@@ -246,6 +257,12 @@ msgstr "アサイン済みメンバー"
 msgid "Metric"
 msgstr "メトリック"
 
+msgid "Min packet latency [ms]"
+msgstr "最小パケットレイテンシ [ms]"
+
+msgid "Min packet loss [%]"
+msgstr "最小パケットロス [%]"
+
 msgid ""
 "Name of IPset rule. Requires IPset rule in /etc/dnsmasq.conf (eg \"ipset=/"
 "youtube.com/youtube\")"
@@ -260,7 +277,7 @@ msgid "No MWAN interfaces found"
 msgstr "MWAN インターフェースが見つかりません"
 
 msgid "Notification"
-msgstr ""
+msgstr "通知"
 
 msgid "Offline"
 msgstr "オフライン"
@@ -342,6 +359,16 @@ msgid ""
 "z, 0-9, _ and no spaces<br />Rules may not share the same name as configured "
 "interfaces, members or policies"
 msgstr ""
+"ルールは、どのトラフィックが特定の MWAN ポリシーを使用するかを指定します<br /"
+">ルールは IP アドレスやポート、プロトコルに基づいています<br />ルールは上から"
+"下へマッチングが行われます<br />合致したルールより下のルールは無視されます"
+"<br />いずれのルールにもマッチしないトラフィックは、メインのルーティングテー"
+"ブルを使用してルーティングされます<br />既知（デフォルト以外）のネットワーク"
+"へのトラフィックは、メインのルーティングテーブルによって制御されます<br />ト"
+"ラフィックがルールに合致しても、全 WAN インターフェースが down の場合は "
+"blackhole 状態となります<br />名前は A-Z, a-z, 0-9, _ を含むことができます"
+"が、スペースは使用できません<br />ルールは、設定済みのインターフェースやメン"
+"バー、ポリシーと同じ名前を使用することはできません。"
 
 msgid "Seconds. Acceptable values: 1-1000000. Defaults to 600 if not set"
 msgstr "秒。利用可能な値: 1-1000000。空欄の場合のデフォルト値は600です。"
@@ -362,7 +389,7 @@ msgid "Supports CIDR notation (eg \"192.168.100.0/24\") without quotes"
 msgstr "CIDR 表記のサポート（例: \"192.168.100.0/24\"）"
 
 msgid "Task"
-msgstr ""
+msgstr "タスク"
 
 msgid "There are currently %d of %d supported interfaces configured"
 msgstr "現在、%d 個中 %d 個のサポートされたインターフェースが設定済みです。"
@@ -397,6 +424,21 @@ msgid ""
 "Physical device name which interface went up or down (e.g. \"eth0\" or "
 "\"wwan0\")<br /><br />"
 msgstr ""
+"このセクションでは、 \"/etc/mwan3.user\" の内容を変更することができます。"
+"<br />このファイルも sysupgrade の際に保持されます。<br /><br />注意: <br />"
+"このファイルはシェルスクリプトとして解釈されます。<br />最初の行は &#34;#!/"
+"bin/sh&#34; である必要があります（クォーテーション不要）。<br /># で始まる行"
+"はコメントであり、実行されません。<br />mwan3 のカスタム動作をここに入力して"
+"ください。<br />これらは、mwan3 で有効なインターフェースの<br /> netifd "
+"hotplug インターフェース イベント毎に実行されます。<br /><br />このスクリプト"
+"に受け渡される主に３つの環境変数が利用できます。<br /><br />$ACTION<br />* "
+"\"ifup\" は netifd と mwan3track により呼び出されます<br />* \"ifdown\" は "
+"netifd と mwan3track により呼び出されます<br />* \"connected\" はトラッキング"
+"が成功した際に mwan3track にのみにより呼び出されます<br />* \"disconnected\" "
+"は トラッキングが失敗した際に mwan3track のみにより呼び出されます<br />"
+"$INTERFACE　up または down したインターフェース名（例: \"wan\" や \"wwan\"）"
+"<br />$DEVICE　up または down したインターフェースの物理デバイス名（例: "
+"\"eth0\" や \"wwan0\"）<br /><br />"
 
 msgid "Tracking hostname or IP address"
 msgstr "追跡ホスト名または IP アドレス"
@@ -426,36 +468,42 @@ msgstr ""
 "インターフェースの IP アドレスが使用されます。"
 
 msgid "View the content of /etc/protocols for protocol description"
-msgstr ""
+msgstr "プロトコルの説明については、 /etc/protocols の内容を確認してください"
 
 msgid "WARNING: %d interfaces are configured exceeding the maximum of %d!"
 msgstr ""
 "警告: %d 個のインターフェースが、最大個数の %d 個 を超えて設定されています！"
 
 msgid "WARNING: Interface %s are not found in /etc/config/network"
-msgstr ""
+msgstr "警告: インターフェース %s が /etc/config/network に見つかりません"
 
 msgid "WARNING: Interface %s has a duplicate metric %s configured"
-msgstr ""
+msgstr "警告: インターフェース %s に重複するメトリック %s が設定されています"
 
 msgid ""
 "WARNING: Interface %s has a higher reliability requirement than tracking "
 "hosts (%d)"
 msgstr ""
+"警告: インターフェース %s は追跡ホスト数 (%d) よりも高い追跡信頼性の値が設定"
+"されています"
 
 msgid "WARNING: Interface %s has no default route in the main routing table"
 msgstr ""
+"警告: インターフェース %s はメインのルーティング テーブル内でデフォルトルート"
+"がありません"
 
 msgid "WARNING: Policy %s has exceeding the maximum name of 15 characters"
-msgstr ""
+msgstr "警告: ポリシー %s の名前は15文字の最大文字数を超えています"
 
 msgid ""
 "WARNING: Rule %s have a port configured with no or improper protocol "
 "specified!"
 msgstr ""
+"警告: ルール %s はプロトコル指定が不適切、または無いポートが設定されていま"
+"す！"
 
 msgid "Waiting for command to complete..."
-msgstr ""
+msgstr "コマンドを実行中です..."
 
 msgid "Weight"
 msgstr "ウエイト"
@@ -489,289 +537,3 @@ msgstr "never"
 
 msgid "unreachable (reject)"
 msgstr "unreachable (reject)"
-
-#~ msgid "Online (tracking active)"
-#~ msgstr "オンライン（追跡実行中）"
-
-#~ msgid "MWAN Interface Live Status"
-#~ msgstr "MWAN インターフェース Live ステータス"
-
-#~ msgid "Online (tracking off)"
-#~ msgstr "オンライン（追跡オフ）"
-
-#~ msgid ""
-#~ "This section allows you to modify the content of \"/etc/mwan3.user\".<br /"
-#~ ">The file is also preserved during sysupgrade.<br /><br />Notes:<br /"
-#~ ">This file is interpreted as a shell script.<br />The first line of the "
-#~ "script must be &#34;#!/bin/sh&#34; without quotes.<br />Lines beginning "
-#~ "with # are comments and are not executed.<br />Put your custom mwan3 "
-#~ "action here, they will<br />be executed with each netifd hotplug "
-#~ "interface event<br />on interfaces for which mwan3 is enabled.<br /><br /"
-#~ ">There are three main environment variables that are passed to this "
-#~ "script.<br /><br />$ACTION Either \"ifup\" or \"ifdown\"<br />$INTERFACE "
-#~ "Name of the interface which went up or down (e.g. \"wan\" or \"wwan"
-#~ "\")<br />$DEVICE Physical device name which interface went up or down (e."
-#~ "g. \"eth0\" or \"wwan0\")<br /><br />"
-#~ msgstr ""
-#~ "このセクションでは、 \"/etc/mwan3.user\" の内容を変更することができます。"
-#~ "<br />このファイルは、 sysupgrade 時に保持されます。<br /><br />注意: "
-#~ "<br />このファイルは、シェルスクリプトとして解釈されます。<br />スクリプト"
-#~ "の1行目は、&#34;#!bin/sh&#34; である必要があります（クォーテーション不"
-#~ "要）。<br /># で始まる行はコメントであり、実行されません。<br />mwan3 のカ"
-#~ "スタム動作をここに入力してください。これらは、 mwan3 が有効なインター"
-#~ "フェースの<br />netifd ホットプラグ インターフェース イベント毎に実行され"
-#~ "ます。<br /><br />主に3つの環境変数が利用可能です。<br /><br />$ACTION - "
-#~ "\"ifup\" および \"ifdown\"<br />$INTERFACE - Up または Down が行われたイン"
-#~ "ターフェース名（例: \"wan\" や \"wwan\"）<br />$DEVICE - Up または Down が"
-#~ "行われた物理デバイス名（例: \"eth0\" や \"wwan0\"）<br /><br />"
-
-#~ msgid "Currently Configured Interfaces"
-#~ msgstr "設定済みインターフェース"
-
-#~ msgid "Currently Configured Members"
-#~ msgstr "設定済みメンバー"
-
-#~ msgid "Currently Configured Policies"
-#~ msgstr "設定済みポリシー"
-
-#~ msgid "Detailed Status"
-#~ msgstr "詳細ステータス"
-
-#~ msgid "Diagnostic Results"
-#~ msgstr "診断結果"
-
-#~ msgid "Error collecting troubleshooting information"
-#~ msgstr "トラブルシューティング情報の収集エラー"
-
-#~ msgid "Errors"
-#~ msgstr "エラー"
-
-#~ msgid "Globals mwan3 options"
-#~ msgstr "MWAN3 全般オプション"
-
-#~ msgid "Interface Status"
-#~ msgstr "インターフェース ステータス"
-
-#~ msgid "Last 50 MWAN systemlog entries. Newest entries sorted at the top :"
-#~ msgstr "直近の MWAN システムログ（50行）です。一番上が最新の行です:"
-
-#~ msgid "MWAN Detailed Status"
-#~ msgstr "MWAN 詳細ステータス"
-
-#~ msgid "MWAN Interface Configuration"
-#~ msgstr "MWAN インターフェース設定"
-
-#~ msgid "MWAN Interface Diagnostics"
-#~ msgstr "MWAN インターフェース診断"
-
-#~ msgid "MWAN Interface Systemlog"
-#~ msgstr "MWAN インターフェース システムログ"
-
-#~ msgid "MWAN Member Configuration"
-#~ msgstr "MWAN メンバー設定"
-
-#~ msgid "MWAN Policy Configuration"
-#~ msgstr "MWAN ポリシー設定"
-
-#~ msgid "MWAN Rule Configuration"
-#~ msgstr "MWAN ルール設定"
-
-#~ msgid "MWAN Service Control"
-#~ msgstr "MWAN サービス コントロール"
-
-#~ msgid "No MWAN systemlog history found"
-#~ msgstr "MWAN システムログの履歴が見つかりません"
-
-#~ msgid "No detailed status information available"
-#~ msgstr "詳細ステータス情報は利用できません"
-
-#~ msgid "No diagnostic results returned"
-#~ msgstr "診断結果がありません"
-
-#~ msgid "No protocol specified"
-#~ msgstr "プロトコルが設定されていません"
-
-#~ msgid "Restart MWAN"
-#~ msgstr "MWAN の再起動"
-
-#~ msgid ""
-#~ "Rules specify which traffic will use a particular MWAN policy based on IP "
-#~ "address, port or protocol<br />Rules are matched from top to bottom. "
-#~ "Rules below a matching rule are ignored. Traffic not matching any rule is "
-#~ "routed using the main routing table<br />Traffic destined for known "
-#~ "(other than default) networks is handled by the main routing table. "
-#~ "Traffic matching a rule, but all WAN interfaces for that policy are down "
-#~ "will be blackholed<br />Names may contain characters A-Z, a-z, 0-9, _ and "
-#~ "no spaces<br />Rules may not share the same name as configured "
-#~ "interfaces, members or policies"
-#~ msgstr ""
-#~ "ルールは IP アドレスやポート、プロトコルを基に、トラフィックがどの MWAN ポ"
-#~ "リシーを使用するかを設定します。<br />ルールは上から下へマッチングが行わ"
-#~ "れ、合致したルールより下のルールは無視されます。全てのルールに合致しないト"
-#~ "ラフィックは、メインのルーティング テーブルを使用してルートが決定されま"
-#~ "す。<br />既知（デフォルト以外）のネットワークへのトラフィックは、メインの"
-#~ "ルーティング テーブルによって制御されます。ルールに合致したトラフィックで"
-#~ "も、当該ポリシーの全 WAN インターフェースが Down 状態の場合は blackhole 状"
-#~ "態となります。<br />名前は A-Z, a-z, 0-9, _ を含むことができますが、スペー"
-#~ "スは使用できません。<br />ルールは、設定済みのインターフェースやメンバー、"
-#~ "ポリシーと同じ名前を使用することはできません。"
-
-#~ msgid "Start MWAN"
-#~ msgstr "MWAN の起動"
-
-#~ msgid "Stop MWAN"
-#~ msgstr "MWAN の停止"
-
-#~ msgid "Tracking IP"
-#~ msgstr "追跡 IP"
-
-#~ msgid "Traffic Rules"
-#~ msgstr "トラフィック ルール"
-
-#~ msgid "Troubleshooting Data"
-#~ msgstr "トラブルシューティング データ"
-
-#~ msgid "View the contents of /etc/protocols for protocol descriptions"
-#~ msgstr ""
-#~ "プロトコルの説明については、 /etc/protocols の内容を確認してください。"
-
-#~ msgid ""
-#~ "WARNING: Some interfaces are configured incorrectly or not at all in /etc/"
-#~ "config/network!"
-#~ msgstr ""
-#~ "警告: 設定を誤っているか、もしくは完全に設定されていないインターフェースが"
-#~ "あります！"
-
-#~ msgid ""
-#~ "WARNING: Some interfaces have a higher reliability requirement than there "
-#~ "are tracking IP addresses!"
-#~ msgstr ""
-#~ "警告: 追跡 IP アドレスの個数より大きい追跡信頼性の値が設定されたインター"
-#~ "フェースがあります！"
-
-#~ msgid ""
-#~ "WARNING: Some interfaces have duplicate metrics configured in /etc/config/"
-#~ "network!"
-#~ msgstr ""
-#~ "警告: /etc/config/network で、重複するメトリックを設定されているインター"
-#~ "フェースがあります！"
-
-#~ msgid ""
-#~ "WARNING: Some interfaces have no default route in the main routing table!"
-#~ msgstr ""
-#~ "警告: メインのルーティング テーブルで、デフォルト ルートを設定されていない"
-#~ "インターフェースがあります！"
-
-#~ msgid ""
-#~ "WARNING: Some interfaces have no metric configured in /etc/config/network!"
-#~ msgstr ""
-#~ "警告: /etc/config/network で、メトリックを設定されていないインターフェース"
-#~ "があります！"
-
-#~ msgid ""
-#~ "WARNING: Some policies have names exceeding the maximum of 15 characters!"
-#~ msgstr ""
-#~ "警告: 最大文字数の 15 文字を超える名前が設定されているポリシーがあります！"
-
-#~ msgid ""
-#~ "WARNING: Some rules have a port configured with no or improper protocol "
-#~ "specified! Please configure a specific protocol!"
-#~ msgstr ""
-#~ "警告: 不適切なプロトコルが指定されている、または何も指定されていないポート"
-#~ "を設定されたルールがあります！プロトコルを指定し直してください！"
-
-#~ msgid ""
-#~ "WARNING: This and other interfaces have duplicate metrics configured in /"
-#~ "etc/config/network!"
-#~ msgstr ""
-#~ "警告: これと他のインターフェースで重複するメトリックが /etc/config/"
-#~ "network に設定されています！"
-
-#~ msgid ""
-#~ "WARNING: This interface has a higher reliability requirement than there "
-#~ "are tracking IP addresses!"
-#~ msgstr ""
-#~ "警告: このインターフェースは、追跡 IP アドレスの個数より大きい追跡信頼性の"
-#~ "値を設定されています！"
-
-#~ msgid ""
-#~ "WARNING: This interface has no default route in the main routing table!"
-#~ msgstr ""
-#~ "警告: このインターフェースは、メインのルーティング テーブルにデフォルト "
-#~ "ルートが設定されていません！"
-
-#~ msgid ""
-#~ "WARNING: This interface has no metric configured in /etc/config/network!"
-#~ msgstr ""
-#~ "警告: このインターフェースは、 /etc/config/network でメトリックが設定され"
-#~ "ていません！"
-
-#~ msgid ""
-#~ "WARNING: This interface is configured incorrectly or not at all in /etc/"
-#~ "config/network!"
-#~ msgstr ""
-#~ "警告: このインターフェースは /etc/config/network で設定が誤っているか、も"
-#~ "しくは完全に設定されていません！"
-
-#~ msgid ""
-#~ "WARNING: This policy's name is %d characters exceeding the maximum of 15!"
-#~ msgstr ""
-#~ "警告: このポリシーの名前は、最大文字数 15 文字を超える %d 文字が設定されて"
-#~ "います！"
-
-#~ msgid ""
-#~ "WARNING: This rule is incorrectly configured with no or improper protocol "
-#~ "specified! Please configure a specific protocol!"
-#~ msgstr ""
-#~ "警告: このルールは不適切なプロトコルが指定されているか、または何も指定され"
-#~ "ていません！プロトコルを指定し直してください！"
-
-#~ msgid "Waiting for MWAN to %s..."
-#~ msgstr "MWAN の %s を待っています..."
-
-#~ msgid "Waiting for diagnostic results..."
-#~ msgstr "診断結果を待っています..."
-
-#~ msgid "restart"
-#~ msgstr "再起動"
-
-#~ msgid "start"
-#~ msgstr "起動"
-
-#~ msgid "stop"
-#~ msgstr "停止"
-
-#~ msgid "Advanced"
-#~ msgstr "詳細設定"
-
-#~ msgid "Configuration"
-#~ msgstr "設定"
-
-#~ msgid "Hotplug Script"
-#~ msgstr "ホットプラグ スクリプト"
-
-#~ msgid "MWAN Config"
-#~ msgstr "MWAN 設定"
-
-#~ msgid "Network Config"
-#~ msgstr "ネットワーク設定"
-
-#~ msgid "Overview"
-#~ msgstr "概要"
-
-#~ msgid "This section allows you to modify the contents of /etc/config/mwan3"
-#~ msgstr ""
-#~ "このセクションでは、 /etc/config/mwan3 の内容を変更することができます。"
-
-#~ msgid ""
-#~ "This section allows you to modify the contents of /etc/config/network"
-#~ msgstr ""
-#~ "このセクションでは、 /etc/config/network の内容を変更することができます。"
-
-#~ msgid ""
-#~ "This section allows you to modify the contents of /etc/config/wireless"
-#~ msgstr ""
-#~ "このセクションでは、 /etc/config/wireless の内容を変更することができます。"
-
-#~ msgid "Wireless Config"
-#~ msgstr "無線設定"
