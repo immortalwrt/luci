@@ -1312,7 +1312,7 @@ end
 
 function interface.is_bridgeport(self)
 	return self.dev and self.dev.bridge and
-	       (self.dev.bridge.name != self:name()) and true or false
+	       (self.dev.bridge.name ~= self:name()) and true or false
 end
 
 function interface.tx_bytes(self)
