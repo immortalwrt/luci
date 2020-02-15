@@ -45,8 +45,11 @@
 		local conn_max = tonumber(luci.sys.exec(
 			"sysctl -n -e net.nf_conntrack_max net.ipv4.netfilter.ip_conntrack_max"
 		):match("%d+")) or 4096
+		
+		local user_info = tonumber(luci.sys.exec("cat /proc/net/arp | grep '0x2' | wc -l")) or 0
 
 		local rv = {
+			userinfo    = user_info,
 			uptime     = sysinfo.uptime or 0,
 			localtime  = os.date(),
 			loadavg    = sysinfo.load or { 0, 0, 0 },
@@ -379,7 +382,6 @@
 						tr.className = 'cbi-section-table-row cbi-rowstyle-' + ((i % 2) + 1);
 
 					tr.insertCell(-1).innerHTML = info.leases[i].hostname ? info.leases[i].hostname : '?';
-					tr.insertCell(-1).innerHTML = info.leases[i].comments ? info.leases[i].comments : '-';;
 					tr.insertCell(-1).innerHTML = info.leases[i].ipaddr;
 					tr.insertCell(-1).innerHTML = info.leases[i].macaddr;
 					tr.insertCell(-1).innerHTML = timestr;
@@ -632,6 +634,9 @@
 
 			if (e = document.getElementById('uptime'))
 				e.innerHTML = String.format('%t', info.uptime);
+				
+			if (e = document.getElementById('userinfo'))
+				e.innerHTML = info.userinfo;
 
 			if (e = document.getElementById('loadavg'))
 				e.innerHTML = String.format(
@@ -730,6 +735,7 @@
 			</tr></table>
 		</td></tr>
 		<% end %>
+		<tr><td width="33%"><%:Online Users%></td><td id="userinfo">0</td></tr>
 		<tr><td width="33%"><%:Active Connections%></td><td id="conns">-</td></tr>
 	</table>
 </fieldset>
@@ -741,7 +747,6 @@
 	<table class="cbi-section-table" id="lease_status_table">
 		<tr class="cbi-section-table-titles">
 			<th class="cbi-section-table-cell"><%:Hostname%></th>
-			<th class="cbi-section-table-cell"><%:Comments%></th>		
 			<th class="cbi-section-table-cell"><%:IPv4-Address%></th>
 			<th class="cbi-section-table-cell"><%:MAC-Address%></th>
 			<th class="cbi-section-table-cell"><%:Leasetime remaining%></th>
