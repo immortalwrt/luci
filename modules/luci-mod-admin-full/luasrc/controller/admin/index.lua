@@ -27,13 +27,13 @@ function index()
 	entry({"admin", "vpn"}, firstchild(), _("VPN"), 44).index = true
 
 	if nixio.fs.access("/www/login.sh") then
-		entry({"admin", "switch_to_gargoyle"}, call("act_switch_to_gargoyle"), _("Switch to Gargoyle"), 80)
+		entry({"admin", "gargoyle"}, call("act_gargoyle"), _("Gargoyle"), 80)
 	end
 
 	entry({"admin", "logout"}, call("action_logout"), _("Logout"), 90)
 end
 
-function act_switch_to_gargoyle()
+function act_gargoyle()
 	luci.http.redirect("/login.sh")
 end
 
