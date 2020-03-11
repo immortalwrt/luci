@@ -184,6 +184,11 @@ return L.view.extend({
 		s.taboption('files', form.DynamicList, 'addnhosts',
 			_('Additional Hosts files')).optional = true;
 
+		o = s.taboption('advanced', form.Flag, 'filter_aaaa',
+			_('Disable IPv6 DNS forwards'),
+			_('Filter IPv6(AAAA) DNS Query Name Resolve'));
+		o.optional = true;
+
 		o = s.taboption('advanced', form.Flag, 'quietdhcp',
 			_('Suppress logging'),
 			_('Suppress logging of the routine operation of these protocols'));
@@ -341,6 +346,13 @@ return L.view.extend({
 		o.optional = true;
 		o.datatype = 'range(0,10000)';
 		o.placeholder = 150;
+
+		o = s.taboption('advanced', form.Value, 'mini_ttl',
+			_('Minimum TTL to send to clients'),
+			_('Modify DNS entries minimum TTL (max is 86400, 0 is no modify)'));
+		o.optional = true;
+		o.datatype = 'range(0,86400)';
+		o.placeholder = 0;
 
 		s.taboption('tftp', form.Flag, 'enable_tftp',
 			_('Enable TFTP server')).optional = true;
