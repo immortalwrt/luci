@@ -51,23 +51,30 @@ function index()
 	toplevel_page(page, "admin/system/system", alias("admin", "system", "system"))
 
 	-- Only used if applications add items
-	page = node("admin", "vpn")
-	page.title = _("VPN")
+	page = node("admin", "services")
+	page.title = _("Services")
 	page.order = 30
 	page.index = true
 	toplevel_page(page, false, false)
 
 	-- Only used if applications add items
-	page = node("admin", "services")
-	page.title = _("Services")
+	page = node("admin", "nas")
+	page.title = _("NAS")
 	page.order = 40
+	page.index = true
+	toplevel_page(page, false, false)
+
+	-- Only used if applications add items
+	page = node("admin", "vpn")
+	page.title = _("VPN")
+	page.order = 50
 	page.index = true
 	toplevel_page(page, false, false)
 
 	-- Even for mod-admin-full network just uses first submenu item as landing
 	page = node("admin", "network")
 	page.title = _("Network")
-	page.order = 50
+	page.order = 60
 	page.index = true
 	toplevel_page(page, false, false)
 
