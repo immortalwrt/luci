@@ -24,6 +24,7 @@ return L.Class.extend({
 		return Promise.all([
 			L.resolveDefault(callSystemBoard(), {}),
 			L.resolveDefault(callSystemInfo(), {}),
+			L.resolveDefault(callCPUusage(), {}),
 			fs.lines('/usr/lib/lua/luci/version.lua')
 		]);
 	},
@@ -68,7 +69,7 @@ return L.Class.extend({
 				systeminfo.load[1] / 65535.0,
 				systeminfo.load[2] / 65535.0
 			) : null,
-			_('CPU usage (%)'),    cpuusage
+			_('CPU usage (%)'),    cpuusage.cpuusage
 		];
 
 		var table = E('div', { 'class': 'table' });

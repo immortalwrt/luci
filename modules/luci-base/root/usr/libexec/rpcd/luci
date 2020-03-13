@@ -616,16 +616,16 @@ local methods = {
 	getCPUusage ={
 		call = function()
 			local sys = require "luci.sys"
-			local cpuusage
+			local cpuusage = {}
 
 			sys.call("/bin/getcpu &")
-			cpuusage = sys.exec("cat /tmp//tmp/cpuusage")
+			cpuusage.cpuusage = sys.exec("cat /tmp/cpuusage 2>/dev/null")
 
-			if not cpuusage then
-				return "2.33%"
-			else
-				return cpuusage
+			if (cpuusage.cpuusage == nil) or (cpuusage.cpuusage == '') then
+				cpuusage.cpuusage = "2.33%"
 			end
+
+			return cpuusage
 		end
 	}
 }
