@@ -12,6 +12,11 @@ var callSystemInfo = rpc.declare({
 	method: 'info'
 });
 
+var callCPUusage = rpc.declare({
+	object: 'luci',
+	method: 'getCPUusage'
+});
+
 return L.Class.extend({
 	title: _('System'),
 
@@ -19,6 +24,7 @@ return L.Class.extend({
 		return Promise.all([
 			L.resolveDefault(callSystemBoard(), {}),
 			L.resolveDefault(callSystemInfo(), {}),
+			L.resolveDefault(callCPUusage(), {}),
 			fs.lines('/usr/lib/lua/luci/version.lua')
 		]);
 	},
@@ -26,7 +32,8 @@ return L.Class.extend({
 	render: function(data) {
 		var boardinfo   = data[0],
 		    systeminfo  = data[1],
-		    luciversion = data[2];
+		    cpuusage    = data[2],
+		    luciversion = data[3];
 
 		luciversion = luciversion.filter(function(l) {
 			return l.match(/^\s*(luciname|luciversion)\s*=/);
@@ -61,7 +68,8 @@ return L.Class.extend({
 				systeminfo.load[0] / 65535.0,
 				systeminfo.load[1] / 65535.0,
 				systeminfo.load[2] / 65535.0
-			) : null
+			) : null,
+			_('CPU usage (%)'),    cpuusage.cpuusage
 		];
 
 		var table = E('div', { 'class': 'table' });
