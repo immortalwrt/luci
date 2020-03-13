@@ -12,9 +12,9 @@ var callSystemInfo = rpc.declare({
 	method: 'info'
 });
 
-var callCPUusage = rpc.declare({
+var callCPUUsage = rpc.declare({
 	object: 'luci',
-	method: 'getCPUusage'
+	method: 'getCPUUsage'
 });
 
 return L.Class.extend({
@@ -24,7 +24,7 @@ return L.Class.extend({
 		return Promise.all([
 			L.resolveDefault(callSystemBoard(), {}),
 			L.resolveDefault(callSystemInfo(), {}),
-			L.resolveDefault(callCPUusage(), {}),
+			L.resolveDefault(callCPUUsage(), {}),
 			fs.lines('/usr/lib/lua/luci/version.lua')
 		]);
 	},
