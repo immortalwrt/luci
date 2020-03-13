@@ -613,7 +613,7 @@ local methods = {
 		end
 	},
 
-	getCPUusage ={
+	getCPUUsage = {
 		call = function()
 			local sys = require "luci.sys"
 			local cpuusage = {}
@@ -621,11 +621,22 @@ local methods = {
 			sys.call("/bin/getcpu &")
 			cpuusage.cpuusage = sys.exec("cat /tmp/cpuusage 2>/dev/null")
 
-			if (cpuusage.cpuusage == nil) or (cpuusage.cpuusage == '') then
+			if (cpuusage.cpuusage == nil) or (cpuusage.cpuusage == "") then
 				cpuusage.cpuusage = "2.33%"
 			end
 
 			return cpuusage
+		end
+	},
+
+	getOnlineUsers = {
+		call = function()
+			local sys = require "luci.sys"
+			local onlineusers = {}
+
+			onlineusers.onlineusers = sys.exec("cat /proc/net/arp | grep 'br-lan' | grep '0x2' | wc -l")
+			return onlineusers
+
 		end
 	}
 }
