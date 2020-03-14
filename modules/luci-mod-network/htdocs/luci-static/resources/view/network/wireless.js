@@ -1351,20 +1351,20 @@ return L.view.extend({
 
 					// Probe 802.11k support
 					o = ss.taboption('encryption', form.Flag, 'ieee80211k', _('802.11k'), _('Enables The 802.11k standard provides information to discover the best available access point'));
-					o.depends({ mode="ap", encryption="wpa" });
-					o.depends({ mode="ap", encryption="wpa2" });
-					o.depends({ mode="ap-wds", encryption="wpa" });
-					o.depends({ mode="ap-wds", encryption="wpa2" });
-					o.depends({ mode="ap", encryption="psk" });
-					o.depends({ mode="ap", encryption="psk2" });
-					o.depends({ mode="ap", encryption="psk-mixed" });
-					o.depends({ mode="ap-wds", encryption="psk" });
-					o.depends({ mode="ap-wds", encryption="psk2" });
-					o.depends({ mode="ap-wds", encryption="psk-mixed" });
-					o.depends({ mode="ap", encryption="sae" });
-					o.depends({ mode="ap", encryption="sae-mixed" });
-					o.depends({ mode="ap-wds", encryption="sae" });
-					o.depends({ mode="ap-wds", encryption="sae-mixed" });
+					o.depends({ mode: 'ap', encryption: 'wpa' });
+					o.depends({ mode: 'ap', encryption: 'wpa2' });
+					o.depends({ mode: 'ap-wds', encryption: 'wpa' });
+					o.depends({ mode: 'ap-wds', encryption: 'wpa2' });
+					o.depends({ mode: 'ap', encryption: 'psk' });
+					o.depends({ mode: 'ap', encryption: 'psk2' });
+					o.depends({ mode: 'ap', encryption: 'psk-mixed' });
+					o.depends({ mode: 'ap-wds', encryption: 'psk' });
+					o.depends({ mode: 'ap-wds', encryption: 'psk2' });
+					o.depends({ mode: 'ap-wds', encryption: 'psk-mixed' });
+					o.depends({ mode: 'ap', encryption: 'sae' });
+					o.depends({ mode: 'ap', encryption: 'sae-mixed' });
+					o.depends({ mode: 'ap-wds', encryption: 'sae' });
+					o.depends({ mode: 'ap-wds', encryption: 'sae-mixed' });
 					o.rmempty = true;
 
 					o = ss.taboption('encryption', form.Flag, 'rrm_neighbor_report', _('Enable neighbor report via radio measurements'));
@@ -1380,20 +1380,20 @@ return L.view.extend({
 
 					// Probe 802.11v support
 					o = ss.taboption('encryption', form.Flag, 'ieee80211v', _('802.11v'), _('Enables 802.11v allows client devices to exchange information about the network topology,tating overall improvement of the wireless network.'));
-					o.depends({ mode="ap", encryption="wpa" });
-					o.depends({ mode="ap", encryption="wpa2" });
-					o.depends({ mode="ap-wds", encryption="wpa" });
-					o.depends({ mode="ap-wds", encryption="wpa2" });
-					o.depends({ mode="ap", encryption="psk" });
-					o.depends({ mode="ap", encryption="psk2" });
-					o.depends({ mode="ap", encryption="psk-mixed" });
-					o.depends({ mode="ap-wds", encryption="psk" });
-					o.depends({ mode="ap-wds", encryption="psk2" });
-					o.depends({ mode="ap-wds", encryption="psk-mixed" });
-					o.depends({ mode="ap", encryption="sae" });
-					o.depends({ mode="ap", encryption="sae-mixed" });
-					o.depends({ mode="ap-wds", encryption="sae" });
-					o.depends({ mode="ap-wds", encryption="sae-mixed" });
+					o.depends({ mode: 'ap', encryption: 'wpa' });
+					o.depends({ mode: 'ap', encryption: 'wpa2' });
+					o.depends({ mode: 'ap-wds', encryption: 'wpa' });
+					o.depends({ mode: 'ap-wds', encryption: 'wpa2' });
+					o.depends({ mode: 'ap', encryption: 'psk' });
+					o.depends({ mode: 'ap', encryption: 'psk2' });
+					o.depends({ mode: 'ap', encryption: 'psk-mixed' });
+					o.depends({ mode: 'ap-wds', encryption: 'psk' });
+					o.depends({ mode: 'ap-wds', encryption: 'psk2' });
+					o.depends({ mode: 'ap-wds', encryption: 'psk-mixed' });
+					o.depends({ mode: 'ap', encryption: 'sae' });
+					o.depends({ mode: 'ap', encryption: 'sae-mixed' });
+					o.depends({ mode: 'ap-wds', encryption: 'sae' });
+					o.depends({ mode: 'ap-wds', encryption: 'sae-mixed' });
 					o.rmempty = true;
 
 					o = ss.taboption('encryption', form.Flag, 'wnm_sleep_mode', _('extended sleep mode for stations'));
