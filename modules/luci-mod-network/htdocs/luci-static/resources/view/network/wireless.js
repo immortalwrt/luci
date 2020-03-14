@@ -812,6 +812,9 @@ return L.view.extend({
 					o = ss.taboption('advanced', form.Flag, 'legacy_rates', _('Allow legacy 802.11b rates'));
 					o.default = o.enabled;
 
+					o = ss.taboption('advanced', form.Flag, 'mu_beamformer', _('MU-MIMO'));
+					o.default = o.disabled;
+
 					o = ss.taboption('advanced', form.Value, 'distance', _('Distance Optimization'), _('Distance to farthest network member in meters.'));
 					o.datatype = 'range(0,114750)';
 					o.placeholder = 'auto';
@@ -828,7 +831,7 @@ return L.view.extend({
 					o.rmempty = true;
 
 					o = ss.taboption('advanced', form.Flag, 'vendor_vht', _('Enable 256-QAM'), _('802.11n 2.4Ghz Only'));
-					o.default = o.enabled;
+					o.default = o.disabled;
 
 					o = ss.taboption('advanced', form.Value, 'beacon_int', _('Beacon Interval'));
 					o.datatype = 'range(15,65535)';
