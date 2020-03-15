@@ -128,7 +128,7 @@ ifeq ($(PKG_NAME),luci-base)
 
    config LUCI_CSSTIDY
         bool "Minify CSS files"
-        default y
+        default n
 
    menu "Translations"$(foreach lang,$(LUCI_LANGUAGES),
 
