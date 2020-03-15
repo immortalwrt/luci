@@ -1409,7 +1409,7 @@ return L.view.extend({
 					o.depends({ ieee80211v: '1' });
 					o.rmempty = true;
 
-					o = ss.taboption('encryption', form.ListValue, 'time_advertisement', _('Time advertisement"'));
+					o = ss.taboption('encryption', form.ListValue, 'time_advertisement', _('Time advertisement'));
 					o.depends({ ieee80211v: '1' });
 					o.value('0', _('disabled'));
 					o.value('2', _('UTC time at which the TSF timer is 0'));
