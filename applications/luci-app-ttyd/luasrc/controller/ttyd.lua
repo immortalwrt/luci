@@ -7,7 +7,7 @@ function index()
 		return
 	end
 
-	entry({"admin", "services", "ttyd"}, firstchild(), _("ttyd"))
-	entry({"admin", "services", "ttyd", "ttyd"}, view("ttyd/term"), _("Terminal"), 1)
-	entry({"admin", "services", "ttyd", "config"}, view("ttyd/config"), _("Config"), 2)
+	entry({"admin", "system", "ttyd"}, firstchild(), _("ttyd"))
+	entry({"admin", "system", "ttyd", "ttyd"}, view("ttyd/term"), _("Terminal"), 1)
+	entry({"admin", "system", "ttyd", "config"}, view("ttyd/config"), _("Config"), 2)
 end
