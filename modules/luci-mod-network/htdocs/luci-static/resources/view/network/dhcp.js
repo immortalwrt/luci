@@ -241,6 +241,10 @@ return L.view.extend({
 			_('No negative cache'),
 			_('Do not cache negative replies, e.g. for not existing domains'));
 
+		s.taboption('advanced', form.Flag, 'allservers',
+			_('Use all servers'),
+			_('Setting this flag forces dnsmasq to send all queries to all available servers. The reply from the server which answers first will be returned to the original requester.'));
+
 		s.taboption('advanced', form.Value, 'serversfile',
 			_('Additional servers file'),
 			_('This file may contain lines like \'server=/domain/1.2.3.4\' or \'server=1.2.3.4\' for domain-specific or full upstream <abbr title="Domain Name System">DNS</abbr> servers.'));
@@ -561,5 +565,19 @@ return L.view.extend({
 
 			return mapEl;
 		});
+
+		s = m.section(form.TypedSection, 'domain', _('Custom Redirect Domain')
+		_('Define a custom domain name and the corresponding PTR record'));
+		s.anonymous = true;
+		s.addremove = false;
+
+		o = s.option(form.Value, 'name', _('Domain Name'));
+		o.rmempty = true;
+
+		o = s.option(form.Value, 'ip', _('<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Address'));
+		o.datatype = 'or(ip4addr,"ignore")';
+
+		o = s.option(form.Value, 'comments', _('Comments'));
+		o.rmempty = true;
 	}
 });
