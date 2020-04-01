@@ -1,4 +1,1698 @@
-'use strict';
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Source: ui.js</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+    
+    
+    <script>
+    var config = {"monospaceLinks":true,"cleverLinks":true,"default":{"outputSourceFiles":true}};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html"></a></h3>
+
+    <div class="search">
+        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
+    </div>
+    <ul class="list">
+    
+        <li class="item" data-name="LuCI">
+            <span class="title">
+                <a href="LuCI.html">LuCI</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="LuCI#env"><a href="LuCI.html#env">env</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.requestCallbackFn"><a href="LuCI.html#.requestCallbackFn">requestCallbackFn</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI#bind"><a href="LuCI.html#bind">bind</a></li>
+            
+                <li data-name="LuCI#error"><a href="LuCI.html#error">error</a></li>
+            
+                <li data-name="LuCI#get"><a href="LuCI.html#get">get</a></li>
+            
+                <li data-name="LuCI#halt"><a href="LuCI.html#halt">halt</a></li>
+            
+                <li data-name="LuCI#hasSystemFeature"><a href="LuCI.html#hasSystemFeature">hasSystemFeature</a></li>
+            
+                <li data-name="LuCI#isObject"><a href="LuCI.html#isObject">isObject</a></li>
+            
+                <li data-name="LuCI#location"><a href="LuCI.html#location">location</a></li>
+            
+                <li data-name="LuCI#media"><a href="LuCI.html#media">media</a></li>
+            
+                <li data-name="LuCI#path"><a href="LuCI.html#path">path</a></li>
+            
+                <li data-name="LuCI#poll"><a href="LuCI.html#poll">poll</a></li>
+            
+                <li data-name="LuCI#post"><a href="LuCI.html#post">post</a></li>
+            
+                <li data-name="LuCI#raise"><a href="LuCI.html#raise">raise</a></li>
+            
+                <li data-name="LuCI#require"><a href="LuCI.html#require">require</a></li>
+            
+                <li data-name="LuCI#resolveDefault"><a href="LuCI.html#resolveDefault">resolveDefault</a></li>
+            
+                <li data-name="LuCI#resource"><a href="LuCI.html#resource">resource</a></li>
+            
+                <li data-name="LuCI#run"><a href="LuCI.html#run">run</a></li>
+            
+                <li data-name="LuCI#sortedKeys"><a href="LuCI.html#sortedKeys">sortedKeys</a></li>
+            
+                <li data-name="LuCI#stop"><a href="LuCI.html#stop">stop</a></li>
+            
+                <li data-name="LuCI#toArray"><a href="LuCI.html#toArray">toArray</a></li>
+            
+                <li data-name="LuCI#url"><a href="LuCI.html#url">url</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Class">
+            <span class="title">
+                <a href="LuCI.Class.html">LuCI.Class</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Class.extend"><a href="LuCI.Class.html#.extend">extend</a></li>
+            
+                <li data-name="LuCI.Class.instantiate"><a href="LuCI.Class.html#.instantiate">instantiate</a></li>
+            
+                <li data-name="LuCI.Class.isSubclass"><a href="LuCI.Class.html#.isSubclass">isSubclass</a></li>
+            
+                <li data-name="LuCI.Class.singleton"><a href="LuCI.Class.html#.singleton">singleton</a></li>
+            
+                <li data-name="LuCI.Class#super"><a href="LuCI.Class.html#super">super</a></li>
+            
+                <li data-name="LuCI.Class#varargs"><a href="LuCI.Class.html#varargs">varargs</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.dom">
+            <span class="title">
+                <a href="LuCI.dom.html">LuCI.dom</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.dom~ignoreCallbackFn"><a href="LuCI.dom.html#~ignoreCallbackFn">ignoreCallbackFn</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.dom#append"><a href="LuCI.dom.html#append">append</a></li>
+            
+                <li data-name="LuCI.dom#attr"><a href="LuCI.dom.html#attr">attr</a></li>
+            
+                <li data-name="LuCI.dom#bindClassInstance"><a href="LuCI.dom.html#bindClassInstance">bindClassInstance</a></li>
+            
+                <li data-name="LuCI.dom#callClassMethod"><a href="LuCI.dom.html#callClassMethod">callClassMethod</a></li>
+            
+                <li data-name="LuCI.dom#content"><a href="LuCI.dom.html#content">content</a></li>
+            
+                <li data-name="LuCI.dom#create"><a href="LuCI.dom.html#create">create</a></li>
+            
+                <li data-name="LuCI.dom#data"><a href="LuCI.dom.html#data">data</a></li>
+            
+                <li data-name="LuCI.dom#elem"><a href="LuCI.dom.html#elem">elem</a></li>
+            
+                <li data-name="LuCI.dom#findClassInstance"><a href="LuCI.dom.html#findClassInstance">findClassInstance</a></li>
+            
+                <li data-name="LuCI.dom#isEmpty"><a href="LuCI.dom.html#isEmpty">isEmpty</a></li>
+            
+                <li data-name="LuCI.dom#matches"><a href="LuCI.dom.html#matches">matches</a></li>
+            
+                <li data-name="LuCI.dom#parent"><a href="LuCI.dom.html#parent">parent</a></li>
+            
+                <li data-name="LuCI.dom#parse"><a href="LuCI.dom.html#parse">parse</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.fs">
+            <span class="title">
+                <a href="LuCI.fs.html">LuCI.fs</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.fs.FileExecResult"><a href="LuCI.fs.html#.FileExecResult">FileExecResult</a></li>
+            
+                <li data-name="LuCI.fs.FileStatEntry"><a href="LuCI.fs.html#.FileStatEntry">FileStatEntry</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.fs#exec"><a href="LuCI.fs.html#exec">exec</a></li>
+            
+                <li data-name="LuCI.fs#exec_direct"><a href="LuCI.fs.html#exec_direct">exec_direct</a></li>
+            
+                <li data-name="LuCI.fs#lines"><a href="LuCI.fs.html#lines">lines</a></li>
+            
+                <li data-name="LuCI.fs#list"><a href="LuCI.fs.html#list">list</a></li>
+            
+                <li data-name="LuCI.fs#read"><a href="LuCI.fs.html#read">read</a></li>
+            
+                <li data-name="LuCI.fs#read_direct"><a href="LuCI.fs.html#read_direct">read_direct</a></li>
+            
+                <li data-name="LuCI.fs#remove"><a href="LuCI.fs.html#remove">remove</a></li>
+            
+                <li data-name="LuCI.fs#stat"><a href="LuCI.fs.html#stat">stat</a></li>
+            
+                <li data-name="LuCI.fs#trimmed"><a href="LuCI.fs.html#trimmed">trimmed</a></li>
+            
+                <li data-name="LuCI.fs#write"><a href="LuCI.fs.html#write">write</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Headers">
+            <span class="title">
+                <a href="LuCI.Headers.html">LuCI.Headers</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Headers#get"><a href="LuCI.Headers.html#get">get</a></li>
+            
+                <li data-name="LuCI.Headers#has"><a href="LuCI.Headers.html#has">has</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Network">
+            <span class="title">
+                <a href="LuCI.Network.html">LuCI.Network</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.Network.SwitchTopology"><a href="LuCI.Network.html#.SwitchTopology">SwitchTopology</a></li>
+            
+                <li data-name="LuCI.Network.WifiEncryption"><a href="LuCI.Network.html#.WifiEncryption">WifiEncryption</a></li>
+            
+                <li data-name="LuCI.Network.WifiPeerEntry"><a href="LuCI.Network.html#.WifiPeerEntry">WifiPeerEntry</a></li>
+            
+                <li data-name="LuCI.Network.WifiRateEntry"><a href="LuCI.Network.html#.WifiRateEntry">WifiRateEntry</a></li>
+            
+                <li data-name="LuCI.Network.WifiScanResult"><a href="LuCI.Network.html#.WifiScanResult">WifiScanResult</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Network#addNetwork"><a href="LuCI.Network.html#addNetwork">addNetwork</a></li>
+            
+                <li data-name="LuCI.Network#addWifiNetwork"><a href="LuCI.Network.html#addWifiNetwork">addWifiNetwork</a></li>
+            
+                <li data-name="LuCI.Network#deleteNetwork"><a href="LuCI.Network.html#deleteNetwork">deleteNetwork</a></li>
+            
+                <li data-name="LuCI.Network#deleteWifiNetwork"><a href="LuCI.Network.html#deleteWifiNetwork">deleteWifiNetwork</a></li>
+            
+                <li data-name="LuCI.Network#flushCache"><a href="LuCI.Network.html#flushCache">flushCache</a></li>
+            
+                <li data-name="LuCI.Network#formatWifiEncryption"><a href="LuCI.Network.html#formatWifiEncryption">formatWifiEncryption</a></li>
+            
+                <li data-name="LuCI.Network#getDevice"><a href="LuCI.Network.html#getDevice">getDevice</a></li>
+            
+                <li data-name="LuCI.Network#getDevices"><a href="LuCI.Network.html#getDevices">getDevices</a></li>
+            
+                <li data-name="LuCI.Network#getDSLModemType"><a href="LuCI.Network.html#getDSLModemType">getDSLModemType</a></li>
+            
+                <li data-name="LuCI.Network#getHostHints"><a href="LuCI.Network.html#getHostHints">getHostHints</a></li>
+            
+                <li data-name="LuCI.Network#getIfnameOf"><a href="LuCI.Network.html#getIfnameOf">getIfnameOf</a></li>
+            
+                <li data-name="LuCI.Network#getNetwork"><a href="LuCI.Network.html#getNetwork">getNetwork</a></li>
+            
+                <li data-name="LuCI.Network#getNetworks"><a href="LuCI.Network.html#getNetworks">getNetworks</a></li>
+            
+                <li data-name="LuCI.Network#getProtocol"><a href="LuCI.Network.html#getProtocol">getProtocol</a></li>
+            
+                <li data-name="LuCI.Network#getProtocols"><a href="LuCI.Network.html#getProtocols">getProtocols</a></li>
+            
+                <li data-name="LuCI.Network#getSwitchTopologies"><a href="LuCI.Network.html#getSwitchTopologies">getSwitchTopologies</a></li>
+            
+                <li data-name="LuCI.Network#getWAN6Networks"><a href="LuCI.Network.html#getWAN6Networks">getWAN6Networks</a></li>
+            
+                <li data-name="LuCI.Network#getWANNetworks"><a href="LuCI.Network.html#getWANNetworks">getWANNetworks</a></li>
+            
+                <li data-name="LuCI.Network#getWifiDevice"><a href="LuCI.Network.html#getWifiDevice">getWifiDevice</a></li>
+            
+                <li data-name="LuCI.Network#getWifiDevices"><a href="LuCI.Network.html#getWifiDevices">getWifiDevices</a></li>
+            
+                <li data-name="LuCI.Network#getWifiNetwork"><a href="LuCI.Network.html#getWifiNetwork">getWifiNetwork</a></li>
+            
+                <li data-name="LuCI.Network#getWifiNetworks"><a href="LuCI.Network.html#getWifiNetworks">getWifiNetworks</a></li>
+            
+                <li data-name="LuCI.Network#isIgnoredDevice"><a href="LuCI.Network.html#isIgnoredDevice">isIgnoredDevice</a></li>
+            
+                <li data-name="LuCI.Network#maskToPrefix"><a href="LuCI.Network.html#maskToPrefix">maskToPrefix</a></li>
+            
+                <li data-name="LuCI.Network#prefixToMask"><a href="LuCI.Network.html#prefixToMask">prefixToMask</a></li>
+            
+                <li data-name="LuCI.Network#registerErrorCode"><a href="LuCI.Network.html#registerErrorCode">registerErrorCode</a></li>
+            
+                <li data-name="LuCI.Network#registerPatternVirtual"><a href="LuCI.Network.html#registerPatternVirtual">registerPatternVirtual</a></li>
+            
+                <li data-name="LuCI.Network#registerProtocol"><a href="LuCI.Network.html#registerProtocol">registerProtocol</a></li>
+            
+                <li data-name="LuCI.Network#renameNetwork"><a href="LuCI.Network.html#renameNetwork">renameNetwork</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Network.Device">
+            <span class="title">
+                <a href="LuCI.Network.Device.html">LuCI.Network.Device</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Network.Device#getBridgeID"><a href="LuCI.Network.Device.html#getBridgeID">getBridgeID</a></li>
+            
+                <li data-name="LuCI.Network.Device#getBridgeSTP"><a href="LuCI.Network.Device.html#getBridgeSTP">getBridgeSTP</a></li>
+            
+                <li data-name="LuCI.Network.Device#getI18n"><a href="LuCI.Network.Device.html#getI18n">getI18n</a></li>
+            
+                <li data-name="LuCI.Network.Device#getIP6Addrs"><a href="LuCI.Network.Device.html#getIP6Addrs">getIP6Addrs</a></li>
+            
+                <li data-name="LuCI.Network.Device#getIPAddrs"><a href="LuCI.Network.Device.html#getIPAddrs">getIPAddrs</a></li>
+            
+                <li data-name="LuCI.Network.Device#getMAC"><a href="LuCI.Network.Device.html#getMAC">getMAC</a></li>
+            
+                <li data-name="LuCI.Network.Device#getMTU"><a href="LuCI.Network.Device.html#getMTU">getMTU</a></li>
+            
+                <li data-name="LuCI.Network.Device#getName"><a href="LuCI.Network.Device.html#getName">getName</a></li>
+            
+                <li data-name="LuCI.Network.Device#getNetwork"><a href="LuCI.Network.Device.html#getNetwork">getNetwork</a></li>
+            
+                <li data-name="LuCI.Network.Device#getNetworks"><a href="LuCI.Network.Device.html#getNetworks">getNetworks</a></li>
+            
+                <li data-name="LuCI.Network.Device#getPorts"><a href="LuCI.Network.Device.html#getPorts">getPorts</a></li>
+            
+                <li data-name="LuCI.Network.Device#getRXBytes"><a href="LuCI.Network.Device.html#getRXBytes">getRXBytes</a></li>
+            
+                <li data-name="LuCI.Network.Device#getRXPackets"><a href="LuCI.Network.Device.html#getRXPackets">getRXPackets</a></li>
+            
+                <li data-name="LuCI.Network.Device#getShortName"><a href="LuCI.Network.Device.html#getShortName">getShortName</a></li>
+            
+                <li data-name="LuCI.Network.Device#getTXBytes"><a href="LuCI.Network.Device.html#getTXBytes">getTXBytes</a></li>
+            
+                <li data-name="LuCI.Network.Device#getTXPackets"><a href="LuCI.Network.Device.html#getTXPackets">getTXPackets</a></li>
+            
+                <li data-name="LuCI.Network.Device#getType"><a href="LuCI.Network.Device.html#getType">getType</a></li>
+            
+                <li data-name="LuCI.Network.Device#getTypeI18n"><a href="LuCI.Network.Device.html#getTypeI18n">getTypeI18n</a></li>
+            
+                <li data-name="LuCI.Network.Device#getWifiNetwork"><a href="LuCI.Network.Device.html#getWifiNetwork">getWifiNetwork</a></li>
+            
+                <li data-name="LuCI.Network.Device#isBridge"><a href="LuCI.Network.Device.html#isBridge">isBridge</a></li>
+            
+                <li data-name="LuCI.Network.Device#isBridgePort"><a href="LuCI.Network.Device.html#isBridgePort">isBridgePort</a></li>
+            
+                <li data-name="LuCI.Network.Device#isUp"><a href="LuCI.Network.Device.html#isUp">isUp</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Network.Hosts">
+            <span class="title">
+                <a href="LuCI.Network.Hosts.html">LuCI.Network.Hosts</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Network.Hosts#getHostnameByIP6Addr"><a href="LuCI.Network.Hosts.html#getHostnameByIP6Addr">getHostnameByIP6Addr</a></li>
+            
+                <li data-name="LuCI.Network.Hosts#getHostnameByIPAddr"><a href="LuCI.Network.Hosts.html#getHostnameByIPAddr">getHostnameByIPAddr</a></li>
+            
+                <li data-name="LuCI.Network.Hosts#getHostnameByMACAddr"><a href="LuCI.Network.Hosts.html#getHostnameByMACAddr">getHostnameByMACAddr</a></li>
+            
+                <li data-name="LuCI.Network.Hosts#getIP6AddrByMACAddr"><a href="LuCI.Network.Hosts.html#getIP6AddrByMACAddr">getIP6AddrByMACAddr</a></li>
+            
+                <li data-name="LuCI.Network.Hosts#getIPAddrByMACAddr"><a href="LuCI.Network.Hosts.html#getIPAddrByMACAddr">getIPAddrByMACAddr</a></li>
+            
+                <li data-name="LuCI.Network.Hosts#getMACAddrByIP6Addr"><a href="LuCI.Network.Hosts.html#getMACAddrByIP6Addr">getMACAddrByIP6Addr</a></li>
+            
+                <li data-name="LuCI.Network.Hosts#getMACAddrByIPAddr"><a href="LuCI.Network.Hosts.html#getMACAddrByIPAddr">getMACAddrByIPAddr</a></li>
+            
+                <li data-name="LuCI.Network.Hosts#getMACHints"><a href="LuCI.Network.Hosts.html#getMACHints">getMACHints</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Network.Protocol">
+            <span class="title">
+                <a href="LuCI.Network.Protocol.html">LuCI.Network.Protocol</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Network.Protocol#addDevice"><a href="LuCI.Network.Protocol.html#addDevice">addDevice</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#containsDevice"><a href="LuCI.Network.Protocol.html#containsDevice">containsDevice</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#deleteConfiguration"><a href="LuCI.Network.Protocol.html#deleteConfiguration">deleteConfiguration</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#deleteDevice"><a href="LuCI.Network.Protocol.html#deleteDevice">deleteDevice</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#get"><a href="LuCI.Network.Protocol.html#get">get</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getDevice"><a href="LuCI.Network.Protocol.html#getDevice">getDevice</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getDevices"><a href="LuCI.Network.Protocol.html#getDevices">getDevices</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getDNS6Addrs"><a href="LuCI.Network.Protocol.html#getDNS6Addrs">getDNS6Addrs</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getDNSAddrs"><a href="LuCI.Network.Protocol.html#getDNSAddrs">getDNSAddrs</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getErrors"><a href="LuCI.Network.Protocol.html#getErrors">getErrors</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getExpiry"><a href="LuCI.Network.Protocol.html#getExpiry">getExpiry</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getGateway6Addr"><a href="LuCI.Network.Protocol.html#getGateway6Addr">getGateway6Addr</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getGatewayAddr"><a href="LuCI.Network.Protocol.html#getGatewayAddr">getGatewayAddr</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getI18n"><a href="LuCI.Network.Protocol.html#getI18n">getI18n</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getIfname"><a href="LuCI.Network.Protocol.html#getIfname">getIfname</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getIP6Addr"><a href="LuCI.Network.Protocol.html#getIP6Addr">getIP6Addr</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getIP6Addrs"><a href="LuCI.Network.Protocol.html#getIP6Addrs">getIP6Addrs</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getIP6Prefix"><a href="LuCI.Network.Protocol.html#getIP6Prefix">getIP6Prefix</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getIPAddr"><a href="LuCI.Network.Protocol.html#getIPAddr">getIPAddr</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getIPAddrs"><a href="LuCI.Network.Protocol.html#getIPAddrs">getIPAddrs</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getL2Device"><a href="LuCI.Network.Protocol.html#getL2Device">getL2Device</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getL3Device"><a href="LuCI.Network.Protocol.html#getL3Device">getL3Device</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getMetric"><a href="LuCI.Network.Protocol.html#getMetric">getMetric</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getName"><a href="LuCI.Network.Protocol.html#getName">getName</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getNetmask"><a href="LuCI.Network.Protocol.html#getNetmask">getNetmask</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getOpkgPackage"><a href="LuCI.Network.Protocol.html#getOpkgPackage">getOpkgPackage</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getProtocol"><a href="LuCI.Network.Protocol.html#getProtocol">getProtocol</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getType"><a href="LuCI.Network.Protocol.html#getType">getType</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getUptime"><a href="LuCI.Network.Protocol.html#getUptime">getUptime</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#getZoneName"><a href="LuCI.Network.Protocol.html#getZoneName">getZoneName</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#isAlias"><a href="LuCI.Network.Protocol.html#isAlias">isAlias</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#isBridge"><a href="LuCI.Network.Protocol.html#isBridge">isBridge</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#isCreateable"><a href="LuCI.Network.Protocol.html#isCreateable">isCreateable</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#isDynamic"><a href="LuCI.Network.Protocol.html#isDynamic">isDynamic</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#isEmpty"><a href="LuCI.Network.Protocol.html#isEmpty">isEmpty</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#isFloating"><a href="LuCI.Network.Protocol.html#isFloating">isFloating</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#isInstalled"><a href="LuCI.Network.Protocol.html#isInstalled">isInstalled</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#isUp"><a href="LuCI.Network.Protocol.html#isUp">isUp</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#isVirtual"><a href="LuCI.Network.Protocol.html#isVirtual">isVirtual</a></li>
+            
+                <li data-name="LuCI.Network.Protocol#set"><a href="LuCI.Network.Protocol.html#set">set</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Network.WifiDevice">
+            <span class="title">
+                <a href="LuCI.Network.WifiDevice.html">LuCI.Network.WifiDevice</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Network.WifiDevice#addWifiNetwork"><a href="LuCI.Network.WifiDevice.html#addWifiNetwork">addWifiNetwork</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#deleteWifiNetwork"><a href="LuCI.Network.WifiDevice.html#deleteWifiNetwork">deleteWifiNetwork</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#get"><a href="LuCI.Network.WifiDevice.html#get">get</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#getHTModes"><a href="LuCI.Network.WifiDevice.html#getHTModes">getHTModes</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#getHWModes"><a href="LuCI.Network.WifiDevice.html#getHWModes">getHWModes</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#getI18n"><a href="LuCI.Network.WifiDevice.html#getI18n">getI18n</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#getName"><a href="LuCI.Network.WifiDevice.html#getName">getName</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#getScanList"><a href="LuCI.Network.WifiDevice.html#getScanList">getScanList</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#getWifiNetwork"><a href="LuCI.Network.WifiDevice.html#getWifiNetwork">getWifiNetwork</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#getWifiNetworks"><a href="LuCI.Network.WifiDevice.html#getWifiNetworks">getWifiNetworks</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#isDisabled"><a href="LuCI.Network.WifiDevice.html#isDisabled">isDisabled</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#isUp"><a href="LuCI.Network.WifiDevice.html#isUp">isUp</a></li>
+            
+                <li data-name="LuCI.Network.WifiDevice#set"><a href="LuCI.Network.WifiDevice.html#set">set</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Network.WifiNetwork">
+            <span class="title">
+                <a href="LuCI.Network.WifiNetwork.html">LuCI.Network.WifiNetwork</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Network.WifiNetwork#disconnectClient"><a href="LuCI.Network.WifiNetwork.html#disconnectClient">disconnectClient</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#get"><a href="LuCI.Network.WifiNetwork.html#get">get</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getActiveBSSID"><a href="LuCI.Network.WifiNetwork.html#getActiveBSSID">getActiveBSSID</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getActiveEncryption"><a href="LuCI.Network.WifiNetwork.html#getActiveEncryption">getActiveEncryption</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getActiveMode"><a href="LuCI.Network.WifiNetwork.html#getActiveMode">getActiveMode</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getActiveModeI18n"><a href="LuCI.Network.WifiNetwork.html#getActiveModeI18n">getActiveModeI18n</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getActiveSSID"><a href="LuCI.Network.WifiNetwork.html#getActiveSSID">getActiveSSID</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getAssocList"><a href="LuCI.Network.WifiNetwork.html#getAssocList">getAssocList</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getBitRate"><a href="LuCI.Network.WifiNetwork.html#getBitRate">getBitRate</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getBSSID"><a href="LuCI.Network.WifiNetwork.html#getBSSID">getBSSID</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getChannel"><a href="LuCI.Network.WifiNetwork.html#getChannel">getChannel</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getCountryCode"><a href="LuCI.Network.WifiNetwork.html#getCountryCode">getCountryCode</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getDevice"><a href="LuCI.Network.WifiNetwork.html#getDevice">getDevice</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getFrequency"><a href="LuCI.Network.WifiNetwork.html#getFrequency">getFrequency</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getI18n"><a href="LuCI.Network.WifiNetwork.html#getI18n">getI18n</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getID"><a href="LuCI.Network.WifiNetwork.html#getID">getID</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getIfname"><a href="LuCI.Network.WifiNetwork.html#getIfname">getIfname</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getMeshID"><a href="LuCI.Network.WifiNetwork.html#getMeshID">getMeshID</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getMode"><a href="LuCI.Network.WifiNetwork.html#getMode">getMode</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getName"><a href="LuCI.Network.WifiNetwork.html#getName">getName</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getNetwork"><a href="LuCI.Network.WifiNetwork.html#getNetwork">getNetwork</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getNetworkNames"><a href="LuCI.Network.WifiNetwork.html#getNetworkNames">getNetworkNames</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getNetworks"><a href="LuCI.Network.WifiNetwork.html#getNetworks">getNetworks</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getNoise"><a href="LuCI.Network.WifiNetwork.html#getNoise">getNoise</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getShortName"><a href="LuCI.Network.WifiNetwork.html#getShortName">getShortName</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getSignal"><a href="LuCI.Network.WifiNetwork.html#getSignal">getSignal</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getSignalLevel"><a href="LuCI.Network.WifiNetwork.html#getSignalLevel">getSignalLevel</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getSignalPercent"><a href="LuCI.Network.WifiNetwork.html#getSignalPercent">getSignalPercent</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getSSID"><a href="LuCI.Network.WifiNetwork.html#getSSID">getSSID</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getTXPower"><a href="LuCI.Network.WifiNetwork.html#getTXPower">getTXPower</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getTXPowerOffset"><a href="LuCI.Network.WifiNetwork.html#getTXPowerOffset">getTXPowerOffset</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getWifiDevice"><a href="LuCI.Network.WifiNetwork.html#getWifiDevice">getWifiDevice</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#getWifiDeviceName"><a href="LuCI.Network.WifiNetwork.html#getWifiDeviceName">getWifiDeviceName</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#isClientDisconnectSupported"><a href="LuCI.Network.WifiNetwork.html#isClientDisconnectSupported">isClientDisconnectSupported</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#isDisabled"><a href="LuCI.Network.WifiNetwork.html#isDisabled">isDisabled</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#isUp"><a href="LuCI.Network.WifiNetwork.html#isUp">isUp</a></li>
+            
+                <li data-name="LuCI.Network.WifiNetwork#set"><a href="LuCI.Network.WifiNetwork.html#set">set</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Poll">
+            <span class="title">
+                <a href="LuCI.Poll.html">LuCI.Poll</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Poll#active"><a href="LuCI.Poll.html#active">active</a></li>
+            
+                <li data-name="LuCI.Poll#add"><a href="LuCI.Poll.html#add">add</a></li>
+            
+                <li data-name="LuCI.Poll#remove"><a href="LuCI.Poll.html#remove">remove</a></li>
+            
+                <li data-name="LuCI.Poll#start"><a href="LuCI.Poll.html#start">start</a></li>
+            
+                <li data-name="LuCI.Poll#stop"><a href="LuCI.Poll.html#stop">stop</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Request">
+            <span class="title">
+                <a href="LuCI.Request.html">LuCI.Request</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.Request.interceptorFn"><a href="LuCI.Request.html#.interceptorFn">interceptorFn</a></li>
+            
+                <li data-name="LuCI.Request.RequestOptions"><a href="LuCI.Request.html#.RequestOptions">RequestOptions</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Request#addInterceptor"><a href="LuCI.Request.html#addInterceptor">addInterceptor</a></li>
+            
+                <li data-name="LuCI.Request#expandURL"><a href="LuCI.Request.html#expandURL">expandURL</a></li>
+            
+                <li data-name="LuCI.Request#get"><a href="LuCI.Request.html#get">get</a></li>
+            
+                <li data-name="LuCI.Request#post"><a href="LuCI.Request.html#post">post</a></li>
+            
+                <li data-name="LuCI.Request#removeInterceptor"><a href="LuCI.Request.html#removeInterceptor">removeInterceptor</a></li>
+            
+                <li data-name="LuCI.Request#request"><a href="LuCI.Request.html#request">request</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Request.poll">
+            <span class="title">
+                <a href="LuCI.Request.poll.html">LuCI.Request.poll</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.Request.poll~callbackFn"><a href="LuCI.Request.poll.html#~callbackFn">callbackFn</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Request.poll#active"><a href="LuCI.Request.poll.html#active">active</a></li>
+            
+                <li data-name="LuCI.Request.poll#add"><a href="LuCI.Request.poll.html#add">add</a></li>
+            
+                <li data-name="LuCI.Request.poll#remove"><a href="LuCI.Request.poll.html#remove">remove</a></li>
+            
+                <li data-name="LuCI.Request.poll#start"><a href="LuCI.Request.poll.html#start">start</a></li>
+            
+                <li data-name="LuCI.Request.poll#stop"><a href="LuCI.Request.poll.html#stop">stop</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.Response">
+            <span class="title">
+                <a href="LuCI.Response.html">LuCI.Response</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="LuCI.Response#duration"><a href="LuCI.Response.html#duration">duration</a></li>
+            
+                <li data-name="LuCI.Response#headers"><a href="LuCI.Response.html#headers">headers</a></li>
+            
+                <li data-name="LuCI.Response#ok"><a href="LuCI.Response.html#ok">ok</a></li>
+            
+                <li data-name="LuCI.Response#status"><a href="LuCI.Response.html#status">status</a></li>
+            
+                <li data-name="LuCI.Response#statusText"><a href="LuCI.Response.html#statusText">statusText</a></li>
+            
+                <li data-name="LuCI.Response#url"><a href="LuCI.Response.html#url">url</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.Response#blob"><a href="LuCI.Response.html#blob">blob</a></li>
+            
+                <li data-name="LuCI.Response#clone"><a href="LuCI.Response.html#clone">clone</a></li>
+            
+                <li data-name="LuCI.Response#json"><a href="LuCI.Response.html#json">json</a></li>
+            
+                <li data-name="LuCI.Response#text"><a href="LuCI.Response.html#text">text</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.rpc">
+            <span class="title">
+                <a href="LuCI.rpc.html">LuCI.rpc</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.rpc.DeclareOptions"><a href="LuCI.rpc.html#.DeclareOptions">DeclareOptions</a></li>
+            
+                <li data-name="LuCI.rpc~filterFn"><a href="LuCI.rpc.html#~filterFn">filterFn</a></li>
+            
+                <li data-name="LuCI.rpc~interceptorFn"><a href="LuCI.rpc.html#~interceptorFn">interceptorFn</a></li>
+            
+                <li data-name="LuCI.rpc~invokeFn"><a href="LuCI.rpc.html#~invokeFn">invokeFn</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.rpc#addInterceptor"><a href="LuCI.rpc.html#addInterceptor">addInterceptor</a></li>
+            
+                <li data-name="LuCI.rpc#declare"><a href="LuCI.rpc.html#declare">declare</a></li>
+            
+                <li data-name="LuCI.rpc#getBaseURL"><a href="LuCI.rpc.html#getBaseURL">getBaseURL</a></li>
+            
+                <li data-name="LuCI.rpc#getSessionID"><a href="LuCI.rpc.html#getSessionID">getSessionID</a></li>
+            
+                <li data-name="LuCI.rpc#getStatusText"><a href="LuCI.rpc.html#getStatusText">getStatusText</a></li>
+            
+                <li data-name="LuCI.rpc#list"><a href="LuCI.rpc.html#list">list</a></li>
+            
+                <li data-name="LuCI.rpc#removeInterceptor"><a href="LuCI.rpc.html#removeInterceptor">removeInterceptor</a></li>
+            
+                <li data-name="LuCI.rpc#setBaseURL"><a href="LuCI.rpc.html#setBaseURL">setBaseURL</a></li>
+            
+                <li data-name="LuCI.rpc#setSessionID"><a href="LuCI.rpc.html#setSessionID">setSessionID</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.uci">
+            <span class="title">
+                <a href="LuCI.uci.html">LuCI.uci</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.uci.ChangeRecord"><a href="LuCI.uci.html#.ChangeRecord">ChangeRecord</a></li>
+            
+                <li data-name="LuCI.uci.SectionObject"><a href="LuCI.uci.html#.SectionObject">SectionObject</a></li>
+            
+                <li data-name="LuCI.uci~sectionsFn"><a href="LuCI.uci.html#~sectionsFn">sectionsFn</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.uci#add"><a href="LuCI.uci.html#add">add</a></li>
+            
+                <li data-name="LuCI.uci#apply"><a href="LuCI.uci.html#apply">apply</a></li>
+            
+                <li data-name="LuCI.uci#changes"><a href="LuCI.uci.html#changes">changes</a></li>
+            
+                <li data-name="LuCI.uci#createSID"><a href="LuCI.uci.html#createSID">createSID</a></li>
+            
+                <li data-name="LuCI.uci#get"><a href="LuCI.uci.html#get">get</a></li>
+            
+                <li data-name="LuCI.uci#get_first"><a href="LuCI.uci.html#get_first">get_first</a></li>
+            
+                <li data-name="LuCI.uci#load"><a href="LuCI.uci.html#load">load</a></li>
+            
+                <li data-name="LuCI.uci#move"><a href="LuCI.uci.html#move">move</a></li>
+            
+                <li data-name="LuCI.uci#remove"><a href="LuCI.uci.html#remove">remove</a></li>
+            
+                <li data-name="LuCI.uci#resolveSID"><a href="LuCI.uci.html#resolveSID">resolveSID</a></li>
+            
+                <li data-name="LuCI.uci#save"><a href="LuCI.uci.html#save">save</a></li>
+            
+                <li data-name="LuCI.uci#sections"><a href="LuCI.uci.html#sections">sections</a></li>
+            
+                <li data-name="LuCI.uci#set"><a href="LuCI.uci.html#set">set</a></li>
+            
+                <li data-name="LuCI.uci#set_first"><a href="LuCI.uci.html#set_first">set_first</a></li>
+            
+                <li data-name="LuCI.uci#unload"><a href="LuCI.uci.html#unload">unload</a></li>
+            
+                <li data-name="LuCI.uci#unset"><a href="LuCI.uci.html#unset">unset</a></li>
+            
+                <li data-name="LuCI.uci#unset_first"><a href="LuCI.uci.html#unset_first">unset_first</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui">
+            <span class="title">
+                <a href="LuCI.ui.html">LuCI.ui</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.ui.FileUploadReply"><a href="LuCI.ui.html#.FileUploadReply">FileUploadReply</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui#addNotification"><a href="LuCI.ui.html#addNotification">addNotification</a></li>
+            
+                <li data-name="LuCI.ui#addValidator"><a href="LuCI.ui.html#addValidator">addValidator</a></li>
+            
+                <li data-name="LuCI.ui#awaitReconnect"><a href="LuCI.ui.html#awaitReconnect">awaitReconnect</a></li>
+            
+                <li data-name="LuCI.ui#createHandlerFn"><a href="LuCI.ui.html#createHandlerFn">createHandlerFn</a></li>
+            
+                <li data-name="LuCI.ui#hideIndicator"><a href="LuCI.ui.html#hideIndicator">hideIndicator</a></li>
+            
+                <li data-name="LuCI.ui#hideModal"><a href="LuCI.ui.html#hideModal">hideModal</a></li>
+            
+                <li data-name="LuCI.ui#itemlist"><a href="LuCI.ui.html#itemlist">itemlist</a></li>
+            
+                <li data-name="LuCI.ui#pingDevice"><a href="LuCI.ui.html#pingDevice">pingDevice</a></li>
+            
+                <li data-name="LuCI.ui#showIndicator"><a href="LuCI.ui.html#showIndicator">showIndicator</a></li>
+            
+                <li data-name="LuCI.ui#showModal"><a href="LuCI.ui.html#showModal">showModal</a></li>
+            
+                <li data-name="LuCI.ui#uploadFile"><a href="LuCI.ui.html#uploadFile">uploadFile</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.AbstractElement">
+            <span class="title">
+                <a href="LuCI.ui.AbstractElement.html">LuCI.ui.AbstractElement</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.ui.AbstractElement.InitOptions"><a href="LuCI.ui.AbstractElement.html#.InitOptions">InitOptions</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.AbstractElement#getValue"><a href="LuCI.ui.AbstractElement.html#getValue">getValue</a></li>
+            
+                <li data-name="LuCI.ui.AbstractElement#isValid"><a href="LuCI.ui.AbstractElement.html#isValid">isValid</a></li>
+            
+                <li data-name="LuCI.ui.AbstractElement#registerEvents"><a href="LuCI.ui.AbstractElement.html#registerEvents">registerEvents</a></li>
+            
+                <li data-name="LuCI.ui.AbstractElement#render"><a href="LuCI.ui.AbstractElement.html#render">render</a></li>
+            
+                <li data-name="LuCI.ui.AbstractElement#setChangeEvents"><a href="LuCI.ui.AbstractElement.html#setChangeEvents">setChangeEvents</a></li>
+            
+                <li data-name="LuCI.ui.AbstractElement#setUpdateEvents"><a href="LuCI.ui.AbstractElement.html#setUpdateEvents">setUpdateEvents</a></li>
+            
+                <li data-name="LuCI.ui.AbstractElement#setValue"><a href="LuCI.ui.AbstractElement.html#setValue">setValue</a></li>
+            
+                <li data-name="LuCI.ui.AbstractElement#triggerValidation"><a href="LuCI.ui.AbstractElement.html#triggerValidation">triggerValidation</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.changes">
+            <span class="title">
+                <a href="LuCI.ui.changes.html">LuCI.ui.changes</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.changes#apply"><a href="LuCI.ui.changes.html#apply">apply</a></li>
+            
+                <li data-name="LuCI.ui.changes#displayChanges"><a href="LuCI.ui.changes.html#displayChanges">displayChanges</a></li>
+            
+                <li data-name="LuCI.ui.changes#renderChangeIndicator"><a href="LuCI.ui.changes.html#renderChangeIndicator">renderChangeIndicator</a></li>
+            
+                <li data-name="LuCI.ui.changes#revert"><a href="LuCI.ui.changes.html#revert">revert</a></li>
+            
+                <li data-name="LuCI.ui.changes#setIndicator"><a href="LuCI.ui.changes.html#setIndicator">setIndicator</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.Checkbox">
+            <span class="title">
+                <a href="LuCI.ui.Checkbox.html">LuCI.ui.Checkbox</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.ui.Checkbox.InitOptions"><a href="LuCI.ui.Checkbox.html#.InitOptions">InitOptions</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.Checkbox#getValue"><a href="LuCI.ui.Checkbox.html#getValue">getValue</a></li>
+            
+                <li data-name="LuCI.ui.Checkbox#isChecked"><a href="LuCI.ui.Checkbox.html#isChecked">isChecked</a></li>
+            
+                <li data-name="LuCI.ui.Checkbox#isValid"><a href="LuCI.ui.Checkbox.html#isValid">isValid</a></li>
+            
+                <li data-name="LuCI.ui.Checkbox#registerEvents"><a href="LuCI.ui.Checkbox.html#registerEvents">registerEvents</a></li>
+            
+                <li data-name="LuCI.ui.Checkbox#render"><a href="LuCI.ui.Checkbox.html#render">render</a></li>
+            
+                <li data-name="LuCI.ui.Checkbox#setChangeEvents"><a href="LuCI.ui.Checkbox.html#setChangeEvents">setChangeEvents</a></li>
+            
+                <li data-name="LuCI.ui.Checkbox#setUpdateEvents"><a href="LuCI.ui.Checkbox.html#setUpdateEvents">setUpdateEvents</a></li>
+            
+                <li data-name="LuCI.ui.Checkbox#setValue"><a href="LuCI.ui.Checkbox.html#setValue">setValue</a></li>
+            
+                <li data-name="LuCI.ui.Checkbox#triggerValidation"><a href="LuCI.ui.Checkbox.html#triggerValidation">triggerValidation</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.Combobox">
+            <span class="title">
+                <a href="LuCI.ui.Combobox.html">LuCI.ui.Combobox</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.ui.Combobox.InitOptions"><a href="LuCI.ui.Combobox.html#.InitOptions">InitOptions</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.Combobox#addChoices"><a href="LuCI.ui.Combobox.html#addChoices">addChoices</a></li>
+            
+                <li data-name="LuCI.ui.Combobox#clearChoices"><a href="LuCI.ui.Combobox.html#clearChoices">clearChoices</a></li>
+            
+                <li data-name="LuCI.ui.Combobox#closeAllDropdowns"><a href="LuCI.ui.Combobox.html#closeAllDropdowns">closeAllDropdowns</a></li>
+            
+                <li data-name="LuCI.ui.Combobox#isValid"><a href="LuCI.ui.Combobox.html#isValid">isValid</a></li>
+            
+                <li data-name="LuCI.ui.Combobox#registerEvents"><a href="LuCI.ui.Combobox.html#registerEvents">registerEvents</a></li>
+            
+                <li data-name="LuCI.ui.Combobox#setChangeEvents"><a href="LuCI.ui.Combobox.html#setChangeEvents">setChangeEvents</a></li>
+            
+                <li data-name="LuCI.ui.Combobox#setUpdateEvents"><a href="LuCI.ui.Combobox.html#setUpdateEvents">setUpdateEvents</a></li>
+            
+                <li data-name="LuCI.ui.Combobox#triggerValidation"><a href="LuCI.ui.Combobox.html#triggerValidation">triggerValidation</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.ComboButton">
+            <span class="title">
+                <a href="LuCI.ui.ComboButton.html">LuCI.ui.ComboButton</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.ui.ComboButton.InitOptions"><a href="LuCI.ui.ComboButton.html#.InitOptions">InitOptions</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.ComboButton#addChoices"><a href="LuCI.ui.ComboButton.html#addChoices">addChoices</a></li>
+            
+                <li data-name="LuCI.ui.ComboButton#clearChoices"><a href="LuCI.ui.ComboButton.html#clearChoices">clearChoices</a></li>
+            
+                <li data-name="LuCI.ui.ComboButton#closeAllDropdowns"><a href="LuCI.ui.ComboButton.html#closeAllDropdowns">closeAllDropdowns</a></li>
+            
+                <li data-name="LuCI.ui.ComboButton#isValid"><a href="LuCI.ui.ComboButton.html#isValid">isValid</a></li>
+            
+                <li data-name="LuCI.ui.ComboButton#registerEvents"><a href="LuCI.ui.ComboButton.html#registerEvents">registerEvents</a></li>
+            
+                <li data-name="LuCI.ui.ComboButton#setChangeEvents"><a href="LuCI.ui.ComboButton.html#setChangeEvents">setChangeEvents</a></li>
+            
+                <li data-name="LuCI.ui.ComboButton#setUpdateEvents"><a href="LuCI.ui.ComboButton.html#setUpdateEvents">setUpdateEvents</a></li>
+            
+                <li data-name="LuCI.ui.ComboButton#triggerValidation"><a href="LuCI.ui.ComboButton.html#triggerValidation">triggerValidation</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.Dropdown">
+            <span class="title">
+                <a href="LuCI.ui.Dropdown.html">LuCI.ui.Dropdown</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.ui.Dropdown.InitOptions"><a href="LuCI.ui.Dropdown.html#.InitOptions">InitOptions</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.Dropdown#addChoices"><a href="LuCI.ui.Dropdown.html#addChoices">addChoices</a></li>
+            
+                <li data-name="LuCI.ui.Dropdown#clearChoices"><a href="LuCI.ui.Dropdown.html#clearChoices">clearChoices</a></li>
+            
+                <li data-name="LuCI.ui.Dropdown#closeAllDropdowns"><a href="LuCI.ui.Dropdown.html#closeAllDropdowns">closeAllDropdowns</a></li>
+            
+                <li data-name="LuCI.ui.Dropdown#getValue"><a href="LuCI.ui.Dropdown.html#getValue">getValue</a></li>
+            
+                <li data-name="LuCI.ui.Dropdown#isValid"><a href="LuCI.ui.Dropdown.html#isValid">isValid</a></li>
+            
+                <li data-name="LuCI.ui.Dropdown#registerEvents"><a href="LuCI.ui.Dropdown.html#registerEvents">registerEvents</a></li>
+            
+                <li data-name="LuCI.ui.Dropdown#render"><a href="LuCI.ui.Dropdown.html#render">render</a></li>
+            
+                <li data-name="LuCI.ui.Dropdown#setChangeEvents"><a href="LuCI.ui.Dropdown.html#setChangeEvents">setChangeEvents</a></li>
+            
+                <li data-name="LuCI.ui.Dropdown#setUpdateEvents"><a href="LuCI.ui.Dropdown.html#setUpdateEvents">setUpdateEvents</a></li>
+            
+                <li data-name="LuCI.ui.Dropdown#setValue"><a href="LuCI.ui.Dropdown.html#setValue">setValue</a></li>
+            
+                <li data-name="LuCI.ui.Dropdown#triggerValidation"><a href="LuCI.ui.Dropdown.html#triggerValidation">triggerValidation</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.DynamicList">
+            <span class="title">
+                <a href="LuCI.ui.DynamicList.html">LuCI.ui.DynamicList</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.ui.DynamicList.InitOptions"><a href="LuCI.ui.DynamicList.html#.InitOptions">InitOptions</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.DynamicList#addChoices"><a href="LuCI.ui.DynamicList.html#addChoices">addChoices</a></li>
+            
+                <li data-name="LuCI.ui.DynamicList#clearChoices"><a href="LuCI.ui.DynamicList.html#clearChoices">clearChoices</a></li>
+            
+                <li data-name="LuCI.ui.DynamicList#getValue"><a href="LuCI.ui.DynamicList.html#getValue">getValue</a></li>
+            
+                <li data-name="LuCI.ui.DynamicList#isValid"><a href="LuCI.ui.DynamicList.html#isValid">isValid</a></li>
+            
+                <li data-name="LuCI.ui.DynamicList#registerEvents"><a href="LuCI.ui.DynamicList.html#registerEvents">registerEvents</a></li>
+            
+                <li data-name="LuCI.ui.DynamicList#render"><a href="LuCI.ui.DynamicList.html#render">render</a></li>
+            
+                <li data-name="LuCI.ui.DynamicList#setChangeEvents"><a href="LuCI.ui.DynamicList.html#setChangeEvents">setChangeEvents</a></li>
+            
+                <li data-name="LuCI.ui.DynamicList#setUpdateEvents"><a href="LuCI.ui.DynamicList.html#setUpdateEvents">setUpdateEvents</a></li>
+            
+                <li data-name="LuCI.ui.DynamicList#setValue"><a href="LuCI.ui.DynamicList.html#setValue">setValue</a></li>
+            
+                <li data-name="LuCI.ui.DynamicList#triggerValidation"><a href="LuCI.ui.DynamicList.html#triggerValidation">triggerValidation</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.FileUpload">
+            <span class="title">
+                <a href="LuCI.ui.FileUpload.html">LuCI.ui.FileUpload</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.ui.FileUpload.InitOptions"><a href="LuCI.ui.FileUpload.html#.InitOptions">InitOptions</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.FileUpload#getValue"><a href="LuCI.ui.FileUpload.html#getValue">getValue</a></li>
+            
+                <li data-name="LuCI.ui.FileUpload#isValid"><a href="LuCI.ui.FileUpload.html#isValid">isValid</a></li>
+            
+                <li data-name="LuCI.ui.FileUpload#registerEvents"><a href="LuCI.ui.FileUpload.html#registerEvents">registerEvents</a></li>
+            
+                <li data-name="LuCI.ui.FileUpload#render"><a href="LuCI.ui.FileUpload.html#render">render</a></li>
+            
+                <li data-name="LuCI.ui.FileUpload#setChangeEvents"><a href="LuCI.ui.FileUpload.html#setChangeEvents">setChangeEvents</a></li>
+            
+                <li data-name="LuCI.ui.FileUpload#setUpdateEvents"><a href="LuCI.ui.FileUpload.html#setUpdateEvents">setUpdateEvents</a></li>
+            
+                <li data-name="LuCI.ui.FileUpload#setValue"><a href="LuCI.ui.FileUpload.html#setValue">setValue</a></li>
+            
+                <li data-name="LuCI.ui.FileUpload#triggerValidation"><a href="LuCI.ui.FileUpload.html#triggerValidation">triggerValidation</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.Hiddenfield">
+            <span class="title">
+                <a href="LuCI.ui.Hiddenfield.html">LuCI.ui.Hiddenfield</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.Hiddenfield#getValue"><a href="LuCI.ui.Hiddenfield.html#getValue">getValue</a></li>
+            
+                <li data-name="LuCI.ui.Hiddenfield#isValid"><a href="LuCI.ui.Hiddenfield.html#isValid">isValid</a></li>
+            
+                <li data-name="LuCI.ui.Hiddenfield#registerEvents"><a href="LuCI.ui.Hiddenfield.html#registerEvents">registerEvents</a></li>
+            
+                <li data-name="LuCI.ui.Hiddenfield#render"><a href="LuCI.ui.Hiddenfield.html#render">render</a></li>
+            
+                <li data-name="LuCI.ui.Hiddenfield#setChangeEvents"><a href="LuCI.ui.Hiddenfield.html#setChangeEvents">setChangeEvents</a></li>
+            
+                <li data-name="LuCI.ui.Hiddenfield#setUpdateEvents"><a href="LuCI.ui.Hiddenfield.html#setUpdateEvents">setUpdateEvents</a></li>
+            
+                <li data-name="LuCI.ui.Hiddenfield#setValue"><a href="LuCI.ui.Hiddenfield.html#setValue">setValue</a></li>
+            
+                <li data-name="LuCI.ui.Hiddenfield#triggerValidation"><a href="LuCI.ui.Hiddenfield.html#triggerValidation">triggerValidation</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.Select">
+            <span class="title">
+                <a href="LuCI.ui.Select.html">LuCI.ui.Select</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.ui.Select.InitOptions"><a href="LuCI.ui.Select.html#.InitOptions">InitOptions</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.Select#getValue"><a href="LuCI.ui.Select.html#getValue">getValue</a></li>
+            
+                <li data-name="LuCI.ui.Select#isValid"><a href="LuCI.ui.Select.html#isValid">isValid</a></li>
+            
+                <li data-name="LuCI.ui.Select#registerEvents"><a href="LuCI.ui.Select.html#registerEvents">registerEvents</a></li>
+            
+                <li data-name="LuCI.ui.Select#render"><a href="LuCI.ui.Select.html#render">render</a></li>
+            
+                <li data-name="LuCI.ui.Select#setChangeEvents"><a href="LuCI.ui.Select.html#setChangeEvents">setChangeEvents</a></li>
+            
+                <li data-name="LuCI.ui.Select#setUpdateEvents"><a href="LuCI.ui.Select.html#setUpdateEvents">setUpdateEvents</a></li>
+            
+                <li data-name="LuCI.ui.Select#setValue"><a href="LuCI.ui.Select.html#setValue">setValue</a></li>
+            
+                <li data-name="LuCI.ui.Select#triggerValidation"><a href="LuCI.ui.Select.html#triggerValidation">triggerValidation</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.tabs">
+            <span class="title">
+                <a href="LuCI.ui.tabs.html">LuCI.ui.tabs</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.tabs#initTabGroup"><a href="LuCI.ui.tabs.html#initTabGroup">initTabGroup</a></li>
+            
+                <li data-name="LuCI.ui.tabs#isEmptyPane"><a href="LuCI.ui.tabs.html#isEmptyPane">isEmptyPane</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.Textarea">
+            <span class="title">
+                <a href="LuCI.ui.Textarea.html">LuCI.ui.Textarea</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.ui.Textarea.InitOptions"><a href="LuCI.ui.Textarea.html#.InitOptions">InitOptions</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.Textarea#getValue"><a href="LuCI.ui.Textarea.html#getValue">getValue</a></li>
+            
+                <li data-name="LuCI.ui.Textarea#isValid"><a href="LuCI.ui.Textarea.html#isValid">isValid</a></li>
+            
+                <li data-name="LuCI.ui.Textarea#registerEvents"><a href="LuCI.ui.Textarea.html#registerEvents">registerEvents</a></li>
+            
+                <li data-name="LuCI.ui.Textarea#render"><a href="LuCI.ui.Textarea.html#render">render</a></li>
+            
+                <li data-name="LuCI.ui.Textarea#setChangeEvents"><a href="LuCI.ui.Textarea.html#setChangeEvents">setChangeEvents</a></li>
+            
+                <li data-name="LuCI.ui.Textarea#setUpdateEvents"><a href="LuCI.ui.Textarea.html#setUpdateEvents">setUpdateEvents</a></li>
+            
+                <li data-name="LuCI.ui.Textarea#setValue"><a href="LuCI.ui.Textarea.html#setValue">setValue</a></li>
+            
+                <li data-name="LuCI.ui.Textarea#triggerValidation"><a href="LuCI.ui.Textarea.html#triggerValidation">triggerValidation</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.ui.Textfield">
+            <span class="title">
+                <a href="LuCI.ui.Textfield.html">LuCI.ui.Textfield</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="LuCI.ui.Textfield.InitOptions"><a href="LuCI.ui.Textfield.html#.InitOptions">InitOptions</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.ui.Textfield#getValue"><a href="LuCI.ui.Textfield.html#getValue">getValue</a></li>
+            
+                <li data-name="LuCI.ui.Textfield#isValid"><a href="LuCI.ui.Textfield.html#isValid">isValid</a></li>
+            
+                <li data-name="LuCI.ui.Textfield#registerEvents"><a href="LuCI.ui.Textfield.html#registerEvents">registerEvents</a></li>
+            
+                <li data-name="LuCI.ui.Textfield#render"><a href="LuCI.ui.Textfield.html#render">render</a></li>
+            
+                <li data-name="LuCI.ui.Textfield#setChangeEvents"><a href="LuCI.ui.Textfield.html#setChangeEvents">setChangeEvents</a></li>
+            
+                <li data-name="LuCI.ui.Textfield#setUpdateEvents"><a href="LuCI.ui.Textfield.html#setUpdateEvents">setUpdateEvents</a></li>
+            
+                <li data-name="LuCI.ui.Textfield#setValue"><a href="LuCI.ui.Textfield.html#setValue">setValue</a></li>
+            
+                <li data-name="LuCI.ui.Textfield#triggerValidation"><a href="LuCI.ui.Textfield.html#triggerValidation">triggerValidation</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.view">
+            <span class="title">
+                <a href="LuCI.view.html">LuCI.view</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.view#addFooter"><a href="LuCI.view.html#addFooter">addFooter</a></li>
+            
+                <li data-name="LuCI.view#handleReset"><a href="LuCI.view.html#handleReset">handleReset</a></li>
+            
+                <li data-name="LuCI.view#handleSave"><a href="LuCI.view.html#handleSave">handleSave</a></li>
+            
+                <li data-name="LuCI.view#handleSaveApply"><a href="LuCI.view.html#handleSaveApply">handleSaveApply</a></li>
+            
+                <li data-name="LuCI.view#load"><a href="LuCI.view.html#load">load</a></li>
+            
+                <li data-name="LuCI.view#render"><a href="LuCI.view.html#render">render</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="LuCI.XHR">
+            <span class="title">
+                <a href="LuCI.XHR.html">LuCI.XHR</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="LuCI.XHR#abort"><a href="LuCI.XHR.html#abort">abort</a></li>
+            
+                <li data-name="LuCI.XHR#busy"><a href="LuCI.XHR.html#busy">busy</a></li>
+            
+                <li data-name="LuCI.XHR#cancel"><a href="LuCI.XHR.html#cancel">cancel</a></li>
+            
+                <li data-name="LuCI.XHR#get"><a href="LuCI.XHR.html#get">get</a></li>
+            
+                <li data-name="LuCI.XHR#post"><a href="LuCI.XHR.html#post">post</a></li>
+            
+                <li data-name="LuCI.XHR#send_form"><a href="LuCI.XHR.html#send_form">send_form</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+    </ul>
+</div>
+    <div class="main">
+        <h1 class="page-title" data-filename="ui.js.html">Source: ui.js</h1>
+        
+
+
+    
+    <section>
+        <article>
+            <pre id="source-code" class="prettyprint source "><code>'use strict';
 'require rpc';
 'require uci';
 'require validation';
@@ -40,7 +1734,7 @@ var UIElement = L.Class.extend(/** @lends LuCI.ui.AbstractElement.prototype */ {
 	 *
 	 * @property {string} [name]
 	 * Specifies the widget name which is set as HTML `name` attribute on the
-	 * corresponding `<input>` element.
+	 * corresponding `&lt;input>` element.
 	 *
 	 * @property {boolean} [optional=true]
 	 * Specifies whether the input field allows empty values.
@@ -154,7 +1848,7 @@ var UIElement = L.Class.extend(/** @lends LuCI.ui.AbstractElement.prototype */ {
 			this.node.dispatchEvent(new CustomEvent(synevent, { bubbles: true }));
 		}, this);
 
-		for (var i = 0; i < events.length; i++)
+		for (var i = 0; i &lt; events.length; i++)
 			targetNode.addEventListener(events[i], dispatchFn);
 	},
 
@@ -182,7 +1876,7 @@ var UIElement = L.Class.extend(/** @lends LuCI.ui.AbstractElement.prototype */ {
 
 		this.registerEvents(targetNode, 'widget-update', events);
 
-		if (!datatype && !validate)
+		if (!datatype &amp;&amp; !validate)
 			return;
 
 		this.vfunc = L.ui.addValidator.apply(L.ui, [
@@ -220,7 +1914,7 @@ var UIElement = L.Class.extend(/** @lends LuCI.ui.AbstractElement.prototype */ {
 	setChangeEvents: function(targetNode /*, ... */) {
 		var tag_changed = L.bind(function(ev) { this.setAttribute('data-changed', true) }, this.node);
 
-		for (var i = 1; i < arguments.length; i++)
+		for (var i = 1; i &lt; arguments.length; i++)
 			targetNode.addEventListener(arguments[i], tag_changed);
 
 		this.registerEvents(targetNode, 'widget-change', this.varargs(arguments, 1));
@@ -281,13 +1975,13 @@ var UITextfield = UIElement.extend(/** @lends LuCI.ui.Textfield.prototype */ {
 	 *
 	 * @property {number} [maxlength]
 	 * Specifies the HTML `maxlength` attribute to set on the corresponding
-	 * `<input>` element. Note that this a legacy property that exists for
+	 * `&lt;input>` element. Note that this a legacy property that exists for
 	 * compatibility reasons. It is usually better to `maxlength(N)` validation
 	 * expression.
 	 *
 	 * @property {string} [placeholder]
 	 * Specifies the HTML `placeholder` attribute which is displayed when the
-	 * corresponding `<input>` element is empty.
+	 * corresponding `&lt;input>` element is empty.
 	 */
 	__init__: function(value, options) {
 		this.value = value;
@@ -404,7 +2098,7 @@ var UITextarea = UIElement.extend(/** @lends LuCI.ui.Textarea.prototype */ {
 	 *
 	 * @property {string} [placeholder]
 	 * Specifies the HTML `placeholder` attribute which is displayed when the
-	 * corresponding `<textarea>` element is empty.
+	 * corresponding `&lt;textarea>` element is empty.
 	 *
 	 * @property {boolean} [monospace=false]
 	 * Specifies whether a monospace font should be forced for the textarea
@@ -412,11 +2106,11 @@ var UITextarea = UIElement.extend(/** @lends LuCI.ui.Textarea.prototype */ {
 	 *
 	 * @property {number} [cols]
 	 * Specifies the HTML `cols` attribute to set on the corresponding
-	 * `<textarea>` element.
+	 * `&lt;textarea>` element.
 	 *
 	 * @property {number} [rows]
 	 * Specifies the HTML `rows` attribute to set on the corresponding
-	 * `<textarea>` element.
+	 * `&lt;textarea>` element.
 	 *
 	 * @property {boolean} [wrap=false]
 	 * Specifies whether the HTML `wrap` attribute should be set.
@@ -607,7 +2301,7 @@ var UICheckbox = UIElement.extend(/** @lends LuCI.ui.Checkbox.prototype */ {
  *
  * @classdesc
  *
- * The `Select` class implements either a traditional HTML `<select>` element
+ * The `Select` class implements either a traditional HTML `&lt;select>` element
  * or a group of checkboxes or radio buttons, depending on whether multiple
  * values are enabled or not.
  *
@@ -623,7 +2317,7 @@ var UICheckbox = UIElement.extend(/** @lends LuCI.ui.Checkbox.prototype */ {
  * @param {string|string[]} [value=null]
  * The initial input value(s).
  *
- * @param {Object<string, string>} choices
+ * @param {Object&lt;string, string>} choices
  * Object containing the selectable choices of the widget. The object keys
  * serve as values for the different choices while the values are used as
  * choice labels.
@@ -644,7 +2338,7 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 	 *
 	 * @property {string} [widget=select]
 	 * Specifies the kind of widget to render. May be either `select` or
-	 * `individual`. When set to `select` an HTML `<select>` element will be
+	 * `individual`. When set to `select` an HTML `&lt;select>` element will be
 	 * used, otherwise a group of checkbox or radio button elements is created,
 	 * depending on the value of the `multiple` option.
 	 *
@@ -659,7 +2353,7 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 	 * choice sort order is derived from the array.
 	 *
 	 * @property {number} [size]
-	 * Specifies the HTML `size` attribute to set on the `<select>` element.
+	 * Specifies the HTML `size` attribute to set on the `&lt;select>` element.
 	 * Only applicable to the `select` widget type.
 	 *
 	 * @property {string} [placeholder=-- Please choose --]
@@ -671,9 +2365,9 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 			choices = {};
 
 		if (!Array.isArray(value))
-			value = (value != null && value != '') ? [ value ] : [];
+			value = (value != null &amp;&amp; value != '') ? [ value ] : [];
 
-		if (!options.multiple && value.length > 1)
+		if (!options.multiple &amp;&amp; value.length > 1)
 			value.length = 1;
 
 		this.values = value;
@@ -713,7 +2407,7 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 					'selected': (this.values.length == 0 || this.values[0] == '') ? '' : null
 				}, [ this.choices[''] || this.options.placeholder || _('-- Please choose --') ]));
 
-			for (var i = 0; i < keys.length; i++) {
+			for (var i = 0; i &lt; keys.length; i++) {
 				if (keys[i] == null || keys[i] == '')
 					continue;
 
@@ -726,7 +2420,7 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 		else {
 			var brEl = (this.options.orientation === 'horizontal') ? document.createTextNode(' ') : E('br');
 
-			for (var i = 0; i < keys.length; i++) {
+			for (var i = 0; i &lt; keys.length; i++) {
 				frameEl.appendChild(E('label', {}, [
 					E('input', {
 						'id': this.options.id ? 'widget.' + this.options.id : null,
@@ -757,7 +2451,7 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 		}
 		else {
 			var radioEls = frameEl.querySelectorAll('input[type="radio"]');
-			for (var i = 0; i < radioEls.length; i++) {
+			for (var i = 0; i &lt; radioEls.length; i++) {
 				this.setUpdateEvents(radioEls[i], 'change', 'click', 'blur');
 				this.setChangeEvents(radioEls[i], 'change', 'click', 'blur');
 			}
@@ -774,7 +2468,7 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 			return this.node.firstChild.value;
 
 		var radioEls = frameEl.querySelectorAll('input[type="radio"]');
-		for (var i = 0; i < radioEls.length; i++)
+		for (var i = 0; i &lt; radioEls.length; i++)
 			if (radioEls[i].checked)
 				return radioEls[i].value;
 
@@ -787,14 +2481,14 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 			if (value == null)
 				value = '';
 
-			for (var i = 0; i < this.node.firstChild.options.length; i++)
+			for (var i = 0; i &lt; this.node.firstChild.options.length; i++)
 				this.node.firstChild.options[i].selected = (this.node.firstChild.options[i].value == value);
 
 			return;
 		}
 
 		var radioEls = frameEl.querySelectorAll('input[type="radio"]');
-		for (var i = 0; i < radioEls.length; i++)
+		for (var i = 0; i &lt; radioEls.length; i++)
 			radioEls[i].checked = (radioEls[i].value == value);
 	}
 });
@@ -823,7 +2517,7 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
  * @param {string|string[]} [value=null]
  * The initial input value(s).
  *
- * @param {Object<string, *>} choices
+ * @param {Object&lt;string, *>} choices
  * Object containing the selectable choices of the widget. The object keys
  * serve as values for the different choices while the values are used as
  * choice labels.
@@ -890,7 +2584,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	 *
 	 * If the template element is not found or if no `create_template` selector
 	 * expression is specified, the default markup for newly created elements is
-	 * `<li data-value="{{value}}"><span data-label-placeholder="true" /></li>`.
+	 * `&lt;li data-value="{{value}}">&lt;span data-label-placeholder="true" />&lt;/li>`.
 	 *
 	 * @property {string} [create_markup]
 	 * This property allows specifying the markup for custom choices directly
@@ -924,7 +2618,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	 *
 	 * @property {number} [maxlength]
 	 * Specifies the HTML `maxlength` attribute to set on the custom choice
-	 * `<input>` element. Note that this a legacy property that exists for
+	 * `&lt;input>` element. Note that this a legacy property that exists for
 	 * compatibility reasons. It is usually better to `maxlength(N)` validation
 	 * expression. Only applicable when `create` is `true`.
 	 */
@@ -933,7 +2627,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 			choices = {};
 
 		if (!Array.isArray(value))
-			this.values = (value != null && value != '') ? [ value ] : [];
+			this.values = (value != null &amp;&amp; value != '') ? [ value ] : [];
 		else
 			this.values = value;
 
@@ -969,11 +2663,11 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 			keys = this.options.sort;
 
 		if (this.options.create)
-			for (var i = 0; i < this.values.length; i++)
+			for (var i = 0; i &lt; this.values.length; i++)
 				if (!this.choices.hasOwnProperty(this.values[i]))
 					keys.push(this.values[i]);
 
-		for (var i = 0; i < keys.length; i++) {
+		for (var i = 0; i &lt; keys.length; i++) {
 			var label = this.choices[keys[i]];
 
 			if (L.dom.elem(label))
@@ -1031,15 +2725,15 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		if (this.options.multiple) {
 			var items = ul.querySelectorAll('li');
 
-			for (var i = 0; i < items.length; i++) {
+			for (var i = 0; i &lt; items.length; i++) {
 				this.transformItem(sb, items[i]);
 
-				if (items[i].hasAttribute('selected') && ndisplay-- > 0)
+				if (items[i].hasAttribute('selected') &amp;&amp; ndisplay-- > 0)
 					items[i].setAttribute('display', n++);
 			}
 		}
 		else {
-			if (this.options.optional && !ul.querySelector('li[data-value=""]')) {
+			if (this.options.optional &amp;&amp; !ul.querySelector('li[data-value=""]')) {
 				var placeholder = E('li', { placeholder: '' },
 					this.options.select_placeholder || this.options.placeholder);
 
@@ -1069,7 +2763,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		ul.setAttribute('tabindex', -1);
 		sb.setAttribute('tabindex', 0);
 
-		if (ndisplay < 0)
+		if (ndisplay &lt; 0)
 			sb.setAttribute('more', '')
 		else
 			sb.removeAttribute('more');
@@ -1167,7 +2861,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 				while ((parent = parent.parentElement) != null) {
 					style = getComputedStyle(parent);
 
-					if (excludeStaticParent && style.position === 'static')
+					if (excludeStaticParent &amp;&amp; style.position === 'static')
 						continue;
 
 					if (/(auto|scroll)/.test(style.overflow + style.overflowY + style.overflowX))
@@ -1188,7 +2882,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 				}
 
 				var duration = Math.max(timestamp - start, 1);
-				if (duration < 100) {
+				if (duration &lt; 100) {
 					scrollParent.scrollTop = scrollFrom + (scrollTo - scrollFrom) * (duration / 100);
 					window.requestAnimationFrame(scrollStep);
 				}
@@ -1209,14 +2903,14 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 				    spaceAbove = rect.top,
 				    spaceBelow = window.innerHeight - rect.height - rect.top;
 
-				for (var i = 0; i < (items == -1 ? li.length : items); i++)
+				for (var i = 0; i &lt; (items == -1 ? li.length : items); i++)
 					fullHeight += li[i].getBoundingClientRect().height;
 
-				if (fullHeight <= spaceBelow) {
+				if (fullHeight &lt;= spaceBelow) {
 					ul.style.top = rect.height + 'px';
 					ul.style.maxHeight = spaceBelow + 'px';
 				}
-				else if (fullHeight <= spaceAbove) {
+				else if (fullHeight &lt;= spaceAbove) {
 					ul.style.bottom = rect.height + 'px';
 					ul.style.maxHeight = spaceAbove + 'px';
 				}
@@ -1234,9 +2928,9 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		}
 
 		var cboxes = ul.querySelectorAll('[selected] input[type="checkbox"]');
-		for (var i = 0; i < cboxes.length; i++) {
+		for (var i = 0; i &lt; cboxes.length; i++) {
 			cboxes[i].checked = true;
-			cboxes[i].disabled = (cboxes.length == 1 && !this.options.optional);
+			cboxes[i].disabled = (cboxes.length == 1 &amp;&amp; !this.options.optional);
 		};
 
 		ul.classList.add('dropdown');
@@ -1316,10 +3010,10 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 				}
 			}
 
-			while (label && label.firstElementChild)
+			while (label &amp;&amp; label.firstElementChild)
 				label.removeChild(label.firstElementChild);
 
-			for (var i = 0; i < items.length; i++) {
+			for (var i = 0; i &lt; items.length; i++) {
 				items[i].removeAttribute('display');
 				if (items[i].hasAttribute('selected')) {
 					if (ndisplay-- > 0) {
@@ -1329,11 +3023,11 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 					}
 					var c = items[i].querySelector('input[type="checkbox"]');
 					if (c)
-						c.disabled = (sel == 1 && !this.options.optional);
+						c.disabled = (sel == 1 &amp;&amp; !this.options.optional);
 				}
 			}
 
-			if (ndisplay < 0)
+			if (ndisplay &lt; 0)
 				sb.setAttribute('more', '');
 			else
 				sb.removeAttribute('more');
@@ -1439,7 +3133,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 
 		if (this.options.multiple) {
 			var lis = ul.querySelectorAll('li[data-value]');
-			for (var i = 0; i < lis.length; i++) {
+			for (var i = 0; i &lt; lis.length; i++) {
 				var value = lis[i].getAttribute('data-value');
 				if (values === null || !(value in values))
 					this.toggleItem(sb, lis[i], false);
@@ -1453,9 +3147,9 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 				this.toggleItem(sb, ph);
 
 			var lis = ul.querySelectorAll('li[data-value]');
-			for (var i = 0; i < lis.length; i++) {
+			for (var i = 0; i &lt; lis.length; i++) {
 				var value = lis[i].getAttribute('data-value');
-				if (values !== null && (value in values))
+				if (values !== null &amp;&amp; (value in values))
 					this.toggleItem(sb, lis[i]);
 			}
 		}
@@ -1463,10 +3157,10 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 
 	/** @private */
 	setFocus: function(sb, elem, scroll) {
-		if (sb && sb.hasAttribute && sb.hasAttribute('locked-in'))
+		if (sb &amp;&amp; sb.hasAttribute &amp;&amp; sb.hasAttribute('locked-in'))
 			return;
 
-		if (sb.target && findParent(sb.target, 'ul.dropdown'))
+		if (sb.target &amp;&amp; findParent(sb.target, 'ul.dropdown'))
 			return;
 
 		document.querySelectorAll('.focus').forEach(function(e) {
@@ -1491,9 +3185,9 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		    markup = null;
 
 		if (tpl)
-			markup = (tpl.textContent || tpl.innerHTML || tpl.firstChild.data).replace(/^<!--|-->$/, '').trim();
+			markup = (tpl.textContent || tpl.innerHTML || tpl.firstChild.data).replace(/^&lt;!--|-->$/, '').trim();
 		else
-			markup = '<li data-value="{{value}}"><span data-label-placeholder="true" /></li>';
+			markup = '&lt;li data-value="{{value}}">&lt;span data-label-placeholder="true" />&lt;/li>';
 
 		var new_item = E(markup.replace(/{{value}}/g, '%h'.format(value))),
 		    placeholder = new_item.querySelector('[data-label-placeholder]');
@@ -1528,7 +3222,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 			var new_item = null;
 
 			ul.childNodes.forEach(function(li) {
-				if (li.getAttribute && li.getAttribute('data-value') === item)
+				if (li.getAttribute &amp;&amp; li.getAttribute('data-value') === item)
 					new_item = li;
 			});
 
@@ -1570,11 +3264,11 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		    len = lis.length - (this.options.create ? 1 : 0),
 		    val = reset_value ? null : this.getValue();
 
-		for (var i = 0; i < len; i++) {
+		for (var i = 0; i &lt; len; i++) {
 			var lival = lis[i].getAttribute('data-value');
 			if (val == null ||
-				(!this.options.multiple && val != lival) ||
-				(this.options.multiple && val.indexOf(lival) == -1))
+				(!this.options.multiple &amp;&amp; val != lival) ||
+				(this.options.multiple &amp;&amp; val.indexOf(lival) == -1))
 				ul.removeChild(lis[i]);
 		}
 
@@ -1593,7 +3287,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	 * @param {string[]} values
 	 * The choice values to add to the dropdown widget.
 	 *
-	 * @param {Object<string, *>} labels
+	 * @param {Object&lt;string, *>} labels
 	 * The choice label values to use when adding dropdown choices. If no
 	 * label is found for a particular choice value, the value itself is used
 	 * as label text. Choice labels may be any valid value accepted by
@@ -1610,10 +3304,10 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		if (!L.isObject(labels))
 			labels = {};
 
-		for (var i = 0; i < values.length; i++) {
+		for (var i = 0; i &lt; values.length; i++) {
 			var found = false;
 
-			for (var j = 0; j < lis.length; j++) {
+			for (var j = 0; j &lt; lis.length; j++) {
 				if (lis[j].getAttribute('data-value') === values[i]) {
 					found = true;
 					break;
@@ -1648,9 +3342,9 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		}
 		else {
 			var li = findParent(ev.target, 'li');
-			if (li && li.parentNode.classList.contains('dropdown'))
+			if (li &amp;&amp; li.parentNode.classList.contains('dropdown'))
 				this.toggleItem(sb, li);
-			else if (li && li.parentNode.classList.contains('preview'))
+			else if (li &amp;&amp; li.parentNode.classList.contains('preview'))
 				this.closeDropdown(sb);
 			else if (matchesElem(ev.target, 'span.open, span.more'))
 				this.closeDropdown(sb);
@@ -1702,14 +3396,14 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 				break;
 
 			case 38:
-				if (active && active.previousElementSibling) {
+				if (active &amp;&amp; active.previousElementSibling) {
 					this.setFocus(sb, active.previousElementSibling);
 					ev.preventDefault();
 				}
 				break;
 
 			case 40:
-				if (active && active.nextElementSibling) {
+				if (active &amp;&amp; active.nextElementSibling) {
 					this.setFocus(sb, active.nextElementSibling);
 					ev.preventDefault();
 				}
@@ -1746,7 +3440,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 
 		var li = findParent(ev.target, 'li');
 
-		if (li && li.parentNode.classList.contains('dropdown'))
+		if (li &amp;&amp; li.parentNode.classList.contains('dropdown'))
 			this.setFocus(sb, li);
 	},
 
@@ -1817,11 +3511,11 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	setValue: function(values) {
 		if (this.options.multiple) {
 			if (!Array.isArray(values))
-				values = (values != null && values != '') ? [ values ] : [];
+				values = (values != null &amp;&amp; values != '') ? [ values ] : [];
 
 			var v = {};
 
-			for (var i = 0; i < values.length; i++)
+			for (var i = 0; i &lt; values.length; i++)
 				v[values[i]] = true;
 
 			this.setValues(this.node, v);
@@ -1846,7 +3540,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		    h = div.querySelectorAll('input[type="hidden"]'),
 			v = [];
 
-		for (var i = 0; i < h.length; i++)
+		for (var i = 0; i &lt; h.length; i++)
 			v.push(h[i].value);
 
 		return this.options.multiple ? v : v[0];
@@ -1879,7 +3573,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
  * @param {string|string[]} [value=null]
  * The initial input value(s).
  *
- * @param {Object<string, *>} choices
+ * @param {Object&lt;string, *>} choices
  * Object containing the selectable choices of the widget. The object keys
  * serve as values for the different choices while the values are used as
  * choice labels.
@@ -1946,7 +3640,7 @@ var UICombobox = UIDropdown.extend(/** @lends LuCI.ui.Combobox.prototype */ {
  * @param {string|string[]} [value=null]
  * The initial input value(s).
  *
- * @param {Object<string, *>} choices
+ * @param {Object&lt;string, *>} choices
  * Object containing the selectable choices of the widget. The object keys
  * serve as values for the different choices while the values are used as
  * choice labels.
@@ -1976,7 +3670,7 @@ var UIComboButton = UIDropdown.extend(/** @lends LuCI.ui.ComboButton.prototype *
 	 * Since ComboButtons must always select one action, this property is
 	 * forcibly set to `false`.
 	 *
-	 * @property {Object<string, string>} [classes]
+	 * @property {Object&lt;string, string>} [classes]
 	 * Specifies a mapping of choice values to CSS class names. If an action
 	 * choice is selected by the user and if a corresponding entry exists in
 	 * the `classes` object, the class names corresponding to the selected
@@ -2006,7 +3700,7 @@ var UIComboButton = UIDropdown.extend(/** @lends LuCI.ui.ComboButton.prototype *
 		var node = UIDropdown.prototype.render.apply(this, arguments),
 		    val = this.getValue();
 
-		if (L.isObject(this.options.classes) && this.options.classes.hasOwnProperty(val))
+		if (L.isObject(this.options.classes) &amp;&amp; this.options.classes.hasOwnProperty(val))
 			node.setAttribute('class', 'cbi-dropdown ' + this.options.classes[val]);
 
 		return node;
@@ -2029,7 +3723,7 @@ var UIComboButton = UIDropdown.extend(/** @lends LuCI.ui.ComboButton.prototype *
 		var rv = UIDropdown.prototype.toggleItem.apply(this, arguments),
 		    val = this.getValue();
 
-		if (L.isObject(this.options.classes) && this.options.classes.hasOwnProperty(val))
+		if (L.isObject(this.options.classes) &amp;&amp; this.options.classes.hasOwnProperty(val))
 			sb.setAttribute('class', 'cbi-dropdown ' + this.options.classes[val]);
 		else
 			sb.setAttribute('class', 'cbi-dropdown');
@@ -2063,7 +3757,7 @@ var UIComboButton = UIDropdown.extend(/** @lends LuCI.ui.ComboButton.prototype *
  * @param {string|string[]} [value=null]
  * The initial input value(s).
  *
- * @param {Object<string, *>} [choices]
+ * @param {Object&lt;string, *>} [choices]
  * Object containing the selectable choices of the widget. The object keys
  * serve as values for the different choices while the values are used as
  * choice labels. If omitted, no default choices are presented to the user,
@@ -2093,7 +3787,7 @@ var UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype */
 	 */
 	__init__: function(values, choices, options) {
 		if (!Array.isArray(values))
-			values = (values != null && values != '') ? [ values ] : [];
+			values = (values != null &amp;&amp; values != '') ? [ values ] : [];
 
 		if (typeof(choices) != 'object')
 			choices = null;
@@ -2137,7 +3831,7 @@ var UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype */
 				                  true, this.options.validate, 'blur', 'keyup');
 		}
 
-		for (var i = 0; i < this.values.length; i++) {
+		for (var i = 0; i &lt; this.values.length; i++) {
 			var label = this.choices ? this.choices[this.values[i]] : null;
 
 			if (L.dom.elem(label))
@@ -2181,10 +3875,10 @@ var UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype */
 
 			var hidden = item.querySelector('input[type="hidden"]');
 
-			if (hidden && hidden.parentNode !== item)
+			if (hidden &amp;&amp; hidden.parentNode !== item)
 				hidden = null;
 
-			if (hidden && hidden.value === value)
+			if (hidden &amp;&amp; hidden.value === value)
 				exists = true;
 		});
 
@@ -2241,7 +3935,7 @@ var UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype */
 		}
 		else if (matchesElem(ev.target, '.cbi-button-add')) {
 			var input = ev.target.previousElementSibling;
-			if (input.value.length && !input.classList.contains('cbi-input-invalid')) {
+			if (input.value.length &amp;&amp; !input.classList.contains('cbi-input-invalid')) {
 				this.addItem(dl, input.value, null, true);
 				input.value = '';
 			}
@@ -2271,7 +3965,7 @@ var UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype */
 		if (sbVal.element) {
 			label = E([]);
 
-			for (var i = 0; i < sbVal.element.childNodes.length; i++)
+			for (var i = 0; i &lt; sbVal.element.childNodes.length; i++)
 				label.appendChild(sbVal.element.childNodes[i].cloneNode(true));
 		}
 
@@ -2307,7 +4001,7 @@ var UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype */
 		else if (matchesElem(ev.target, '.cbi-input-text')) {
 			switch (ev.keyCode) {
 			case 13: /* enter */
-				if (ev.target.value.length && !ev.target.classList.contains('cbi-input-invalid')) {
+				if (ev.target.value.length &amp;&amp; !ev.target.classList.contains('cbi-input-invalid')) {
 					this.addItem(dl, ev.target.value, null, true);
 					ev.target.value = '';
 					ev.target.blur();
@@ -2326,11 +4020,11 @@ var UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype */
 		    input = this.node.querySelector('.add-item > input[type="text"]'),
 		    v = [];
 
-		for (var i = 0; i < items.length; i++)
+		for (var i = 0; i &lt; items.length; i++)
 			v.push(items[i].value);
 
-		if (input && input.value != null && input.value.match(/\S/) &&
-		    input.classList.contains('cbi-input-invalid') == false &&
+		if (input &amp;&amp; input.value != null &amp;&amp; input.value.match(/\S/) &amp;&amp;
+		    input.classList.contains('cbi-input-invalid') == false &amp;&amp;
 		    v.filter(function(s) { return s == input.value }).length == 0)
 			v.push(input.value);
 
@@ -2340,15 +4034,15 @@ var UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype */
 	/** @override */
 	setValue: function(values) {
 		if (!Array.isArray(values))
-			values = (values != null && values != '') ? [ values ] : [];
+			values = (values != null &amp;&amp; values != '') ? [ values ] : [];
 
 		var items = this.node.querySelectorAll('.item');
 
-		for (var i = 0; i < items.length; i++)
+		for (var i = 0; i &lt; items.length; i++)
 			if (items[i].parentNode === this.node)
 				this.removeItem(this.node, items[i]);
 
-		for (var i = 0; i < values.length; i++)
+		for (var i = 0; i &lt; values.length; i++)
 			this.addItem(this.node, values[i],
 				this.choices ? this.choices[values[i]] : null);
 	},
@@ -2364,7 +4058,7 @@ var UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype */
 	 * @param {string[]} values
 	 * The choice values to add to the dynamic lists suggestion dropdown.
 	 *
-	 * @param {Object<string, *>} labels
+	 * @param {Object&lt;string, *>} labels
 	 * The choice label values to use when adding suggested choices. If no
 	 * label is found for a particular choice value, the value itself is used
 	 * as label text. Choice labels may be any valid value accepted by
@@ -2398,7 +4092,7 @@ var UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype */
  *
  * @classdesc
  *
- * The `Hiddenfield` class implements an HTML `<input type="hidden">` field
+ * The `Hiddenfield` class implements an HTML `&lt;input type="hidden">` field
  * which allows to store form data without exposing it to the user.
  *
  * UI widget instances are usually not supposed to be created by view code
@@ -2545,7 +4239,7 @@ var UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */ {
 		return L.resolveDefault(this.value != null ? fs.stat(this.value) : null).then(L.bind(function(stat) {
 			var label;
 
-			if (L.isObject(stat) && stat.type != 'directory')
+			if (L.isObject(stat) &amp;&amp; stat.type != 'directory')
 				this.stat = stat;
 
 			if (this.stat != null)
@@ -2619,7 +4313,7 @@ var UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */ {
 		var croot = this.canonicalizePath(this.options.root_directory || '/'),
 		    cpath = this.canonicalizePath(path || '/');
 
-		if (cpath.length <= croot.length)
+		if (cpath.length &lt;= croot.length)
 			return [ croot ];
 
 		if (cpath.charAt(croot.length) != '/')
@@ -2646,9 +4340,9 @@ var UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */ {
 
 		var existing = list.filter(function(e) { return e.name == filename })[0];
 
-		if (existing != null && existing.type == 'directory')
+		if (existing != null &amp;&amp; existing.type == 'directory')
 			return alert(_('A directory with the same name already exists.'));
-		else if (existing != null && !confirm(_('Overwrite existing file "%s" ?').format(filename)))
+		else if (existing != null &amp;&amp; !confirm(_('Overwrite existing file "%s" ?').format(filename)))
 			return;
 
 		var data = new FormData();
@@ -2664,7 +4358,7 @@ var UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */ {
 		}).then(L.bind(function(path, ev, res) {
 			var reply = res.json();
 
-			if (L.isObject(reply) && reply.failure)
+			if (L.isObject(reply) &amp;&amp; reply.failure)
 				alert(_('Upload request failed: %s').format(reply.message));
 
 			return this.handleSelect(path, null, ev);
@@ -2758,13 +4452,13 @@ var UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */ {
 			    isDirB = (b.type == 'directory');
 
 			if (isDirA != isDirB)
-				return isDirA < isDirB;
+				return isDirA &lt; isDirB;
 
 			return a.name > b.name;
 		});
 
-		for (var i = 0; i < list.length; i++) {
-			if (!this.options.show_hidden && list[i].name.charAt(0) == '.')
+		for (var i = 0; i &lt; list.length; i++) {
+			if (!this.options.show_hidden &amp;&amp; list[i].name.charAt(0) == '.')
 				continue;
 
 			var entrypath = this.canonicalizePath(path + '/' + list[i].name),
@@ -2810,7 +4504,7 @@ var UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */ {
 		var dirs = this.splitPath(path),
 		    cur = '';
 
-		for (var i = 0; i < dirs.length; i++) {
+		for (var i = 0; i &lt; dirs.length; i++) {
 			cur = cur ? cur + '/' + dirs[i] : dirs[i];
 			L.dom.append(breadcrumb, [
 				i ? ' » ' : '',
@@ -2992,7 +4686,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 
 		dlg.setAttribute('class', 'modal');
 
-		for (var i = 2; i < arguments.length; i++)
+		for (var i = 2; i &lt; arguments.length; i++)
 			dlg.classList.add(arguments[i]);
 
 		L.dom.content(dlg, L.dom.create('h4', {}, title));
@@ -3109,7 +4803,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 			'style': 'display:flex',
 			'transitionend': function(ev) {
 				var node = ev.currentTarget;
-				if (node.parentNode && node.classList.contains('fade-out'))
+				if (node.parentNode &amp;&amp; node.classList.contains('fade-out'))
 					node.parentNode.removeChild(node);
 			}
 		}, [
@@ -3131,7 +4825,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 
 		L.dom.append(msg.firstElementChild, children);
 
-		for (var i = 2; i < arguments.length; i++)
+		for (var i = 2; i &lt; arguments.length; i++)
 			msg.classList.add(arguments[i]);
 
 		mc.insertBefore(msg, mc.firstElementChild);
@@ -3190,7 +4884,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 				'click': handlerFn
 			}, ['']));
 
-		if (label == indicatorElem.firstChild.data && style == indicatorElem.getAttribute('data-style'))
+		if (label == indicatorElem.firstChild.data &amp;&amp; style == indicatorElem.getAttribute('data-style'))
 			return false;
 
 		indicatorElem.firstChild.data = label;
@@ -3228,27 +4922,27 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 	 * elements into a list-like markup, using the values in `separators` as
 	 * separators and appends the resulting nodes to the given parent DOM node.
 	 *
-	 * Each label is suffixed with `: ` and wrapped into a `<strong>` tag, the
-	 * `<strong>` element and the value corresponding to the label are
-	 * subsequently wrapped into a `<span class="nowrap">` element.
+	 * Each label is suffixed with `: ` and wrapped into a `&lt;strong>` tag, the
+	 * `&lt;strong>` element and the value corresponding to the label are
+	 * subsequently wrapped into a `&lt;span class="nowrap">` element.
 	 *
-	 * The resulting `<span>` element tuples are joined by the given separators
+	 * The resulting `&lt;span>` element tuples are joined by the given separators
 	 * to form the final markup which is appened to the given parent DOM node.
 	 *
 	 * @param {Node} node
 	 * The parent DOM node to append the markup to. Any previous child elements
 	 * will be removed.
 	 *
-	 * @param {Array<*>} items
+	 * @param {Array&lt;*>} items
 	 * An alternating array of labels and values. The label values will be
 	 * converted to plain strings, the values are used as-is and may be of
 	 * any type accepted by `LuCI.dom.content()`.
 	 *
-	 * @param {*|Array<*>} [separators=[E('br')]]
+	 * @param {*|Array&lt;*>} [separators=[E('br')]]
 	 * A single value or an array of separator values to separate each
 	 * label/value pair with. The function will cycle through the separators
 	 * when joining the pairs. If omitted, the default separator is a sole HTML
-	 * `<br>` element. Separator values are used as-is and may be of any type
+	 * `&lt;br>` element. Separator values are used as-is and may be of any type
 	 * accepted by `LuCI.dom.content()`.
 	 *
 	 * @returns {Node}
@@ -3260,8 +4954,8 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 		if (!Array.isArray(separators))
 			separators = [ separators || E('br') ];
 
-		for (var i = 0; i < items.length; i += 2) {
-			if (items[i+1] !== null && items[i+1] !== undefined) {
+		for (var i = 0; i &lt; items.length; i += 2) {
+			if (items[i+1] !== null &amp;&amp; items[i+1] !== undefined) {
 				var sep = separators[(i/2) % separators.length],
 				    cld = [];
 
@@ -3270,7 +4964,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 					items[i+1]
 				]));
 
-				if ((i+2) < items.length)
+				if ((i+2) &lt; items.length)
 					children.push(L.dom.elem(sep) ? sep.cloneNode(true) : sep);
 			}
 		}
@@ -3303,7 +4997,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 			document.querySelectorAll('[data-tab]').forEach(function(tab) {
 				var parent = tab.parentNode;
 
-				if (L.dom.matches(tab, 'li') && L.dom.matches(parent, 'ul.cbi-tabmenu'))
+				if (L.dom.matches(tab, 'li') &amp;&amp; L.dom.matches(parent, 'ul.cbi-tabmenu'))
 					return;
 
 				if (!parent.hasAttribute('data-tab-group'))
@@ -3321,7 +5015,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 				groups[currGroup].push(tab);
 			});
 
-			for (var i = 0; i < groups.length; i++)
+			for (var i = 0; i &lt; groups.length; i++)
 				this.initTabGroup(groups[i]);
 
 			document.addEventListener('dependency-update', this.updateTabs.bind(this));
@@ -3344,7 +5038,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 		 *
 		 * @instance
 		 * @memberof LuCI.ui.tabs
-		 * @param {Array<Node>|NodeList} panes
+		 * @param {Array&lt;Node>|NodeList} panes
 		 * A collection of tab panes to build a tab group menu for. May be a
 		 * plain array of DOM nodes or a NodeList collection, such as the result
 		 * of a `querySelectorAll()` call or the `.childNodes` property of a
@@ -3386,8 +5080,8 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 			if (selected === null) {
 				selected = this.getActiveTabId(panes[0]);
 
-				if (selected < 0 || selected >= panes.length || this.isEmptyPane(panes[selected])) {
-					for (var i = 0; i < panes.length; i++) {
+				if (selected &lt; 0 || selected >= panes.length || this.isEmptyPane(panes[selected])) {
+					for (var i = 0; i &lt; panes.length; i++) {
 						if (!this.isEmptyPane(panes[i])) {
 							selected = i;
 							break;
@@ -3429,7 +5123,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 			var path = [], node = null;
 
 			for (node = pane ? pane.parentNode : null;
-			     node != null && node.hasAttribute != null;
+			     node != null &amp;&amp; node.hasAttribute != null;
 			     node = node.parentNode)
 			{
 				if (node.hasAttribute('data-tab'))
@@ -3447,7 +5141,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 
 			try {
 				var val = JSON.parse(window.sessionStorage.getItem('tab'));
-				if (val.page === page && L.isObject(val.paths))
+				if (val.page === page &amp;&amp; L.isObject(val.paths))
 					return val;
 			}
 			catch(e) {}
@@ -3569,7 +5263,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 	 * An optional DOM text node whose content text is set to the progress
 	 * percentage value during file upload.
 	 *
-	 * @returns {Promise<LuCI.ui.FileUploadReply>}
+	 * @returns {Promise&lt;LuCI.ui.FileUploadReply>}
 	 * Returns a promise resolving to a file upload status object on success
 	 * or rejecting with an error in case the upload failed or has been
 	 * cancelled by the user.
@@ -3656,7 +5350,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 
 									L.ui.hideModal();
 
-									if (L.isObject(reply) && reply.failure) {
+									if (L.isObject(reply) &amp;&amp; reply.failure) {
 										L.ui.addNotification(null, E('p', _('Upload request failed: %s').format(reply.message)));
 										rejectFn(new Error(reply.failure));
 									}
@@ -3691,7 +5385,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 	 * Override the host address to probe. By default the current host as seen
 	 * in the address bar is probed.
 	 *
-	 * @returns {Promise<Event>}
+	 * @returns {Promise&lt;Event>}
 	 * Returns a promise resolving to a `load` event in case the device is
 	 * reachable or rejecting with an `error` event in case it is not reachable
 	 * or rejecting with `null` when the connectivity check timed out.
@@ -3729,8 +5423,8 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 			L.Poll.add(L.bind(function() {
 				var tasks = [], reachable = false;
 
-				for (var i = 0; i < 2; i++)
-					for (var j = 0; j < ipaddrs.length; j++)
+				for (var i = 0; i &lt; 2; i++)
+					for (var j = 0; j &lt; ipaddrs.length; j++)
 						tasks.push(this.pingDevice(i ? 'https' : 'http', ipaddrs[j])
 							.then(function(ev) { reachable = ev.target.src.replace(/^(https?:\/\/[^\/]+).*$/, '$1/') }, function() {}));
 
@@ -3811,7 +5505,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 		 *
 		 * @instance
 		 * @memberof LuCI.ui.changes
-		 * @param {Object<string, Array<LuCI.uci.ChangeRecord>>} changes
+		 * @param {Object&lt;string, Array&lt;LuCI.uci.ChangeRecord>>} changes
 		 * The UCI changeset to count.
 		 */
 		renderChangeIndicator: function(changes) {
@@ -3827,16 +5521,16 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 
 		/** @private */
 		changeTemplates: {
-			'add-3':      '<ins>uci add %0 <strong>%3</strong> # =%2</ins>',
-			'set-3':      '<ins>uci set %0.<strong>%2</strong>=%3</ins>',
-			'set-4':      '<var><ins>uci set %0.%2.%3=<strong>%4</strong></ins></var>',
-			'remove-2':   '<del>uci del %0.<strong>%2</strong></del>',
-			'remove-3':   '<var><del>uci del %0.%2.<strong>%3</strong></del></var>',
-			'order-3':    '<var>uci reorder %0.%2=<strong>%3</strong></var>',
-			'list-add-4': '<var><ins>uci add_list %0.%2.%3=<strong>%4</strong></ins></var>',
-			'list-del-4': '<var><del>uci del_list %0.%2.%3=<strong>%4</strong></del></var>',
-			'rename-3':   '<var>uci rename %0.%2=<strong>%3</strong></var>',
-			'rename-4':   '<var>uci rename %0.%2.%3=<strong>%4</strong></var>'
+			'add-3':      '&lt;ins>uci add %0 &lt;strong>%3&lt;/strong> # =%2&lt;/ins>',
+			'set-3':      '&lt;ins>uci set %0.&lt;strong>%2&lt;/strong>=%3&lt;/ins>',
+			'set-4':      '&lt;var>&lt;ins>uci set %0.%2.%3=&lt;strong>%4&lt;/strong>&lt;/ins>&lt;/var>',
+			'remove-2':   '&lt;del>uci del %0.&lt;strong>%2&lt;/strong>&lt;/del>',
+			'remove-3':   '&lt;var>&lt;del>uci del %0.%2.&lt;strong>%3&lt;/strong>&lt;/del>&lt;/var>',
+			'order-3':    '&lt;var>uci reorder %0.%2=&lt;strong>%3&lt;/strong>&lt;/var>',
+			'list-add-4': '&lt;var>&lt;ins>uci add_list %0.%2.%3=&lt;strong>%4&lt;/strong>&lt;/ins>&lt;/var>',
+			'list-del-4': '&lt;var>&lt;del>uci del_list %0.%2.%3=&lt;strong>%4&lt;/strong>&lt;/del>&lt;/var>',
+			'rename-3':   '&lt;var>uci rename %0.%2=&lt;strong>%3&lt;/strong>&lt;/var>',
+			'rename-4':   '&lt;var>uci rename %0.%2.%3=&lt;strong>%4&lt;/strong>&lt;/var>'
 		},
 
 		/**
@@ -3855,13 +5549,13 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 					E('strong', _('Legend:')),
 					E('div', { 'class': 'uci-change-legend' }, [
 						E('div', { 'class': 'uci-change-legend-label' }, [
-							E('ins', '&#160;'), ' ', _('Section added') ]),
+							E('ins', '&amp;#160;'), ' ', _('Section added') ]),
 						E('div', { 'class': 'uci-change-legend-label' }, [
-							E('del', '&#160;'), ' ', _('Section removed') ]),
+							E('del', '&amp;#160;'), ' ', _('Section removed') ]),
 						E('div', { 'class': 'uci-change-legend-label' }, [
-							E('var', {}, E('ins', '&#160;')), ' ', _('Option changed') ]),
+							E('var', {}, E('ins', '&amp;#160;')), ' ', _('Option changed') ]),
 						E('div', { 'class': 'uci-change-legend-label' }, [
-							E('var', {}, E('del', '&#160;')), ' ', _('Option removed') ])]),
+							E('var', {}, E('del', '&amp;#160;')), ' ', _('Option removed') ])]),
 					E('br'), list,
 					E('div', { 'class': 'right' }, [
 						E('button', {
@@ -3871,7 +5565,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 						E('button', {
 							'class': 'cbi-button cbi-button-positive important',
 							'click': L.bind(this.apply, this, true)
-						}, [ _('Save & Apply') ]), ' ',
+						}, [ _('Save &amp; Apply') ]), ' ',
 						E('button', {
 							'class': 'cbi-button cbi-button-reset',
 							'click': L.bind(this.revert, this)
@@ -3884,7 +5578,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 
 				list.appendChild(E('h5', '# /etc/config/%s'.format(config)));
 
-				for (var i = 0, added = null; i < this.changes[config].length; i++) {
+				for (var i = 0, added = null; i &lt; this.changes[config].length; i++) {
 					var chg = this.changes[config][i],
 					    tpl = this.changeTemplates['%s-%d'.format(chg[0], chg.length)];
 
@@ -3894,7 +5588,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 							return config;
 
 						case 2:
-							if (added != null && chg[1] == added[0])
+							if (added != null &amp;&amp; chg[1] == added[0])
 								return '@' + added[1] + '[-1]';
 							else
 								return chg[1];
@@ -4007,7 +5701,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 					L.ui.changes.rollback(checked);
 					return;
 				}
-				else if (r && (r.status === 200 || r.status === 204)) {
+				else if (r &amp;&amp; (r.status === 200 || r.status === 204)) {
 					document.dispatchEvent(new CustomEvent('uci-applied'));
 
 					L.ui.changes.setIndicator(0);
@@ -4083,12 +5777,12 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 			}).then(function(r) {
 				if (r.status === (checked ? 200 : 204)) {
 					var tok = null; try { tok = r.json(); } catch(e) {}
-					if (checked && tok !== null && typeof(tok) === 'object' && typeof(tok.token) === 'string')
+					if (checked &amp;&amp; tok !== null &amp;&amp; typeof(tok) === 'object' &amp;&amp; typeof(tok.token) === 'string')
 						L.ui.changes.confirm_auth = tok;
 
 					L.ui.changes.confirm(checked, Date.now() + L.env.apply_rollback * 1000);
 				}
-				else if (checked && r.status === 204) {
+				else if (checked &amp;&amp; r.status === 204) {
 					L.ui.changes.displayStatus('notice',
 						E('p', _('There are no changes to apply')));
 
@@ -4098,7 +5792,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 				}
 				else {
 					L.ui.changes.displayStatus('warning',
-						E('p', _('Apply request failed with status <code>%h</code>')
+						E('p', _('Apply request failed with status &lt;code>%h&lt;/code>')
 							.format(r.responseText || r.statusText || r.status)));
 
 					window.setTimeout(function() {
@@ -4142,7 +5836,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 				}
 				else {
 					L.ui.changes.displayStatus('warning',
-						E('p', _('Revert request failed with status <code>%h</code>')
+						E('p', _('Revert request failed with status &lt;code>%h&lt;/code>')
 							.format(r.statusText || r.status)));
 
 					window.setTimeout(function() {
@@ -4200,7 +5894,7 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 			var cbiValidator = L.validation.create(field, type, optional, vfunc),
 			    validatorFn = cbiValidator.validate.bind(cbiValidator);
 
-			for (var i = 0; i < events.length; i++)
+			for (var i = 0; i &lt; events.length; i++)
 				field.addEventListener(events[i], validatorFn);
 
 			validatorFn();
@@ -4278,3 +5972,23 @@ return L.Class.extend(/** @lends LuCI.ui.prototype */ {
 	Hiddenfield: UIHiddenfield,
 	FileUpload: UIFileUpload
 });
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+
+        
+
+        <footer>
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Tue Mar 31 2020 21:30:33 GMT+0200 (Central European Summer Time)
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/jaguar.js"></script>
+</body>
+</html>
