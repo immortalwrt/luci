@@ -29,7 +29,7 @@ function render_radio_badge(radioDev) {
 	]);
 }
 
-function render_signal_badge(signalPercent, signalValue, noiseValue, wrap) {
+function render_signal_badge(signalPercent, signalValue, noiseValue, wrap, mode) {
 	var icon, title, value;
 
 	if (signalPercent < 0)
@@ -45,28 +45,66 @@ function render_signal_badge(signalPercent, signalValue, noiseValue, wrap) {
 	else
 		icon = L.resource('icons/signal-75-100.png');
 
-	if (signalValue != null && signalValue != 0 && noiseValue != null && noiseValue != 0) {
-		value = '%d / %d %s'.format(signalValue, noiseValue, _('dBm'));
-		title = '%s: %d %s / %s: %d %s / %s %d'.format(
-			_('Signal'), signalValue, _('dBm'),
-			_('Noise'), noiseValue, _('dBm'),
-			_('SNR'), signalValue - noiseValue);
+	if (signalValue != null && signalValue != 0) {
+		if (noiseValue != null && noiseValue != 0) {
+			value = '%d/%d\xa0%s'.format(signalValue, noiseValue, _('dBm'));
+			title = '%s: %d %s / %s: %d %s / %s %d'.format(
+				_('Signal'), signalValue, _('dBm'),
+				_('Noise'), noiseValue, _('dBm'),
+				_('SNR'), signalValue - noiseValue);
+		}
+		else {
+			value = '%d\xa0%s'.format(signalValue, _('dBm'));
+			title = '%s: %d %s'.format(_('Signal'), signalValue, _('dBm'));
+		}
 	}
-	else if (signalValue != null && signalValue != 0) {
-		value = '%d %s'.format(signalValue, _('dBm'));
-		title = '%s: %d %s'.format(_('Signal'), signalValue, _('dBm'));
+	else if (signalPercent > -1) {
+		switch (mode) {
+			case 'ap':
+				title = _('No client associated');
+				break;
+
+			case 'sta':
+			case 'adhoc':
+			case 'mesh':
+				title = _('Not associated');
+				break;
+
+			default:
+				title = _('No RX signal');
+		}
+
+		if (noiseValue != null && noiseValue != 0) {
+			value = '---/%d\x0a%s'.format(noiseValue, _('dBm'));
+			title = '%s / %s: %d %s'.format(title, _('Noise'), noiseValue, _('dBm'));
+		}
+		else {
+			value = '---\xa0%s'.format(_('dBm'));
+		}
 	}
 	else {
 		value = E('em', {}, E('small', {}, [ _('disabled') ]));
-		title = _('No signal');
+		title = _('Interface is disabled');
 	}
 
-	return E('div', { 'class': wrap ? 'center' : 'ifacebadge', 'title': title },
-		[ E('img', { 'src': icon }), wrap ? E('br') : ' ', value ]);
+	return E('div', {
+		'class': wrap ? 'center' : 'ifacebadge',
+		'title': title,
+		'data-signal': signalValue,
+		'data-noise': noiseValue
+	}, [
+		E('img', { 'src': icon }),
+		E('span', {}, [
+			wrap ? E('br') : ' ',
+			value
+		])
+	]);
 }
 
 function render_network_badge(radioNet) {
-	return render_signal_badge(radioNet.isUp() ? radioNet.getSignalPercent() : -1,  radioNet.getSignal(), radioNet.getNoise());
+	return render_signal_badge(
+		radioNet.isUp() ? radioNet.getSignalPercent() : -1,
+		radioNet.getSignal(), radioNet.getNoise(), false, radioNet.getMode());
 }
 
 function render_radio_status(radioDev, wifiNets) {
@@ -129,7 +167,9 @@ function render_modal_status(node, radioNet) {
 	if (node == null)
 		node = E('span', { 'class': 'ifacebadge large', 'data-network': radioNet.getName() }, [ E('small'), E('span') ]);
 
-	L.dom.content(node.firstElementChild, render_signal_badge(disabled ? -1 : radioNet.getSignalPercent(), radioNet.getSignal(), noise, true));
+	L.dom.content(node.firstElementChild, render_signal_badge(
+		disabled ? -1 : radioNet.getSignalPercent(),
+		radioNet.getSignal(), noise, true, radioNet.getMode()));
 
 	L.itemlist(node.lastElementChild, [
 		_('Mode'),       mode,
@@ -151,13 +191,16 @@ function render_modal_status(node, radioNet) {
 }
 
 function format_wifirate(rate) {
-	var s = '%.1f Mbit/s, %dMHz'.format(rate.rate / 1000, rate.mhz);
+	var s = '%.1f\xa0%s, %d\xa0%s'.format(rate.rate / 1000, _('Mbit/s'), rate.mhz, _('MHz')),
+	    ht = rate.ht, vht = rate.vht,
+	    mhz = rate.mhz, nss = rate.nss,
+	    mcs = rate.mcs, sgi = rate.short_gi;
 
-	if (rate.ht || rate.vht) {
-		if (rate.vht)      s += ', VHT-MCS %d'.format(rate.mcs);
-		if (rate.nss)      s += ', VHT-NSS %d'.format(rate.nss);
-		if (rate.ht)       s += ', MCS %s'.format(rate.mcs);
-		if (rate.short_gi) s += ', Short GI';
+	if (ht || vht) {
+		if (vht) s += ', VHT-MCS\xa0%d'.format(mcs);
+		if (nss) s += ', VHT-NSS\xa0%d'.format(nss);
+		if (ht)  s += ', MCS\xa0%s'.format(mcs);
+		if (sgi) s += ', ' + _('Short GI').replace(/ /g, '\xa0');
 	}
 
 	return s;
@@ -564,20 +607,26 @@ return L.view.extend({
 			var hint;
 
 			if (name && ipv4 && ipv6)
-				hint = '%s (%s, %s)'.format(name, ipv4, ipv6);
+				hint = '%s <span class="hide-xs">(%s, %s)</span>'.format(name, ipv4, ipv6);
 			else if (name && (ipv4 || ipv6))
-				hint = '%s (%s)'.format(name, ipv4 || ipv6);
+				hint = '%s <span class="hide-xs">(%s)</span>'.format(name, ipv4 || ipv6);
 			else
 				hint = name || ipv4 || ipv6 || '?';
 
 			var row = [
-				E('span', { 'class': 'ifacebadge' }, [
+				E('span', {
+					'class': 'ifacebadge',
+					'data-ifname': bss.network.getIfname(),
+					'data-ssid': bss.network.getSSID()
+				}, [
 					E('img', {
 						'src': L.resource('icons/wifi%s.png').format(bss.network.isUp() ? '' : '_disabled'),
 						'title': bss.radio.getI18n()
 					}),
-					' %s '.format(bss.network.getShortName()),
-					E('small', '(%s)'.format(bss.network.getIfname()))
+					E('span', [
+						' %s '.format(bss.network.getShortName()),
+						E('small', '(%s)'.format(bss.network.getIfname()))
+					])
 				]),
 				bss.mac,
 				hint,
@@ -591,7 +640,7 @@ return L.view.extend({
 
 			if (bss.network.isClientDisconnectSupported()) {
 				if (table.firstElementChild.childNodes.length < 6)
-					table.firstElementChild.appendChild(E('div', { 'class': 'th nowrap right'}, [ _('Disconnect') ]));
+					table.firstElementChild.appendChild(E('div', { 'class': 'th cbi-section-actions'}));
 
 				row.push(E('button', {
 					'class': 'cbi-button cbi-button-remove',
@@ -2048,13 +2097,13 @@ return L.view.extend({
 					.then(L.bind(this.poll_status, this, nodes));
 			}, this), 5);
 
-			var table = E('div', { 'class': 'table', 'id': 'wifi_assoclist_table' }, [
+			var table = E('div', { 'class': 'table assoclist', 'id': 'wifi_assoclist_table' }, [
 				E('div', { 'class': 'tr table-titles' }, [
 					E('div', { 'class': 'th nowrap' }, _('Network')),
 					E('div', { 'class': 'th hide-xs' }, _('MAC-Address')),
 					E('div', { 'class': 'th' }, _('Host')),
-					E('div', { 'class': 'th nowrap' }, _('Signal / Noise')),
-					E('div', { 'class': 'th nowrap' }, _('RX Rate / TX Rate'))
+					E('div', { 'class': 'th' }, _('Signal / Noise')),
+					E('div', { 'class': 'th' }, _('RX Rate / TX Rate'))
 				])
 			]);
 
