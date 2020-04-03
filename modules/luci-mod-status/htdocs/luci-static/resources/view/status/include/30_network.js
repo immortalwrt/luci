@@ -1,4 +1,5 @@
 'use strict';
+'require baseclass';
 'require fs';
 'require rpc';
 'require network';
@@ -64,7 +65,7 @@ function renderbox(ifc, ipv6) {
 	]);
 }
 
-return L.Class.extend({
+return baseclass.extend({
 	title: _('Network'),
 
 	load: function() {
