@@ -59,21 +59,18 @@ LUCI_LC_ALIAS.zh_Hant=zh-tw
 
 PKG_NAME?=$(LUCI_NAME)
 
-PKG_VERSION?=$(if $(DUMP),x,$(strip $(shell \
-	if svn info >/dev/null 2>/dev/null; then \
-		revision="svn-r$$(LC_ALL=C svn info | sed -ne 's/^Revision: //p')"; \
-	elif git log -1 >/dev/null 2>/dev/null; then \
-		revision="svn-r$$(LC_ALL=C git log -1 | sed -ne 's/.*git-svn-id: .*@\([0-9]\+\) .*/\1/p')"; \
-		if [ "$$revision" = "svn-r" ]; then \
-			set -- $$(git log -1 --format="%ct %h" --abbrev=7); \
-			secs="$$(($$1 % 86400))"; \
-			yday="$$(date --utc --date="@$$1" "+%y.%j")"; \
-			revision="$$(printf 'git-%s.%05d-%s' "$$yday" "$$secs" "$$2")"; \
-		fi; \
-	else \
-		revision="unknown"; \
-	fi; \
-	echo "$$revision" \
+PKG_PO_VERSION?=$(if $(DUMP),x,$(strip $(shell \
+	set -- $$(git log -1 --format="%ct %h" --abbrev=7 -- po); \
+	secs="$$(($$1 % 86400))"; \
+	yday="$$(date --utc --date="@$$1" "+%y.%j")"; \
+	printf 'git-%s.%05d-%s' "$$yday" "$$secs" "$$2" \
+)))
+
+PKG_SRC_VERSION?=$(if $(DUMP),x,$(strip $(shell \
+	set -- $$(git log -1 --format="%ct %h" --abbrev=7 -- . ':(exclude)po'); \
+	secs="$$(($$1 % 86400))"; \
+	yday="$$(date --utc --date="@$$1" "+%y.%j")"; \
+	printf 'git-%s.%05d-%s' "$$yday" "$$secs" "$$2" \
 )))
 
 PKG_GITBRANCH?=$(if $(DUMP),x,$(strip $(shell \
@@ -105,6 +102,7 @@ define Package/$(PKG_NAME)
   SUBMENU:=$(if $(LUCI_MENU.$(LUCI_TYPE)),$(LUCI_MENU.$(LUCI_TYPE)),$(LUCI_MENU.app))
   TITLE:=$(if $(LUCI_TITLE),$(LUCI_TITLE),LuCI $(LUCI_NAME) $(LUCI_TYPE))
   DEPENDS:=$(LUCI_DEPENDS)
+  VERSION:=$(PKG_SRC_VERSION)
   $(if $(LUCI_EXTRA_DEPENDS),EXTRA_DEPENDS:=$(LUCI_EXTRA_DEPENDS))
   $(if $(LUCI_PKGARCH),PKGARCH:=$(LUCI_PKGARCH))
 endef
@@ -246,6 +244,7 @@ define LuciTranslation
     HIDDEN:=1
     DEFAULT:=LUCI_LANG_$(2)||(ALL&&m)
     DEPENDS:=$(PKG_NAME)
+    VERSION:=$(PKG_PO_VERSION)
     PKGARCH:=all
   endef
 
