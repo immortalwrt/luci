@@ -7,6 +7,33 @@ local uci = require("luci.model.uci").cursor()
 
 local packageName = "https-dns-proxy"
 local providers_dir = "/usr/lib/lua/luci/" .. packageName .. "/providers/"
+local helperText = ""
+
+function create_helper_text()
+	local initText = "<br />" .. translate("For more information on different options check") .. " "
+	for filename in fs.dir(providers_dir) do
+		local p_func = loadfile(providers_dir .. filename)
+		setfenv(p_func, { _ = i18n.translate })
+		local p = p_func()
+		if p.help_link then
+			local url, domain
+			url = p.help_link
+			domain = p.help_link_text or url:match('^%w+://([^/]+)')
+			if not helperText:find(domain) then
+				if helperText == "" then
+					helperText = initText
+				else
+					helperText = helperText .. ", "
+				end
+				helperText = helperText .. [[<a href="]] .. url .. [[">]] .. domain .. [[</a>]]
+			end
+		end
+	end
+	if helperText ~= "" then
+		local a = helperText:gsub('(.*),%s.*$', '%1')
+		helperText = a .. " " .. translate("and") .. helperText:sub(#a + 2) .. "."
+	end
+end
 
 function get_provider_name(value)
 	for filename in fs.dir(providers_dir) do
@@ -22,21 +49,22 @@ function get_provider_name(value)
 	return translate("Unknown Provider")
 end
 
-local tmpfsStatus, tmpfsStatusCode
+local packageStatus, packageStatusCode
 local ubusStatus = util.ubus("service", "list", { name = packageName })
-local tmpfsVersion = tostring(util.trim(sys.exec("opkg list-installed " .. packageName .. " | awk '{print $3}'")))
+local packageVersion = tostring(util.trim(sys.exec("opkg list-installed " .. packageName .. " | awk '{print $3}'"))) or ""
 
-if not tmpfsVersion or tmpfsVersion == "" then
-	tmpfsStatusCode = -1
-	tmpfsVersion = ""
-	tmpfsStatus = packageName .. " " .. translate("is not installed or not found")
+if packageVersion == "" then
+	packageStatusCode = -1
+	packageStatus = translatef("%s is not installed or not found", packageName)
 else  
-	tmpfsVersion = " [" .. packageName .. " " .. tmpfsVersion .. "]"
 	if not ubusStatus or not ubusStatus[packageName] then
-		tmpfsStatusCode = 0
-		tmpfsStatus = translate("Stopped")
+		packageStatusCode = 0
+		packageStatus = translate("Stopped")
+		if not sys.init.enabled(packageName) then
+			packageStatus = packageStatus .. " (" .. translate("disabled") .. ")"
+		end
 	else
-		tmpfsStatusCode, tmpfsStatus = 1, ""
+		packageStatusCode, packageStatus = 1, ""
 		for n = 1,1000 do
 			if ubusStatus and ubusStatus[packageName] and 
 				 ubusStatus[packageName]["instances"] and 
@@ -53,7 +81,7 @@ else
 				end
 				la = la or "127.0.0.1"
 				lp = lp or n + 5053
-				tmpfsStatus = tmpfsStatus .. translate("Running") .. ": " .. get_provider_name(url) .. " " .. translate("DoH") .. " " .. translate("at") .. " " .. la .. ":" .. lp .. "\n"
+				packageStatus = packageStatus .. translatef("Running: %s DoH at %s:%s", get_provider_name(url), la, lp) .. "\n"
 			else
 				break
 			end
@@ -63,34 +91,26 @@ end
 
 m = Map("https-dns-proxy", translate("DNS Over HTTPS Proxy Settings"))
 
-h = m:section(TypedSection, "_dummy", translate("Service Status") .. tmpfsVersion)
+h = m:section(TypedSection, "_dummy", translatef("Service Status [%s %s]", packageName, packageVersion))
 h.template = "cbi/nullsection"
 ss = h:option(DummyValue, "_dummy", translate("Service Status"))
-if tmpfsStatusCode == -1 then
+if packageStatusCode == -1 then
 	ss.template = packageName .. "/status"
-	ss.value = tmpfsStatus
+	ss.value = packageStatus
 else
-		if tmpfsStatusCode == 0 then
+		if packageStatusCode == 0 then
 			ss.template = packageName .. "/status"
 		else
 			ss.template = packageName .. "/status-textarea"
 		end
-	ss.value = tmpfsStatus
+	ss.value = packageStatus
 	buttons = h:option(DummyValue, "_dummy")
 	buttons.template = packageName .. "/buttons"
 end
 
-s3 = m:section(TypedSection, "https-dns-proxy", translate("Instances"), translate("When you add/remove any instances below, they will be used to override the 'DNS forwardings' section of ")
-		.. [[ <a href="]] .. dispatcher.build_url("admin/network/dhcp") .. [[">]]
-		.. translate("DHCP and DNS") .. [[</a>]] .. "."
-    .. "<br />"
-    .. translate("For more information on different options check ")
-		.. [[ <a href="https://adguard.com/en/adguard-dns/overview.html">]]
-    .. "AdGuard.com" .. [[</a>]] .. ", "
-		.. [[ <a href="https://cleanbrowsing.org/guides/dnsoverhttps">]]
-    .. "CleanBrowsing.org" .. [[</a>]] .. " " .. translate("and") .. " "
-		.. [[ <a href="https://www.quad9.net/doh-quad9-dns-servers/">]]
-    .. "Quad9.net" .. [[</a>]] .. ".")
+create_helper_text()
+s3 = m:section(TypedSection, "https-dns-proxy", translate("Instances"), 
+	translatef("When you add/remove any instances below, they will be used to override the 'DNS forwardings' section of <a href=\"%s\">DHCP and DNS</a>.", dispatcher.build_url("admin/network/dhcp")) .. helperText)
 s3.template = "cbi/tblsection"
 s3.sortable  = false
 s3.anonymous = true
