@@ -107,19 +107,12 @@ body {
 	white-space: nowrap;
 }
 
-#indicators > [data-style="inactive"],
-#indicators > * > #xhr_poll_status_off {
+#indicators > [data-style="inactive"] {
 	background: var(--main-bright-color);
 	color: var(--secondary-bright-color);
 	border: 2px solid var(--secondary-bright-color);
 	line-height: calc(1.5em - 4px);
 	padding: 0 calc(.5em - 2px);
-}
-
-#indicators > * > #xhr_poll_status_off {
-	border-radius: 1em;
-	margin: 0 -.5em;
-	display: block;
 }
 
 #menubar h2,
@@ -910,7 +903,7 @@ button.important {
 
 button[disabled], button.disabled, .btn[disabled], .btn.disabled {
 	pointer-events: none;
-	opacity: .5;
+	opacity: .6;
 }
 
 .cbi-button-apply, .cbi-button-positive {
@@ -977,6 +970,12 @@ button[disabled], button.disabled, .btn[disabled], .btn.disabled {
 	background: var(--danger-color);
 }
 
+.cbi-checkbox input[type="checkbox"][disabled] + label::before,
+.cbi-checkbox input[type="checkbox"][disabled] + label::after {
+	pointer-events: none;
+	opacity: .6;
+}
+
 input:not([type]),
 input[type="text"],
 input[type="password"],
@@ -998,6 +997,14 @@ select:focus,
 .cbi-dropdown:not(.btn):not(.cbi-button):focus,
 .cbi-dropdown[open]:not(.btn):not(.cbi-button) {
 	border-color: var(--main-dark-color);
+}
+
+input[disabled]:not([type]),
+input[disabled][type="text"],
+input[disabled][type="password"],
+select[disabled] {
+	opacity: .6;
+	pointer-events: none;
 }
 
 input:not([type]) + .btn, input:not([type]) + button,

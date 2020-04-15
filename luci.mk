@@ -59,22 +59,34 @@ LUCI_LC_ALIAS.zh_Hant=zh-tw
 
 PKG_NAME?=$(LUCI_NAME)
 
-PKG_VERSION?=$(if $(DUMP),x,$(strip $(shell \
-	if svn info >/dev/null 2>/dev/null; then \
-		revision="svn-r$$(LC_ALL=C svn info | sed -ne 's/^Revision: //p')"; \
-	elif git log -1 >/dev/null 2>/dev/null; then \
-		revision="svn-r$$(LC_ALL=C git log -1 | sed -ne 's/.*git-svn-id: .*@\([0-9]\+\) .*/\1/p')"; \
-		if [ "$$revision" = "svn-r" ]; then \
-			set -- $$(git log -1 --format="%ct %h" --abbrev=7); \
-			secs="$$(($$1 % 86400))"; \
-			yday="$$(date --utc --date="@$$1" "+%y.%j")"; \
-			revision="$$(printf 'git-%s.%05d-%s' "$$yday" "$$secs" "$$2")"; \
-		fi; \
-	else \
-		revision="unknown"; \
-	fi; \
-	echo "$$revision" \
-)))
+
+# 1: everything expect po subdir or only po subdir
+define findrev
+  $(shell \
+    if git log -1 >/dev/null 2>/dev/null; then \
+      set -- $$(git log -1 --format="%ct %h" --abbrev=7 -- $(if $(1),. ':(exclude)po',po)); \
+      if [ -n "$$1" ]; then
+        secs="$$(($$1 % 86400))"; \
+        yday="$$(date --utc --date="@$$1" "+%y.%j")"; \
+        printf 'git-%s.%05d-%s' "$$yday" "$$secs" "$$2"; \
+      else \
+        echo "unknown"; \
+      fi; \
+    else \
+      ts=$$(find . -type f $(if $(1),-not) -path './po/*' -printf '%T@\n' 2>/dev/null | sort -rn | head -n1 | cut -d. -f1); \
+      if [ -n "$$ts" ]; then \
+        secs="$$(($$ts % 86400))"; \
+        date="$$(date --utc --date="@$$ts" "+%y%m%d")"; \
+        printf '%s.%05d' "$$date" "$$secs"; \
+      else \
+        echo "unknown"; \
+      fi; \
+    fi \
+  )
+endef
+
+PKG_PO_VERSION?=$(if $(DUMP),x,$(strip $(call findrev)))
+PKG_SRC_VERSION?=$(if $(DUMP),x,$(strip $(call findrev,1)))
 
 PKG_GITBRANCH?=$(if $(DUMP),x,$(strip $(shell \
 	variant="LuCI"; \
@@ -121,7 +133,7 @@ ifeq ($(PKG_NAME),luci-base)
  define Package/luci-base/config
    config LUCI_SRCDIET
 	bool "Minify Lua sources"
-	default n
+	default y
 
    config LUCI_JSMIN
 	bool "Minify JavaScript sources"
@@ -247,6 +259,7 @@ define LuciTranslation
     HIDDEN:=1
     DEFAULT:=LUCI_LANG_$(2)||(ALL&&m)
     DEPENDS:=$(PKG_NAME)
+    VERSION:=$(PKG_PO_VERSION)
     PKGARCH:=all
   endef
 

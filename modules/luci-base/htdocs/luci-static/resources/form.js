@@ -1,10 +1,18 @@
 'use strict';
 'require ui';
 'require uci';
+'require rpc';
 'require dom';
 'require baseclass';
 
 var scope = this;
+
+var callSessionAccess = rpc.declare({
+	object: 'session',
+	method: 'access',
+	params: [ 'scope', 'object', 'function' ],
+	expect: { 'access': false }
+});
 
 var CBIJSONConfig = baseclass.extend({
 	__init__: function(data) {
@@ -364,6 +372,20 @@ var CBIMap = CBIAbstractElement.extend(/** @lends LuCI.form.Map.prototype */ {
 	},
 
 	/**
+	 * Toggle readonly state of the form.
+	 *
+	 * If set to `true`, the Map instance is marked readonly and any form
+	 * option elements added to it will inherit the readonly state.
+	 *
+	 * If left unset, the Map will test the access permission of the primary
+	 * uci configuration upon loading and mark the form readonly if no write
+	 * permissions are granted.
+	 *
+	 * @name LuCI.form.Map.prototype#readonly
+	 * @type boolean
+	 */
+
+	/**
 	 * Find all DOM nodes within this Map which match the given search
 	 * parameters. This function is essentially a convenience wrapper around
 	 * `querySelectorAll()`.
@@ -509,8 +531,17 @@ var CBIMap = CBIAbstractElement.extend(/** @lends LuCI.form.Map.prototype */ {
 	 * an error.
 	 */
 	load: function() {
-		return this.data.load(this.parsechain || [ this.config ])
-			.then(this.loadChildren.bind(this));
+		var doCheckACL = (!(this instanceof CBIJSONMap) && this.readonly == null);
+
+		return Promise.all([
+			doCheckACL ? callSessionAccess('uci', this.config, 'write') : true,
+			this.data.load(this.parsechain || [ this.config ])
+		]).then(L.bind(function(res) {
+			if (res[0] === false)
+				this.readonly = true;
+
+			return this.loadChildren();
+		}, this));
 	},
 
 	/**
@@ -1309,6 +1340,19 @@ var CBIAbstractValue = CBIAbstractElement.extend(/** @lends LuCI.form.AbstractVa
 	 */
 
 	/**
+	 * Make option element readonly.
+	 *
+	 * This property defaults to the readonly state of the parent form element.
+	 * When set to `true`, the underlying widget is rendered in disabled state,
+	 * means its contents cannot be changed and the widget cannot be interacted
+	 * with.
+	 *
+	 * @name LuCI.form.AbstractValue.prototype#readonly
+	 * @type boolean
+	 * @default false
+	 */
+
+	/**
 	 * Override the cell width of a table or grid section child option.
 	 *
 	 * If the property is set to a numeric value, it is treated as pixel width
@@ -1960,13 +2004,15 @@ var CBITypedSection = CBIAbstractSection.extend(/** @lends LuCI.form.TypedSectio
 			createEl.appendChild(E('button', {
 				'class': 'cbi-button cbi-button-add',
 				'title': btn_title || _('Add'),
-				'click': ui.createHandlerFn(this, 'handleAdd')
+				'click': ui.createHandlerFn(this, 'handleAdd'),
+				'disabled': this.map.readonly || null
 			}, [ btn_title || _('Add') ]));
 		}
 		else {
 			var nameEl = E('input', {
 				'type': 'text',
-				'class': 'cbi-section-create-name'
+				'class': 'cbi-section-create-name',
+				'disabled': this.map.readonly || null
 			});
 
 			dom.append(createEl, [
@@ -1981,7 +2027,8 @@ var CBITypedSection = CBIAbstractSection.extend(/** @lends LuCI.form.TypedSectio
 							return;
 
 						return this.handleAdd(ev, nameEl.value);
-					})
+					}),
+					'disabled': this.map.readonly || null
 				})
 			]);
 
@@ -2024,7 +2071,8 @@ var CBITypedSection = CBIAbstractSection.extend(/** @lends LuCI.form.TypedSectio
 							'class': 'cbi-button',
 							'name': 'cbi.rts.%s.%s'.format(config_name, cfgsections[i]),
 							'data-section-id': cfgsections[i],
-							'click': ui.createHandlerFn(this, 'handleRemove', cfgsections[i])
+							'click': ui.createHandlerFn(this, 'handleRemove', cfgsections[i]),
+							'disabled': this.map.readonly || null
 						}, [ _('Delete') ])));
 			}
 
@@ -2400,7 +2448,8 @@ var CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection.p
 				E('div', {
 					'title': _('Drag to reorder'),
 					'class': 'btn cbi-button drag-handle center',
-					'style': 'cursor:move'
+					'style': 'cursor:move',
+					'disabled': this.map.readonly || null
 				}, '☰')
 			]);
 		}
@@ -2441,7 +2490,8 @@ var CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection.p
 				E('button', {
 					'title': btn_title || _('Delete'),
 					'class': 'cbi-button cbi-button-remove',
-					'click': ui.createHandlerFn(this, 'handleRemove', section_id)
+					'click': ui.createHandlerFn(this, 'handleRemove', section_id),
+					'disabled': this.map.readonly || null
 				}, [ btn_title || _('Delete') ])
 			);
 		}
@@ -2592,6 +2642,7 @@ var CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection.p
 		    s = m.section(CBINamedSection, section_id, this.sectiontype);
 
 		m.parent = parent;
+		m.readonly = parent.readonly;
 
 		s.tabs = this.tabs;
 		s.tab_names = this.tab_names;
@@ -2639,7 +2690,8 @@ var CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection.p
 					}, [ _('Dismiss') ]), ' ',
 					E('button', {
 						'class': 'cbi-button cbi-button-positive important',
-						'click': ui.createHandlerFn(this, 'handleModalSave', m)
+						'click': ui.createHandlerFn(this, 'handleModalSave', m),
+						'disabled': m.readonly || null
 					}, [ _('Save') ])
 				])
 			], 'cbi-modal');
@@ -2926,7 +2978,8 @@ var CBINamedSection = CBIAbstractSection.extend(/** @lends LuCI.form.NamedSectio
 					E('div', { 'class': 'cbi-section-remove right' },
 						E('button', {
 							'class': 'cbi-button',
-							'click': ui.createHandlerFn(this, 'handleRemove')
+							'click': ui.createHandlerFn(this, 'handleRemove'),
+							'disabled': this.map.readonly || null
 						}, [ _('Delete') ])));
 			}
 
@@ -2941,7 +2994,8 @@ var CBINamedSection = CBIAbstractSection.extend(/** @lends LuCI.form.NamedSectio
 			sectionEl.appendChild(
 				E('button', {
 					'class': 'cbi-button cbi-button-add',
-					'click': ui.createHandlerFn(this, 'handleAdd')
+					'click': ui.createHandlerFn(this, 'handleAdd'),
+					'disabled': this.map.readonly || null
 				}, [ _('Add') ]));
 		}
 
@@ -3135,7 +3189,8 @@ var CBIValue = CBIAbstractValue.extend(/** @lends LuCI.form.Value.prototype */ {
 				optional: this.optional || this.rmempty,
 				datatype: this.datatype,
 				select_placeholder: this.placeholder || placeholder,
-				validate: L.bind(this.validate, this, section_id)
+				validate: L.bind(this.validate, this, section_id),
+				disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 			});
 		}
 		else {
@@ -3145,7 +3200,8 @@ var CBIValue = CBIAbstractValue.extend(/** @lends LuCI.form.Value.prototype */ {
 				optional: this.optional || this.rmempty,
 				datatype: this.datatype,
 				placeholder: this.placeholder,
-				validate: L.bind(this.validate, this, section_id)
+				validate: L.bind(this.validate, this, section_id),
+				disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 			});
 		}
 
@@ -3200,7 +3256,8 @@ var CBIDynamicList = CBIValue.extend(/** @lends LuCI.form.DynamicList.prototype 
 			optional: this.optional || this.rmempty,
 			datatype: this.datatype,
 			placeholder: this.placeholder,
-			validate: L.bind(this.validate, this, section_id)
+			validate: L.bind(this.validate, this, section_id),
+			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 		});
 
 		return widget.render();
@@ -3265,7 +3322,8 @@ var CBIListValue = CBIValue.extend(/** @lends LuCI.form.ListValue.prototype */ {
 			sort: this.keylist,
 			optional: this.optional,
 			placeholder: this.placeholder,
-			validate: L.bind(this.validate, this, section_id)
+			validate: L.bind(this.validate, this, section_id),
+			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 		});
 
 		return widget.render();
@@ -3336,7 +3394,8 @@ var CBIFlagValue = CBIValue.extend(/** @lends LuCI.form.FlagValue.prototype */ {
 			id: this.cbid(section_id),
 			value_enabled: this.enabled,
 			value_disabled: this.disabled,
-			validate: L.bind(this.validate, this, section_id)
+			validate: L.bind(this.validate, this, section_id),
+			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 		});
 
 		return widget.render();
@@ -3464,7 +3523,8 @@ var CBIMultiValue = CBIDynamicList.extend(/** @lends LuCI.form.MultiValue.protot
 			select_placeholder: this.placeholder,
 			display_items: this.display_size || this.size || 3,
 			dropdown_items: this.dropdown_size || this.size || -1,
-			validate: L.bind(this.validate, this, section_id)
+			validate: L.bind(this.validate, this, section_id),
+			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 		});
 
 		return widget.render();
@@ -3556,7 +3616,8 @@ var CBITextValue = CBIValue.extend(/** @lends LuCI.form.TextValue.prototype */ {
 			cols: this.cols,
 			rows: this.rows,
 			wrap: this.wrap,
-			validate: L.bind(this.validate, this, section_id)
+			validate: L.bind(this.validate, this, section_id),
+			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 		});
 
 		return widget.render();
@@ -3626,7 +3687,7 @@ var CBIDummyValue = CBIValue.extend(/** @lends LuCI.form.DummyValue.prototype */
 		    hiddenEl = new ui.Hiddenfield(value, { id: this.cbid(section_id) }),
 		    outputEl = E('div');
 
-		if (this.href)
+		if (this.href && !((this.readonly != null) ? this.readonly : this.map.readonly))
 			outputEl.appendChild(E('a', { 'href': this.href }));
 
 		dom.append(outputEl.lastChild || outputEl,
@@ -3747,7 +3808,8 @@ var CBIButtonValue = CBIValue.extend(/** @lends LuCI.form.ButtonValue.prototype 
 
 						ev.currentTarget.parentNode.nextElementSibling.value = value;
 						return this.map.save();
-					}, section_id)
+					}, section_id),
+					'disabled': ((this.readonly != null) ? this.readonly : this.map.readonly) || null
 				}, [ btn_title ])
 			]);
 		else
@@ -3922,7 +3984,8 @@ var CBIFileUpload = CBIValue.extend(/** @lends LuCI.form.FileUpload.prototype */
 			show_hidden: this.show_hidden,
 			enable_upload: this.enable_upload,
 			enable_remove: this.enable_remove,
-			root_directory: this.root_directory
+			root_directory: this.root_directory,
+			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 		});
 
 		return browserEl.render();
