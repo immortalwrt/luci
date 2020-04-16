@@ -2,6 +2,7 @@
 'require validation';
 'require baseclass';
 'require request';
+'require session';
 'require poll';
 'require dom';
 'require rpc';
@@ -2125,7 +2126,8 @@ var UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype */
 	render: function() {
 		var dl = E('div', {
 			'id': this.options.id,
-			'class': 'cbi-dynlist'
+			'class': 'cbi-dynlist',
+			'disabled': this.options.disabled ? '' : null
 		}, E('div', { 'class': 'add-item' }));
 
 		if (this.choices) {
@@ -2943,6 +2945,92 @@ var UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */ {
 });
 
 /**
+ * Handle menu.
+ *
+ * @constructor menu
+ * @memberof LuCI.ui
+ *
+ * @classdesc
+ *
+ * Handles menus.
+ */
+var UIMenu = baseclass.singleton(/** @lends LuCI.ui.menu.prototype */ {
+	/**
+	 * @typedef {Object} MenuNode
+	 * @memberof LuCI.ui.menu
+
+	 * @property {string} name - The internal name of the node, as used in the URL
+	 * @property {number} order - The sort index of the menu node
+	 * @property {string} [title] - The title of the menu node, `null` if the node should be hidden
+	 * @property {satisified} boolean - Boolean indicating whether the menu enries dependencies are satisfied
+	 * @property {readonly} [boolean] - Boolean indicating whether the menu entries underlying ACLs are readonly
+	 * @property {LuCI.ui.menu.MenuNode[]} [children] - Array of child menu nodes.
+	 */
+
+	/**
+	 * Load and cache current menu tree.
+	 *
+	 * @returns {Promise<LuCI.ui.menu.MenuNode>}
+	 * Returns a promise resolving to the root element of the menu tree.
+	 */
+	load: function() {
+		if (this.menu == null)
+			this.menu = session.getLocalData('menu');
+
+		if (!L.isObject(this.menu)) {
+			this.menu = request.get(L.url('admin/menu')).then(L.bind(function(menu) {
+				this.menu = menu.json();
+				session.setLocalData('menu', this.menu);
+
+				return this.menu;
+			}, this));
+		}
+
+		return Promise.resolve(this.menu);
+	},
+
+	/**
+	 * Flush the internal menu cache to force loading a new structure on the
+	 * next page load.
+	 */
+	flushCache: function() {
+		session.setLocalData('menu', null);
+	},
+
+	/**
+	 * @param {LuCI.ui.menu.MenuNode} [node]
+	 * The menu node to retrieve the children for. Defaults to the menu's
+	 * internal root node if omitted.
+	 *
+	 * @returns {LuCI.ui.menu.MenuNode[]}
+	 * Returns an array of child menu nodes.
+	 */
+	getChildren: function(node) {
+		var children = [];
+
+		if (node == null)
+			node = this.menu;
+
+		for (var k in node.children) {
+			if (!node.children.hasOwnProperty(k))
+				continue;
+
+			if (!node.children[k].satisfied)
+				continue;
+
+			if (!node.children[k].hasOwnProperty('title'))
+				continue;
+
+			children.push(Object.assign(node.children[k], { name: k }));
+		}
+
+		return children.sort(function(a, b) {
+			return ((a.order || 1000) - (b.order || 1000));
+		});
+	}
+});
+
+/**
  * @class ui
  * @memberof LuCI
  * @hideconstructor
@@ -3463,16 +3551,14 @@ var UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 
 		/** @private */
 		getActiveTabState: function() {
-			var page = document.body.getAttribute('data-page');
+			var page = document.body.getAttribute('data-page'),
+			    state = session.getLocalData('tab');
 
-			try {
-				var val = JSON.parse(window.sessionStorage.getItem('tab'));
-				if (val.page === page && L.isObject(val.paths))
-					return val;
-			}
-			catch(e) {}
+			if (L.isObject(state) && state.page === page && L.isObject(state.paths))
+				return state;
 
-			window.sessionStorage.removeItem('tab');
+			session.setLocalData('tab', null);
+
 			return { page: page, paths: {} };
 		},
 
@@ -3484,17 +3570,12 @@ var UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 
 		/** @private */
 		setActiveTabId: function(pane, tabIndex) {
-			var path = this.getPathForPane(pane);
+			var path = this.getPathForPane(pane),
+			    state = this.getActiveTabState();
 
-			try {
-				var state = this.getActiveTabState();
-				    state.paths[path] = tabIndex;
+			state.paths[path] = tabIndex;
 
-			    window.sessionStorage.setItem('tab', JSON.stringify(state));
-			}
-			catch (e) { return false; }
-
-			return true;
+			return session.setLocalData('tab', state);
 		},
 
 		/** @private */
@@ -4302,6 +4383,8 @@ var UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 			L.error(err);
 		});
 	},
+
+	menu: UIMenu,
 
 	AbstractElement: UIElement,
 
