@@ -324,6 +324,14 @@ local function tree_to_json(node, json)
 				end
 			end
 
+			if type(subnode.acl_depends) == "table" then
+				for _, acl in ipairs(subnode.acl_depends) do
+					spec.depends = spec.depends or {}
+					spec.depends.acl = spec.depends.acl or {}
+					spec.depends.acl[#spec.depends.acl + 1] = acl
+				end
+			end
+
 			if (subnode.sysauth_authenticator ~= nil) or
 			   (subnode.sysauth ~= nil and subnode.sysauth ~= false)
 			then
@@ -1321,11 +1329,22 @@ function _cbi(self, ...)
 	local cbi = require "luci.cbi"
 	local tpl = require "luci.template"
 	local http = require "luci.http"
+	local util = require "luci.util"
 
 	local config = self.config or {}
 	local maps = cbi.load(self.model, ...)
 
 	local state = nil
+
+	local function has_uci_access(config, level)
+		local rv = util.ubus("session", "access", {
+			ubus_rpc_session = context.authsession,
+			scope = "uci", object = config,
+			["function"] = level
+		})
+
+		return (type(rv) == "table" and rv.access == true) or false
+	end
 
 	local i, res
 	for i, res in ipairs(maps) do
@@ -1380,6 +1399,7 @@ function _cbi(self, ...)
 	local applymap   = false
 	local pageaction = true
 	local parsechain = { }
+	local writable   = false
 
 	for i, res in ipairs(maps) do
 		if res.apply_needed and res.parsechain then
@@ -1405,12 +1425,19 @@ function _cbi(self, ...)
 	end
 
 	for i, res in ipairs(maps) do
+		local is_readable_map = has_uci_access(res.config, "read")
+		local is_writable_map = has_uci_access(res.config, "write")
+
+		writable = writable or is_writable_map
+
 		res:render({
 			firstmap   = (i == 1),
 			redirect   = redirect,
 			messages   = messages,
 			pageaction = pageaction,
-			parsechain = parsechain
+			parsechain = parsechain,
+			readable   = is_readable_map,
+			writable   = is_writable_map
 		})
 	end
 
@@ -1421,7 +1448,8 @@ function _cbi(self, ...)
 			redirect      = redirect,
 			state         = state,
 			autoapply     = config.autoapply,
-			trigger_apply = applymap
+			trigger_apply = applymap,
+			writable      = writable
 		})
 	end
 end
