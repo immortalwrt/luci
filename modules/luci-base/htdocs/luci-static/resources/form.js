@@ -531,12 +531,15 @@ var CBIMap = CBIAbstractElement.extend(/** @lends LuCI.form.Map.prototype */ {
 	 * an error.
 	 */
 	load: function() {
-		var doCheckACL = (!(this instanceof CBIJSONMap) && this.readonly == null);
+		var doCheckACL = (!(this instanceof CBIJSONMap) && this.readonly == null),
+		    loadTasks = [ doCheckACL ? callSessionAccess('uci', this.config, 'write') : true ],
+		    configs = this.parsechain || [ this.config ];
 
-		return Promise.all([
-			doCheckACL ? callSessionAccess('uci', this.config, 'write') : true,
-			this.data.load(this.parsechain || [ this.config ])
-		]).then(L.bind(function(res) {
+		loadTasks.push.apply(loadTasks, configs.map(L.bind(function(config, i) {
+			return i ? L.resolveDefault(this.data.load(config)) : this.data.load(config);
+		}, this)));
+
+		return Promise.all(loadTasks).then(L.bind(function(res) {
 			if (res[0] === false)
 				this.readonly = true;
 
@@ -1774,6 +1777,10 @@ var CBIAbstractValue = CBIAbstractElement.extend(/** @lends LuCI.form.AbstractVa
 
 		if (field && field.classList.contains('hidden') == active) {
 			field.classList[active ? 'remove' : 'add']('hidden');
+
+			if (dom.matches(field.parentNode, '.td.cbi-value-field'))
+				field.parentNode.classList[active ? 'remove' : 'add']('inactive');
+
 			return true;
 		}
 
@@ -3312,6 +3319,7 @@ var CBIListValue = CBIValue.extend(/** @lends LuCI.form.ListValue.prototype */ {
 	__init__: function() {
 		this.super('__init__', arguments);
 		this.widget = 'select';
+		this.orientation = 'horizontal';
 		this.deplist = [];
 	},
 
@@ -3323,6 +3331,29 @@ var CBIListValue = CBIValue.extend(/** @lends LuCI.form.ListValue.prototype */ {
 	 * @default null
 	 */
 
+	/**
+	 * Set the type of the underlying form controls.
+	 *
+	 * May be one of `select` or `radio`. If set to `select`, an HTML
+	 * select element is rendered, otherwise a collection of `radio`
+	 * elements is used.
+	 *
+	 * @name LuCI.form.ListValue.prototype#widget
+	 * @type string
+	 * @default select
+	 */
+
+	/**
+	 * Set the orientation of the underlying radio or checkbox elements.
+	 *
+	 * May be one of `horizontal` or `vertical`. Only applies to non-select
+	 * widget types.
+	 *
+	 * @name LuCI.form.ListValue.prototype#orientation
+	 * @type string
+	 * @default horizontal
+	 */
+
 	 /** @private */
 	renderWidget: function(section_id, option_index, cfgvalue) {
 		var choices = this.transformChoices();
@@ -3330,7 +3361,9 @@ var CBIListValue = CBIValue.extend(/** @lends LuCI.form.ListValue.prototype */ {
 			id: this.cbid(section_id),
 			size: this.size,
 			sort: this.keylist,
+			widget: this.widget,
 			optional: this.optional,
+			orientation: this.orientation,
 			placeholder: this.placeholder,
 			validate: L.bind(this.validate, this, section_id),
 			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
