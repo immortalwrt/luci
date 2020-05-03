@@ -310,48 +310,45 @@ var UITextfield = UIElement.extend(/** @lends LuCI.ui.Textfield.prototype */ {
 	/** @override */
 	render: function() {
 		var frameEl = E('div', { 'id': this.options.id });
-
-		if (this.options.password) {
-			frameEl.classList.add('nowrap');
-			frameEl.appendChild(E('input', {
-				'type': 'password',
-				'style': 'position:absolute; left:-100000px',
-				'aria-hidden': true,
-				'tabindex': -1,
-				'name': this.options.name ? 'password.%s'.format(this.options.name) : null
-			}));
-		}
-
-		frameEl.appendChild(E('input', {
+		var inputEl = E('input', {
 			'id': this.options.id ? 'widget.' + this.options.id : null,
 			'name': this.options.name,
-			'type': this.options.password ? 'password' : 'text',
+			'type': 'text',
 			'class': this.options.password ? 'cbi-input-password' : 'cbi-input-text',
 			'readonly': this.options.readonly ? '' : null,
 			'disabled': this.options.disabled ? '' : null,
 			'maxlength': this.options.maxlength,
 			'placeholder': this.options.placeholder,
 			'value': this.value,
-		}));
+		});
 
-		if (this.options.password)
-			frameEl.appendChild(E('button', {
-				'class': 'cbi-button cbi-button-neutral',
-				'title': _('Reveal/hide password'),
-				'aria-label': _('Reveal/hide password'),
-				'click': function(ev) {
-					var e = this.previousElementSibling;
-					e.type = (e.type === 'password') ? 'text' : 'password';
-					ev.preventDefault();
-				}
-			}, '∗'));
+		if (this.options.password) {
+			frameEl.appendChild(E('div', { 'class': 'control-group' }, [
+				inputEl,
+				E('button', {
+					'class': 'cbi-button cbi-button-neutral',
+					'title': _('Reveal/hide password'),
+					'aria-label': _('Reveal/hide password'),
+					'click': function(ev) {
+						var e = this.previousElementSibling;
+						e.type = (e.type === 'password') ? 'text' : 'password';
+						ev.preventDefault();
+					}
+				}, '∗')
+			]));
+
+			window.requestAnimationFrame(function() { inputEl.type = 'password' });
+		}
+		else {
+			frameEl.appendChild(inputEl);
+		}
 
 		return this.bind(frameEl);
 	},
 
 	/** @private */
 	bind: function(frameEl) {
-		var inputEl = frameEl.childNodes[+!!this.options.password];
+		var inputEl = frameEl.querySelector('input');
 
 		this.node = frameEl;
 
@@ -365,7 +362,7 @@ var UITextfield = UIElement.extend(/** @lends LuCI.ui.Textfield.prototype */ {
 
 	/** @override */
 	getValue: function() {
-		var inputEl = this.node.childNodes[+!!this.options.password];
+		var inputEl = this.node.querySelector('input');
 		return inputEl.value;
 	},
 
@@ -773,7 +770,7 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 	bind: function(frameEl) {
 		this.node = frameEl;
 
-		if (this.options.widget == 'select') {
+		if (this.options.widget != 'radio' && this.options.widget != 'checkbox') {
 			this.setUpdateEvents(frameEl.firstChild, 'change', 'click', 'blur');
 			this.setChangeEvents(frameEl.firstChild, 'change');
 		}
@@ -792,7 +789,7 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 
 	/** @override */
 	getValue: function() {
-		if (this.options.widget == 'select')
+		if (this.options.widget != 'radio' && this.options.widget != 'checkbox')
 			return this.node.firstChild.value;
 
 		var radioEls = this.node.querySelectorAll('input[type="radio"]');
@@ -805,7 +802,7 @@ var UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 
 	/** @override */
 	setValue: function(value) {
-		if (this.options.widget == 'select') {
+		if (this.options.widget != 'radio' && this.options.widget != 'checkbox') {
 			if (value == null)
 				value = '';
 
@@ -3135,6 +3132,7 @@ var UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 		dom.append(dlg, children);
 
 		document.body.classList.add('modal-overlay-active');
+		modalDiv.scrollTop = 0;
 
 		return dlg;
 	},
