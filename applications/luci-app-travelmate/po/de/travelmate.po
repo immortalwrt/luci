@@ -1,21 +1,21 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2019-11-06 00:12+0000\n"
-"Last-Translator: Paul Spooren <mail@aparcar.org>\n"
+"PO-Revision-Date: 2020-04-20 07:11+0000\n"
+"Last-Translator: ce4 <chregger@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationstravelmate/de/>\n"
 "Language: de\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.10-dev\n"
+"X-Generator: Weblate 4.0.2-dev\n"
 
 #: applications/luci-app-travelmate/luasrc/view/travelmate/runtime.htm:206
 msgid "AP on"
 msgstr "Access Point auf"
 
 #: applications/luci-app-travelmate/luasrc/view/travelmate/stations.htm:113
-#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:38
+#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:45
 msgid "Action"
 msgstr "Aktion"
 
@@ -23,7 +23,7 @@ msgstr "Aktion"
 msgid "Add Open Uplinks"
 msgstr "Füge Offene Uplinks hinzu"
 
-#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:68
+#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:75
 msgid "Add Uplink"
 msgstr "hinzufügen"
 
@@ -78,7 +78,7 @@ msgstr "BSSID"
 
 #: applications/luci-app-travelmate/luasrc/model/cbi/travelmate/wifi_add.lua:15
 #: applications/luci-app-travelmate/luasrc/model/cbi/travelmate/wifi_edit.lua:12
-#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:77
+#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:84
 msgid "Back to overview"
 msgstr "Zurück zur Übersicht"
 
@@ -179,7 +179,7 @@ msgstr ""
 #: applications/luci-app-travelmate/luasrc/model/cbi/travelmate/wifi_edit.lua:54
 #: applications/luci-app-travelmate/luasrc/model/cbi/travelmate/wifi_edit.lua:116
 #: applications/luci-app-travelmate/luasrc/view/travelmate/stations.htm:112
-#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:36
+#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:43
 msgid "Encryption"
 msgstr "Verschlüsselung"
 
@@ -196,7 +196,7 @@ msgstr "Zusätzliche Optionen"
 
 #: applications/luci-app-travelmate/luasrc/view/travelmate/runtime.htm:128
 msgid "Faulty Stations"
-msgstr ""
+msgstr "Gestörte Wlan-Stationen"
 
 #: applications/luci-app-travelmate/luasrc/view/travelmate/stations.htm:148
 msgid "Find and join network on"
@@ -380,14 +380,14 @@ msgstr "Entfernen"
 msgid "Remove this Uplink"
 msgstr ""
 
-#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:82
+#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:89
 msgid "Repeat scan"
 msgstr ""
 
 #: applications/luci-app-travelmate/luasrc/view/travelmate/runtime.htm:15
 #: applications/luci-app-travelmate/luasrc/view/travelmate/runtime.htm:149
 msgid "Restart"
-msgstr "Neustarten"
+msgstr "Neustart"
 
 #: applications/luci-app-travelmate/luasrc/view/travelmate/runtime.htm:147
 msgid "Restart Travelmate"
@@ -442,7 +442,7 @@ msgstr ""
 msgid "Signal Quality Threshold"
 msgstr ""
 
-#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:37
+#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:44
 msgid "Signal strength"
 msgstr ""
 
@@ -517,7 +517,7 @@ msgstr ""
 
 #: applications/luci-app-travelmate/luasrc/model/cbi/travelmate/overview_tab.lua:117
 msgid "Trigger Delay"
-msgstr "Auslöseverzögerung"
+msgstr "Verzögerung Trigger-Bedingung"
 
 #: applications/luci-app-travelmate/luasrc/view/travelmate/stations.htm:131
 msgid "Up"
@@ -527,11 +527,11 @@ msgstr "Hoch"
 msgid "Uplink / Trigger interface"
 msgstr ""
 
-#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:35
+#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:42
 msgid "Uplink BSSID"
 msgstr ""
 
-#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:34
+#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:41
 msgid "Uplink SSID"
 msgstr ""
 
@@ -555,7 +555,7 @@ msgstr ""
 msgid "WPA-Passphrase"
 msgstr ""
 
-#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:30
+#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:37
 msgid "Wireless Scan"
 msgstr ""
 
@@ -567,9 +567,9 @@ msgstr ""
 msgid "add it to the wan zone of the firewall."
 msgstr ""
 
-#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:43
+#: applications/luci-app-travelmate/luasrc/view/travelmate/wifi_scan.htm:50
 msgid "hidden"
-msgstr ""
+msgstr "versteckt"
 
 #: applications/luci-app-travelmate/luasrc/view/travelmate/runtime.htm:206
 msgid "with SSID"
