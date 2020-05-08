@@ -1,4 +1,5 @@
 'use strict';
+'require baseclass';
 'require fs';
 'require rpc';
 
@@ -22,7 +23,7 @@ var callCPUUsage = rpc.declare({
 	method: 'getCPUUsage'
 });
 
-return L.Class.extend({
+return baseclass.extend({
 	title: _('System'),
 
 	load: function() {

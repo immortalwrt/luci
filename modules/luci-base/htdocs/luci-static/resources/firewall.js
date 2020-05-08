@@ -5,7 +5,7 @@
 
 
 function initFirewallState() {
-	return uci.load('firewall');
+	return L.resolveDefault(uci.load('firewall'));
 }
 
 function parseEnum(s, values) {
@@ -493,7 +493,7 @@ Zone = AbstractFirewallItem.extend({
 
 		uci.set('firewall', sid, 'src', this.getName());
 
-		return new Redirect(sid);
+		return new Rule(sid);
 	},
 
 	getColor: function(forName) {

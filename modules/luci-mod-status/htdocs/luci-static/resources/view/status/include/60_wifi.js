@@ -1,4 +1,6 @@
 'use strict';
+'require baseclass';
+'require dom';
 'require network';
 
 function renderbox(radio, networks) {
@@ -73,11 +75,11 @@ function wifirate(rt) {
 	return s;
 }
 
-return L.Class.extend({
+return baseclass.extend({
 	title: _('Wireless'),
 
 	handleDelClient: function(wifinet, mac, ev) {
-		L.dom.parent(ev.currentTarget, '.tr').style.opacity = 0.5;
+		dom.parent(ev.currentTarget, '.tr').style.opacity = 0.5;
 		ev.currentTarget.classList.add('spinning');
 		ev.currentTarget.disabled = true;
 		ev.currentTarget.blur();
@@ -119,7 +121,7 @@ return L.Class.extend({
 		if (!table.lastElementChild)
 			return null;
 
-		var assoclist = E('div', { 'class': 'table' }, [
+		var assoclist = E('div', { 'class': 'table assoclist' }, [
 			E('div', { 'class': 'tr table-titles' }, [
 				E('div', { 'class': 'th nowrap' }, _('Network')),
 				E('div', { 'class': 'th hide-xs' }, _('MAC-Address')),
@@ -168,23 +170,37 @@ return L.Class.extend({
 				var hint;
 
 				if (name && ipv4 && ipv6)
-					hint = '%s (%s, %s)'.format(name, ipv4, ipv6);
+					hint = '%s <span class="hide-xs">(%s, %s)</span>'.format(name, ipv4, ipv6);
 				else if (name && (ipv4 || ipv6))
-					hint = '%s (%s)'.format(name, ipv4 || ipv6);
+					hint = '%s <span class="hide-xs">(%s)</span>'.format(name, ipv4 || ipv6);
 				else
 					hint = name || ipv4 || ipv6 || '?';
 
 				var row = [
-					E('span', { 'class': 'ifacebadge', 'title': networks[i].getI18n() }, [
+					E('span', {
+						'class': 'ifacebadge',
+						'title': networks[i].getI18n(),
+						'data-ifname': networks[i].getIfname(),
+						'data-ssid': networks[i].getActiveSSID()
+					}, [
 						E('img', { 'src': L.resource('icons/wifi.png') }),
-						' ', networks[i].getShortName(),
-						E('small', {}, [ ' (', networks[i].getIfname(), ')' ])
+						E('span', {}, [
+							' ', networks[i].getShortName(),
+							E('small', {}, [ ' (', networks[i].getIfname(), ')' ])
+						])
 					]),
 					bss.mac,
 					hint,
-					E('span', { 'class': 'ifacebadge', 'title': sig_title }, [
+					E('span', {
+						'class': 'ifacebadge',
+						'title': sig_title,
+						'data-signal': bss.signal,
+						'data-noise': bss.noise
+					}, [
 						E('img', { 'src': icon }),
-						' ', sig_value
+						E('span', {}, [
+							' ', sig_value
+						])
 					]),
 					E('span', {}, [
 						E('span', wifirate(bss.rx)),

@@ -1,4 +1,7 @@
 'use strict';
+'require view';
+'require dom';
+'require poll';
 'require fs';
 'require ui';
 'require rpc';
@@ -167,7 +170,7 @@ function render_modal_status(node, radioNet) {
 	if (node == null)
 		node = E('span', { 'class': 'ifacebadge large', 'data-network': radioNet.getName() }, [ E('small'), E('span') ]);
 
-	L.dom.content(node.firstElementChild, render_signal_badge(
+	dom.content(node.firstElementChild, render_signal_badge(
 		disabled ? -1 : radioNet.getSignalPercent(),
 		radioNet.getSignal(), noise, true, radioNet.getMode()));
 
@@ -185,7 +188,7 @@ function render_modal_status(node, radioNet) {
 	], [ ' | ', E('br'), E('br'), E('br'), E('br'), E('br'), ' | ', E('br'), ' | ' ]);
 
 	if (!is_assoc)
-		L.dom.append(node.lastElementChild, E('em', disabled ? _('Wireless is disabled') : _('Wireless is not associated')));
+		dom.append(node.lastElementChild, E('em', disabled ? _('Wireless is disabled') : _('Wireless is not associated')));
 
 	return node;
 }
@@ -216,7 +219,7 @@ function radio_restart(id, ev) {
 	btn.disabled = true;
 
 	dsc.setAttribute('restart', '');
-	L.dom.content(dsc, E('em', _('Device is restarting…')));
+	dom.content(dsc, E('em', _('Device is restarting…')));
 }
 
 function network_updown(id, map, ev) {
@@ -432,7 +435,7 @@ var CBIWifiFrequencyValue = form.Value.extend({
 	renderWidget: function(section_id, option_index, cfgvalue) {
 		var elem = E('div');
 
-		L.dom.content(elem, [
+		dom.content(elem, [
 			E('label', { 'style': 'float:left; margin-right:3px' }, [
 				_('Mode'), E('br'),
 				E('select', {
@@ -520,7 +523,7 @@ var CBIWifiTxPowerValue = form.ListValue.extend({
 		var widget = form.ListValue.prototype.renderWidget.apply(this, [section_id, option_index, cfgvalue]);
 		    widget.firstElementChild.style.width = 'auto';
 
-		L.dom.append(widget, E('span', [
+		dom.append(widget, E('span', [
 			' - ', _('Current power'), ': ',
 			E('span', [ this.powerval != null ? '%d dBm'.format(this.powerval) : E('em', _('unknown')) ]),
 			this.poweroff ? ' + %d dB offset = %s dBm'.format(this.poweroff, this.powerval != null ? this.powerval + this.poweroff : '?') : ''
@@ -564,7 +567,7 @@ var CBIWifiCountryValue = form.Value.extend({
 	}
 });
 
-return L.view.extend({
+return view.extend({
 	poll_status: function(map, data) {
 		var rows = map.querySelectorAll('.cbi-section-table-row[data-sid]');
 
@@ -578,16 +581,16 @@ return L.view.extend({
 			    busy = btns[0].classList.contains('spinning') || btns[1].classList.contains('spinning') || btns[2].classList.contains('spinning');
 
 			if (radioDev) {
-				L.dom.content(badge, render_radio_badge(radioDev));
-				L.dom.content(stat, render_radio_status(radioDev, data[2].filter(function(n) { return n.getWifiDeviceName() == radioDev.getName() })));
+				dom.content(badge, render_radio_badge(radioDev));
+				dom.content(stat, render_radio_status(radioDev, data[2].filter(function(n) { return n.getWifiDeviceName() == radioDev.getName() })));
 			}
 			else {
-				L.dom.content(badge, render_network_badge(radioNet));
-				L.dom.content(stat, render_network_status(radioNet));
+				dom.content(badge, render_network_badge(radioNet));
+				dom.content(stat, render_network_status(radioNet));
 			}
 
 			if (stat.hasAttribute('restart'))
-				L.dom.content(stat, E('em', _('Device is restarting…')));
+				dom.content(stat, E('em', _('Device is restarting…')));
 
 			btns[0].disabled = busy;
 			btns[1].disabled = busy;
@@ -645,7 +648,7 @@ return L.view.extend({
 				row.push(E('button', {
 					'class': 'cbi-button cbi-button-remove',
 					'click': L.bind(function(net, mac, ev) {
-						L.dom.parent(ev.currentTarget, '.tr').style.opacity = 0.5;
+						dom.parent(ev.currentTarget, '.tr').style.opacity = 0.5;
 						ev.currentTarget.classList.add('spinning');
 						ev.currentTarget.disabled = true;
 						ev.currentTarget.blur();
@@ -952,7 +955,7 @@ return L.view.extend({
 				o = ss.taboption('general', form.Value, 'bssid', _('<abbr title="Basic Service Set Identifier">BSSID</abbr>'));
 				o.datatype = 'macaddr';
 
-				o = ss.taboption('general', widgets.NetworkSelect, 'network', _('Network'), _('Choose the network(s) you want to attach to this wireless interface or fill out the <em>create</em> field to define a new network.'));
+				o = ss.taboption('general', widgets.NetworkSelect, 'network', _('Network'), _('Choose the network(s) you want to attach to this wireless interface or fill out the <em>custom</em> field to define a new network.'));
 				o.rmempty = true;
 				o.multiple = true;
 				o.novirtual = true;
@@ -1728,8 +1731,8 @@ return L.view.extend({
 
 			this.pollFn = L.bind(this.handleScanRefresh, this, radioDev, {}, table, stop);
 
-			L.Poll.add(this.pollFn);
-			L.Poll.start();
+			poll.add(this.pollFn);
+			poll.start();
 		};
 
 		s.handleScanRefresh = function(radioDev, scanCache, table, stop) {
@@ -1795,12 +1798,12 @@ return L.view.extend({
 			var btn = ev.currentTarget;
 
 			if (btn.getAttribute('data-state') == 'stop') {
-				L.Poll.remove(this.pollFn);
+				poll.remove(this.pollFn);
 				btn.firstChild.data = _('Start refresh');
 				btn.setAttribute('data-state', 'start');
 			}
 			else {
-				L.Poll.add(this.pollFn);
+				poll.add(this.pollFn);
 				btn.firstChild.data = _('Stop refresh');
 				btn.setAttribute('data-state', 'stop');
 				btn.classList.add('spinning');
@@ -1809,14 +1812,14 @@ return L.view.extend({
 		};
 
 		s.handleScanAbort = function(ev) {
-			var md = L.dom.parent(ev.target, 'div[aria-modal="true"]');
+			var md = dom.parent(ev.target, 'div[aria-modal="true"]');
 			if (md) {
 				md.style.maxWidth = '';
 				md.style.maxHeight = '';
 			}
 
 			ui.hideModal();
-			L.Poll.remove(this.pollFn);
+			poll.remove(this.pollFn);
 
 			this.pollFn = null;
 		};
@@ -1973,7 +1976,7 @@ return L.view.extend({
 				bssid.default = '0';
 			}
 
-			zone = s2.option(widgets.ZoneSelect, 'zone', _('Create / Assign firewall-zone'), _('Choose the firewall zone you want to assign to this interface. Select <em>unspecified</em> to remove the interface from the associated zone or fill out the <em>create</em> field to define a new zone and attach the interface to it.'));
+			zone = s2.option(widgets.ZoneSelect, 'zone', _('Create / Assign firewall-zone'), _('Choose the firewall zone you want to assign to this interface. Select <em>unspecified</em> to remove the interface from the associated zone or fill out the <em>custom</em> field to define a new zone and attach the interface to it.'));
 			zone.default = 'wan';
 
 			return m2.render().then(L.bind(function(nodes) {
@@ -2036,7 +2039,7 @@ return L.view.extend({
 		};
 
 		return m.render().then(L.bind(function(m, nodes) {
-			L.Poll.add(L.bind(function() {
+			poll.add(L.bind(function() {
 				var section_ids = m.children[0].cfgsections(),
 				    tasks = [ network.getHostHints(), network.getWifiDevices() ];
 

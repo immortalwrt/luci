@@ -1,4 +1,5 @@
 'use strict';
+'require baseclass';
 'require rpc';
 'require network';
 
@@ -8,7 +9,7 @@ var callLuciDHCPLeases = rpc.declare({
 	expect: { '': {} }
 });
 
-return L.Class.extend({
+return baseclass.extend({
 	title: '',
 
 	load: function() {
@@ -23,7 +24,7 @@ return L.Class.extend({
 		    leases6 = Array.isArray(data[0].dhcp6_leases) ? data[0].dhcp6_leases : [],
 		    machints = data[1].getMACHints(false);
 
-		var table = E('div', { 'class': 'table' }, [
+		var table = E('div', { 'class': 'table lases' }, [
 			E('div', { 'class': 'tr table-titles' }, [
 				E('div', { 'class': 'th' }, _('Hostname')),
 				E('div', { 'class': 'th' }, _('IPv4-Address')),
@@ -50,7 +51,7 @@ return L.Class.extend({
 			];
 		}), E('em', _('There are no active leases')));
 
-		var table6 = E('div', { 'class': 'table' }, [
+		var table6 = E('div', { 'class': 'table leases6' }, [
 			E('div', { 'class': 'tr table-titles' }, [
 				E('div', { 'class': 'th' }, _('Host')),
 				E('div', { 'class': 'th' }, _('IPv6-Address')),

@@ -18,6 +18,7 @@
  *	Licensed to the public under the Apache License 2.0
  */
 
+document.addEventListener('luci-loaded', function(ev) {
 (function ($) {
 	$(".main > .loading").fadeOut();
 
@@ -194,7 +195,6 @@
 	$(".slide > a").removeAttr("href");
 
 	if (mainNodeName != undefined) {
-		console.log(mainNodeName);
 		switch (mainNodeName) {
 			case "node-status-system_log":
 			case "node-status-kernel_log":
@@ -216,3 +216,4 @@
 	}
 
 })(jQuery);
+});
