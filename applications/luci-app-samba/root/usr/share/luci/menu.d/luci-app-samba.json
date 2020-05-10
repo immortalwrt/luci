@@ -1,0 +1,14 @@
+{
+	"admin/nas/samba": {
+		"title": "Network Shares",
+		"action": {
+			"type": "cbi",
+			"path": "samba",
+			"post": { "cbi.submit": true }
+		},
+		"depends": {
+			"acl": [ "luci-app-samba" ],
+			"uci": { "samba": true }
+		}
+	}
+}
