@@ -30,6 +30,7 @@ s:taboption("general", Flag, "authoritative",
 	translate("This is the only <abbr title=\"Dynamic Host Configuration Protocol\">DHCP</" ..
 		"abbr> in the local network"))
 
+s:taboption("general", Flag, "dns_redirect", translate("DNS Redirect"), translate("Redirect client DNS to dnsmasq"))
 
 s:taboption("files", Flag, "readethers",
 	translate("Use <code>/etc/ethers</code>"),
