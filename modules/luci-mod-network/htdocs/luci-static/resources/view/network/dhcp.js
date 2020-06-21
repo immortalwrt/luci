@@ -173,6 +173,9 @@ return view.extend({
 			_('Authoritative'),
 			_('This is the only <abbr title="Dynamic Host Configuration Protocol">DHCP</abbr> in the local network'));
 
+		s.taboption('general', form.Flag, 'dns_redirect',
+			_('DNS Redirect'),
+			_('Redirect client DNS to dnsmasq'));
 
 		s.taboption('files', form.Flag, 'readethers',
 			_('Use <code>/etc/ethers</code>'),
