@@ -3,6 +3,7 @@
 		"description": "Grant access to LuCI app smartdns",
 		"read": {
 			"file": {
+				"uci": [ "smartdns" ],
 				"/etc/smartdns/*": [ "read" ],
 				"/usr/sbin/iptables -t nat -nL PREROUTING": [ "exec" ],
 				"/usr/sbin/ip6tables -t nat -nL PREROUTING": [ "exec" ],
@@ -10,12 +11,15 @@
 			},
 			"ubus": {
 				"service": [ "list" ]
-			}
+			},
+			"uci": [ "smartdns" ]
 		},
 		"write": {
 			"file": {
+				"uci": [ "smartdns" ],
 				"/etc/smartdns/*": [ "write" ]
-			}
+			},
+			"uci": [ "smartdns" ]
 		}
 	}
 }
