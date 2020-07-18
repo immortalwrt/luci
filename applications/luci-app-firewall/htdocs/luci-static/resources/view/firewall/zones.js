@@ -56,7 +56,6 @@ return view.extend({
 		};
 
 		o = s.option(form.Flag, 'drop_invalid', _('Drop invalid packets'));
-		o = s.option(form.Flag, 'fullcone', _('Enable FullCone NAT'));
 
 		var p = [
 			s.option(form.ListValue, 'input', _('Input')),
