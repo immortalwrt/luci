@@ -10,6 +10,8 @@ LUCI_BASENAME?=$(patsubst luci-$(LUCI_TYPE)-%,%,$(LUCI_NAME))
 LUCI_LANGUAGES:=$(filter-out templates,$(notdir $(wildcard ${CURDIR}/po/*)))
 LUCI_DEFAULTS:=$(notdir $(wildcard ${CURDIR}/root/etc/uci-defaults/*))
 LUCI_PKGARCH?=$(if $(realpath src/Makefile),,all)
+LUCI_SECTION?=luci
+LUCI_CATEGORY?=LuCI
 
 # Language code titles
 LUCI_LANG.ca=Català (Catalan)
@@ -91,8 +93,8 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)
-  SECTION:=luci
-  CATEGORY:=LuCI
+  SECTION:=$(LUCI_SECTION)
+  CATEGORY:=$(LUCI_CATEGORY)
   SUBMENU:=$(if $(LUCI_MENU.$(LUCI_TYPE)),$(LUCI_MENU.$(LUCI_TYPE)),$(LUCI_MENU.app))
   TITLE:=$(if $(LUCI_TITLE),$(LUCI_TITLE),LuCI $(LUCI_NAME) $(LUCI_TYPE))
   DEPENDS:=$(LUCI_DEPENDS)
