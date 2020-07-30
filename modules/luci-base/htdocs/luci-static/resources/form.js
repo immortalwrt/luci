@@ -603,7 +603,7 @@ var CBIMap = CBIAbstractElement.extend(/** @lends LuCI.form.Map.prototype */ {
 						E('p', {}, [ _('An error occurred while saving the form:') ]),
 						E('p', {}, [ E('em', { 'style': 'white-space:pre' }, [ e.message ]) ]),
 						E('div', { 'class': 'right' }, [
-							E('button', { 'click': ui.hideModal }, [ _('Dismiss') ])
+							E('button', { 'class': 'btn', 'click': ui.hideModal }, [ _('Dismiss') ])
 						])
 					]);
 				}
@@ -2614,7 +2614,7 @@ var CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection.p
 
 	/** @private */
 	handleModalSave: function(modalMap, ev) {
-		return modalMap.save()
+		return modalMap.save(null, true)
 			.then(L.bind(this.map.load, this.map))
 			.then(L.bind(this.map.reset, this.map))
 			.then(ui.hideModal)
