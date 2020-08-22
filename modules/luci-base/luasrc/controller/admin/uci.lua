@@ -42,7 +42,14 @@ end
 
 function action_apply_unchecked()
 	local uci = require "luci.model.uci"
-	local _, errstr = uci:apply(false)
+	local config = luci.http.formvalue("config")
+	local reload = {}
+	if config then
+		string.gsub(config, '[^' .. "," .. ']+', function(w)
+			table.insert(reload, w)
+		end)
+	end
+	local _, errstr = uci:apply(false, reload)
 	ubus_state_to_http(errstr)
 end
 

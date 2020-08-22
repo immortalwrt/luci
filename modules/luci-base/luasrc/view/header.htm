@@ -13,6 +13,30 @@
 	local applyconf = luci.config and luci.config.apply
 %>
 
+<style>
+body.modal-overlay-active #modal_overlay {
+}
+
+body.modal-overlay-active #modal_overlay > .modal {
+	align-items: center;
+	box-shadow: 0 0 3px #444;
+	display: flex;
+	flex-wrap: wrap;
+	max-height: unset;
+	/* max-width: unset; */
+	min-height: 32px;
+	min-width: 270px;
+	background: #fff;
+	border-radius: 3px;
+	padding: 1em;
+	margin: 0;
+	position: absolute;
+	top: 15%;
+	left: 50%;
+	transform: translate(-50%,-15%);
+}
+</style>
+
 <script type="text/javascript" src="<%=resource%>/promis.min.js"></script>
 <script type="text/javascript" src="<%=resource%>/luci.js"></script>
 <script type="text/javascript">
@@ -29,10 +53,10 @@
 		ubuspath       = luci.config.main.ubuspath or '/ubus/',
 		sessionid      = luci.dispatcher.context.authsession,
 		nodespec       = luci.dispatcher.context.dispatched,
-		apply_rollback = math.max(applyconf and applyconf.rollback or 30, 30),
-		apply_holdoff  = math.max(applyconf and applyconf.holdoff or 4, 1),
-		apply_timeout  = math.max(applyconf and applyconf.timeout or 5, 1),
-		apply_display  = math.max(applyconf and applyconf.display or 1.5, 1),
+		apply_rollback = applyconf and applyconf.rollback,
+		apply_holdoff  = applyconf and applyconf.holdoff,
+		apply_timeout  = applyconf and applyconf.timeout,
+		apply_display  = applyconf and applyconf.display,
 		rollback_token = rollback_token
 	}) %>);
 </script>

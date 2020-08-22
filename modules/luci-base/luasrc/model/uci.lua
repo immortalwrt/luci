@@ -117,7 +117,7 @@ function commit(self, config)
 	return (err == nil), ERRSTR[err]
 end
 
-function apply(self, rollback)
+function apply(self, rollback, config)
 	local _, err
 
 	if rollback then
@@ -150,20 +150,40 @@ function apply(self, rollback)
 	else
 		_, err = call("changes", {})
 
+		local reload = nil
 		if not err then
 			if type(_) == "table" and type(_.changes) == "table" then
 				local k, v
+				local leng = 0
 				for k, v in pairs(_.changes) do
+					leng = leng + 1
 					_, err = call("commit", { config = k })
 					if err then
 						break
 					end
 				end
+				if leng and leng == 0 and config then
+					reload = true
+				end
 			end
 		end
 
-		if not err then
-			_, err = call("apply", { rollback = false })
+		if reload then
+			local sys = require "luci.sys"
+			if config then
+				if type(config) == "table" then
+					for k, v in pairs(config) do
+						sys.call("/sbin/luci-reload %s >/dev/null 2>&1 &" % v)
+					end
+				elseif type(config) == "string" then
+					sys.call("/sbin/luci-reload %s >/dev/null 2>&1 &" % config)
+				end
+			end
+			err = 5
+		else
+			if not err then
+				_, err = call("apply", { rollback = false })
+			end
 		end
 	end
 
