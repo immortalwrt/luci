@@ -163,7 +163,6 @@ return view.extend({
 		s.tab('tftp', _('TFTP Settings'));
 		s.tab('advanced', _('Advanced Settings'));
 		s.tab('leases', _('Static Leases'));
-		s.tab('domain', _('Custom Redirect Domain'));
 
 		s.taboption('general', form.Flag, 'domainneeded',
 			_('Domain required'),
@@ -580,20 +579,5 @@ return view.extend({
 
 			return mapEl;
 		});
-
-		o = s.taboption('domain', form.SectionValue, '__domain__', form.GridSection, 'host', null,
-			_('Define a custom domain name and the corresponding PTR record'));
-		ss = o.subsection;
-		ss.anonymous = true;
-		ss.addremove = false;
-
-		so = ss.taboption('domain', form.Value, 'name', _('Domain Name'));
-		so.rmempty = true;
-
-		so = ss.taboption('domain', form.Value, 'ip', _('<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Address'));
-		so.datatype = 'or(ip4addr,"ignore")';
-
-		so = ss.taboption('domain', form.Value, 'comments', _('Comments'));
-		so.rmempty = true;
 	}
 });
