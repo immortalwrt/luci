@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-08-18 20:32+0000\n"
+"PO-Revision-Date: 2020-09-01 02:24+0000\n"
 "Last-Translator: Marcin Net <marcin.net@linux.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationshttps-dns-proxy/pl/>\n"
@@ -9,7 +9,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.2-dev\n"
+"X-Generator: Weblate 4.2.1-dev\n"
 
 #: applications/luci-app-https-dns-proxy/luasrc/model/cbi/https-dns-proxy.lua:72
 msgid "%s is not installed or not found"
@@ -24,8 +24,8 @@ msgid "AdGuard (Standard)"
 msgstr "AdGuard (standardowy)"
 
 #: applications/luci-app-https-dns-proxy/luasrc/https-dns-proxy/providers/com.alidns.dns.lua:3
-msgid "Alidns"
-msgstr "Alidns"
+msgid "AliDNS"
+msgstr "AliDNS"
 
 #: applications/luci-app-https-dns-proxy/luasrc/https-dns-proxy/providers/ca.cira.canadianshield.family.lua:3
 msgid "CIRA Canadian Shield (Family)"
@@ -74,6 +74,10 @@ msgstr "Ustawienia DNS HTTPS Proxy"
 #: applications/luci-app-https-dns-proxy/luasrc/https-dns-proxy/providers.disabled/sb.dns.lua:3
 msgid "DNS.SB"
 msgstr "DNS.SB"
+
+#: applications/luci-app-https-dns-proxy/luasrc/https-dns-proxy/providers/pub.doh.lua:3
+msgid "DNSPod.cn Public DNS"
+msgstr "DNSPod.cn Publiczny DNS"
 
 #: applications/luci-app-https-dns-proxy/luasrc/https-dns-proxy/providers.disabled/ch.digitale-gesellschaft.dns.lua:3
 msgid "Digitale Gesellschaft"
@@ -211,65 +215,67 @@ msgstr "wyłączony"
 msgid "rubyfish.cn"
 msgstr "rubyfish.cn"
 
-#~ msgid "EDNS client subnet"
-#~ msgstr "Podsieć klienta EDNS"
+msgid "Alidns"
+msgstr "Alidns"
 
-#~ msgid "Grant UCI access for luci-app-https-dns-proxy"
-#~ msgstr "Udziel dostępu UCI do luci-app-https-dns-proxy"
+msgid "EDNS client subnet"
+msgstr "Podsieć klienta EDNS"
 
-#~ msgid ""
-#~ "When you add/remove any instances below, they will be used to override "
-#~ "the 'DNS forwardings' section of <a href=\"%s\">DHCP and DNS</a>."
-#~ msgstr ""
-#~ "Po dodaniu/usunięciu poniższych wystąpień zostaną one użyte do "
-#~ "zastąpienia sekcji \"Przekazywanie DNS\" w obszarze <a href=\"%s\">DHCP i "
-#~ "DNS</a>."
+msgid "Grant UCI access for luci-app-https-dns-proxy"
+msgstr "Udziel dostępu UCI do luci-app-https-dns-proxy"
 
-#~ msgid "DNS Over HTTPS Proxy"
-#~ msgstr "DNS Over HTTPS"
+msgid ""
+"When you add/remove any instances below, they will be used to override the "
+"'DNS forwardings' section of <a href=\"%s\">DHCP and DNS</a>."
+msgstr ""
+"Po dodaniu/usunięciu poniższych wystąpień zostaną one użyte do zastąpienia "
+"sekcji \"Przekazywanie DNS\" w obszarze <a href=\"%s\">DHCP i DNS</a>."
 
-#~ msgid "DNS Over HTTPS Proxy Settings"
-#~ msgstr "Ustawienia DNS Over HTTPS"
+msgid "DNS Over HTTPS Proxy"
+msgstr "DNS Over HTTPS"
 
-#~ msgid "DHCP and DNS"
-#~ msgstr "DHCP i DNS"
+msgid "DNS Over HTTPS Proxy Settings"
+msgstr "Ustawienia DNS Over HTTPS"
 
-#~ msgid "DoH"
-#~ msgstr "DoH"
+msgid "DHCP and DNS"
+msgstr "DHCP i DNS"
 
-#~ msgid "Running"
-#~ msgstr "Działa"
+msgid "DoH"
+msgstr "DoH"
 
-#~ msgid ""
-#~ "When you add/remove any instances below, they will be used to override "
-#~ "the 'DNS forwardings' section of"
-#~ msgstr ""
-#~ "Po dodaniu/usunięciu dowolnej instancji poniżej, zastąpią one ustawienia "
-#~ "sekcji 'Przekazywania DNS' w"
+msgid "Running"
+msgstr "Działa"
 
-#~ msgid "at"
-#~ msgstr "na"
+msgid ""
+"When you add/remove any instances below, they will be used to override the "
+"'DNS forwardings' section of"
+msgstr ""
+"Po dodaniu/usunięciu dowolnej instancji poniżej, zastąpią one ustawienia "
+"sekcji 'Przekazywania DNS' w"
 
-#~ msgid "is not installed or not found"
-#~ msgstr "nie jest zainstalowany lub nie znaleziono"
+msgid "at"
+msgstr "na"
 
-#~ msgid "DNS over HTTPS Proxy"
-#~ msgstr "Proxy DNS over HTTPS"
+msgid "is not installed or not found"
+msgstr "nie jest zainstalowany lub nie znaleziono"
 
-#~ msgid "DNS over HTTPS Proxy Settings"
-#~ msgstr "Ustawiania proxy DNS over HTTPS"
+msgid "DNS over HTTPS Proxy"
+msgstr "Proxy DNS over HTTPS"
 
-#~ msgid "Provider"
-#~ msgstr "Dostawca"
+msgid "DNS over HTTPS Proxy Settings"
+msgstr "Ustawiania proxy DNS over HTTPS"
 
-#~ msgid "Subnet address"
-#~ msgstr "Adres podsieci"
+msgid "Provider"
+msgstr "Dostawca"
 
-#~ msgid "Uknown Provider"
-#~ msgstr "Nieznany dostawca"
+msgid "Subnet address"
+msgstr "Adres podsieci"
 
-#~ msgid "HTTPS DNS Proxy"
-#~ msgstr "HTTPS DNS Proxy"
+msgid "Uknown Provider"
+msgstr "Nieznany dostawca"
 
-#~ msgid "HTTPS DNS Proxy Settings"
-#~ msgstr "Ustawienia Proxy HTTPS DNS"
+msgid "HTTPS DNS Proxy"
+msgstr "HTTPS DNS Proxy"
+
+msgid "HTTPS DNS Proxy Settings"
+msgstr "Ustawienia Proxy HTTPS DNS"

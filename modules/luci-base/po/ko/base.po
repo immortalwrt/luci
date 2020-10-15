@@ -3,15 +3,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-10 03:40+0200\n"
-"PO-Revision-Date: 2012-04-03 08:44+0200\n"
-"Last-Translator: Weongyo Jeong <weongyo@gmail.com>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: en\n"
+"PO-Revision-Date: 2020-08-08 06:14+0000\n"
+"Last-Translator: Youngbin Han <sukso96100@gmail.com>\n"
+"Language-Team: Korean <https://hosted.weblate.org/projects/openwrt/luci/ko/"
+">\n"
+"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Pootle 2.0.4\n"
+"Plural-Forms: nplurals=2; plural=n == 1 ? 0 : 1;\n"
+"X-Generator: Weblate 4.2-dev\n"
 
 msgid "%s is untagged in multiple VLANs!"
 msgstr ""
@@ -23,16 +24,16 @@ msgid "(%s available)"
 msgstr ""
 
 msgid "(empty)"
-msgstr ""
+msgstr "(비어 있음)"
 
 msgid "(no interfaces attached)"
-msgstr ""
+msgstr "(연결된 인터페이스 없음)"
 
 msgid "-- Additional Field --"
 msgstr ""
 
 msgid "-- Please choose --"
-msgstr ""
+msgstr "-- 선택하세요 --"
 
 msgid "-- custom --"
 msgstr ""
@@ -47,19 +48,19 @@ msgid "-- match by uuid --"
 msgstr ""
 
 msgid "1 Minute Load:"
-msgstr "1 분 부하:"
+msgstr "1분 부하:"
 
 msgid "15 Minute Load:"
-msgstr "15 분 부하:"
+msgstr "15분 부하:"
 
 msgid "4-character hexadecimal ID"
-msgstr ""
+msgstr "4자리 16진수 ID"
 
 msgid "464XLAT (CLAT)"
 msgstr ""
 
 msgid "5 Minute Load:"
-msgstr "5 분 부하:"
+msgstr "5분 부하:"
 
 msgid "6-octet identifier as a hex string - no colons"
 msgstr ""
@@ -83,10 +84,10 @@ msgid "802.11w retry timeout"
 msgstr ""
 
 msgid "<abbr title=\"Basic Service Set Identifier\">BSSID</abbr>"
-msgstr ""
+msgstr "<abbr title=\"Basic Service Set Identifier\">BSSID</abbr>"
 
 msgid "<abbr title=\"Domain Name System\">DNS</abbr> query port"
-msgstr "<abbr title=\"Domain Name System\">DNS</abbr> query 포트"
+msgstr "<abbr title=\"Domain Name System\">DNS</abbr> 쿼리 포트"
 
 msgid "<abbr title=\"Domain Name System\">DNS</abbr> server port"
 msgstr "<abbr title=\"Domain Name System\">DNS</abbr> 서버 포트"
@@ -95,32 +96,37 @@ msgid ""
 "<abbr title=\"Domain Name System\">DNS</abbr> servers will be queried in the "
 "order of the resolvfile"
 msgstr ""
+"<abbr title=\"Domain Name System\">DNS</abbr> 서버들이 resolvfile의 순서에 따"
+"라 쿼리됩니다"
 
 msgid "<abbr title=\"Extended Service Set Identifier\">ESSID</abbr>"
-msgstr ""
+msgstr "<abbr title=\"Extended Service Set Identifier\">ESSID</abbr>"
 
 msgid "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Address"
 msgstr "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-주소"
 
 msgid "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Gateway"
-msgstr ""
+msgstr "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-게이트웨이"
 
 msgid "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Netmask"
-msgstr ""
+msgstr "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-넷마스크"
 
 msgid ""
 "<abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-Address or Network "
 "(CIDR)"
 msgstr ""
+"<abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-주소 및 네트워크 "
+"(CIDR)"
 
 msgid "<abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-Gateway"
-msgstr ""
+msgstr "<abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-게이트웨이"
 
 msgid "<abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-Suffix (hex)"
 msgstr ""
+"<abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-접미사 (16진수)"
 
 msgid "<abbr title=\"Light Emitting Diode\">LED</abbr> Configuration"
-msgstr "<abbr title=\"Light Emitting Diode\">LED</abbr> 설정"
+msgstr "<abbr title=\"Light Emitting Diode\">LED</abbr> 구성"
 
 msgid "<abbr title=\"Light Emitting Diode\">LED</abbr> Name"
 msgstr "<abbr title=\"Light Emitting Diode\">LED</abbr> 이름"
@@ -133,7 +139,7 @@ msgid ""
 "Protocol\">DHCP</abbr> leases"
 msgstr ""
 "<abbr title=\"maximal\">최대</abbr> <abbr title=\"Dynamic Host Configuration "
-"Protocol\">DHCP</abbr> lease 수"
+"Protocol\">DHCP</abbr> 임대 수"
 
 msgid ""
 "<abbr title=\"maximal\">Max.</abbr> <abbr title=\"Extension Mechanisms for "
@@ -143,7 +149,7 @@ msgstr ""
 "Domain Name System\">EDNS0</abbr> 패킷 크기"
 
 msgid "<abbr title=\"maximal\">Max.</abbr> concurrent queries"
-msgstr "<abbr title=\"maximal\">최대</abbr> 동시 처리 query 수"
+msgstr "<abbr title=\"maximal\">최대</abbr> 동시 처리 쿼리 수"
 
 msgid "<abbr title='Pairwise: %s / Group: %s'>%s - %s</abbr>"
 msgstr ""
@@ -152,6 +158,8 @@ msgid ""
 "<br/>Note: you need to manually restart the cron service if the crontab file "
 "was empty before editing."
 msgstr ""
+"<br/>참고: 만약 비어있는 crontab 파일을 수정했다면 수동으로 cron 서비스를 다"
+"시 시작해야 합니다."
 
 msgid "A43C + J43 + A43"
 msgstr ""
@@ -160,31 +168,31 @@ msgid "A43C + J43 + A43 + V43"
 msgstr ""
 
 msgid "ADSL"
-msgstr ""
+msgstr "ADSL"
 
 msgid "AICCU (SIXXS)"
 msgstr ""
 
 msgid "ANSI T1.413"
-msgstr ""
+msgstr "ANSI T1.413"
 
 msgid "APN"
-msgstr ""
+msgstr "APN"
 
 msgid "ARP retry threshold"
 msgstr ""
 
 msgid "ATM (Asynchronous Transfer Mode)"
-msgstr ""
+msgstr "ATM (비동기 전송 모드)"
 
 msgid "ATM Bridges"
-msgstr ""
+msgstr "ATM 브릿지"
 
 msgid "ATM Virtual Channel Identifier (VCI)"
-msgstr ""
+msgstr "ATM 가상 채널 식별자 (VCI)"
 
 msgid "ATM Virtual Path Identifier (VPI)"
-msgstr ""
+msgstr "ATM 가상 경로 식별자 (VPI)"
 
 msgid ""
 "ATM bridges expose encapsulated ethernet in AAL5 connections as virtual "
@@ -193,10 +201,10 @@ msgid ""
 msgstr ""
 
 msgid "ATM device number"
-msgstr ""
+msgstr "ATM 디바이스 번호"
 
 msgid "ATU-C System Vendor ID"
-msgstr ""
+msgstr "ATU-C 시스템 벤더 ID"
 
 msgid "AYIYA"
 msgstr ""
@@ -205,7 +213,7 @@ msgid "Access Concentrator"
 msgstr ""
 
 msgid "Access Point"
-msgstr ""
+msgstr "액세스 포인트 (AP)"
 
 msgid "Action"
 msgstr ""
@@ -225,7 +233,7 @@ msgstr ""
 "Active <abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-Route 경로"
 
 msgid "Active Connections"
-msgstr "Active 연결수"
+msgstr "활성 연결 수"
 
 msgid "Active DHCP Leases"
 msgstr "Active DHCP 임대 목록"
@@ -234,13 +242,13 @@ msgid "Active DHCPv6 Leases"
 msgstr "Active DHCPv6 임대 목록"
 
 msgid "Ad-Hoc"
-msgstr ""
+msgstr "애드혹"
 
 msgid "Add"
 msgstr "추가"
 
 msgid "Add local domain suffix to names served from hosts files"
-msgstr ""
+msgstr "hosts에 등록된 호스트 명에 지역 도메인 접미사를 추가합니다"
 
 msgid "Add new interface..."
 msgstr "새로운 인터페이스 추가..."
@@ -272,25 +280,25 @@ msgstr ""
 msgid ""
 "Allocate IP addresses sequentially, starting from the lowest available "
 "address"
-msgstr ""
+msgstr "이용 가능한 가장 낮은 주소부터 순차적으로 IP주소 할당"
 
 msgid "Allocate IP sequentially"
-msgstr ""
+msgstr "순차적으로 IP 할당"
 
 msgid "Allow <abbr title=\"Secure Shell\">SSH</abbr> password authentication"
 msgstr "<abbr title=\"Secure Shell\">SSH</abbr> 암호 인증을 허용합니다"
 
 msgid "Allow all except listed"
-msgstr ""
+msgstr "목록의 주소 외 모두 허용"
 
 msgid "Allow listed only"
-msgstr ""
+msgstr "목록의 주소만 허용"
 
 msgid "Allow localhost"
-msgstr ""
+msgstr "localhost 허용"
 
 msgid "Allow remote hosts to connect to local SSH forwarded ports"
-msgstr ""
+msgstr "원격 호스트의 로컬 SSH로 포워드 된 포트 접속 허용"
 
 msgid "Allow root logins with password"
 msgstr "암호를 이용한 root 접근 허용"
@@ -300,10 +308,10 @@ msgstr "암호를 이용한 <em>root</em> 사용자 접근을 허용합니다"
 
 msgid ""
 "Allow upstream responses in the 127.0.0.0/8 range, e.g. for RBL services"
-msgstr ""
+msgstr "127.0.0.0/8 루프백 범위 내에서 업스트림 응답 허용 (예: RBL 서비스)"
 
 msgid "Allowed IPs"
-msgstr ""
+msgstr "허용된 IP"
 
 msgid ""
 "Also see <a href=\"https://www.sixxs.net/faq/connectivity/?faq=comparison"
@@ -311,7 +319,7 @@ msgid ""
 msgstr ""
 
 msgid "Always announce default router"
-msgstr ""
+msgstr "항상 기본 라우터 안내"
 
 msgid "Annex"
 msgstr ""
@@ -448,7 +456,7 @@ msgid "Automount Swap"
 msgstr ""
 
 msgid "Available"
-msgstr ""
+msgstr "사용 가능"
 
 msgid "Available packages"
 msgstr "이용 가능한 패키지"
@@ -457,16 +465,16 @@ msgid "Average:"
 msgstr "평균:"
 
 msgid "B43 + B43C"
-msgstr ""
+msgstr "B43 + B43C"
 
 msgid "B43 + B43C + V43"
-msgstr ""
+msgstr "B43 + B43C + V43"
 
 msgid "BR / DMR / AFTR"
-msgstr ""
+msgstr "BR / DMR / AFTR"
 
 msgid "BSSID"
-msgstr ""
+msgstr "BSSID"
 
 msgid "Back"
 msgstr "뒤로"
@@ -484,7 +492,7 @@ msgid "Back to scan results"
 msgstr ""
 
 msgid "Backup / Flash Firmware"
-msgstr "Firmware 백업 / Flash"
+msgstr "펌웨어 백업 / 플래시"
 
 msgid "Backup / Restore"
 msgstr "백업 / 복구"
@@ -563,7 +571,7 @@ msgid "CPU usage (%)"
 msgstr "CPU 사용량 (%)"
 
 msgid "Cancel"
-msgstr ""
+msgstr "취소"
 
 msgid "Category"
 msgstr ""
@@ -643,7 +651,7 @@ msgid "Close list..."
 msgstr "목록 닫기..."
 
 msgid "Collecting data..."
-msgstr "Data 를 수집중입니다..."
+msgstr "데이터 수집 중..."
 
 msgid "Command"
 msgstr "명령어"
@@ -777,7 +785,7 @@ msgid "DS-Lite AFTR address"
 msgstr ""
 
 msgid "DSL"
-msgstr ""
+msgstr "DSL"
 
 msgid "DSL Status"
 msgstr ""
@@ -786,7 +794,7 @@ msgid "DSL line mode"
 msgstr ""
 
 msgid "DUID"
-msgstr ""
+msgstr "DUID"
 
 msgid "Data Rate"
 msgstr ""
@@ -959,8 +967,8 @@ msgid ""
 "Dynamically allocate DHCP addresses for clients. If disabled, only clients "
 "having static leases will be served."
 msgstr ""
-"동적으로 DHCP 주소를 client 에게 할당합니다.  만약 비활성화시, static lease "
-"가 설정된 client 만 주소 제공이 이루어집니다."
+"동적으로 DHCP 주소를 클라이언트에 할당합니다.  비활성화시, 고정 임대가 설정"
+"된 클라이언트만 주소 제공이 이루어집니다."
 
 msgid "EA-bits length"
 msgstr ""
@@ -1156,10 +1164,10 @@ msgid "Firewall Status"
 msgstr "방화벽 상태"
 
 msgid "Firmware File"
-msgstr ""
+msgstr "펌웨어 파일"
 
 msgid "Firmware Version"
-msgstr "Firmware 버전"
+msgstr "펌웨어 버전"
 
 msgid "Fixed source port for outbound DNS queries"
 msgstr ""
@@ -1171,7 +1179,7 @@ msgid "Flash image..."
 msgstr "이미지로 Flash..."
 
 msgid "Flash new firmware image"
-msgstr "새로운 firmware 이미지로 flash"
+msgstr "새 펌웨어 이미지 플래시"
 
 msgid "Flash operations"
 msgstr "Flash 작업"
@@ -1233,7 +1241,7 @@ msgid ""
 msgstr ""
 
 msgid "GHz"
-msgstr ""
+msgstr "GHz"
 
 msgid "GPRS only"
 msgstr ""
@@ -1357,7 +1365,7 @@ msgid "IP address"
 msgstr "IP 주소"
 
 msgid "IPv4"
-msgstr ""
+msgstr "IPv4"
 
 msgid "IPv4 Firewall"
 msgstr "IPv4 방화벽"
@@ -1742,7 +1750,7 @@ msgid "Listen Interfaces"
 msgstr ""
 
 msgid "Listen Port"
-msgstr ""
+msgstr "접근 포트"
 
 msgid "Listen only on the given interface or, if unspecified, on all"
 msgstr ""
@@ -1843,13 +1851,13 @@ msgid "MB/s"
 msgstr ""
 
 msgid "MD5"
-msgstr ""
+msgstr "MD5"
 
 msgid "MHz"
-msgstr ""
+msgstr "MHz"
 
 msgid "MTU"
-msgstr ""
+msgstr "MTU"
 
 msgid ""
 "Make sure to clone the root filesystem using something like the commands "
@@ -1981,7 +1989,7 @@ msgid "NAT64 Prefix"
 msgstr ""
 
 msgid "NCM"
-msgstr ""
+msgstr "NCM"
 
 msgid "NDP-Proxy"
 msgstr ""
@@ -2282,13 +2290,13 @@ msgid "PPPoA Encapsulation"
 msgstr ""
 
 msgid "PPPoATM"
-msgstr ""
+msgstr "PPPoATM"
 
 msgid "PPPoE"
-msgstr ""
+msgstr "PPPoE"
 
 msgid "PPPoSSH"
-msgstr ""
+msgstr "PPPoSSH"
 
 msgid "PPtP"
 msgstr ""
@@ -2470,7 +2478,7 @@ msgid "Pseudo Ad-Hoc (ahdemo)"
 msgstr ""
 
 msgid "Public Key"
-msgstr ""
+msgstr "공개 키"
 
 msgid "Public prefix routed to this device for distribution to clients."
 msgstr ""
@@ -2677,7 +2685,7 @@ msgid "Reset Counters"
 msgstr "Counter 초기화"
 
 msgid "Reset to defaults"
-msgstr "초기값으로 reset"
+msgstr "기본값으로 초기화"
 
 msgid "Resolv and Hosts Files"
 msgstr "Resolv 와 Hosts 파일"
@@ -2725,23 +2733,24 @@ msgid "Router Password"
 msgstr "라우터 암호"
 
 msgid "Routes"
-msgstr "Route 경로"
+msgstr "라우트"
 
 msgid ""
 "Routes specify over which interface and gateway a certain host or network "
 "can be reached."
 msgstr ""
-"Route 경로는 특정 호스트 혹은 네트워크가 사용해야 할 인터페이스와 gateway 정"
-"보를 나타냅니다."
+"라우트는 특정 호스트 또는 네트워크에 도달 할 수 있는 인터페이스와 게이트웨이"
+"를 지정합니다."
 
 msgid "Run a filesystem check before mounting the device"
-msgstr ""
+msgstr "기기 마운트 전에 파일시스템 검사 실행"
 
 msgid "Run filesystem check"
-msgstr ""
+msgstr "파일시스템 검사 실행"
 
+#, fuzzy
 msgid "SHA256"
-msgstr ""
+msgstr "SHA256"
 
 msgid ""
 "SIXXS supports TIC only, for static tunnels using IP protocol 41 (RFC4213) "
@@ -2755,19 +2764,20 @@ msgid "SNR"
 msgstr ""
 
 msgid "SSH Access"
-msgstr ""
+msgstr "SSH 접속"
 
 msgid "SSH server address"
-msgstr ""
+msgstr "SSH 서버 주소"
 
 msgid "SSH server port"
-msgstr ""
+msgstr "SSH 서버 포트"
 
 msgid "SSH username"
-msgstr ""
+msgstr "SSH 사용자 이름"
 
+#, fuzzy
 msgid "SSH-Keys"
-msgstr ""
+msgstr "SSH-Keys"
 
 msgid "SSID"
 msgstr "SSID"
@@ -2782,7 +2792,7 @@ msgid "Save &#38; Apply"
 msgstr "저장 &#38; 적용"
 
 msgid "Scan"
-msgstr "Scan 하기"
+msgstr "스캔"
 
 msgid "Scheduled Tasks"
 msgstr "작업 관리"
@@ -2791,10 +2801,10 @@ msgid "Section added"
 msgstr "추가된 section"
 
 msgid "Section removed"
-msgstr "삭제된 section"
+msgstr "섹션 삭제됨"
 
 msgid "See \"mount\" manpage for details"
-msgstr ""
+msgstr "자세한 사항은 \"mount\"의 manpage를 확인하세요"
 
 msgid ""
 "Send LCP echo requests at the given interval in seconds, only effective in "
@@ -2819,10 +2829,10 @@ msgid "Server username"
 msgstr ""
 
 msgid "Service Name"
-msgstr ""
+msgstr "서비스 이름"
 
 msgid "Service Type"
-msgstr ""
+msgstr "서비스 유형"
 
 msgid "Services"
 msgstr "서비스"
@@ -2836,7 +2846,7 @@ msgid "Set up Time Synchronization"
 msgstr ""
 
 msgid "Setup DHCP Server"
-msgstr ""
+msgstr "DHCP 서버 구성"
 
 msgid "Severely Errored Seconds (SES)"
 msgstr ""
@@ -2848,7 +2858,7 @@ msgid "Show current backup file list"
 msgstr "현재 백업 파일 목록 보기"
 
 msgid "Shutdown this interface"
-msgstr "이 인터페이스를 정지합니다"
+msgstr "이 인터페이스 정지"
 
 msgid "Shutdown this network"
 msgstr "이 네트워크를 shutdown 합니다"
@@ -2863,13 +2873,13 @@ msgid "Signal:"
 msgstr ""
 
 msgid "Size"
-msgstr "Size"
+msgstr "크기"
 
 msgid "Size (.ipk)"
 msgstr "크기 (.ipk)"
 
 msgid "Skip"
-msgstr ""
+msgstr "건너뛰기"
 
 msgid "Skip to content"
 msgstr ""
@@ -2884,16 +2894,16 @@ msgid "Software"
 msgstr "소프트웨어"
 
 msgid "Software VLAN"
-msgstr ""
+msgstr "소프트웨어 VLAN"
 
 msgid "Some fields are invalid, cannot save values!"
-msgstr ""
+msgstr "일부 필드가 올바르지 않아, 값을 저장할 수 없습니다!"
 
 msgid "Sorry, the object you requested was not found."
-msgstr ""
+msgstr "죄송합니다, 요청하신 객체를 찾을 수 없습니다."
 
 msgid "Sorry, the server encountered an unexpected error."
-msgstr ""
+msgstr "죄송합니다, 서버가 예상치 못한 오류에 걸렸습니다."
 
 msgid ""
 "Sorry, there is no sysupgrade support present; a new firmware image must be "
@@ -2905,7 +2915,7 @@ msgid "Sort"
 msgstr "순서"
 
 msgid "Source"
-msgstr ""
+msgstr "소스"
 
 msgid "Source routing"
 msgstr ""
@@ -2914,7 +2924,7 @@ msgid "Specifies the button state to handle"
 msgstr ""
 
 msgid "Specifies the directory the device is attached to"
-msgstr ""
+msgstr "디바이스가 연결된 디렉터리 지정"
 
 msgid "Specifies the listening port of this <em>Dropbear</em> instance"
 msgstr "<em>Dropbear</em> instance 의 listening 포트를 지정합니다"
@@ -2955,28 +2965,28 @@ msgid "Startup"
 msgstr "시작 프로그램"
 
 msgid "Static IPv4 Routes"
-msgstr "Static IPv4 Route 경로"
+msgstr "정적 IPv4 라우트"
 
 msgid "Static IPv6 Routes"
-msgstr "Static IPv6 Route 경로"
+msgstr "정적 IPv6 라우트"
 
 msgid "Static Leases"
-msgstr "Static Lease 들"
+msgstr "정적 임대"
 
 msgid "Static Routes"
-msgstr "Static Route 경로"
+msgstr "정적 라우트"
 
 msgid "Static address"
-msgstr ""
+msgstr "정적 주소"
 
 msgid ""
 "Static leases are used to assign fixed IP addresses and symbolic hostnames "
 "to DHCP clients. They are also required for non-dynamic interface "
 "configurations where only hosts with a corresponding lease are served."
 msgstr ""
-"Static Lease 는 DHCP client 에게 고정된 IP 주소와 symbolic hostname 을 할당"
-"할 때 사용됩니다.  이 기능은 또한 지정된 host 에 대해서만 주소 임대를 하도록 "
-"하는 non-dynamic 인터페이스 설정에도 사용됩니다."
+"정적 임대는 고정IP 할당과 심볼릭 호스트명을 DHCP 클라이언트에 지정하는 데 사"
+"용됩니다. 이 기능은 지정된 host 에 대해서만 주소 임대를 하도록 하는 non-"
+"dynamic 인터페이스 설정에도 요구됩니다."
 
 msgid "Status"
 msgstr "상태"
@@ -3014,6 +3024,8 @@ msgstr "스위치 %q (%s)"
 msgid ""
 "Switch %q has an unknown topology - the VLAN settings might not be accurate."
 msgstr ""
+"%q 스위치에 알려지지 않은 위상 배치가 있습니다. - VLAN 설정이 정확하지 않을 "
+"수 있습니다."
 
 msgid "Switch VLAN"
 msgstr "스위치 VLAN"
@@ -3101,14 +3113,18 @@ msgid ""
 "The allowed characters are: <code>A-Z</code>, <code>a-z</code>, <code>0-9</"
 "code> and <code>_</code>"
 msgstr ""
+"다음과 같은 글자를 사용할 수 있습니다: <code>A-Z</code>, <code>a-z</code>, "
+"<code>0-9</code> and <code>_</code>"
 
 msgid "The configuration file could not be loaded due to the following error:"
-msgstr ""
+msgstr "다음과 같은 오류 때문에 구성 파일을 불러오지 못했습니다:"
 
 msgid ""
 "The device file of the memory or partition (<abbr title=\"for example\">e.g."
 "</abbr> <code>/dev/sda1</code>)"
 msgstr ""
+"메모리 또는 파티션의 디바이스 파일 (<abbr title=\"for example\">예시: </"
+"abbr><code>/dev/sda1</code>)"
 
 msgid ""
 "The filesystem that was used to format the memory (<abbr title=\"for example"
@@ -3283,7 +3299,7 @@ msgid "This page gives an overview over currently active network connections."
 msgstr "이 페이지는 현재 active 상태인 네트워크 연결을 보여줍니다."
 
 msgid "This section contains no values yet"
-msgstr "이 section 은 아직 입력된 값이 없습니다"
+msgstr "이 항목에 입력된 값이 없습니다"
 
 msgid "Time Synchronization"
 msgstr "시간 동기화"
@@ -3679,7 +3695,7 @@ msgid "dB"
 msgstr ""
 
 msgid "dBm"
-msgstr ""
+msgstr "dBm"
 
 msgid "disable"
 msgstr ""
@@ -3806,7 +3822,7 @@ msgid "yes"
 msgstr ""
 
 msgid "« Back"
-msgstr ""
+msgstr "« 이전"
 
-#~ msgid "Leasetime"
-#~ msgstr "임대 시간"
+msgid "Leasetime"
+msgstr "임대 시간"
