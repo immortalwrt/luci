@@ -1,13 +1,13 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-09-27 12:38+0000\n"
-"Last-Translator: G. Allen Morris III <gamthree@gmail.com>\n"
+"PO-Revision-Date: 2020-10-31 10:05+0000\n"
+"Last-Translator: Sepp Jeremiah Morris <Seppdroidgaming@gmx.us>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/openwrt/luci/nl/>\n"
 "Language: nl\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.3-dev\n"
+"X-Generator: Weblate 4.3.2-dev\n"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:929
 msgid "%.1f dB"
@@ -382,6 +382,10 @@ msgstr "Toegangspunt"
 msgid "Actions"
 msgstr "Acties"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:14
+msgid "Active"
+msgstr ""
+
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:200
 msgid "Active <abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Routes"
 msgstr "Actieve <abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Routes"
@@ -395,12 +399,12 @@ msgid "Active Connections"
 msgstr "Actieve verbindingen"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:33
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:92
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:173
 msgid "Active DHCP Leases"
 msgstr "Actieve DHCP toewijzingen"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:52
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:94
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:175
 msgid "Active DHCPv6 Leases"
 msgstr "Actieve DHCPv6 toewijzingen"
 
@@ -480,6 +484,14 @@ msgstr "Nieuwe interface toevoegen..."
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:125
 msgid "Add peer"
 msgstr "Peer toevoegen"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:331
+msgid "Add to Blacklist"
+msgstr ""
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:331
+msgid "Add to Whitelist"
+msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:200
 msgid "Additional Hosts files"
@@ -649,7 +661,7 @@ msgstr "Altijd uit (kernel: geen)"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/default-on.js:6
 msgid "Always on (kernel: default-on)"
-msgstr ""
+msgstr "Altijd aan (kernel: altijd-aan)"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:907
 msgid ""
@@ -659,7 +671,7 @@ msgstr ""
 
 #: modules/luci-base/htdocs/luci-static/resources/form.js:603
 msgid "An error occurred while saving the form:"
-msgstr ""
+msgstr "Er is een fout opgetreden bij het opslaan van het formulier:"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:890
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/50_dsl.js:20
@@ -728,23 +740,23 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:659
 msgid "Announced DNS domains"
-msgstr ""
+msgstr "Aangekondigde DNS domeinen"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:658
 msgid "Announced DNS servers"
-msgstr ""
+msgstr "Aangekondigde DNS servers"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1596
 msgid "Anonymous Identity"
-msgstr ""
+msgstr "Anonieme identiteit"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:162
 msgid "Anonymous Mount"
-msgstr ""
+msgstr "Anoniem Monteren"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:158
 msgid "Anonymous Swap"
-msgstr ""
+msgstr "Anoniem Verwisselen"
 
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:84
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:174
@@ -755,11 +767,11 @@ msgstr ""
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:119
 msgid "Apply backup?"
-msgstr ""
+msgstr "Backup toepassen?"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4276
 msgid "Apply request failed with status <code>%h</code>"
-msgstr ""
+msgstr "Aanvraag is mislukt met status <code>%h</code>"
 
 #: modules/luci-base/htdocs/luci-static/resources/luci.js:2181
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4142
@@ -772,7 +784,7 @@ msgstr ""
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js:56
 msgid "Architecture"
-msgstr ""
+msgstr "Architectuur"
 
 #: modules/luci-base/htdocs/luci-static/resources/protocol/static.js:184
 #: protocols/luci-proto-hnet/htdocs/luci-static/resources/protocol/hnet.js:27
@@ -787,13 +799,13 @@ msgid ""
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2078
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:245
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:362
 msgid "Associated Stations"
 msgstr ""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:46
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:145
 msgid "Associations"
-msgstr ""
+msgstr "Associaties"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:154
 msgid "Attempt to enable configured mount points for attached devices"
@@ -802,11 +814,11 @@ msgstr ""
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:104
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:64
 msgid "Auth Group"
-msgstr ""
+msgstr "Auth Groep"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1535
 msgid "Authentication"
-msgstr ""
+msgstr "Authenticatie"
 
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:96
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:70
@@ -815,18 +827,18 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:172
 msgid "Authoritative"
-msgstr ""
+msgstr "Autoritatieve"
 
 #: modules/luci-base/luasrc/view/sysauth.htm:17
 msgid "Authorization Required"
-msgstr ""
+msgstr "Autorisatie Vereist"
 
 #: themes/luci-theme-material/luasrc/view/themes/material/header.htm:196
 #: themes/luci-theme-material/luasrc/view/themes/material/header.htm:197
 #: themes/luci-theme-rosy/luasrc/view/themes/rosy/header.htm:241
 #: themes/luci-theme-rosy/luasrc/view/themes/rosy/header.htm:244
 msgid "Auto Refresh"
-msgstr ""
+msgstr "Automatisch Vernieuwen"
 
 #: protocols/luci-proto-3g/htdocs/luci-static/resources/protocol/3g.js:106
 #: protocols/luci-proto-hnet/htdocs/luci-static/resources/protocol/hnet.js:18
@@ -838,7 +850,7 @@ msgstr ""
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pppoe.js:55
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pptp.js:68
 msgid "Automatic"
-msgstr ""
+msgstr "Automatisch"
 
 #: modules/luci-compat/luasrc/model/network/proto_hnet.lua:7
 #: protocols/luci-proto-hnet/htdocs/luci-static/resources/protocol/hnet.js:7
@@ -867,7 +879,7 @@ msgstr ""
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:193
 msgid "Available"
-msgstr ""
+msgstr "Beschikbaar"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/bandwidth.js:268
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/bandwidth.js:278
@@ -881,7 +893,7 @@ msgstr ""
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:273
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:291
 msgid "Average:"
-msgstr ""
+msgstr "Gemiddelde:"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:911
 msgid "B43 + B43C"
@@ -898,26 +910,26 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:158
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:182
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1665
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:44
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:143
 msgid "BSSID"
 msgstr ""
 
 #: modules/luci-compat/luasrc/view/cbi/footer.htm:14
 #: modules/luci-compat/luasrc/view/cbi/simpleform.htm:48
 msgid "Back to Overview"
-msgstr ""
+msgstr "Terug naar het overzicht"
 
 #: modules/luci-mod-system/luasrc/model/cbi/admin_system/backupfiles.lua:48
 msgid "Back to configuration"
-msgstr ""
+msgstr "Terug naar de configuratie"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:363
 msgid "Backup"
-msgstr ""
+msgstr "Backup"
 
 #: modules/luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json:114
 msgid "Backup / Flash Firmware"
-msgstr ""
+msgstr "Backup / Flash Firmware"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:323
 #: modules/luci-mod-system/luasrc/model/cbi/admin_system/backupfiles.lua:12
@@ -947,10 +959,10 @@ msgid ""
 "linux default)"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:52
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:57
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:57
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:62
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:59
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:64
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
 #: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:55
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:57
@@ -958,10 +970,10 @@ msgstr ""
 msgid "Bind interface"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:52
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:57
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:57
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:62
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:59
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:64
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
 #: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:55
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:57
@@ -971,9 +983,9 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:129
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:188
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:63
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:165
 msgid "Bitrate"
-msgstr ""
+msgstr "Bitrate"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:266
 msgid "Bogus NX Domain Override"
@@ -1024,11 +1036,11 @@ msgstr ""
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/processes.js:72
 msgid "CPU usage (%)"
-msgstr ""
+msgstr "CPU gebruik (%)"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/20_memory.js:41
 msgid "Cached"
-msgstr ""
+msgstr "Cached"
 
 #: modules/luci-compat/luasrc/model/network/proto_modemmanager.lua:53
 #: modules/luci-compat/luasrc/model/network/proto_qmi.lua:53
@@ -1047,11 +1059,11 @@ msgstr ""
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:272
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/sshkeys.js:184
 msgid "Cancel"
-msgstr ""
+msgstr "Annuleren"
 
 #: protocols/luci-proto-hnet/htdocs/luci-static/resources/protocol/hnet.js:17
 msgid "Category"
-msgstr ""
+msgstr "Categorie"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1519
 msgid "Certificate constraint (Domain)"
@@ -1105,11 +1117,11 @@ msgstr ""
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4028
 msgid "Changes"
-msgstr ""
+msgstr "Veranderingen"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4311
 msgid "Changes have been reverted."
-msgstr ""
+msgstr "Wijzigingen zijn teruggedraaid."
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:46
 msgid "Changes the administrator password for accessing the device"
@@ -1120,9 +1132,9 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:184
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:460
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1663
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:62
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:164
 msgid "Channel"
-msgstr ""
+msgstr "Kanaal"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:174
 msgid "Check filesystems before mount"
@@ -1194,7 +1206,7 @@ msgstr ""
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/sshkeys.js:148
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/sshkeys.js:154
 msgid "Close"
-msgstr ""
+msgstr "Sluiten"
 
 #: protocols/luci-proto-3g/htdocs/luci-static/resources/protocol/3g.js:157
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/ppp.js:141
@@ -1245,30 +1257,30 @@ msgid ""
 "negotiation especially in environments with heavy traffic load."
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:91
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:96
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:93
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:98
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:101
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:106
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:103
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:108
 msgid "Compute outgoing checksum (optional)."
 msgstr ""
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4028
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:426
 msgid "Configuration"
-msgstr ""
+msgstr "Configuratie"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4190
 msgid "Configuration changes applied."
-msgstr ""
+msgstr "Configuratiewijzigingen toegepast."
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4128
 msgid "Configuration changes have been rolled back!"
-msgstr ""
+msgstr "Configuratiewijzigingen zijn teruggedraaid!"
 
 #: modules/luci-compat/luasrc/model/network/proto_ncm.lua:63
 #: protocols/luci-proto-ncm/htdocs/luci-static/resources/protocol/ncm.js:21
 msgid "Configuration failed"
-msgstr ""
+msgstr "Configuratie mislukt"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:175
 msgid "Confirm disconnect"
@@ -1281,7 +1293,7 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:46
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:51
 msgid "Connected"
-msgstr ""
+msgstr "Verbonden"
 
 #: modules/luci-base/htdocs/luci-static/resources/network.js:9
 #: modules/luci-compat/luasrc/model/network.lua:27
@@ -1318,7 +1330,7 @@ msgstr ""
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:132
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:264
 msgid "Continue"
-msgstr ""
+msgstr "Doorgaan"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4164
 msgid ""
@@ -1329,7 +1341,7 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:189
 msgid "Country"
-msgstr ""
+msgstr "Land"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:889
 msgid "Country Code"
@@ -1396,7 +1408,7 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1358
 msgid "DAE-Port"
-msgstr ""
+msgstr "DAE-Poort"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1363
 msgid "DAE-Secret"
@@ -1484,7 +1496,7 @@ msgid "DTIM Interval"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:57
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:58
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:127
 msgid "DUID"
 msgstr ""
 
@@ -1542,12 +1554,12 @@ msgstr ""
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:162
 #: modules/luci-compat/luasrc/view/cbi/tsection.htm:16
 msgid "Delete"
-msgstr ""
+msgstr "Verwijderen"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/sshkeys.js:180
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/sshkeys.js:186
 msgid "Delete key"
-msgstr ""
+msgstr "Verwijder toets"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2769
 msgid "Delete request failed: %s"
@@ -1564,7 +1576,7 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:340
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:134
 msgid "Description"
-msgstr ""
+msgstr "Omschrijving"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2868
 msgid "Deselect"
@@ -1669,6 +1681,7 @@ msgid "Disable this network"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1608
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:13
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:66
 #: protocols/luci-proto-3g/htdocs/luci-static/resources/protocol/3g.js:107
 #: protocols/luci-proto-ncm/htdocs/luci-static/resources/protocol/ncm.js:99
@@ -1690,7 +1703,8 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:197
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:665
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:231
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:332
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:347
 msgid "Disconnect"
 msgstr ""
 
@@ -1733,10 +1747,10 @@ msgstr ""
 msgid "Do not cache negative replies, e.g. for not existing domains"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:79
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:84
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:81
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:86
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:86
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:91
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:88
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:93
 msgid "Do not create host route to peer (optional)."
 msgstr ""
 
@@ -1776,8 +1790,8 @@ msgstr ""
 msgid "Domain whitelist"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:76
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:81
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:83
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:88
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:67
 msgid "Don't Fragment"
 msgstr ""
@@ -1973,8 +1987,15 @@ msgstr ""
 msgid "Enable rx checksum"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:76
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:81
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:89
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:94
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:91
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:96
+msgid "Enable support for multicast traffic (optional)."
+msgstr ""
+
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:83
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:88
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:67
 msgid "Enable the DF (Don't Fragment) flag of the encapsulating packets."
 msgstr ""
@@ -2021,7 +2042,7 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:183
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1117
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1666
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:45
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:144
 msgid "Encryption"
 msgstr ""
 
@@ -2355,7 +2376,7 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:128
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:184
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:62
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:164
 msgid "GHz"
 msgstr ""
 
@@ -2592,8 +2613,8 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:55
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2070
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:56
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:140
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:125
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:230
 msgid "Host"
 msgstr ""
 
@@ -2617,7 +2638,7 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:419
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/hosts.js:27
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js:54
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:29
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:86
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:121
 msgid "Hostname"
 msgstr ""
@@ -2737,7 +2758,7 @@ msgid "IPv4+IPv6"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:37
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:30
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:87
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:154
 msgid "IPv4-Address"
 msgstr ""
@@ -2841,7 +2862,7 @@ msgid "IPv6 support"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:56
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:57
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:126
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:172
 msgid "IPv6-Address"
 msgstr ""
@@ -2979,24 +3000,24 @@ msgstr ""
 msgid "Inbound:"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:90
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:95
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:92
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:97
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:100
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:105
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:102
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:107
 msgid "Incoming checksum"
-msgstr ""
-
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:82
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:87
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:84
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:89
-msgid "Incoming key"
 msgstr ""
 
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:92
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:97
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:94
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:99
+msgid "Incoming key"
+msgstr ""
+
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:102
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:107
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:104
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:109
 msgid "Incoming serialization"
 msgstr ""
 
@@ -3138,6 +3159,16 @@ msgstr ""
 msgid "Invalid Base64 key string"
 msgstr ""
 
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:78
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:83
+msgid "Invalid TOS value, expected 00..FF or inherit"
+msgstr ""
+
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:83
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:88
+msgid "Invalid Traffic Class value, expected 00..FF or inherit"
+msgstr ""
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:285
 msgid "Invalid VLAN ID given! Only IDs between %d and %d are allowed."
 msgstr ""
@@ -3166,13 +3197,6 @@ msgstr ""
 
 #: modules/luci-base/luasrc/view/sysauth.htm:12
 msgid "Invalid username and/or password! Please try again."
-msgstr ""
-
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:71
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:76
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:76
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:81
-msgid "Invalid value"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1075
@@ -3229,17 +3253,17 @@ msgstr ""
 msgid "Key #%d"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:82
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:87
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:84
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:89
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:92
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:97
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:94
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:99
 msgid "Key for incoming packets (optional)."
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:86
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:91
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:88
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:93
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:96
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:101
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:98
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:103
 msgid "Key for outgoing packets (optinal)."
 msgstr ""
 
@@ -3314,8 +3338,8 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:39
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:58
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:32
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:59
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:89
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:128
 msgid "Lease time remaining"
 msgstr ""
 
@@ -3480,7 +3504,7 @@ msgid "Local IPv4 address"
 msgstr ""
 
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:46
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:46
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:53
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/6in4.js:54
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/dslite.js:45
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:44
@@ -3544,15 +3568,15 @@ msgstr ""
 msgid "Logging"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:50
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:50
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:57
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:57
 msgid ""
 "Logical network from which to select the local endpoint if local IPv6 "
 "address is empty and no WAN IPv6 is available (optional)."
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:50
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:55
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:57
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:62
 msgid "Logical network to which the tunnel will be added (bridged) (optional)."
 msgstr ""
 
@@ -3584,8 +3608,8 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:38
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2069
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:56
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:31
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:139
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:88
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:229
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:155
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:173
 msgid "MAC-Address"
@@ -3624,7 +3648,7 @@ msgid "MD5"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:199
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:71
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:28
 msgid "MHz"
 msgstr ""
 
@@ -3704,8 +3728,8 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:129
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:188
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:199
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:63
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:71
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:28
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:165
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:327
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:328
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:329
@@ -3781,7 +3805,7 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:442
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:926
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1664
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:43
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:142
 msgid "Mode"
 msgstr ""
 
@@ -3903,6 +3927,13 @@ msgstr ""
 msgid "Move up"
 msgstr ""
 
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:89
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:94
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:91
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:96
+msgid "Multicast"
+msgstr ""
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1437
 msgid "NAS ID"
 msgstr ""
@@ -3954,7 +3985,7 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2068
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:381
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:63
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:138
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:228
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:162
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:180
 msgid "Network"
@@ -3977,8 +4008,8 @@ msgstr ""
 msgid "Network device is not present"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:50
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:55
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:57
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:62
 msgid "Network interface"
 msgstr ""
 
@@ -4003,6 +4034,10 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:562
 msgid "No DHCP Server configured for this interface"
+msgstr ""
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:196
+msgid "No Data"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1310
@@ -4037,16 +4072,16 @@ msgstr ""
 msgid "No files found"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:79
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:84
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:81
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:86
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:86
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:91
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:88
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:93
 msgid "No host route"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:674
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:142
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:241
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:358
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/processes.js:59
 msgid "No information available"
 msgstr ""
@@ -4102,8 +4137,8 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:58
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:84
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:187
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:141
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:174
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:231
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:275
 msgid "Noise"
 msgstr ""
 
@@ -4364,24 +4399,24 @@ msgstr ""
 msgid "Outbound:"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:91
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:96
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:93
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:98
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:101
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:106
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:103
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:108
 msgid "Outgoing checksum"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:86
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:91
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:88
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:93
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:96
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:101
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:98
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:103
 msgid "Outgoing key"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:93
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:98
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:95
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:100
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:103
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:108
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:105
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:110
 msgid "Outgoing serialization"
 msgstr ""
 
@@ -4392,6 +4427,10 @@ msgstr ""
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:59
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:165
 msgid "Output zone"
+msgstr ""
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:16
+msgid "Overlap"
 msgstr ""
 
 #: modules/luci-base/htdocs/luci-static/resources/protocol/dhcp.js:57
@@ -4405,10 +4444,10 @@ msgstr ""
 
 #: modules/luci-base/htdocs/luci-static/resources/protocol/dhcp.js:61
 #: modules/luci-base/htdocs/luci-static/resources/protocol/static.js:226
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:57
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:62
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:62
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:67
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:64
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:69
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:69
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:74
 #: protocols/luci-proto-hnet/htdocs/luci-static/resources/protocol/hnet.js:44
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:53
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/dhcpv6.js:54
@@ -4426,18 +4465,18 @@ msgstr ""
 msgid "Override MTU"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:67
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:72
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:74
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:79
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:63
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:72
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:67
 msgid "Override TOS"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:62
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:67
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:67
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:72
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:69
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:74
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:74
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:79
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:58
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:67
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:62
@@ -4681,10 +4720,10 @@ msgstr ""
 msgid "Perfect Forward Secrecy"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:93
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:98
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:95
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:100
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:103
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:108
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:105
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:110
 msgid "Perform outgoing packets serialization (optional)."
 msgstr ""
 
@@ -4866,7 +4905,7 @@ msgstr ""
 msgid "QMI Cellular"
 msgstr ""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:41
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:140
 msgid "Quality"
 msgstr ""
 
@@ -4901,7 +4940,7 @@ msgstr ""
 msgid "RX"
 msgstr ""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:142
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:232
 msgid "RX Rate"
 msgstr ""
 
@@ -5055,17 +5094,17 @@ msgstr ""
 msgid "Request timeout"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:90
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:95
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:92
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:97
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:100
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:105
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:102
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:107
 msgid "Require incoming checksum (optional)."
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:92
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:97
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:94
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:99
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:102
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:107
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:104
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:109
 msgid "Require incoming packets serialization (optional)."
 msgstr ""
 
@@ -5309,7 +5348,7 @@ msgid "SHA256"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:59
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:175
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:276
 msgid "SNR"
 msgstr ""
 
@@ -5338,7 +5377,7 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:156
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:181
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1662
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:42
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:141
 msgid "SSID"
 msgstr ""
 
@@ -5456,6 +5495,11 @@ msgstr ""
 msgid "Session expired"
 msgstr ""
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:117
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:166
+msgid "Set Static"
+msgstr ""
+
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:107
 msgid "Set VPN as Default Route"
 msgstr ""
@@ -5503,7 +5547,7 @@ msgid "Severely Errored Seconds (SES)"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:208
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:80
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:37
 msgid "Short GI"
 msgstr ""
 
@@ -5528,10 +5572,10 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:63
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:186
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1661
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:41
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:141
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:173
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:179
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:140
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:231
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:274
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:280
 msgid "Signal"
 msgstr ""
 
@@ -5613,8 +5657,8 @@ msgstr ""
 msgid "Source Address"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:50
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:50
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:57
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:57
 msgid "Source interface"
 msgstr ""
 
@@ -5775,18 +5819,24 @@ msgstr ""
 msgid "Specify a TOS (Type of Service)."
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:67
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:72
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:79
 msgid ""
-"Specify a TOS (Type of Service). Can be either <code>inherit</code> (the "
-"outer header inherits the value of the inner header) or an hexadecimal value "
-"starting with <code>0x</code> (optional)."
+"Specify a TOS (Type of Service). Can be <code>inherit</code> (the outer "
+"header inherits the value of the inner header) or an hexadecimal value "
+"<code>00..FF</code> (optional)."
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:62
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:67
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:67
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:72
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:74
+msgid ""
+"Specify a TOS (Type of Service). Can be <code>inherit</code> (the outer "
+"header inherits the value of the inner header), or an hexadecimal value "
+"<code>00..FF</code> (optional)."
+msgstr ""
+
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:69
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:74
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:74
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:79
 msgid ""
 "Specify a TTL (Time to Live) for the encapsulating packet other than the "
 "default (64) (optional)."
@@ -5800,18 +5850,18 @@ msgid ""
 "default (64)."
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:72
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:77
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:79
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:84
 msgid ""
-"Specify a Traffic Class. Can be either <code>inherit</code> (the outer "
-"header inherits the value of the inner header) or an hexadecimal value "
-"starting with <code>0x</code> (optional)."
+"Specify a Traffic Class. Can be <code>inherit</code> (the outer header "
+"inherits the value of the inner header) or an hexadecimal value <code>00.."
+"FF</code> (optional)."
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:57
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:62
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:62
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:67
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:64
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:69
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:69
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:74
 msgid ""
 "Specify an MTU (Maximum Transmission Unit) other than the default (1280 "
 "bytes) (optional)."
@@ -5832,6 +5882,10 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:581
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:99
 msgid "Start"
+msgstr ""
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:134
+msgid "Start WPS"
 msgstr ""
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:76
@@ -5861,6 +5915,11 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:19
 msgid "Static IPv6 Routes"
+msgstr ""
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:90
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:129
+msgid "Static Lease"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:165
@@ -5898,6 +5957,10 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:356
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:101
 msgid "Stop"
+msgstr ""
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:129
+msgid "Stop WPS"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1676
@@ -6012,7 +6075,7 @@ msgstr ""
 msgid "TX"
 msgstr ""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:142
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:232
 msgid "TX Rate"
 msgstr ""
 
@@ -6169,7 +6232,7 @@ msgid "The local IPv4 netmask"
 msgstr ""
 
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:46
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:46
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:53
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:44
 msgid "The local IPv6 address over which the tunnel is created (optional)."
 msgstr ""
@@ -6256,8 +6319,8 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:532
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:564
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:52
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:89
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:121
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:170
 msgid "There are no active leases"
 msgstr ""
 
@@ -6371,6 +6434,10 @@ msgstr ""
 msgid "Time interval for rekeying GTK"
 msgstr ""
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:15
+msgid "Timed-out"
+msgstr ""
+
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:124
 msgid "Timezone"
 msgstr ""
@@ -6406,8 +6473,8 @@ msgstr ""
 msgid "Traffic"
 msgstr ""
 
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:72
-#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:77
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:79
+#: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:84
 msgid "Traffic Class"
 msgstr ""
 
@@ -6451,7 +6518,7 @@ msgid "Tx-Power"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:44
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:61
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:163
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/map.js:43
 msgid "Type"
 msgstr ""
@@ -6548,6 +6615,7 @@ msgstr ""
 
 #: modules/luci-base/htdocs/luci-static/resources/network.js:1983
 #: modules/luci-compat/luasrc/model/network.lua:971
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:17
 msgid "Unknown"
 msgstr ""
 
@@ -6988,6 +7056,10 @@ msgid ""
 "and ad-hoc mode) to be installed."
 msgstr ""
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:147
+msgid "WPS status"
+msgstr ""
+
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/reboot.js:47
 msgid "Waiting for device..."
 msgstr ""
@@ -7023,7 +7095,7 @@ msgid "WireGuard VPN"
 msgstr ""
 
 #: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:17
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:87
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:10
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:105
 msgid "Wireless"
 msgstr ""
@@ -7054,13 +7126,13 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:153
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:193
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:47
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:146
 msgid "Wireless is disabled"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:153
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:193
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:47
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:146
 msgid "Wireless is not associated"
 msgstr ""
 
@@ -7193,11 +7265,11 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:185
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:186
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:187
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:171
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:173
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:174
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:178
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:179
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:272
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:274
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:275
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:279
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:280
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:261
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:264
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:267
@@ -7244,8 +7316,8 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:521
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:542
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:42
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:69
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:100
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:139
 msgid "expired"
 msgstr ""
 
@@ -7436,8 +7508,8 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:340
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:519
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:540
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:40
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:67
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:98
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:137
 msgid "unlimited"
 msgstr ""
 
