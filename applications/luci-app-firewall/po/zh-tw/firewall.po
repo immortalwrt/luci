@@ -3,15 +3,15 @@
 #
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-09-16 12:01+0000\n"
-"Last-Translator: tommymaple <godoffrog@gmail.com>\n"
+"PO-Revision-Date: 2020-12-28 18:20+0000\n"
+"Last-Translator: operator <omniplay@hotmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "openwrt/luciapplicationsfirewall/zh_Hant/>\n"
 "Language: zh_Hant\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.3-dev\n"
+"X-Generator: Weblate 4.4.1-dev\n"
 
 msgid "%s in %s"
 msgstr "%s 位於 %s"
@@ -59,16 +59,16 @@ msgid "Advanced Settings"
 msgstr "進階設定"
 
 msgid "Allow forward from <em>source zones</em>:"
-msgstr "允許從<em>源區域</em>轉發："
+msgstr "允許從<em>來源區</em>轉發："
 
 msgid "Allow forward to <em>destination zones</em>:"
-msgstr "允許轉發到<em>目標區域</em>："
+msgstr "允許轉發到<em>目標區</em>："
 
 msgid "Any"
 msgstr "任何"
 
 msgid "Covered networks"
-msgstr "覆蓋網路"
+msgstr "已涵蓋網路"
 
 msgid "Custom Rules"
 msgstr "自訂規則"
@@ -112,7 +112,7 @@ msgid "Do not track input"
 msgstr ""
 
 msgid "Drop invalid packets"
-msgstr "丟棄無效資料包"
+msgstr "丟棄無效封包"
 
 msgid "Enable"
 msgstr "啟用"
@@ -121,7 +121,7 @@ msgid "Enable NAT Loopback"
 msgstr "啟用 NAT 環回"
 
 msgid "Enable SYN-flood protection"
-msgstr "啟用 SYN-flood 防禦"
+msgstr "啟用 SYN暴洪攻擊防禦"
 
 msgid "Enable logging on this zone"
 msgstr "啟用此區域的日誌記錄"
@@ -130,13 +130,13 @@ msgid "External IP address"
 msgstr "外部 IP 位址"
 
 msgid "External port"
-msgstr "外部埠"
+msgstr "外部埠號"
 
 msgid "External zone"
 msgstr "外部區域"
 
 msgid "Extra arguments"
-msgstr "附加引數"
+msgstr "額外引數"
 
 msgid "Firewall"
 msgstr "防火牆"
@@ -148,7 +148,7 @@ msgid "Firewall - Port Forwards"
 msgstr "防火牆 - 埠轉發"
 
 msgid "Firewall - Traffic Rules"
-msgstr "防火牆 - 通訊規則"
+msgstr "防火牆 - 流量規則"
 
 msgid "Firewall - Zone Settings"
 msgstr "防火牆 - 區域設定"
@@ -217,7 +217,7 @@ msgid "Internal zone"
 msgstr "內部區域"
 
 msgid "Limit log messages"
-msgstr "限制日誌資訊"
+msgstr "限制日誌資訊量"
 
 msgid "MAC"
 msgstr ""
@@ -243,7 +243,7 @@ msgstr "匹配指定目標埠或目標埠範圍的轉發流量。"
 msgid ""
 "Match incoming traffic directed at the given destination port or port range "
 "on this host"
-msgstr "匹配指向此主機上指定目標埠或目標埠範圍的入站流量。"
+msgstr "匹配指向此主機上指定目標埠或目標埠範圍的入站流量"
 
 msgid ""
 "Match incoming traffic originating from the given source port or port range "
@@ -254,10 +254,10 @@ msgid "Monday"
 msgstr "星期一"
 
 msgid "Month Days"
-msgstr "日期"
+msgstr "每月天數"
 
 msgid "Name"
-msgstr "分享名稱"
+msgstr "名稱"
 
 msgid "New SNAT rule"
 msgstr "新建 SNAT 規則"
@@ -286,7 +286,7 @@ msgstr "僅匹配來自此 IP 或 IP 範圍的入站流量。"
 msgid ""
 "Only match incoming traffic originating from the given source port or port "
 "range on the client host"
-msgstr "僅匹配源自客戶端主機上給定源埠或源埠範圍的入站流量。"
+msgstr "僅匹配源自客戶端主機上給定源埠或源埠範圍的入站流量"
 
 msgid "Open ports on router"
 msgstr "開啟路由器埠"
@@ -298,7 +298,7 @@ msgid "Output"
 msgstr "出站資料"
 
 msgid "Passes additional arguments to iptables. Use with care!"
-msgstr "傳遞到 iptables 的額外引數。小心使用！"
+msgstr "傳遞附加引數到 iptables，小心使用！"
 
 msgid "Port Forwards"
 msgstr "埠轉發"
@@ -313,10 +313,10 @@ msgstr "協定"
 
 msgid ""
 "Redirect matched incoming traffic to the given port on the internal host"
-msgstr "重定向匹配的入站流量到內部主機的埠"
+msgstr "重導向已匹配的入站流量到內部主機給予的埠號"
 
 msgid "Redirect matched incoming traffic to the specified internal host"
-msgstr "重定向匹配的入站流量到指定的內部主機"
+msgstr "重導向已匹配的入站流量到指定的內部主機"
 
 msgid "Refuse forward"
 msgstr ""
@@ -334,7 +334,7 @@ msgid "Restrict Masquerading to given source subnets"
 msgstr "要限制 IP 動態偽裝的源子網"
 
 msgid "Restrict to address family"
-msgstr "限制位址"
+msgstr "限制到位址群"
 
 msgid "Rewrite matched traffic to the given address."
 msgstr "將匹配流量的源位址改寫成指定位址。"
@@ -366,10 +366,10 @@ msgid "Saturday"
 msgstr "星期六"
 
 msgid "Source IP address"
-msgstr "源 IP 位址"
+msgstr "來源 IP 位址"
 
 msgid "Source MAC address"
-msgstr "源 MAC 位址"
+msgstr "來源 MAC 位址"
 
 msgid "Source NAT"
 msgstr "Source NAT"
@@ -383,22 +383,22 @@ msgstr ""
 "將多個 WAN 位址對映到內部子網。"
 
 msgid "Source address"
-msgstr "源位址"
+msgstr "來源位址"
 
 msgid "Source port"
-msgstr "源埠"
+msgstr "來源埠"
 
 msgid "Source zone"
-msgstr "源區域"
+msgstr "來源區"
 
 msgid "Start Date (yyyy-mm-dd)"
-msgstr "開始日期（yyyy-mm-dd）"
+msgstr "開始日期（西元年-月-日）"
 
 msgid "Start Time (hh:mm:ss)"
 msgstr "開始時間（hh:mm:ss）"
 
 msgid "Stop Date (yyyy-mm-dd)"
-msgstr "停止日期（yyyy-mm-dd）"
+msgstr "停止日期（西元年-月-日）"
 
 msgid "Stop Time (hh:mm:ss)"
 msgstr "停止時間（hh:mm:ss）"
@@ -419,10 +419,11 @@ msgid ""
 "rule is <em>unidirectional</em>, e.g. a forward from lan to wan does "
 "<em>not</em> imply a permission to forward from wan to lan as well."
 msgstr ""
-"以下選項可以控制區域（%s）和其它區域間的轉發規則。<em>目標區域</em>接收"
-"<strong>源自 %q</strong> 的轉發流量。<em>源區域</em>匹配從<strong>目標為 %q</"
-"strong> 的區域的需轉發流量。轉發規則的作用是<em>單向</em>的，例如：一條允許"
-"從 lan 到 wan 的轉發規則並不隱含有允許相反方向從 wan 到 lan 的流量轉發。"
+"以下選項可以控制區域（%s）和其它區域間的轉發規則；<em>目標區域</em>接收"
+"<strong>源自 %q</strong> 的轉發流量，<em>源區域</em>匹配來自其他區域的"
+"<strong>目標為 %q</strong> 的轉發流量。轉發規則的作用是<em>單向</em>的，例"
+"如：一條允許從 LAN 到 WAN 的轉發規則並<em>不隱含</em>有允許相反方向從 WAN 到 "
+"LAN 的流量轉發。"
 
 msgid ""
 "This page allows you to change advanced properties of the port forwarding "
@@ -470,7 +471,7 @@ msgid "To source port"
 msgstr "到源埠"
 
 msgid "Traffic Rules"
-msgstr "通訊規則"
+msgstr "流量規則"
 
 msgid ""
 "Traffic rules define policies for packets traveling between different zones, "
@@ -493,7 +494,7 @@ msgid "Wednesday"
 msgstr "星期三"
 
 msgid "Week Days"
-msgstr "星期"
+msgstr "每週日數"
 
 msgid ""
 "You may specify multiple by selecting \"-- custom --\" and then entering "
@@ -513,7 +514,7 @@ msgid "accept"
 msgstr "接受"
 
 msgid "any"
-msgstr "所有"
+msgstr "任意"
 
 msgid "any host"
 msgstr "所有主機"
