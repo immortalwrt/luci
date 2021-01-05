@@ -461,7 +461,7 @@ function user.setpasswd(username, password)
 
 	return os.execute(
 		"(echo '" .. password .. "'; sleep 1; echo '" .. password .. "') | " ..
-		"passwd '" .. username .. "' >/dev/null 2>&1"
+		"busybox passwd '" .. username .. "' >/dev/null 2>&1"
 	)
 end
 
