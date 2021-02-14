@@ -74,13 +74,9 @@ end
 				</div>
 				<% end %>
 
-				<% if no_lists or old_lists then %>
+				<% if no_lists then %>
 				<div class="cbi-value">
-					<% if old_lists then %>
-						<%:Package lists are older than 24 hours%>
-					<% else %>
-						<%:No package lists available%>
-					<% end %>
+					<%:No package lists available%>
 					<input type="submit" name="update" href="#" class="cbi-button cbi-button-apply" style="margin-left:3em" value="<%:Update lists%>" />
 				</div>
 				<% end %>
