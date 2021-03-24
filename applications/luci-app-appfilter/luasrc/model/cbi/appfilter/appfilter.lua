@@ -19,6 +19,14 @@ m = Map("appfilter",
 	
 s = m:section(TypedSection, "global", translate("Basic Settings"))
 s:option(Flag, "enable", translate("Enable App Filter"),translate(""))
+um = s:option(DummyValue, "")
+um.template="cbi/oaf_dvalue"
+local fullcone=SYS.exec("uci get firewall.@defaults[0].fullcone");
+local bbr=SYS.exec("uci get flowoffload.@flow[0].bbr");
+local flow_offloading=SYS.exec("uci get flowoffload.@flow[0].flow_offloading");
+if string.match(fullcone, "1")  or string.match(bbr, "1") or string.match(flow_offloading, "1") then
+    um.value="运行环境检测失败，请先关闭ACC加速模块!"
+end
 s.anonymous = true
 
 local rule_count=0
@@ -35,6 +43,7 @@ fu.template = "cbi/oaf_upload"
 s.anonymous = true
 
 um = s:option(DummyValue, "rule_data")
+um.template="cbi/oaf_dvalue"
 
 s=m:section(TypedSection,"time",translate("时间控制")) s.anonymous = true
 hv = s:option(Value, "start_time", translate("开始时间")) hv.default="00:00"
@@ -51,10 +60,14 @@ days:value("5", "周五");
 days:value("6", "周六"); 
 
 --um.value =rule_count .. " " .. translate("Records").. "  "..version
+
+ 
+
+
+
 s = m:section(TypedSection, "appfilter", translate("App Filter Rules"))
 s.anonymous = true
 s.addremove = false
-
 
 local class_fd = io.popen("find /tmp/appfilter/ -type f -name '*.class'")
 if class_fd then
@@ -145,7 +158,7 @@ s.anonymous = true
 users = s:option(MultiValue, "users", "", translate("Select at least one user, otherwise it will take effect for all users"))
 users.widget="checkbox"
 --users.widget="select"
-users.size=1
+users.size=6
 
 local fd = io.open("/tmp/dev_list", "r")
 if not fd then return m end
@@ -157,8 +170,9 @@ while true do
 	if not line:match("Id*") then
 		local ip=get_cmd_result(string.format("echo '%s' | awk '{print $3}'", line))
 		local mac=get_cmd_result(string.format("echo '%s' | awk '{print $2}'", line))
+		local hostname=get_cmd_result(string.format("echo '%s' | awk '{print $4}'", line))
 		if mac ~= nil then
-			local hostname=get_hostname_by_mac(mac)
+
 			if not hostname or hostname == "*" then
 				users:value(mac, mac);
 			else
@@ -167,6 +181,7 @@ while true do
 		end
 	end
 end
+fd:close()
 
 local config_users=m.uci:get_all("appfilter.user.users")
 if config_users~=nil then
@@ -207,6 +222,7 @@ http.setfilehandler(
 			else                                      
 					um.value = translate("更新失败，格式错误!")
 			end
+			os.execute("rm /tmp/upload/* -fr");
 		end
 
 	end
