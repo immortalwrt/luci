@@ -60,6 +60,6 @@ fi
 exit 0
 endef
 
-include ../../luci/luci.mk
+include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature

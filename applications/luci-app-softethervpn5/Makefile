@@ -10,6 +10,6 @@ LUCI_TITLE:=LuCI Support for softethervpn5
 LUCI_DEPENDS:= +softethervpn5-server +softethervpn5-bridge +softethervpn5-client
 PKG_VERSION:=1.09
 
-include ../../luci/luci.mk
+include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature

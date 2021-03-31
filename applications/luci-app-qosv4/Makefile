@@ -18,6 +18,6 @@ PKG_RELEASE:=2
 
 PKG_MAINTAINER:=qq 3341249
 
-include ../../luci/luci.mk
+include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature

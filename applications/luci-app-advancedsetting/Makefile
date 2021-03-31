@@ -10,6 +10,6 @@ LUCI_TITLE:=LuCI Support for advancedsetting
 LUCI_DEPENDS:=
 PKG_VERSION:=1.1
 
-include ../../luci/luci.mk
+include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature

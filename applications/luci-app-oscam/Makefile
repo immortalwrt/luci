@@ -10,6 +10,6 @@ LUCI_TITLE:=LuCI Support for oscam
 LUCI_DEPENDS:= +oscam
 PKG_VERSION:=1.7
 
-include ../../luci/luci.mk
+include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature

@@ -10,6 +10,6 @@ PKG_NAME:=luci-app-smartdns
 PKG_VERSION:=1
 PKG_RELEASE:=3
 
-include ../../luci/luci.mk
+include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
