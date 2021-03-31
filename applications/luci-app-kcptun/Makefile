@@ -20,7 +20,7 @@ define Package/$(PKG_NAME)/conffiles
 /etc/config/kcptun
 endef
 
-include ../../luci/luci.mk
+include ../../luci.mk
 
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
