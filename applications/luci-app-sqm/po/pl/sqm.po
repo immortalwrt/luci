@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-05-02 15:56+0000\n"
+"PO-Revision-Date: 2020-08-29 18:28+0000\n"
 "Last-Translator: Marcin Net <marcin.net@linux.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationssqm/pl/>\n"
@@ -9,7 +9,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.1-dev\n"
+"X-Generator: Weblate 4.2.1-dev\n"
 
 #: applications/luci-app-sqm/luasrc/model/cbi/sqm.lua:206
 msgid ""
@@ -36,8 +36,8 @@ msgid ""
 "Create log file for this SQM instance under /var/run/sqm/${Interface_name}."
 "[start|stop]-sqm.log."
 msgstr ""
-"Utwórz plik dziennika dla tej instancji SQM w /var/run/sqm/"
-"${Interface_name}.[start|stop]-sqm.log."
+"Utwórz plik dziennika dla tej instancji SQM w /var/run/sqm/${Interface_name}."
+"[start|stop]-sqm.log."
 
 #: applications/luci-app-sqm/luasrc/model/cbi/sqm.lua:80
 msgid ""
@@ -49,7 +49,7 @@ msgstr ""
 
 #: applications/luci-app-sqm/luasrc/model/cbi/sqm.lua:40
 msgid "Enable this SQM instance."
-msgstr "Włączyć tę instancję SQM."
+msgstr "Włącz tę instancję SQM."
 
 #: applications/luci-app-sqm/luasrc/model/cbi/sqm.lua:157
 msgid ""
@@ -71,11 +71,12 @@ msgstr "Udziel dostępu UCI do luci-app-sqm"
 
 #: applications/luci-app-sqm/luasrc/model/cbi/sqm.lua:183
 msgid "Hard limit on egress queues; leave empty for default."
-msgstr "Twardy limit kolejek egress; pozostawić puste dla domyślnego."
+msgstr "Twardy limit kolejek egress; pozostawić puste dla ustawień domyślnych."
 
 #: applications/luci-app-sqm/luasrc/model/cbi/sqm.lua:176
 msgid "Hard limit on ingress queues; leave empty for default."
-msgstr "Twardy limit kolejek ingress; pozostawić puste dla domyślnego."
+msgstr ""
+"Twardy limit kolejek ingress; pozostawić puste dla ustawień domyślnych."
 
 #: applications/luci-app-sqm/luasrc/model/cbi/sqm.lua:150
 msgid "Ignore DSCP on ingress:"
@@ -110,8 +111,8 @@ msgid ""
 "Maximal Size for size and rate calculations, tcMTU (byte); needs to be >= "
 "interface MTU + overhead:"
 msgstr ""
-"Maksymalny rozmiar do obliczeń wielkości i szybkości, tcMTU (bajt); musi być>"
-" = interfejs MTU + narzut:"
+"Maksymalny rozmiar do obliczeń wielkości i szybkości, tcMTU (bajt); musi "
+"być> = interfejs MTU + narzut:"
 
 #: applications/luci-app-sqm/luasrc/model/cbi/sqm.lua:245
 msgid ""
@@ -125,8 +126,8 @@ msgid ""
 "Number of entries in size/rate tables, TSIZE; for ATM choose TSIZE = (tcMTU "
 "+ 1) / 16:"
 msgstr ""
-"Liczba wpisów w tabelach wielkości/szybkości, TSIZE; dla ATM wybrać TSIZE = ("
-"tcMTU + 1) / 16:"
+"Liczba wpisów w tabelach wielkości/szybkości, TSIZE; dla ATM wybrać TSIZE = "
+"(tcMTU + 1) / 16:"
 
 #: applications/luci-app-sqm/luasrc/model/cbi/sqm.lua:217
 msgid "Per Packet Overhead (byte):"

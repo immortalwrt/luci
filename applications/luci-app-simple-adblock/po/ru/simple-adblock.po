@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LuCI: simple-adblock\n"
 "POT-Creation-Date: 2017-12-07 14:00+0300\n"
-"PO-Revision-Date: 2020-11-22 15:35+0000\n"
-"Last-Translator: Max Smolik <makcum15@gmail.com>\n"
+"PO-Revision-Date: 2021-03-14 05:16+0000\n"
+"Last-Translator: masta0f1eave <lomskoff.dima@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationssimple-adblock/ru/>\n"
 "Language: ru\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.4-dev\n"
+"X-Generator: Weblate 4.5.2-dev\n"
 "Project-Info: Это технический перевод, не дословный. Главное-удобный русский "
 "интерфейс, все проверялось в графическом режиме, совместим с другими apps\n"
 
@@ -32,74 +32,75 @@ msgid "Add IPv6 entries"
 msgstr "Добавить записи IPv6"
 
 msgid "Add IPv6 entries to block-list."
-msgstr "Добавьте записи IPv6 в черный список."
+msgstr "Добавление записей IPv6 в чёрный список."
 
 msgid "Advanced Configuration"
-msgstr "расширенная конфигурация"
+msgstr "Расширенная конфигурация"
 
 msgid "Allowed Domain URLs"
 msgstr "Разрешённые URL-адреса доменов"
 
 msgid "Allowed Domains"
-msgstr "Разрешенные домены"
+msgstr "Разрешённые домены"
 
 msgid "Allowed and Blocked Lists Management"
-msgstr "Управление разрешенными и заблокированными списками"
+msgstr "Управление списками разрешения и блокировки"
 
 msgid ""
 "Attempt to create a compressed cache of block-list in the persistent memory."
-msgstr "Попытайтесь создать сжатый кеш блочных списков в постоянной памяти."
+msgstr "Пытаться создавать сжатый кэш списка блокировок в постоянной памяти."
 
 msgid "Automatic Config Update"
-msgstr ""
+msgstr "Автоматическое обновление конфигурации"
 
 msgid "Basic Configuration"
-msgstr "Базовая конфигурация"
+msgstr "Основная конфигурация"
 
 msgid "Blocked Domain URLs"
-msgstr "Заблокированные URL-адреса доменов"
+msgstr "URL-адреса блокируемых доменов"
 
 msgid "Blocked Domains"
-msgstr "Заблокированные домены"
+msgstr "Блокируемые домены"
 
 msgid "Blocked Hosts URLs"
-msgstr ""
+msgstr "URL-адреса блокируемых хостов"
 
 msgid "Cache file containing %s domains found."
-msgstr ""
+msgstr "Найден кэш-файл, содержащий %s доменов."
 
+#, fuzzy
 msgid "Collected Errors"
-msgstr "Собранные ошибки"
+msgstr "Найденные ошибки"
 
 msgid "Compressed cache file found."
-msgstr ""
+msgstr "Найден сжатый кэш-файл."
 
 msgid "Configuration"
 msgstr "Конфигурация"
 
 msgid "Controls system log and console output verbosity."
-msgstr "Контроль вывода системного лога в консоль."
+msgstr "Контроль вывода системного журнала и его информативности."
 
 msgid "Curl download retry"
-msgstr "Curl повторной загрузки"
+msgstr "Попытки загрузки через Curl"
 
 msgid "DNS Service"
 msgstr "Служба DNS"
 
 msgid "DNSMASQ Additional Hosts"
-msgstr "DNSMASQ Дополнительные хосты"
+msgstr "Дополнительные хосты DNSMASQ"
 
 msgid "DNSMASQ Config"
-msgstr "DNSMASQ Конфигурация"
+msgstr "Конфигурация DNSMASQ"
 
 msgid "DNSMASQ IP Set"
-msgstr "Установить IP DNSMASQ"
+msgstr "Установка IP DNSMASQ"
 
 msgid "DNSMASQ Servers File"
 msgstr "Файл серверов DNSMASQ"
 
 msgid "Delay (in seconds) for on-boot start"
-msgstr "Задержка (в секундах) для запуска при загрузке"
+msgstr "Задержка (в секундах) запуска службы при загрузке"
 
 msgid "Disable"
 msgstr "Отключить"
@@ -111,10 +112,10 @@ msgid "Do not add IPv6 entries"
 msgstr "Не добавлять записи IPv6"
 
 msgid "Do not store compressed cache"
-msgstr "Не хранить сжатый кеш"
+msgstr "Не хранить сжатый кэш"
 
 msgid "Do not use simultaneous processing"
-msgstr "Не используйте одновременную обработку"
+msgstr "Не использовать одновременную обработку"
 
 msgid "Download time-out (in seconds)"
 msgstr "Время ожидания загрузки (в секундах)"
@@ -129,16 +130,18 @@ msgid "Enable Debugging"
 msgstr "Включить отладку"
 
 msgid "Enables debug output to /tmp/simple-adblock.log."
-msgstr "Включает отладочный вывод в /tmp/simple-adblock.log."
+msgstr "Включает вывод отладочной информации в /tmp/simple-adblock.log."
 
 msgid "Error"
 msgstr "Ошибка"
 
+#, fuzzy
 msgid "Fail"
-msgstr ""
+msgstr "Неудача"
 
+#, fuzzy
 msgid "Force Re-Download"
-msgstr ""
+msgstr "Принудительно загрузить"
 
 msgid "Force Reloading"
 msgstr "Принудительная перезагрузка"
@@ -151,8 +154,8 @@ msgstr "Назначить DNS роутера всем локальным уст
 
 msgid "Forces Router DNS use on local devices, also known as DNS Hijacking."
 msgstr ""
-"Принудительное использование DNS-маршрутизатора на локальных устройствах, "
-"также известных как перехват DNS."
+"Принудительное использование DNS роутера на локальных устройствах, или "
+"перехват DNS."
 
 msgid "IPv6 Support"
 msgstr "Поддержка IPv6"
@@ -161,27 +164,27 @@ msgid ""
 "If curl is installed and detected, it would retry download this many times "
 "on timeout/fail."
 msgstr ""
-"Если curl установлен и обнаружен, он попытается загрузить это много раз по "
-"тайм-ауту / неудаче."
+"Если curl установлен и обнаружен, данное значение устанавливает количество "
+"повторных попыток загрузки в случае неудачи."
 
 msgid "Individual domains to be allowed."
-msgstr "Отдельные домены будут разрешены."
+msgstr "Отдельные домены, которые будут разрешены."
 
 msgid "Individual domains to be blocked."
-msgstr "Отдельные домены будут заблокированы."
+msgstr "Отдельные домены, которые будут заблокированы."
 
 msgid "Info"
 msgstr "Информация"
 
 msgid "LED to indicate status"
-msgstr "LED индикация состояния"
+msgstr "Светодиоды для индикации состояния"
 
 msgid ""
 "Launch all lists downloads and processing simultaneously, reducing service "
 "start time."
 msgstr ""
-"Запускайте все списки загрузки и обработки одновременно, сокращая время "
-"запуска сервиса."
+"Запускает все загрузки и обработки списков одновременно, сокращая время "
+"запуска службы."
 
 msgid "Let local devices use their own DNS servers if set"
 msgstr ""
@@ -199,26 +202,28 @@ msgstr "Настройка журнала"
 
 msgid "Perform config update before downloading the block/allow-lists."
 msgstr ""
+"Осуществлять обновление конфигурации перед загрузкой списков блокировок."
 
 msgid ""
 "Pick the DNS resolution option to create the adblock list for, see the <a "
 "href=\"%s#dns-resolution-option\" target=\"_blank\">README</a> for details."
 msgstr ""
 
+#, fuzzy
 msgid "Pick the LED not already used in %sSystem LED Configuration%s."
-msgstr ""
+msgstr "Выберите светодиод, не используемый %sSystem LED Configuration%s."
 
 msgid "Please note that %s is not supported on this system."
-msgstr "Обратите внимание, %s не поддерживается в этой системе."
+msgstr "Обратите внимание: %s не поддерживается в этой системе."
 
 msgid "Restarting"
 msgstr "Перезапуск"
 
 msgid "Run service after set delay on boot."
-msgstr "Запустите сервис после установки задержки при загрузке."
+msgstr "Запуск службы при загрузке системы после установленной задержки."
 
 msgid "Service Status"
-msgstr "Статус сервиса"
+msgstr "Статус службы"
 
 msgid "Service Status [%s %s]"
 msgstr "Статус службы [%s %s]"
@@ -227,7 +232,7 @@ msgid "Simple AdBlock"
 msgstr "Простой AdBlock"
 
 msgid "Simple AdBlock Settings"
-msgstr "Simple AdBlock настройки"
+msgstr "Настройки Simple AdBlock"
 
 msgid "Simultaneous processing"
 msgstr "Одновременная обработка"
@@ -246,37 +251,38 @@ msgstr "Остановить"
 
 msgid "Stop the download if it is stalled for set number of seconds."
 msgstr ""
-"Остановите загрузку, если она остановлена на заданное количество секунд."
+"Остановка загрузки, если она задерживается на заданное количество секунд."
 
 msgid "Stopped"
-msgstr "Остановлено"
+msgstr "Остановлена"
 
 msgid "Store compressed cache"
-msgstr "Хранить сжатый кеш"
+msgstr "Хранить сжатый кэш"
 
 msgid "Store compressed cache file on router"
-msgstr "Хранить сжатый файл кэша на маршрутизаторе"
+msgstr "Хранить сжатый файл кэша на роутере"
 
 msgid "Success"
-msgstr "Успешно"
+msgstr "Успех"
 
 msgid "Suppress output"
-msgstr "Запретить запись"
+msgstr "Запрет записи"
 
 msgid "Task"
 msgstr "Задача"
 
 msgid "URLs to lists of domains to be allowed."
-msgstr ""
+msgstr "URL списков разрешаемых доменов."
 
 msgid "URLs to lists of domains to be blocked."
-msgstr ""
+msgstr "URL списков блокируемых доменов."
 
 msgid "URLs to lists of hosts to be blocked."
-msgstr ""
+msgstr "URL списков блокируемых хостов."
 
+#, fuzzy
 msgid "Unbound AdBlock List"
-msgstr "Свободный список AdBlock"
+msgstr "Список AdBlock Unbound"
 
 msgid "Use simultaneous processing"
 msgstr "Использовать одновременную обработку"
@@ -294,16 +300,16 @@ msgid "failed to create '%s' file"
 msgstr "не удалось создать файл '%s'"
 
 msgid "failed to create block-list or restart DNS resolver"
-msgstr "не удалось создать черный список или перезапустить DNS resolver"
+msgstr "не удалось создать чёрный список или перезапустить службу DNS"
 
 msgid "failed to create compressed cache"
 msgstr "не удалось создать сжатый кэш"
 
 msgid "failed to download"
-msgstr "не удалось скачать"
+msgstr "не удалось загрузить"
 
 msgid "failed to download Config Update file"
-msgstr ""
+msgstr "не удалось загрузить файл обновления конфигурации"
 
 msgid "failed to format data file"
 msgstr "не удалось отформатировать файл данных"
@@ -318,22 +324,22 @@ msgid "failed to optimize data file"
 msgstr "не удалось оптимизировать файл данных"
 
 msgid "failed to parse"
-msgstr ""
+msgstr "не удалось обработать"
 
 msgid "failed to parse Config Update file"
-msgstr ""
+msgstr "не удалось обработать файл обновления конфигурации"
 
 msgid "failed to process allow-list"
-msgstr ""
+msgstr "не удалось обработать список разрешения"
 
 msgid "failed to reload/restart DNS resolver"
-msgstr "не удалось перезагрузить/перезапустить DNS-решатель"
+msgstr "не удалось перезапустить службу DNS"
 
 msgid "failed to remove temporary files"
 msgstr "не удалось удалить временные файлы"
 
 msgid "failed to restart/reload DNS resolver"
-msgstr "не удалось перезапустить/перезагрузить DNS resolver"
+msgstr "не удалось перезапустить службу DNS"
 
 msgid "failed to sort data file"
 msgstr "не удалось отсортировать файл данных"

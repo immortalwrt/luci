@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LuCI: firewall\n"
 "POT-Creation-Date: 2013-09-05 16:02+0200\n"
-"PO-Revision-Date: 2020-07-02 23:41+0000\n"
-"Last-Translator: Artem <KovalevArtem.ru@gmail.com>\n"
+"PO-Revision-Date: 2021-03-14 05:16+0000\n"
+"Last-Translator: Anton Kikin <a.a.kikin@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsfirewall/ru/>\n"
 "Language: ru\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.2-dev\n"
+"X-Generator: Weblate 4.5.2-dev\n"
 "Project-Info: Это технический перевод, не дословный. Главное-удобный русский "
 "интерфейс, все проверялось в графическом режиме, совместим с другими apps\n"
 
@@ -44,10 +44,10 @@ msgid "<var>%s</var> and limit to %s"
 msgstr "<var>%s</var> с пределом в %s"
 
 msgid "Accept forward"
-msgstr "Принять перенаправление"
+msgstr "Принимать перенаправляемый трафик"
 
 msgid "Accept input"
-msgstr "Принять входящий трафик"
+msgstr "Принимать входящий трафик"
 
 msgid "Action"
 msgstr "Действие"
@@ -102,16 +102,16 @@ msgid "Disable"
 msgstr "Отключить"
 
 msgid "Discard forward"
-msgstr "Отключить перенаправление"
+msgstr "Отклонять перенаправляемый трафик"
 
 msgid "Discard input"
-msgstr "Отключить входящий трафик"
+msgstr "Отклонять входящий трафик"
 
 msgid "Do not rewrite"
 msgstr "Не перезаписывать"
 
 msgid "Do not track forward"
-msgstr "Не отслеживать перенаправление"
+msgstr "Не отслеживать перенаправляемый трафик"
 
 msgid "Do not track input"
 msgstr "Не отслеживать входящий трафик"
@@ -159,13 +159,13 @@ msgid "Firewall - Zone Settings"
 msgstr "Межсетевой экран - Настройка зон"
 
 msgid "Force connection tracking"
-msgstr "Включить отслеживание соединений"
+msgstr "Принудительно включать отслеживание соединений"
 
 msgid "Forward"
 msgstr "Перенаправление"
 
 msgid "Forward to"
-msgstr "Перенаправлять из"
+msgstr "Перенаправлять на"
 
 msgid "Friday"
 msgstr "Пятница"
@@ -180,7 +180,7 @@ msgid "From %s in %s with source %s and %s"
 msgstr "Из %s в %s с источниками %s и %s"
 
 msgid "General Settings"
-msgstr "Основные настройки"
+msgstr "Общие настройки"
 
 msgid "IP"
 msgstr "IP-адрес"
@@ -225,7 +225,7 @@ msgid "Limit log messages"
 msgstr "Ограничить журнал сообщений"
 
 msgid "MAC"
-msgstr "MAC-адрес"
+msgstr "MAC"
 
 msgid "MACs"
 msgstr "MAC-адреса"
@@ -341,7 +341,7 @@ msgid "Redirect matched incoming traffic to the specified internal host"
 msgstr "Перенаправлять трафик на указанный IP-адрес"
 
 msgid "Refuse forward"
-msgstr "Сбрасывать перенаправление"
+msgstr "Сбрасывать перенаправляемый трафик"
 
 msgid "Refuse input"
 msgstr "Сбрасывать входящий трафик"
@@ -488,7 +488,7 @@ msgid "Time in UTC"
 msgstr "Время UTC"
 
 msgid "To %s at %s on <var>this device</var>"
-msgstr "К %s, порту %s на <var>этом устройстве</var>"
+msgstr "К %s, %s на <var>этом устройстве</var>"
 
 msgid "To %s in %s"
 msgstr "К %s в %s"
@@ -524,7 +524,7 @@ msgid "Via %s"
 msgstr "Через %s"
 
 msgid "Via %s at %s"
-msgstr "Через %s, порт %s"
+msgstr "Через %s, %s"
 
 msgid "Wednesday"
 msgstr "Среда"

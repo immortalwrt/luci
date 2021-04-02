@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"PO-Revision-Date: 2020-03-31 13:27+0000\n"
-"Last-Translator: Tamas Szanto <taszanto@gmail.com>\n"
+"PO-Revision-Date: 2021-01-29 18:06+0000\n"
+"Last-Translator: Axhyre <axhyre@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsfirewall/hu/>\n"
 "Language: hu\n"
@@ -10,16 +10,16 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.0-dev\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 msgid "%s in %s"
-msgstr "%s %s-ban"
+msgstr "%s ebben: %s"
 
 msgid "%s%s with %s"
-msgstr "%s%s %s-el"
+msgstr "%s%s ezzel: %s"
 
 msgid "%s, %s in %s"
-msgstr "%s, %s %s-ben"
+msgstr "%s, %s ebben: %s"
 
 msgid "(Unnamed Entry)"
 msgstr "(Névtelen bejegyzés)"
@@ -31,19 +31,19 @@ msgid "(Unnamed SNAT)"
 msgstr "(Névtelen SNAT)"
 
 msgid "<var>%d</var> pkts. per <var>%s</var>"
-msgstr "<var>%d</var> csomag/<var>%s</var>"
+msgstr "<var>%d</var> csomag / <var>%s</var>"
 
 msgid "<var>%d</var> pkts. per <var>%s</var>, burst <var>%d</var> pkts."
-msgstr "<var>%d</var> csom. <var>%s</var>-enként, burst <var>%d</var> csom."
+msgstr "<var>%d</var> csomag / <var>%s</var>, löket <var>%d</var> csomag"
 
 msgid "<var>%s</var> and limit to %s"
-msgstr "<var>%s</var> és korlátozás %s-re"
+msgstr "<var>%s</var> és korlátozás erre: %s"
 
 msgid "Accept forward"
-msgstr ""
+msgstr "Továbbítás elfogadása"
 
 msgid "Accept input"
-msgstr ""
+msgstr "Bemenet elfogadása"
 
 msgid "Action"
 msgstr "Művelet"
@@ -55,7 +55,7 @@ msgid "Add and edit..."
 msgstr "Hozzáadás és szerkesztés..."
 
 msgid "Advanced Settings"
-msgstr "Speciális beállítások"
+msgstr "Haladó Beállítások"
 
 msgid "Allow forward from <em>source zones</em>:"
 msgstr "Továbbítás engedélyezése a <em>forrászónákból</em>:"
@@ -98,19 +98,19 @@ msgid "Disable"
 msgstr ""
 
 msgid "Discard forward"
-msgstr ""
+msgstr "Továbbítás elvetése"
 
 msgid "Discard input"
-msgstr ""
+msgstr "Bemenet elvetése"
 
 msgid "Do not rewrite"
 msgstr "Ne írja felül"
 
 msgid "Do not track forward"
-msgstr ""
+msgstr "Ne kövesse a továbbítást"
 
 msgid "Do not track input"
-msgstr ""
+msgstr "Ne kövesse a bemenetet"
 
 msgid "Drop invalid packets"
 msgstr "Érvénytelen csomagok eldobása"
@@ -161,31 +161,31 @@ msgid "Forward"
 msgstr "Továbbítás"
 
 msgid "Forward to"
-msgstr "Továbbítás ennek"
+msgstr "Továbbítás ide"
 
 msgid "Friday"
 msgstr "Péntek"
 
 msgid "From %s in %s"
-msgstr "%s felől %s-ben"
+msgstr "Innen: %s, ebben: %s"
 
 msgid "From %s in %s with source %s"
-msgstr "%s felől %s-ben %s forrással"
+msgstr "Innen: %s, ebben: %s, ezzel a forrással: %s"
 
 msgid "From %s in %s with source %s and %s"
-msgstr "%s felől %s-ben %s és %s forrással"
+msgstr "Innen: %s, ebben: %s, ezekkel a forrásokkal: %s és %s"
 
 msgid "General Settings"
-msgstr "Általános beállítások"
+msgstr "Általános Beállítások"
 
 msgid "IP"
-msgstr ""
+msgstr "IP"
 
 msgid "IP range"
-msgstr ""
+msgstr "IP-tartomány"
 
 msgid "IPs"
-msgstr ""
+msgstr "IP-k"
 
 msgid "IPv4"
 msgstr "IPv4"
@@ -221,10 +221,10 @@ msgid "Limit log messages"
 msgstr "Naplóüzenetek korlátozása"
 
 msgid "MAC"
-msgstr ""
+msgstr "MAC"
 
 msgid "MACs"
-msgstr ""
+msgstr "MAC-ek"
 
 msgid "MSS clamping"
 msgstr "MSS összefogás"
@@ -334,10 +334,10 @@ msgid "Redirect matched incoming traffic to the specified internal host"
 msgstr "Egyező bejövő forgalom átirányítása a megadott belső gépre"
 
 msgid "Refuse forward"
-msgstr ""
+msgstr "Továbbítás visszautasítása"
 
 msgid "Refuse input"
-msgstr ""
+msgstr "Bemenet visszautasítása"
 
 msgid "Restart Firewall"
 msgstr ""
@@ -483,16 +483,16 @@ msgid "Time in UTC"
 msgstr "Idő UTC szerint"
 
 msgid "To %s at %s on <var>this device</var>"
-msgstr "%s-re %s-nél a <var>eszközön</var>"
+msgstr "Ide: %s, ekkor: %s, <var>ezen az eszközön</var>"
 
 msgid "To %s in %s"
-msgstr "%s-re %s-ben"
+msgstr "Ide: %s, ebben: %s"
 
 msgid "To %s on <var>this device</var>"
-msgstr "%s-re a <var>eszközön</var>"
+msgstr "Ide: %s, <var>ezen az eszközön</var>"
 
 msgid "To %s, %s in %s"
-msgstr "%s-re, %s %s-ben"
+msgstr "Erre: %s, %s ebben: %s"
 
 msgid "To source IP"
 msgstr "Forrás IP-re"
@@ -516,10 +516,10 @@ msgid "Tuesday"
 msgstr "Kedd"
 
 msgid "Via %s"
-msgstr "%s-en át"
+msgstr "Ezen keresztül: %s"
 
 msgid "Via %s at %s"
-msgstr "%s-en át %s-nél"
+msgstr "Ezen keresztül: %s, itt: %s"
 
 msgid "Wednesday"
 msgstr "Szerda"
@@ -550,10 +550,10 @@ msgid "any"
 msgstr "bármely"
 
 msgid "any host"
-msgstr "bármelyik gép"
+msgstr "bármely gép"
 
 msgid "any router IP"
-msgstr "bármelyik router IP"
+msgstr "bármely útválasztó IP"
 
 msgid "any zone"
 msgstr "bármely zóna"
@@ -574,13 +574,13 @@ msgid "minute"
 msgstr "perc"
 
 msgid "not"
-msgstr ""
+msgstr "nem"
 
 msgid "port"
-msgstr ""
+msgstr "port"
 
 msgid "ports"
-msgstr ""
+msgstr "portok"
 
 msgid "reject"
 msgstr "visszautasítás"
@@ -592,7 +592,7 @@ msgid "traffic"
 msgstr ""
 
 msgid "type"
-msgstr ""
+msgstr "típus"
 
 msgid "types"
-msgstr ""
+msgstr "típusok"

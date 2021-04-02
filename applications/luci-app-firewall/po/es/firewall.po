@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-30 17:00+0200\n"
-"PO-Revision-Date: 2020-10-31 10:05+0000\n"
+"PO-Revision-Date: 2021-01-20 10:36+0000\n"
 "Last-Translator: Franco Castillo <castillofrancodamian@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsfirewall/es/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.3.2-dev\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 msgid "%s in %s"
 msgstr "%s en %s"
@@ -27,7 +27,7 @@ msgid "(Unnamed Entry)"
 msgstr "(Entrada sin nombre)"
 
 msgid "(Unnamed Rule)"
-msgstr "(Reglas sin nombre)"
+msgstr "(Regla sin nombre)"
 
 msgid "(Unnamed SNAT)"
 msgstr "(SNAT sin nombre)"
@@ -40,13 +40,13 @@ msgstr ""
 "<var>%d</var> paquetes por <var>%s</var>, máximo <var>%d</var> paquetes."
 
 msgid "<var>%s</var> and limit to %s"
-msgstr "<var>%s</var> y límite a %s"
+msgstr "<var>%s</var> y limitar a %s"
 
 msgid "Accept forward"
-msgstr ""
+msgstr "Aceptar reenvío"
 
 msgid "Accept input"
-msgstr ""
+msgstr "Aceptar entrada"
 
 msgid "Action"
 msgstr "Acción"
@@ -98,22 +98,22 @@ msgid "Destination zone"
 msgstr "Zona de destino"
 
 msgid "Disable"
-msgstr ""
+msgstr "Desactivar"
 
 msgid "Discard forward"
-msgstr ""
+msgstr "Descartar reenvío"
 
 msgid "Discard input"
-msgstr ""
+msgstr "Descartar entrada"
 
 msgid "Do not rewrite"
 msgstr "No reescribir"
 
 msgid "Do not track forward"
-msgstr ""
+msgstr "No seguir reenvío"
 
 msgid "Do not track input"
-msgstr ""
+msgstr "No seguir entrada"
 
 msgid "Drop invalid packets"
 msgstr "Descartar paquetes inválidos"
@@ -164,7 +164,7 @@ msgid "Forward"
 msgstr "Reenviar"
 
 msgid "Forward to"
-msgstr "Traspasar a"
+msgstr "Reenviar a"
 
 msgid "Friday"
 msgstr "Viernes"
@@ -182,13 +182,13 @@ msgid "General Settings"
 msgstr "Configuración general"
 
 msgid "IP"
-msgstr ""
+msgstr "IP"
 
 msgid "IP range"
-msgstr ""
+msgstr "Rango de IP"
 
 msgid "IPs"
-msgstr ""
+msgstr "IP"
 
 msgid "IPv4"
 msgstr "IPv4"
@@ -209,7 +209,7 @@ msgid "Input"
 msgstr "Entrada"
 
 msgid "Inter-Zone Forwarding"
-msgstr "Traspaso entre zonas"
+msgstr "Reenvío entre zonas"
 
 msgid "Internal IP address"
 msgstr "Dirección IP interna"
@@ -224,10 +224,10 @@ msgid "Limit log messages"
 msgstr "Limitar registro de mensajes"
 
 msgid "MAC"
-msgstr ""
+msgstr "MAC"
 
 msgid "MACs"
-msgstr ""
+msgstr "MAC"
 
 msgid "MSS clamping"
 msgstr "Fijado de MSS"
@@ -242,7 +242,7 @@ msgid "Match ICMP type"
 msgstr "Coincidir con tipo ICMP"
 
 msgid "Match forwarded traffic to the given destination port or port range."
-msgstr "Coincidir con tráfico traspasado al puerto o rango de puertos destino."
+msgstr "Coincidir con tráfico reenviado al puerto o rango de puertos destino."
 
 msgid ""
 "Match incoming traffic directed at the given destination port or port range "
@@ -255,8 +255,8 @@ msgid ""
 "Match incoming traffic originating from the given source port or port range "
 "on the client host."
 msgstr ""
-"Coincidir con tráfico de entrada originado desde el puerto o rango de "
-"puertos origen en la máquina cliente."
+"Haga coincidir el tráfico entrante que se origina en el puerto de origen o "
+"el rango de puertos en el host del cliente."
 
 msgid "Monday"
 msgstr "Lunes"
@@ -271,13 +271,13 @@ msgid "New SNAT rule"
 msgstr "Nueva regla SNAT"
 
 msgid "New forward rule"
-msgstr "Nueva regla de traspaso"
+msgstr "Nueva regla de reenvío"
 
 msgid "New input rule"
 msgstr "Nueva regla de entrada"
 
 msgid "New port forward"
-msgstr "Nuevo traspaso de puerto"
+msgstr "Nuevo reenvío de puerto"
 
 msgid "New source NAT"
 msgstr "Nuevo origen NAT"
@@ -334,13 +334,13 @@ msgstr ""
 "Redirigir el tráfico de entrada que coincida al host interno especificado"
 
 msgid "Refuse forward"
-msgstr ""
+msgstr "Rechazar reenvío"
 
 msgid "Refuse input"
-msgstr ""
+msgstr "Rechazar entrada"
 
 msgid "Restart Firewall"
-msgstr ""
+msgstr "Reiniciar Firewall"
 
 msgid "Restrict Masquerading to given destination subnets"
 msgstr "Restringir enmascaramiento a las subredes destino"
@@ -368,10 +368,10 @@ msgid "Rewrite to source %s, %s"
 msgstr "Reescribir a origen %s, %s"
 
 msgid "Rule is disabled"
-msgstr ""
+msgstr "Regla desactivada"
 
 msgid "Rule is enabled"
-msgstr ""
+msgstr "Regla activada"
 
 msgid "SNAT IP address"
 msgstr "Dirección IP SNAT"
@@ -389,14 +389,14 @@ msgid "Source MAC address"
 msgstr "Dirección MAC de origen"
 
 msgid "Source NAT"
-msgstr "NAT origen"
+msgstr "Origen NAT"
 
 msgid ""
 "Source NAT is a specific form of masquerading which allows fine grained "
 "control over the source IP used for outgoing traffic, for example to map "
 "multiple WAN addresses to internal subnets."
 msgstr ""
-"NAT origen es una forma específica de enmascaramiento que permite el control "
+"Origen NAT es una forma específica de enmascaramiento que permite el control "
 "fino del origen IP que se usa en el tráfico de salida por ejemplo para "
 "dirigir múltiples direcciones WAN a las subredes internas."
 
@@ -413,13 +413,13 @@ msgid "Start Date (yyyy-mm-dd)"
 msgstr "Fecha de inicio (aaaa-mm-dd)"
 
 msgid "Start Time (hh:mm:ss)"
-msgstr ""
+msgstr "Hora de inicio (hh:mm:ss)"
 
 msgid "Stop Date (yyyy-mm-dd)"
 msgstr "Fecha de finalización (aaaa-mm-dd)"
 
 msgid "Stop Time (hh:mm:ss)"
-msgstr ""
+msgstr "Hora de finalización (hh:mm:ss)"
 
 msgid "Sunday"
 msgstr "Domingo"
@@ -451,15 +451,15 @@ msgid ""
 "This page allows you to change advanced properties of the port forwarding "
 "entry. In most cases there is no need to modify those settings."
 msgstr ""
-"Propiedades avanzadas de la entrada \"traspaso de puertos\". No suele ser "
+"Propiedades avanzadas de la entrada \"reenvío de puertos\". No suele ser "
 "necesario modificar esta configuración."
 
 msgid ""
 "This page allows you to change advanced properties of the traffic rule "
 "entry, such as matched source and destination hosts."
 msgstr ""
-"Propiedades avanzadas de la entrada \"reglas de tráfico\", como "
-"coincidencias en puertos de origen y destino."
+"Esta página le permite cambiar las propiedades avanzadas de la entrada de la "
+"regla de tráfico, como los hosts de origen y destino coincidentes."
 
 msgid ""
 "This section defines common properties of %q. The <em>input</em> and "
@@ -530,7 +530,7 @@ msgid ""
 "You may specify multiple by selecting \"-- custom --\" and then entering "
 "protocols separated by space."
 msgstr ""
-"Puede poner varios seleccionando \"-- propio --\" e introduciendo los "
+"Puede poner varios seleccionando \"-- personalizado --\" e introduciendo los "
 "protocolos separados por espacio."
 
 msgid "Zone %q"
@@ -549,7 +549,7 @@ msgid "any"
 msgstr "cualquiera"
 
 msgid "any host"
-msgstr "cualquier máquina"
+msgstr "cualquier host"
 
 msgid "any router IP"
 msgstr "cualquier router IP"
@@ -573,13 +573,13 @@ msgid "minute"
 msgstr "minuto"
 
 msgid "not"
-msgstr ""
+msgstr "No"
 
 msgid "port"
-msgstr ""
+msgstr "puerto"
 
 msgid "ports"
-msgstr ""
+msgstr "puertos"
 
 msgid "reject"
 msgstr "Rechazar"
@@ -588,10 +588,10 @@ msgid "second"
 msgstr "segundo"
 
 msgid "traffic"
-msgstr "tráfico"
+msgstr "Tráfico"
 
 msgid "type"
-msgstr ""
+msgstr "Tipo"
 
 msgid "types"
-msgstr ""
+msgstr "Tipos"
