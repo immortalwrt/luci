@@ -1,5 +1,5 @@
 mp = Map("unblockneteasemusic", translate("解除网易云音乐播放限制"))
-mp.description = translate("原理：采用 [QQ/虾米/百度/酷狗/酷我/咪咕/JOOX] 等音源，替换网易云音乐 无版权/收费 歌曲链接<br/>具体使用方法参见：https://github.com/immortalwrt/luci-app-unblockneteasemusic")
+mp.description = translate("原理：采用 [QQ/百度/酷狗/酷我/咪咕/JOOX] 等音源，替换网易云音乐 无版权/收费 歌曲链接<br/>具体使用方法参见：https://github.com/immortalwrt/luci-app-unblockneteasemusic")
 
 mp:section(SimpleSection).template = "unblockneteasemusic/unblockneteasemusic_status"
 
@@ -19,11 +19,11 @@ music_source:value("qq", translate("QQ音乐"))
 music_source:value("kuwo", translate("酷我音乐"))
 music_source:value("migu", translate("咪咕音乐"))
 music_source:value("kugou", translate("酷狗音乐"))
-music_source:value("xiami", translate("虾米音乐"))
 music_source:value("baidu", translate("百度音乐"))
 music_source:value("joox", translate("JOOX音乐"))
 music_source:value("youtube", translate("Youtube音乐"))
 music_source:value("bilibili", translate("Bilibili音乐"))
+music_source:value("pyncmd", translate("网易云音乐（SVIP）"))
 music_source.description = translate("自定义模式下，多个音源请用空格隔开")
 music_source.default = "default"
 music_source.rmempty = false
@@ -47,6 +47,11 @@ use_custom_cookie = s:option(Flag, "use_custom_cookie", translate("使用自定�
 use_custom_cookie.description = translate("使用自定义 Cookie 请求音源接口")
 use_custom_cookie.default = 0
 use_custom_cookie.rmempty = false
+
+migu_cookie = s:option(Value, "migu_cookie", translate("Migu Cookie"))
+migu_cookie.description = translate("在 music.migu.cn 获取，需要migu_music_sid值")
+migu_cookie.datatype = "string"
+migu_cookie:depends("use_custom_cookie", 1)
 
 neteasemusic_cookie = s:option(Value, "neteasemusic_cookie", translate("NeteaseMusic Cookie"))
 neteasemusic_cookie.description = translate("在 music.163.com 获取，需要MUSIC_U值")
