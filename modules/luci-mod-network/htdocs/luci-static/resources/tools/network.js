@@ -46,11 +46,11 @@ function validateQoSMap(section_id, value) {
 	return true;
 }
 
-function deviceSectionExists(section_id, devname) {
+function deviceSectionExists(section_id, devname, devtype) {
 	var exists = false;
 
 	uci.sections('network', 'device', function(ss) {
-		exists = exists || (ss['.name'] != section_id && ss.name == devname /* && !ss.type*/);
+		exists = exists || (ss['.name'] != section_id && ss.name == devname && (!devtype || devtype == ss.type));
 	});
 
 	return exists;
@@ -131,7 +131,7 @@ function deviceCfgValue(section_id) {
 	var ds = lookupDevSection(this.section, section_id, false);
 
 	return (ds ? uci.get('network', ds, this.option) : null) ||
-		uci.get('network', section_id, this.option) ||
+		(this.migrate ? uci.get('network', section_id, this.option) : null) ||
 		this.default;
 }
 
@@ -139,28 +139,18 @@ function deviceWrite(section_id, formvalue) {
 	var ds = lookupDevSection(this.section, section_id, true);
 
 	uci.set('network', ds, this.option, formvalue);
-	uci.unset('network', section_id, this.option);
+
+	if (this.migrate)
+		uci.unset('network', section_id, this.option);
 }
 
 function deviceRemove(section_id) {
-	var ds = lookupDevSection(this.section, section_id, false),
-	    sv = ds ? uci.get('network', ds) : null;
+	var ds = lookupDevSection(this.section, section_id, false);
 
-	if (sv) {
-		var empty = true;
+	uci.unset('network', ds, this.option);
 
-		for (var opt in sv) {
-			if (opt.charAt(0) == '.' || opt == 'name' || opt == this.option)
-				continue;
-
-			empty = false;
-		}
-
-		if (empty)
-			uci.remove('network', ds);
-	}
-
-	uci.unset('network', section_id, this.option);
+	if (this.migrate)
+		uci.unset('network', section_id, this.option);
 }
 
 function deviceRefresh(section_id) {
@@ -181,6 +171,28 @@ function deviceRefresh(section_id) {
 
 		uielem.setValue(this.cfgvalue(section_id));
 	}
+}
+
+function sectionParse() {
+	var ds = lookupDevSection(this, this.section, false);
+
+	return form.NamedSection.prototype.parse.apply(this).then(function() {
+		var sv = ds ? uci.get('network', ds) : null;
+
+		if (sv) {
+			var empty = true;
+
+			for (var opt in sv) {
+				if (opt.charAt(0) == '.' || opt == 'name')
+					continue;
+
+				empty = false;
+			}
+
+			if (empty)
+				uci.remove('network', ds);
+	        }
+	});
 }
 
 
@@ -362,6 +374,7 @@ return baseclass.extend({
 		var o = this.replaceOption(s, tabName, optionClass, optionName, optionTitle, optionDescription);
 
 		if (s.sectiontype == 'interface' && optionName != 'type' && optionName != 'vlan_filtering') {
+			o.migrate = true;
 			o.cfgvalue = deviceCfgValue;
 			o.write = deviceWrite;
 			o.remove = deviceRemove;
@@ -377,19 +390,25 @@ return baseclass.extend({
 		    gensection = ifc ? 'physical' : 'devgeneral',
 		    advsection = ifc ? 'physical' : 'devadvanced',
 		    simpledep = ifc ? { type: '', ifname_single: /^[^@]/ } : { type: '' },
-		    disableLegacyBridging = isIface && deviceSectionExists(null, 'br-%s'.format(ifc.getName())),
+		    disableLegacyBridging = isIface && deviceSectionExists(null, 'br-%s'.format(ifc.getName()), 'bridge'),
 		    o, ss;
 
-		/* If an externally configured br-xxx interface already exists,
-		 * then disable legacy bridge configuration */
-		if (disableLegacyBridging) {
-			o = this.addOption(s, gensection, form.HiddenValue, 'type');
-			o.cfgvalue = function() { return '' };
-		}
-		else if (isIface) {
+		if (isIface) {
+			if (!s.hasOwnProperty('parse'))
+				s.parse = sectionParse;
+
 			var type;
 
-			type = this.addOption(s, gensection, form.Flag, 'type', _('Bridge interfaces'), _('Creates a bridge over specified interface(s)'));
+			/* If an externally configured br-xxx interface already exists,
+			 * then disable legacy bridge configuration */
+			if (disableLegacyBridging) {
+				type = this.addOption(s, gensection, form.HiddenValue, 'type');
+				type.cfgvalue = function() { return '' };
+			}
+			else {
+				type = this.addOption(s, gensection, form.Flag, 'type', _('Bridge interfaces'), _('Creates a bridge over specified interface(s)'));
+			}
+
 			type.modalonly = true;
 			type.disabled = '';
 			type.enabled = 'bridge';
@@ -604,64 +623,64 @@ return baseclass.extend({
 		};
 		o.depends('type', 'bridge');
 
-		o = this.addOption(s, gensection, form.Flag, 'bridge_empty', _('Bring up empty bridge'), _('Bring up the bridge interface even if no ports are attached'));
+		o = this.replaceOption(s, gensection, form.Flag, 'bridge_empty', _('Bring up empty bridge'), _('Bring up the bridge interface even if no ports are attached'));
 		o.default = o.disabled;
 		o.depends('type', 'bridge');
 
-		o = this.addOption(s, advsection, form.Value, 'priority', _('Priority'));
+		o = this.replaceOption(s, advsection, form.Value, 'priority', _('Priority'));
 		o.placeholder = '32767';
 		o.datatype = 'range(0, 65535)';
 		o.depends('type', 'bridge');
 
-		o = this.addOption(s, advsection, form.Value, 'ageing_time', _('Ageing time'), _('Timeout in seconds for learned MAC addresses in the forwarding database'));
+		o = this.replaceOption(s, advsection, form.Value, 'ageing_time', _('Ageing time'), _('Timeout in seconds for learned MAC addresses in the forwarding database'));
 		o.placeholder = '30';
 		o.datatype = 'uinteger';
 		o.depends('type', 'bridge');
 
-		o = this.addOption(s, advsection, form.Flag, 'stp', _('Enable <abbr title="Spanning Tree Protocol">STP</abbr>'), _('Enables the Spanning Tree Protocol on this bridge'));
+		o = this.replaceOption(s, advsection, form.Flag, 'stp', _('Enable <abbr title="Spanning Tree Protocol">STP</abbr>'), _('Enables the Spanning Tree Protocol on this bridge'));
 		o.default = o.disabled;
 		o.depends('type', 'bridge');
 
-		o = this.addOption(s, advsection, form.Value, 'hello_time', _('Hello interval'), _('Interval in seconds for STP hello packets'));
+		o = this.replaceOption(s, advsection, form.Value, 'hello_time', _('Hello interval'), _('Interval in seconds for STP hello packets'));
 		o.placeholder = '2';
 		o.datatype = 'range(1, 10)';
 		o.depends({ type: 'bridge', stp: '1' });
 
-		o = this.addOption(s, advsection, form.Value, 'forward_delay', _('Forward delay'), _('Time in seconds to spend in listening and learning states'));
+		o = this.replaceOption(s, advsection, form.Value, 'forward_delay', _('Forward delay'), _('Time in seconds to spend in listening and learning states'));
 		o.placeholder = '15';
 		o.datatype = 'range(2, 30)';
 		o.depends({ type: 'bridge', stp: '1' });
 
-		o = this.addOption(s, advsection, form.Value, 'max_age', _('Maximum age'), _('Timeout in seconds until topology updates on link loss'));
+		o = this.replaceOption(s, advsection, form.Value, 'max_age', _('Maximum age'), _('Timeout in seconds until topology updates on link loss'));
 		o.placeholder = '20';
 		o.datatype = 'range(6, 40)';
 		o.depends({ type: 'bridge', stp: '1' });
 
 
-		o = this.addOption(s, advsection, form.Flag, 'igmp_snooping', _('Enable <abbr title="Internet Group Management Protocol">IGMP</abbr> snooping'), _('Enables IGMP snooping on this bridge'));
+		o = this.replaceOption(s, advsection, form.Flag, 'igmp_snooping', _('Enable <abbr title="Internet Group Management Protocol">IGMP</abbr> snooping'), _('Enables IGMP snooping on this bridge'));
 		o.default = o.disabled;
 		o.depends('type', 'bridge');
 
-		o = this.addOption(s, advsection, form.Value, 'hash_max', _('Maximum snooping table size'));
+		o = this.replaceOption(s, advsection, form.Value, 'hash_max', _('Maximum snooping table size'));
 		o.placeholder = '512';
 		o.datatype = 'uinteger';
 		o.depends({ type: 'bridge', igmp_snooping: '1' });
 
-		o = this.addOption(s, advsection, form.Flag, 'multicast_querier', _('Enable multicast querier'));
+		o = this.replaceOption(s, advsection, form.Flag, 'multicast_querier', _('Enable multicast querier'));
 		o.defaults = { '1': [{'igmp_snooping': '1'}], '0': [{'igmp_snooping': '0'}] };
 		o.depends('type', 'bridge');
 
-		o = this.addOption(s, advsection, form.Value, 'robustness', _('Robustness'), _('The robustness value allows tuning for the expected packet loss on the network. If a network is expected to be lossy, the robustness value may be increased. IGMP is robust to (Robustness-1) packet losses'));
+		o = this.replaceOption(s, advsection, form.Value, 'robustness', _('Robustness'), _('The robustness value allows tuning for the expected packet loss on the network. If a network is expected to be lossy, the robustness value may be increased. IGMP is robust to (Robustness-1) packet losses'));
 		o.placeholder = '2';
 		o.datatype = 'min(1)';
 		o.depends({ type: 'bridge', multicast_querier: '1' });
 
-		o = this.addOption(s, advsection, form.Value, 'query_interval', _('Query interval'), _('Interval in centiseconds between multicast general queries. By varying the value, an administrator may tune the number of IGMP messages on the subnet; larger values cause IGMP Queries to be sent less often'));
+		o = this.replaceOption(s, advsection, form.Value, 'query_interval', _('Query interval'), _('Interval in centiseconds between multicast general queries. By varying the value, an administrator may tune the number of IGMP messages on the subnet; larger values cause IGMP Queries to be sent less often'));
 		o.placeholder = '12500';
 		o.datatype = 'uinteger';
 		o.depends({ type: 'bridge', multicast_querier: '1' });
 
-		o = this.addOption(s, advsection, form.Value, 'query_response_interval', _('Query response interval'), _('The max response time in centiseconds inserted into the periodic general queries. By varying the value, an administrator may tune the burstiness of IGMP messages on the subnet; larger values make the traffic less bursty, as host responses are spread out over a larger interval'));
+		o = this.replaceOption(s, advsection, form.Value, 'query_response_interval', _('Query response interval'), _('The max response time in centiseconds inserted into the periodic general queries. By varying the value, an administrator may tune the burstiness of IGMP messages on the subnet; larger values make the traffic less bursty, as host responses are spread out over a larger interval'));
 		o.placeholder = '1000';
 		o.datatype = 'uinteger';
 		o.validate = function(section_id, value) {
@@ -675,7 +694,7 @@ return baseclass.extend({
 		};
 		o.depends({ type: 'bridge', multicast_querier: '1' });
 
-		o = this.addOption(s, advsection, form.Value, 'last_member_interval', _('Last member interval'), _('The max response time in centiseconds inserted into group-specific queries sent in response to leave group messages. It is also the amount of time between group-specific query messages. This value may be tuned to modify the "leave latency" of the network. A reduced value results in reduced time to detect the loss of the last member of a group'));
+		o = this.replaceOption(s, advsection, form.Value, 'last_member_interval', _('Last member interval'), _('The max response time in centiseconds inserted into group-specific queries sent in response to leave group messages. It is also the amount of time between group-specific query messages. This value may be tuned to modify the "leave latency" of the network. A reduced value results in reduced time to detect the loss of the last member of a group'));
 		o.placeholder = '100';
 		o.datatype = 'uinteger';
 		o.depends({ type: 'bridge', multicast_querier: '1' });
@@ -772,6 +791,7 @@ return baseclass.extend({
 		o.depends(simpledep);
 
 		o = this.addOption(s, gensection, form.Flag, 'ipv6', _('Enable IPv6'));
+		o.migrate = false;
 		o.default = o.enabled;
 		o.depends(simpledep);
 
