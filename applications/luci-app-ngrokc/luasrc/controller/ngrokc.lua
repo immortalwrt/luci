@@ -17,6 +17,8 @@ function index()
 		return
 	end
 
-	entry({"admin", "services", "ngrokc"}, cbi("ngrokc/overview"), _("Ngrok Settings")).dependent = true
+	local page = entry({"admin", "services", "ngrokc"}, cbi("ngrokc/overview"), _("Ngrok Settings"))
+	page.dependent = true
+	page.acl_depends = { "luci-app-ngrokc" }
 	entry({"admin", "services", "ngrokc", "detail"}, cbi("ngrokc/detail"), nil ).leaf = true
 end

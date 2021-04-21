@@ -6,7 +6,7 @@ function index()
 
     entry({"admin", "services", "pppoe-server"},
           alias("admin", "services", "pppoe-server", "settings"),
-          _("PPPoE Server"), 3)
+          _("PPPoE Server"), 3).acl_depends = { "luci-app-pppoe-server" }
     entry({"admin", "services", "pppoe-server", "settings"},
           cbi("pppoe-server/settings"), _("General Settings"), 10).leaf = true
     entry({"admin", "services", "pppoe-server", "users"},

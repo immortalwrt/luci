@@ -11,4 +11,5 @@ function index()
 
 	page = entry({"admin", "services", "oscam"}, cbi("oscam"), _("OSCAM"), 60)
 	page.dependent = true
+	page.acl_depends = { "luci-app-oscam" }
 end

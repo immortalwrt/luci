@@ -13,7 +13,7 @@ function index()
 
 	page.leaf   = true
 	page.subindex = true
-
+	page.acl_depends = { "luci-app-appfilter" }
 	--page.dependent = true
 	
 	page = entry({"admin", "network", "user_status"}, call("user_status"), nil)

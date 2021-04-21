@@ -10,7 +10,10 @@ function index()
 	end
 
 	if nixio.fs.access("/usr/bin/brook") then
-		entry({"admin", "services", "brook"},alias("admin", "services", "brook", "client"),_("Brook"), 10).dependent = true
+		local page = entry({"admin", "services", "brook"},alias("admin", "services", "brook", "client"),_("Brook"))
+		page.order = 10
+		page.dependent = true
+		page.acl_depends = { "luci-app-brook" }
 		entry({"admin", "services", "brook", "client"},arcombine(cbi("brook/client"), cbi("brook/client-config")),_("Brook Tproxy"), 10).leaf = true
 	else
 		return
