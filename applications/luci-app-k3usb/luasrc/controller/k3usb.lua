@@ -6,5 +6,5 @@ function index()
     if not nixio.fs.access("/etc/config/k3usb") then
         return
     end
-    entry({"admin","system","k3usb"}, cbi("k3usb"), _("k3usb"),60)
+    entry({"admin","system","k3usb"}, cbi("k3usb"), _("k3usb"),60).acl_depends = { "luci-app-k3usb" }
 end

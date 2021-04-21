@@ -18,7 +18,7 @@ function index()
 			alias("admin", "scutclient", "settings"),
 			"华南理工大学客户端",
 			mainorder
-		)
+		).acl_depends = { "luci-app-scutclient" }
 
 		entry({"admin", "scutclient", "settings"},
 			cbi("scutclient/scutclient"),
@@ -36,7 +36,7 @@ function index()
 			alias("admin", "scutclient", "status"),
 			"华南理工大学客户端",
 			mainorder
-		)
+		).acl_depends = { "luci-app-scutclient" }
 
 		entry({"admin", "scutclient", "status"},
 			call("action_status"),

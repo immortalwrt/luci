@@ -5,9 +5,12 @@ function index()
     if not nixio.fs.access("/etc/config/ipsec") then return end
 
     entry({"admin", "vpn"}, firstchild(), "VPN", 45).dependent = false
-    entry({"admin", "vpn", "ipsec-server"},
+    local page = entry({"admin", "vpn", "ipsec-server"},
           alias("admin", "vpn", "ipsec-server", "settings"),
-          _("IPSec VPN Server"), 49).dependent = false
+          _("IPSec VPN Server"))
+    page.order = 49
+    page.dependent = false
+    page.acl_depends = { "luci-app-ipsec-vpnserver-manyusers" }
     entry({"admin", "vpn", "ipsec-server", "settings"},
           cbi("ipsec-server/settings"), _("General Settings"), 10).leaf = true
     entry({"admin", "vpn", "ipsec-server", "users"}, cbi("ipsec-server/users"),

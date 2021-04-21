@@ -10,4 +10,5 @@ function index()
 	page = entry({"admin", "services", "xunlei"}, cbi("xunlei"), _("迅雷远程下载"), 199)
 	page.i18n = "xunlei"
 	page.dependent = true
+	page.acl_depends = { "luci-app-xunlei" }
 end

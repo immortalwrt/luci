@@ -7,7 +7,10 @@ function index()
 		return
 	end
 	
-	entry({"admin", "vpn", "softethervpn5"},alias("admin", "vpn", "softethervpn5", "setting"),_("SoftEther VPN5"), 10).dependent = true
+	local page = entry({"admin", "vpn", "softethervpn5"},alias("admin", "vpn", "softethervpn5", "setting"),_("SoftEther VPN5"))
+	page.order = 10
+	page.dependent = true
+	page.acl_depends = { "luci-app-softethervpn5" }
 	entry({"admin", "vpn", "softethervpn5", "setting"},arcombine(cbi("softethervpn5/setting"), form("softethervpn5/setting-config")),_("VPN Setting"), 10).leaf = true
 	
 	entry({"admin", "vpn", "softethervpn5", "server"},form("softethervpn5/server"),_("VPN Server"), 20).leaf = true

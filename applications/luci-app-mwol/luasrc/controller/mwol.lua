@@ -8,4 +8,5 @@ function index()
 	end
 	local page = entry({"admin", "services", "mwol"}, cbi("mwol"), _("Mwol"))
 	page.dependent = true
+	page.acl_depends = { "luci-app-mwol" }
 end

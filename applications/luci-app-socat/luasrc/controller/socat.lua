@@ -5,7 +5,7 @@ local http = require "luci.http"
 function index()
     if not nixio.fs.access("/etc/config/socat") then return end
 
-    entry({"admin", "network", "socat"}, cbi("socat/index"), _("Socat"), 100)
+    entry({"admin", "network", "socat"}, cbi("socat/index"), _("Socat"), 100).acl_depends = { "luci-app-socat" }
     entry({"admin", "network", "socat", "config"}, cbi("socat/config")).leaf = true
     entry({"admin", "network", "socat", "status"}, call("status")).leaf = true
 end

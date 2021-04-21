@@ -6,8 +6,11 @@ local brook = require "luci.model.cbi.brook_server.api.brook"
 function index()
     if not nixio.fs.access("/etc/config/brook_server") then return end
     entry({"admin", "vpn"}, firstchild(), "VPN", 45).dependent = false
-    entry({"admin", "vpn", "brook_server"}, cbi("brook_server/index"),
-          _("Brook Server"), 3).dependent = true
+    local page = entry({"admin", "vpn", "brook_server"}, cbi("brook_server/index"),
+          _("Brook Server"))
+    page.order = 3
+    page.dependent = true
+    page.acl_depends = { "luci-app-brook-server" }
     entry({"admin", "vpn", "brook_server", "config"}, cbi("brook_server/config")).leaf =
         true
 

@@ -9,4 +9,5 @@ function index()
     local page
     page = entry({"admin","system","k3screenctrl"}, cbi("k3screenctrl"), _("Screen"), 60)
     page.dependent = true
+    page.acl_depends = { "luci-app-k3screenctrl" }
 end

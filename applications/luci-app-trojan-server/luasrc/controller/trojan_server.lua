@@ -5,8 +5,11 @@ local http = require "luci.http"
 function index()
     if not nixio.fs.access("/etc/config/trojan_server") then return end
     entry({"admin", "vpn"}, firstchild(), "VPN", 45).dependent = false
-    entry({"admin", "vpn", "trojan_server"}, cbi("trojan_server/index"),
-          _("Trojan Server"), 3).dependent = true
+    local page = entry({"admin", "vpn", "trojan_server"}, cbi("trojan_server/index"),
+          _("Trojan Server"))
+    page.order = 3
+    page.dependent = true
+    page.acl_depends = { "luci-app-trojan-server" }
     entry({"admin", "vpn", "trojan_server", "config"},
           cbi("trojan_server/config")).leaf = true
 
