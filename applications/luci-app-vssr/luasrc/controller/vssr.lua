@@ -8,7 +8,9 @@ function index()
     end
 
     if nixio.fs.access('/usr/bin/ssr-redir') then
-        entry({'admin', 'services', 'vssr'}, alias('admin', 'services', 'vssr', 'client'), _('Hello World'), 0).dependent = true -- 首页
+        local page = entry({'admin', 'services', 'vssr'}, alias('admin', 'services', 'vssr', 'client'), _('Hello World'), 0) -- 首页
+        page.dependent = true
+        page.acl_depends = { "luci-app-vssr" }
         entry({'admin', 'services', 'vssr', 'client'}, cbi('vssr/client'), _('SSR Client'), 10).leaf = true -- 基本设置
         entry({'admin', 'services', 'vssr', 'servers'}, cbi('vssr/servers'), _('Severs Nodes'), 11).leaf = true -- 服务器节点
         entry({'admin', 'services', 'vssr', 'servers'}, arcombine(cbi('vssr/servers'), cbi('vssr/client-config')), _('Severs Nodes'), 11).leaf = true -- 编辑节点
@@ -20,7 +22,9 @@ function index()
         end
         entry({'admin', 'services', 'vssr', 'advanced'}, cbi('vssr/advanced'), _('Advanced Settings'), 16).leaf = true -- 高级设置
     elseif nixio.fs.access('/usr/bin/ssr-server') then
-        entry({'admin', 'services', 'vssr'}, alias('admin', 'services', 'vssr', 'server'), _('vssr'), 10).dependent = true
+        local page = entry({'admin', 'services', 'vssr'}, alias('admin', 'services', 'vssr', 'server'), _('vssr'), 10)
+        page.dependent = true
+        page.acl_depends = { "luci-app-vssr" }
     else
         return
     end

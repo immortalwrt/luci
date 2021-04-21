@@ -8,6 +8,7 @@ function index()
 	local page
 	page = entry({"admin", "nas", "filebrowser"}, cbi("filebrowser"), _("文件管理器"), 100)
 	page.dependent = true
+	page.acl_depends = { "luci-app-filebrowser" }
 	entry({"admin","nas","filebrowser","status"},call("act_status")).leaf=true
 end
 

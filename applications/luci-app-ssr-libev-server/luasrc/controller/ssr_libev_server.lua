@@ -6,7 +6,10 @@ function index()
     if not nixio.fs.access("/etc/config/ssr_libev_server") then return end
     entry({"admin", "vpn"}, firstchild(), "VPN", 45).dependent = false
     entry({"admin", "vpn", "ssr_libev_server"}, cbi("ssr_libev_server/index"),
-          _("SSR Libev Server"), 2).dependent = true
+          _("SSR Libev Server"))
+    page.order = 2
+    page.dependent = true
+    page.acl_depends = { "luci-app-ssr-libev-server" }
     entry({"admin", "vpn", "ssr_libev_server", "config"},
           cbi("ssr_libev_server/config")).leaf = true
 

@@ -12,6 +12,7 @@ function index()
 	local page
 	page = entry({"admin", "services", "naiveproxy"}, cbi("naiveproxy"), _("NaiveProxy"), 100)
 	page.dependent = true
+	page.acl_depends = { "luci-app-naiveproxy" }
 	entry({"admin", "services", "naiveproxy", "status"},call("act_status")).leaf=true
 end
 

@@ -5,7 +5,10 @@ function index()
     if not nixio.fs.access("/etc/config/pingos") then return end
 
     entry({"admin", "nas"}, firstchild(), "NAS", 44).dependent = false
-    entry({"admin", "nas", "pingos"}, cbi("pingos"), _("PingOS"), 3).dependent = true
+    local page = entry({"admin", "nas", "pingos"}, cbi("pingos"), _("PingOS"))
+	page.order = 3
+	page.dependent = true
+	page.acl_depends = { "luci-app-nginx-pingos" }
     entry({"admin", "nas", "pingos", "status"}, call("act_status")).leaf = true
 end
 

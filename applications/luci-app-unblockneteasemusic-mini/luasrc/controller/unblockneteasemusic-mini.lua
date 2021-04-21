@@ -12,6 +12,7 @@ function index()
 	local page
 	page = entry({"admin", "services", "unblockneteasemusic-mini"}, cbi("unblockneteasemusic-mini"), _("解除网易云音乐播放限制 (Mini)"), 100)
 	page.dependent = true
+	page.acl_depends = { "luci-app-unblockneteasemusic-mini" }
 	entry({"admin", "services", "unblockneteasemusic-mini", "status"},call("act_status")).leaf=true
 end
 
