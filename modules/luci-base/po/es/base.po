@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-10 03:41+0200\n"
-"PO-Revision-Date: 2021-04-15 17:26+0000\n"
+"PO-Revision-Date: 2021-04-20 18:13+0000\n"
 "Last-Translator: Franco Castillo <castillofrancodamian@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/openwrt/luci/es/>"
 "\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.6-dev\n"
+"X-Generator: Weblate 4.7-dev\n"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1271
 msgid "%.1f dB"
@@ -291,6 +291,7 @@ msgstr ""
 "estaba vacío antes de editar."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:555
+#, fuzzy
 msgid ""
 "<ul style=\"list-style-type:none;\"> <li><strong>server mode</strong>: "
 "Router advertises itself as the default IPv6 gateway via <abbr title="
@@ -306,16 +307,16 @@ msgid ""
 msgstr ""
 "<ul style=\"list-style-type:none;\"> <li><strong>Modo servidor</strong>: El "
 "enrutador se anuncia a sí mismo como la puerta de enlace IPv6 predeterminada "
-"a través de mensajes <abbr title=\"Router Advertisement, ICMPv6 Type "
-"134\">RA</abbr> (to <code>ff02::1</code>) y proporciona <abbr title=\"Prefix "
+"a través de mensajes <abbr title=\"Router Advertisement, ICMPv6 Type 134\""
+">RA</abbr> (to <code>ff02::1</code>) y proporciona <abbr title=\"Prefix "
 "Delegation\">PD</abbr> a los dispositivos descendentes.</li> "
 "<li><strong>Modo relé</strong>: El enrutador reenvía <abbr title=\"Prefix "
 "Delegation\">PD</abbr> desde el flujo ascendente y extiende la configuración "
 "de la interfaz ascendente (p. Ej., WAN) y el prefijo a las interfaces "
-"descendentes (p. e., LAN) </li> <li><strong>Modo híbrido</strong>: El "
+"descendentes (p. e., LAN).</li> <li><strong>Modo híbrido</strong>: El "
 "enrutador hace tanto servidor + retransmisión; extiende la configuración "
-"ascendente y el prefijo descendente, y usa <abbr title=\"Prefix Delegation"
-"\">PD</abbr> localmente.</li></ul>"
+"ascendente y el prefijo descendente, y usa <abbr title=\"Prefix Delegation\""
+">PD</abbr> localmente.</li></ul>"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:625
 #, fuzzy
@@ -1158,7 +1159,6 @@ msgstr "Puentear dispositivo"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:409
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:869
-#, fuzzy
 msgid "Bridge interfaces"
 msgstr "Puentear interfaces"
 
@@ -2783,6 +2783,10 @@ msgid ""
 "format check fails. Use only if you are sure that the firmware is correct "
 "and meant for your device!"
 msgstr ""
+"Forzar actualización: seleccione 'Forzar actualización' para flashear la "
+"imagen incluso si falla la verificación del formato de imagen. ¡Úselo sólo "
+"si está seguro de que el firmware es correcto y está diseñado para su "
+"dispositivo!"
 
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:90
 msgid "Force use of NAT-T"
@@ -4322,7 +4326,6 @@ msgid "Maximum snooping table size"
 msgstr "Tamaño máximo de la mesa de espionaje"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:568
-#, fuzzy
 msgid ""
 "Maximum time allowed between sending unsolicited <abbr title=\"Router "
 "Advertisement, ICMPv6 Type 134\">RA</abbr>. Default is 600 seconds "
@@ -4347,7 +4350,6 @@ msgstr "Máxima potencia de transmisión"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:327
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:328
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:329
-#, fuzzy
 msgid "Mbit/s"
 msgstr "Mbit/s"
 
@@ -5825,7 +5827,7 @@ msgstr "Relé (relayd)"
 #: protocols/luci-proto-relay/htdocs/luci-static/resources/protocol/relay.js:36
 #, fuzzy
 msgid "Relay Bridge"
-msgstr "Puente relé (relayd)"
+msgstr "Puente de relé"
 
 #: protocols/luci-proto-relay/htdocs/luci-static/resources/protocol/relay.js:154
 msgid "Relay between networks"
@@ -5835,7 +5837,7 @@ msgstr "Relé entre redes"
 #: protocols/luci-proto-relay/htdocs/luci-static/resources/protocol/relay.js:64
 #, fuzzy
 msgid "Relay bridge"
-msgstr "Puente relé (relayd)"
+msgstr "Puente de relé"
 
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/6in4.js:50
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/6rd.js:49
@@ -6127,11 +6129,15 @@ msgid "Route type"
 msgstr "Tipo de ruta"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:585
+#, fuzzy
 msgid ""
 "Router Lifetime published in <abbr title=\"Router Advertisement, ICMPv6 Type "
 "134\">RA</abbr> messages. Default is 1800 seconds (<code>1800</code>). Max "
 "9000 seconds."
 msgstr ""
+"Duración del enrutador publicada en mensajes <abbr title=\"Router "
+"Advertisement, ICMPv6 Type 134\">RA</abbr>. El valor predeterminado es 1800 "
+"segundos (<code>1800</code>). Máx. 9000 segundos."
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:46
 #: modules/luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json:26
@@ -7048,7 +7054,6 @@ msgid "Terminate"
 msgstr "Terminar"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:594
-#, fuzzy
 msgid ""
 "The <abbr title=\"Maximum Transmission Unit\">MTU</abbr> to be published in "
 "<abbr title=\"Router Advertisement, ICMPv6 Type 134\">RA</abbr> messages. "
@@ -7280,6 +7285,9 @@ msgid ""
 "abbr> messages.<br />Default is 0 (<code>0</code>), meaning unspecified. Max "
 "255."
 msgstr ""
+"Los saltos máximos que se publicarán en los mensajes <abbr title=\"Router "
+"Advertisement\">RA</abbr>.<br /> El valor predeterminado es 0 "
+"(<code>0</code>), es decir, no especificado. Máximo 255."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1949
 msgid "The network name is already used"
@@ -7830,9 +7838,8 @@ msgid "Up Delay"
 msgstr "Retraso de subida"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3881
-#, fuzzy
 msgid "Upload"
-msgstr "Subir"
+msgstr "Cargar"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:411
 msgid ""
