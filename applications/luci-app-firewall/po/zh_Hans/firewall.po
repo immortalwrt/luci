@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2021-03-19 04:16+0000\n"
-"Last-Translator: Eric <spice2wolf@gmail.com>\n"
+"PO-Revision-Date: 2021-04-19 14:24+0000\n"
+"Last-Translator: xiazhang <xz@xia.plus>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "openwrt/luciapplicationsfirewall/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.5.2-dev\n"
+"X-Generator: Weblate 4.6\n"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/rules.js:48
 msgid ""
@@ -135,7 +135,7 @@ msgstr "接受 - 禁用地址重写"
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/snats.js:158
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/snats.js:208
 msgid "Action"
-msgstr "开始"
+msgstr "操作"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js:289
 msgid ""
@@ -190,8 +190,8 @@ msgid ""
 "established connections. Format is value[/mask]. If a mask is specified then "
 "those bits set in the mask are zeroed out."
 msgstr ""
-"在已建立的连接上对给定值和现有标记值进行按位异或。格式为 value[/mask]。如果指"
-"定了掩码，则掩码中设置的位将归零。"
+"在已建立的连接上对给定值和现有标记值进行按位异或。格式为 值[/掩码]。如果指定"
+"了掩码，则掩码中设置的位将归零。"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/tools/firewall.js:263
 msgid "Apply the given DSCP class or value to established connections."
@@ -212,11 +212,11 @@ msgstr "根据流量协议和端口自动分配 conntrack 助手"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js:107
 msgid "Conntrack Settings"
-msgstr "Conntrack 设置"
+msgstr "连接跟踪设置"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js:258
 msgid "Conntrack helpers"
-msgstr "Conntrack 助手"
+msgstr "连接跟踪助手"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/custom.js:16
 msgid "Contents have been saved."
@@ -249,7 +249,7 @@ msgid ""
 "each firewall restart, right after the default ruleset has been loaded."
 msgstr ""
 "自定义规则允许您执行不属于防火墙框架的任意 iptables 命令。每次重启防火墙时，"
-"在默认的规则运行后这些命令将立即执行。"
+"这些命令在默认的规则运行后立即执行。"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/rules.js:387
 msgid "DSCP classification"
@@ -286,8 +286,8 @@ msgid ""
 "Do not install extra rules to reject forwarded traffic with conntrack state "
 "<em>invalid</em>. This may be required for complex asymmetric route setups."
 msgstr ""
-"不安装额外的规则以拒绝 conntrack 状态为<em>无效</em>的转发流量。对复杂的非对"
-"称路由这可能是必需的设置。"
+"不安装额外的规则以拒绝连接跟踪状态为<em>无效</em>的转发流量。对复杂的非对称路"
+"由这可能是必需的设置。"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js:58
 msgid "Drop invalid packets"
@@ -638,7 +638,7 @@ msgstr "使用指定的连接跟踪助手匹配流量。"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/tools/firewall.js:318
 msgid "Matches a specific firewall mark or a range of different marks."
-msgstr "匹配特定的防火墙标记或不同标记的范围。"
+msgstr "匹配特定的防火墙标记或防火墙标记范围。"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/snats.js:240
 msgid "Matches forwarded traffic using the specified outbound network device."
@@ -741,8 +741,7 @@ msgstr "端口转发"
 msgid ""
 "Port forwarding allows remote computers on the Internet to connect to a "
 "specific computer or service within the private LAN."
-msgstr ""
-"端口转发允许 Internet 上的远程计算机连接到内部网络中的特定计算机或服务。"
+msgstr "端口转发允许互联网上的远程计算机连接到内部网络中的特定计算机或服务。"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/forwards.js:186
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/rules.js:293
@@ -774,7 +773,7 @@ msgstr "要限制 IP 动态伪装的源子网"
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/rules.js:281
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js:231
 msgid "Restrict to address family"
-msgstr "限制地址"
+msgstr "限制地址类型"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/snats.js:215
 msgid "Rewrite IP address"
@@ -794,7 +793,7 @@ msgstr "重写端口"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js:75
 msgid "Routing/NAT Offloading"
-msgstr "Routing/NAT 分载"
+msgstr "路由/NAT 卸载"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/snats.js:211
 msgid "SNAT - Rewrite to specific source IP or port"
@@ -814,12 +813,12 @@ msgid ""
 "Set the given mark value on established connections. Format is value[/mask]. "
 "If a mask is specified then only those bits set in the mask are modified."
 msgstr ""
-"在已建立的连接上设置给定的标记值。格式为 value[/mask]。如果指定了掩码，则仅修"
-"改掩码中设置的位。"
+"在已建立的连接上设置给定的标记值。格式为：值[/掩码]。如果指定了掩码，则仅修改"
+"掩码中设置的位。"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js:83
 msgid "Software based offloading for routing/NAT"
-msgstr "基于软件的 Routing/NAT 分载"
+msgstr "基于软件的 路由/NAT 分载"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js:82
 msgid "Software flow offloading"
@@ -860,7 +859,7 @@ msgstr "指定是否将此流量规则绑定到特定的入站或出站网络设
 msgid ""
 "Specifies whether to use the external or the internal IP address for "
 "reflected traffic."
-msgstr "指定是使用外部 IP 地址还是内部 IP 地址来反映流量。"
+msgstr "指定反射流量使用外部或内部 IP 地址。"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/rules.js:474
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/snats.js:289
@@ -1000,7 +999,7 @@ msgid ""
 "for example to reject traffic between certain hosts or to open WAN ports on "
 "the router."
 msgstr ""
-"通信规则定义了不同区域间的数据包传输策略，例如：拒绝一些主机之间的通信，开放"
+"通信规则定义了不同区域间的数据包传输策略，例如：拒绝一些主机之间的通信、开放"
 "路由器 WAN 上的端口。"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/rules.js:446
@@ -1015,7 +1014,7 @@ msgstr "无法保存内容：%s"
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/forwards.js:277
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/rules.js:427
 msgid "Unknown or not installed conntrack helper \"%s\""
-msgstr "未知或未安装的 conntrack 助手 \"%s\""
+msgstr "未知或未安装的连接跟踪助手 \"%s\""
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/snats.js:140
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/snats.js:144
