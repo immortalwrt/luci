@@ -58,11 +58,13 @@ set_ipset() {
 			if ! ipset list unblockneteasemusic6 >"/dev/null"; then ipset create unblockneteasemusic6 hash:ip family inet6; fi
 			domains="music.163.com"
 			for domain in $domains; do
-				ip=$(ping6 ${domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}')
-				if [ -n "$ip" ]; then 
-				 ipset add unblockneteasemusic6 $ip
+				ip=$(nslookup music.163.com | grep "Address " | grep -v "\." | awk '{print $3}')
+				if [ -n "$ip" ]; then
+					for addr in $ip; do
+						ipset add unblockneteasemusic6 $addr
+					done
 				else
-				 echo "ping6 bad address,please check IPv6 DNS forwards.if IPv6 DNS forwards is enabled, please restart" >>"${logFile}"
+					echo "Query bad address,please check IPv6 DNS forwards.if IPv6 DNS forwards is enabled, please restart" >>"${logFile}"
 				fi
 			done
 			ipset add unblockneteasemusic unblockneteasemusic6
@@ -138,7 +140,7 @@ subjectAltName=DNS:music.163.com,DNS:*.music.163.com" >"${extFile}"
 start() {
 	stop >>"${logFile}" 2>&1
 	[ "${enable}" -ne "1" ] && exit 0
-	ping -c 1 114.114.114.114 >/dev/null 2>&1
+	curl www.baidu.com >/dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		if [ ! -f "$serverCrt" ]; then
 			createCertificate >>"${logFile}" 2>&1
