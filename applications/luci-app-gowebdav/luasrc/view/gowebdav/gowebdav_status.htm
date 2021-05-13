@@ -14,7 +14,7 @@ XHR.poll(1, '<%=url([[admin]], [[nas]], [[gowebdav]], [[status]])%>', null,
 );
 
 function openwebui() {
-	var url = window.location.host+":<%=luci.sys.exec("uci -q get gowebdav.config.listen_port"):gsub("^%s*(.-)%s*$", "%1")%>";
+	var url = window.location.hostname+":<%=luci.sys.exec("uci -q get gowebdav.config.listen_port"):gsub("^%s*(.-)%s*$", "%1")%>";
 	window.open('http://'+url,'target','');
 };
 //]]>
