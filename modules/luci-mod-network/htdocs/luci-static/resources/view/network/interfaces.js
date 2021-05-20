@@ -298,7 +298,52 @@ return view.extend({
 		]);
 	},
 
+	interfaceWithIfnameSections: function() {
+		return uci.sections('network', 'interface').filter(function(ns) {
+			return ns.type == 'bridge' && !ns.ports && ns.ifname;
+		});
+	},
+
+	handleMigration: function(ev) {
+		var interfaces = this.interfaceWithIfnameSections();
+		var tasks = [];
+
+		interfaces.forEach(function(ns) {
+			var device_name = 'br-' + ns['.name'];
+
+			tasks.push(uci.callAdd('network', 'device', null, {
+				'name': device_name,
+				'type': 'bridge',
+				'ports': L.toArray(ns.ifname)
+			}));
+
+			tasks.push(uci.callSet('network', ns['.name'], {
+				'type': '',
+				'ifname': device_name
+			}));
+		});
+
+		return Promise.all(tasks)
+			.then(L.bind(ui.changes.init, ui.changes))
+			.then(L.bind(ui.changes.apply, ui.changes));
+	},
+
+	renderMigration: function() {
+		ui.showModal(_('Network bridge configuration migration'), [
+			E('p', _('The existing network configuration needs to be changed for LuCI to function properly.')),
+			E('p', _('Upon pressing "Continue", bridges configuration will be moved from "interface" sections to "device" sections the network will be restarted to apply the updated configuration.')),
+			E('div', { 'class': 'right' },
+				E('button', {
+					'class': 'btn cbi-button-action important',
+					'click': ui.createHandlerFn(this, 'handleMigration')
+				}, _('Continue')))
+		]);
+	},
+
 	render: function(data) {
+		if (this.interfaceWithIfnameSections().length)
+			return this.renderMigration();
+
 		var dslModemType = data[0],
 		    netDevs = data[1],
 		    m, s, o;
@@ -404,6 +449,12 @@ return view.extend({
 					}), net);
 				}, this);
 				o.write = function() {};
+
+				o = s.taboption('general', widgets.DeviceSelect, 'ifname', _('Device'));
+				o.nobridges = false;
+				o.noaliases = false;
+				o.optional = false;
+				o.network = ifc.getName();
 
 				proto_select = s.taboption('general', form.ListValue, 'proto', _('Protocol'));
 				proto_select.modalonly = true;
@@ -677,7 +728,6 @@ return view.extend({
 				}
 
 				ifc.renderFormOptions(s);
-				nettools.addDeviceOptions(s, null, true);
 
 				// Common interface options
 				o = nettools.replaceOption(s, 'advanced', form.Flag, 'defaultroute', _('Use default gateway'), _('If unchecked, no default route is configured'));
@@ -831,7 +881,7 @@ return view.extend({
 			var m2 = new form.Map('network'),
 			    s2 = m2.section(form.NamedSection, '_new_'),
 			    protocols = network.getProtocols(),
-			    proto, name, bridge, ifname_single, ifname_multi;
+			    proto, name, ifname;
 
 			protocols.sort(function(a, b) {
 				return a.getProtocol() > b.getProtocol();
@@ -861,33 +911,15 @@ return view.extend({
 				return true;
 			};
 
+			ifname = s2.option(widgets.DeviceSelect, 'ifname', _('Device'));
+			ifname.noaliases = false;
+			ifname.optional = false;
+
 			proto = s2.option(form.ListValue, 'proto', _('Protocol'));
 			proto.validate = name.validate;
 
-			bridge = s2.option(form.Flag, 'type', _('Bridge interfaces'), _('Creates a bridge over specified interface(s)'));
-			bridge.modalonly = true;
-			bridge.disabled = '';
-			bridge.enabled = 'bridge';
-
-			ifname_single = s2.option(widgets.DeviceSelect, 'ifname_single', _('Interface'));
-			ifname_single.noaliases = false;
-			ifname_single.optional = false;
-
-			ifname_multi = s2.option(widgets.DeviceSelect, 'ifname_multi', _('Interface'));
-			ifname_multi.nobridges = true;
-			ifname_multi.noaliases = true;
-			ifname_multi.multiple = true;
-			ifname_multi.optional = true;
-			ifname_multi.display_size = 6;
-
 			for (var i = 0; i < protocols.length; i++) {
 				proto.value(protocols[i].getProtocol(), protocols[i].getI18n());
-
-				if (!protocols[i].isVirtual()) {
-					bridge.depends({ proto: protocols[i].getProtocol() });
-					ifname_single.depends({ type: '', proto: protocols[i].getProtocol() });
-					ifname_multi.depends({ type: 'bridge', proto: protocols[i].getProtocol() });
-				}
 			}
 
 			m2.render().then(L.bind(function(nodes) {
@@ -920,16 +952,7 @@ return view.extend({
 										var section_id = uci.add('network', 'interface', nameval);
 
 										protoclass.set('proto', protoval);
-
-										if (ifname_single.isActive('_new_')) {
-											protoclass.addDevice(ifname_single.formvalue('_new_'));
-										}
-										else if (ifname_multi.isActive('_new_')) {
-											protoclass.set('type', 'bridge');
-											L.toArray(ifname_multi.formvalue('_new_')).map(function(dev) {
-												protoclass.addDevice(dev);
-											});
-										}
+										protoclass.addDevice(ifname.formvalue('_new_'));
 
 										m.children[0].addedSection = section_id;
 									}).then(L.bind(m.children[0].renderMoreOptionsModal, m.children[0], nameval));
