@@ -426,7 +426,7 @@ return view.extend({
 		s.addModalOptions = function(s) {
 			var protoval = uci.get('network', s.section, 'proto'),
 			    protoclass = protoval ? network.getProtocol(protoval) : null,
-			    o, ifname_single, ifname_multi, proto_select, proto_switch, type, stp, igmp, ss, so;
+			    o, proto_select, proto_switch, type, stp, igmp, ss, so;
 
 			if (!protoval)
 				return;
@@ -826,6 +826,7 @@ return view.extend({
 					o = s.children[i];
 
 					switch (o.option) {
+					case 'ifname':
 					case 'proto':
 					case 'auto':
 					case '_dhcp':
@@ -834,8 +835,6 @@ return view.extend({
 					case '_ifacestat_modal':
 						continue;
 
-					case 'ifname_multi':
-					case 'ifname_single':
 					case 'igmp_snooping':
 					case 'stp':
 					case 'type':
