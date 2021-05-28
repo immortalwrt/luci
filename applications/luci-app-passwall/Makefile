@@ -150,10 +150,10 @@ define Package/luci-app-passwall/postinst
 #!/bin/sh
 
 if [ -z "$${IPKG_INSTROOT}" ]; then
-	(. /etc/uci-defaults/luci-passwall) && rm -f /etc/uci-defaults/luci-passwall)
+	(. /etc/uci-defaults/luci-passwall && rm -f /etc/uci-defaults/luci-passwall)
 	touch $${IPKG_INSTROOT}/etc/config/passwall_show >/dev/null 2>&1
-        rm -f /tmp/luci-indexcache
-        rm -rf /tmp/luci-modulecache/
+	rm -f /tmp/luci-indexcache
+	rm -rf /tmp/luci-modulecache/
 fi
 exit 0
 endef
