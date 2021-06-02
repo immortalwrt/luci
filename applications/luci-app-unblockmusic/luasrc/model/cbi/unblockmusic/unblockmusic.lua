@@ -21,7 +21,7 @@ end
 if nixio.fs.access("/usr/share/UnblockNeteaseMusic/app.js") then
 apptype:value("nodejs", translate("NodeJS 版本"))
 end
-apptype:value("cloud", translate("云解锁（ 云服务器）"))
+apptype:value("cloud", translate("云解锁（云服务器）"))
 
 speedtype = s:option(Value, "musicapptype", translate("音源选择"))
 speedtype:value("default", translate("默认"))
@@ -69,7 +69,7 @@ o.description = translate("每天自动检测并更新到最新版本")
 o:depends("apptype", "nodejs")
 
 download_certificate=s:option(DummyValue,"opennewwindow",translate("HTTPS 证书"))
-download_certificate.description = translate("<input type=\"button\" class=\"btn cbi-button cbi-button-apply\" value=\"下载CA根证书\" onclick=\"window.open('https://raw.githubusercontent.com/nondanee/UnblockNeteaseMusic/master/ca.crt')\" /><br />Mac/iOS客户端需要安装 CA根证书并信任<br />iOS系统需要在“设置 -> 通用 -> 关于本机 -> 证书信任设置”中，信任 UnblockNeteaseMusic Root CA <br />Linux 设备请在启用时加入 --ignore-certificate-errors 参数")
+download_certificate.description = translate("<input type=\"button\" class=\"btn cbi-button cbi-button-apply\" value=\"下载CA根证书\" onclick=\"window.open('https://raw.githubusercontent.com/1715173329/UnblockNeteaseMusic/enhanced/ca.crt')\" /><br />Mac/iOS客户端需要安装 CA根证书并信任<br />iOS系统需要在“设置 -> 通用 -> 关于本机 -> 证书信任设置”中，信任 UnblockNeteaseMusic Root CA <br />Linux 设备请在启用时加入 --ignore-certificate-errors 参数")
 
 local ver = fs.readfile("/usr/share/UnblockNeteaseMusic/core_ver") or "0.00"
 
