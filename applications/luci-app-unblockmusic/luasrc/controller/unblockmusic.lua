@@ -10,8 +10,8 @@ function index()
 	page.dependent = false
 	page.acl_depends = { "luci-app-unblockmusic" }
 	
-	entry({"admin", "services", "unblockmusic", "general"},cbi("unblockmusic"), _("Base Setting"), 1)
-	entry({"admin", "services", "unblockmusic", "log"},form("unblockmusiclog"), _("Log"), 2)
+	entry({"admin", "services", "unblockmusic", "general"},cbi("unblockmusic/unblockmusic"), _("Base Setting"), 1)
+	entry({"admin", "services", "unblockmusic", "log"},form("unblockmusic/unblockmusiclog"), _("Log"), 2)
   
 	entry({"admin", "services", "unblockmusic", "status"},call("act_status")).leaf=true
 end
