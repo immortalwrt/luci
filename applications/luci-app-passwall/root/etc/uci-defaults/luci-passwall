@@ -1,5 +1,7 @@
 #!/bin/sh
 
+touch /etc/config/passwall_show >/dev/null 2>&1
+
 uci -q batch <<-EOF >/dev/null
 	set dhcp.@dnsmasq[0].localuse=1
 	commit dhcp
@@ -27,5 +29,4 @@ uci -q batch <<-EOF >/dev/null
 	commit uhttpd
 EOF
 
-rm -rf /tmp/luci-*cache
 exit 0
