@@ -146,18 +146,6 @@ define Package/luci-app-passwall/conffiles
 /usr/share/passwall/rules/block_ip
 endef
 
-define Package/luci-app-passwall/postinst
-#!/bin/sh
-
-if [ -z "$${IPKG_INSTROOT}" ]; then
-	(. /etc/uci-defaults/luci-passwall && rm -f /etc/uci-defaults/luci-passwall)
-	touch $${IPKG_INSTROOT}/etc/config/passwall_show >/dev/null 2>&1
-	rm -f /tmp/luci-indexcache
-	rm -rf /tmp/luci-modulecache/
-fi
-exit 0
-endef
-
 include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
