@@ -101,6 +101,15 @@ var _init = null,
     _protocols = {},
     _protospecs = {};
 
+function strcmp(a, b) {
+	if (a > b)
+		return 1;
+	else if (a < b)
+		return -1;
+	else
+		return 0;
+}
+
 function getProtocolHandlers(cache) {
 	return callNetworkProtoHandlers().then(function(protos) {
 		/* Register "none" protocol */
@@ -552,7 +561,7 @@ function ifnameOf(obj) {
 }
 
 function networkSort(a, b) {
-	return a.getName() > b.getName();
+	return strcmp(a.getName(), b.getName());
 }
 
 function deviceSort(a, b) {
@@ -563,7 +572,7 @@ function deviceSort(a, b) {
     if (weightA != weightB)
     	return weightA - weightB;
 
-	return a.getName() > b.getName();
+	return strcmp(a.getName(), b.getName());
 }
 
 function formatWifiEncryption(enc) {
@@ -1421,7 +1430,7 @@ Network = baseclass.extend(/** @lends LuCI.network.prototype */ {
 				rv.push(this.lookupWifiNetwork(wifiIfaces[i]['.name']));
 
 			rv.sort(function(a, b) {
-				return (a.getID() > b.getID());
+				return strcmp(a.getID(), b.getID());
 			});
 
 			return rv;
@@ -1522,12 +1531,7 @@ Network = baseclass.extend(/** @lends LuCI.network.prototype */ {
 				if (a.metric != b.metric)
 					return (a.metric - b.metric);
 
-				if (a.interface < b.interface)
-					return -1;
-				else if (a.interface > b.interface)
-					return 1;
-
-				return 0;
+				return strcmp(a.interface, b.interface);
 			});
 
 			return rv;
@@ -1805,7 +1809,9 @@ Hosts = baseclass.extend(/** @lends LuCI.network.Hosts.prototype */ {
 	 * the corresponding host.
 	 */
 	getHostnameByMACAddr: function(mac) {
-		return this.hosts[mac] ? this.hosts[mac].name : null;
+		return this.hosts[mac]
+			? (this.hosts[mac].name || null)
+			: null;
 	},
 
 	/**
@@ -1820,7 +1826,9 @@ Hosts = baseclass.extend(/** @lends LuCI.network.Hosts.prototype */ {
 	 * the corresponding host.
 	 */
 	getIPAddrByMACAddr: function(mac) {
-		return this.hosts[mac] ? this.hosts[mac].ipv4 : null;
+		return this.hosts[mac]
+			? (L.toArray(this.hosts[mac].ipaddrs || this.hosts[mac].ipv4)[0] || null)
+			: null;
 	},
 
 	/**
@@ -1835,7 +1843,9 @@ Hosts = baseclass.extend(/** @lends LuCI.network.Hosts.prototype */ {
 	 * the corresponding host.
 	 */
 	getIP6AddrByMACAddr: function(mac) {
-		return this.hosts[mac] ? this.hosts[mac].ipv6 : null;
+		return this.hosts[mac]
+			? (L.toArray(this.hosts[mac].ip6addrs || this.hosts[mac].ipv6)[0] || null)
+			: null;
 	},
 
 	/**
@@ -1850,9 +1860,17 @@ Hosts = baseclass.extend(/** @lends LuCI.network.Hosts.prototype */ {
 	 * the corresponding host.
 	 */
 	getHostnameByIPAddr: function(ipaddr) {
-		for (var mac in this.hosts)
-			if (this.hosts[mac].ipv4 == ipaddr && this.hosts[mac].name != null)
-				return this.hosts[mac].name;
+		for (var mac in this.hosts) {
+			if (this.hosts[mac].name == null)
+				continue;
+
+			var addrs = L.toArray(this.hosts[mac].ipaddrs || this.hosts[mac].ipv4);
+
+			for (var i = 0; i < addrs.length; i++)
+				if (addrs[i] == ipaddr)
+					return this.hosts[mac].name;
+		}
+
 		return null;
 	},
 
@@ -1868,16 +1886,21 @@ Hosts = baseclass.extend(/** @lends LuCI.network.Hosts.prototype */ {
 	 * the corresponding host.
 	 */
 	getMACAddrByIPAddr: function(ipaddr) {
-		for (var mac in this.hosts)
-			if (this.hosts[mac].ipv4 == ipaddr)
-				return mac;
+		for (var mac in this.hosts) {
+			var addrs = L.toArray(this.hosts[mac].ipaddrs || this.hosts[mac].ipv4);
+
+			for (var i = 0; i < addrs.length; i++)
+				if (addrs[i] == ipaddr)
+					return mac;
+		}
+
 		return null;
 	},
 
 	/**
 	 * Lookup the hostname associated with the given IPv6 address.
 	 *
-	 * @param {string} ipaddr
+	 * @param {string} ip6addr
 	 * The IPv6 address to lookup.
 	 *
 	 * @returns {null|string}
@@ -1886,16 +1909,24 @@ Hosts = baseclass.extend(/** @lends LuCI.network.Hosts.prototype */ {
 	 * the corresponding host.
 	 */
 	getHostnameByIP6Addr: function(ip6addr) {
-		for (var mac in this.hosts)
-			if (this.hosts[mac].ipv6 == ip6addr && this.hosts[mac].name != null)
-				return this.hosts[mac].name;
+		for (var mac in this.hosts) {
+			if (this.hosts[mac].name == null)
+				continue;
+
+			var addrs = L.toArray(this.hosts[mac].ip6addrs || this.hosts[mac].ipv6);
+
+			for (var i = 0; i < addrs.length; i++)
+				if (addrs[i] == ip6addr)
+					return this.hosts[mac].name;
+		}
+
 		return null;
 	},
 
 	/**
 	 * Lookup the MAC address associated with the given IPv6 address.
 	 *
-	 * @param {string} ipaddr
+	 * @param {string} ip6addr
 	 * The IPv6 address to lookup.
 	 *
 	 * @returns {null|string}
@@ -1904,9 +1935,14 @@ Hosts = baseclass.extend(/** @lends LuCI.network.Hosts.prototype */ {
 	 * the corresponding host.
 	 */
 	getMACAddrByIP6Addr: function(ip6addr) {
-		for (var mac in this.hosts)
-			if (this.hosts[mac].ipv6 == ip6addr)
-				return mac;
+		for (var mac in this.hosts) {
+			var addrs = L.toArray(this.hosts[mac].ip6addrs || this.hosts[mac].ipv6);
+
+			for (var i = 0; i < addrs.length; i++)
+				if (addrs[i] == ip6addr)
+					return mac;
+		}
+
 		return null;
 	},
 
@@ -1933,14 +1969,18 @@ Hosts = baseclass.extend(/** @lends LuCI.network.Hosts.prototype */ {
 	 */
 	getMACHints: function(preferIp6) {
 		var rv = [];
+
 		for (var mac in this.hosts) {
 			var hint = this.hosts[mac].name ||
-				this.hosts[mac][preferIp6 ? 'ipv6' : 'ipv4'] ||
-				this.hosts[mac][preferIp6 ? 'ipv4' : 'ipv6'];
+				L.toArray(this.hosts[mac][preferIp6 ? 'ip6addrs' : 'ipaddrs'] || this.hosts[mac][preferIp6 ? 'ipv6' : 'ipv4'])[0] ||
+				L.toArray(this.hosts[mac][preferIp6 ? 'ipaddrs' : 'ip6addrs'] || this.hosts[mac][preferIp6 ? 'ipv4' : 'ipv6'])[0];
 
 			rv.push([mac, hint]);
 		}
-		return rv.sort(function(a, b) { return a[0] > b[0] });
+
+		return rv.sort(function(a, b) {
+			return strcmp(a[0], b[0]);
+		});
 	}
 });
 
@@ -3263,6 +3303,7 @@ WifiDevice = baseclass.extend(/** @lends LuCI.network.WifiDevice.prototype */ {
 	 *  - `g` - Legacy 802.11g mode, 2.4 GHz, up to 54 Mbit/s
 	 *  - `n` - IEEE 802.11n mode, 2.4 or 5 GHz, up to 600 Mbit/s
 	 *  - `ac` - IEEE 802.11ac mode, 5 GHz, up to 6770 Mbit/s
+	 *  - `ax` - IEEE 802.11ax mode, 2.4 or 5 GHz
 	 */
 	getHWModes: function() {
 		var hwmodes = this.ubus('dev', 'iwinfo', 'hwmodes');
@@ -3284,6 +3325,10 @@ WifiDevice = baseclass.extend(/** @lends LuCI.network.WifiDevice.prototype */ {
 	 *  - `VHT40` - applicable to IEEE 802.11ac, 40 MHz wide channels
 	 *  - `VHT80` - applicable to IEEE 802.11ac, 80 MHz wide channels
 	 *  - `VHT160` - applicable to IEEE 802.11ac, 160 MHz wide channels
+	 *  - `HE20` - applicable to IEEE 802.11ax, 20 MHz wide channels
+	 *  - `HE40` - applicable to IEEE 802.11ax, 40 MHz wide channels
+	 *  - `HE80` - applicable to IEEE 802.11ax, 80 MHz wide channels
+	 *  - `HE160` - applicable to IEEE 802.11ax, 160 MHz wide channels
 	 */
 	getHTModes: function() {
 		var htmodes = this.ubus('dev', 'iwinfo', 'htmodes');
@@ -3307,7 +3352,10 @@ WifiDevice = baseclass.extend(/** @lends LuCI.network.WifiDevice.prototype */ {
 		    modestr = '';
 
 		hwmodes.sort(function(a, b) {
-			return (a.length != b.length ? a.length > b.length : a > b);
+			if (a.length != b.length)
+				return a.length - b.length;
+
+			return strcmp(a, b);
 		});
 
 		modestr = hwmodes.join('');
@@ -3978,6 +4026,17 @@ WifiNetwork = baseclass.extend(/** @lends LuCI.network.WifiNetwork.prototype */ 
 	 * @property {number} [nss]
 	 * Specifies the number of spatial streams used by the transmission.
 	 * Only applicable to VHT rates.
+	 *
+	 * @property {boolean} [he]
+	 * Specifies whether this rate is an HE (IEEE 802.11ax) rate.
+	 *
+	 * @property {number} [he_gi]
+	 * Specifies whether the guard interval used for the transmission.
+	 * Only applicable to HE rates.
+	 *
+	 * @property {number} [he_dcm]
+	 * Specifies whether dual concurrent modulation is used for the transmission.
+	 * Only applicable to HE rates.
 	 */
 
 	/**
