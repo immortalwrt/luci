@@ -32,11 +32,11 @@ conf_proxy_add() {
 	local enable type domain_type custom_domains remote_port local_ip local_port enable_http_auth enable_host_header_rewrite host_header_rewrite
 	local subdomain proxy_protocol_version use_encryption use_compression http_user http_pwd remark locations
 	local enable_plugin plugin plugin_http_user plugin_http_passwd plugin_unix_path stcp_role stcp_secretkey stcp_servername
-	local enable_https_plugin https_plugin plugin_local_addr plugin_crt_path plugin_key_path plugin_host_header_rewrite plugin_header_X_From_Where
-
+        local enable_https_plugin https_plugin plugin_local_addr plugin_crt_path plugin_key_path plugin_host_header_rewrite plugin_header_X_From_Where
+	
 	config_get_bool enable "$cfg" enable 1
 	[ "$enable" -gt 0 ] || return 1
-
+	
 	config_get type "$cfg" type
 	config_get custom_domains "$cfg" custom_domains
 	config_get subdomain "$cfg" subdomain
@@ -65,7 +65,7 @@ conf_proxy_add() {
 
 
 	[ -n "$remark" ] && [ -n "$type" ] || return 1
-
+	
 	echo "" >>$tmpconf
 	echo "[$remark]" >>$tmpconf
 	echo "type=$type" >>$tmpconf
@@ -86,7 +86,7 @@ conf_proxy_add() {
 		echo "plugin_http_passwd=$plugin_http_passwd" >>$tmpconf
 	}
 	[ -n "$plugin_unix_path" ] && echo "plugin_unix_path=$plugin_unix_path" >>$tmpconf
-
+	
 	[ -n "$stcp_role" ] && {
 		if [ "$stcp_role" == "visitor" ]; then
 			echo "role=$stcp_role" >>$tmpconf
@@ -99,7 +99,7 @@ conf_proxy_add() {
 		fi
 		[ -n "$stcp_secretkey" ] && echo "sk=$stcp_secretkey" >>$tmpconf || return 1
 	}
-
+	
 	[ -n "$proxy_protocol_version" ] && {
 		if [ "$proxy_protocol_version" != "disable" ]; then
 			echo "proxy_protocol_version=$proxy_protocol_version" >>$tmpconf
@@ -113,7 +113,7 @@ conf_proxy_add() {
 		echo "plugin_key_path=$plugin_key_path" >>$tmpconf
 	}
 	[ -n "$plugin_host_header_rewrite" ] && echo "plugin_host_header_rewrite=$plugin_host_header_rewrite" >>$tmpconf
-	[ -n "$plugin_header_X_From_Where" ] && echo "plugin_header_X_From_Where=$plugin_header_X_From_Where" >>$tmpconf
+	[ -n "$plugin_header_X_From_Where" ] && echo "plugin_header_X_From_Where=$plugin_header_X_From_Where" >>$tmpconf	
 
 	frp_write_bool use_encryption $cfg 1
 	frp_write_bool use_compression $cfg 1
@@ -137,15 +137,15 @@ frp_write_bool() {
 frp_add_cru(){
 time=$1
 if [ ! -f "/etc/crontabs/root" ] || [ -z "$(cat /etc/crontabs/root | grep frp)" ]; then
-  	sed -i '/frp/d' /etc/crontabs/root >/dev/null 2>&1
-  	echo "*/$time * * * * /etc/init.d/frp restart" >> /etc/crontabs/root
+  sed -i '/frp/d' /etc/crontabs/root >/dev/null 2>&1
+  echo "*/$time * * * * /etc/init.d/frp restart" >> /etc/crontabs/root 
 fi
 
 }
 
 frp_del_cru(){
 if [ ! -f "/etc/crontabs/root" ] || [ -n "$(cat /etc/crontabs/root | grep frp)" ]; then
-  	sed -i '/frp/d' /etc/crontabs/root >/dev/null 2>&1
+  sed -i '/frp/d' /etc/crontabs/root >/dev/null 2>&1
 fi
 }
 
@@ -171,8 +171,8 @@ boot() {
 start() {
 
 	config_load "frp"
-	local enabled server_addr server_port time privilege_token tcp_mux user enable_cpool
-	local pool_count log_level log_max_days login_fail_exit http_proxy protocol
+	local enabled server_addr server_port time privilege_token user tcp_mux enable_cpool tls_enable
+	local pool_count log_level log_max_days login_fail_exit http_proxy protocol admin_port admin_user admin_pwd
 
 	config_get_bool enabled common enabled 1
 
@@ -189,13 +189,17 @@ start() {
 	config_get http_proxy common http_proxy
 	config_get protocol common protocol
 	config_get time common time
+	config_get admin_port common admin_port
+	config_get admin_user common admin_user
+	config_get admin_pwd common admin_pwd
+
 
 	mkdir -p /var/etc/frp
 	[ ! -f "$LOGFILE" ] && touch $LOGFILE
-
+	
 	[ ! -f "/usr/bin/frpc" ] && download_binary
 	[ ! -f "/usr/bin/frpc" ] && logger -t Frp 'Download frpc failed, please retry.' && exit 0
-
+	
 	local tmpconf="/var/etc/frp/frpc.conf"
 
 	echo "[common]" >$tmpconf
@@ -209,9 +213,14 @@ start() {
 	echo "log_file=$LOGFILE" >>$tmpconf
 	[ -n "$http_proxy" ] && echo "http_proxy=$http_proxy" >>$tmpconf
 	[ -n "$pool_count" ] && echo "pool_count=$pool_count" >>$tmpconf
+	[ -n "$admin_port" ] && echo "admin_addr=0.0.0.0" >>$tmpconf && echo "admin_port=$admin_port" >>$tmpconf
+	[ -n "$admin_user" ] && echo "admin_user=$admin_user" >>$tmpconf
+	[ -n "$admin_pwd" ] && echo "admin_pwd=$admin_pwd" >>$tmpconf
+
 
 	config_load "frp"
 	frp_write_bool tcp_mux common 1
+	frp_write_bool tls_enable common 0
 	frp_write_bool login_fail_exit common 1
 	config_foreach conf_proxy_add proxy "$tmpconf"
 
