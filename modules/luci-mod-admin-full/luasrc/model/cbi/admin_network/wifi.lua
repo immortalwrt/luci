@@ -177,7 +177,7 @@ else
 
 	function ch.cfgvalue(self, section)
 		return {
-			m:get(section, "hwmode") or "",
+			m:get(section, "band") or "",
 			m:get(section, "channel") or "auto",
 			m:get(section, "htmode") or ""
 		}
@@ -185,14 +185,14 @@ else
 
 	function ch.formvalue(self, section)
 		return {
-			m:formvalue(self:cbid(section) .. ".band") or (hw_modes.g and "11g" or "11a"),
+			m:formvalue(self:cbid(section) .. ".band") or ("2g" or "5g"),
 			m:formvalue(self:cbid(section) .. ".channel") or "auto",
 			m:formvalue(self:cbid(section) .. ".htmode") or ""
 		}
 	end
 
 	function ch.write(self, section, value)
-		m:set(section, "hwmode", value[1])
+		m:set(section, "band", value[1])
 		m:set(section, "channel", value[2])
 		m:set(section, "htmode", value[3])
 	end

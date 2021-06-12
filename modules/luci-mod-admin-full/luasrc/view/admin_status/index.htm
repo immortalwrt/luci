@@ -24,7 +24,7 @@
 		buffered = 0,
 		shared = 0
 	}
-	
+
 	local mem_cached = luci.sys.exec("sed -e '/^Cached: /!d; s#Cached: *##; s# kB##g' /proc/meminfo")
 
 	local swapinfo = sysinfo.swap or {
@@ -45,9 +45,9 @@
 		local conn_max = tonumber(luci.sys.exec(
 			"sysctl -n -e net.nf_conntrack_max net.ipv4.netfilter.ip_conntrack_max"
 		):match("%d+")) or 4096
-		
+
 		local user_info = luci.sys.exec("cat /proc/net/arp | grep 'br-lan' | grep '0x2' | wc -l")
-		
+
 		local cpu_usage = luci.sys.exec("top -n1 | awk '/^CPU/ {printf(\"%d%%\", 100 - $8)}'") or "6%"
 
 		local rv = {
@@ -140,13 +140,22 @@
 					.format(bss[p+'rate'] / 1000, bss[p+'mhz']),
 		    ht = bss[p+'ht'], vht = bss[p+'vht'],
 			mhz = bss[p+'mhz'], nss = bss[p+'nss'],
-			mcs = bss[p+'mcs'], sgi = bss[p+'short_gi'];
+			mcs = bss[p+'mcs'], sgi = bss[p+'short_gi'],
+			he = bss[p+'he'], he_gi = bss[p+'he_gi'],
+			he_dcm = bss[p+'he_dcm'];
 
 		if (ht || vht) {
 			if (vht) s += ', VHT-MCS %d'.format(mcs);
 			if (nss) s += ', VHT-NSS %d'.format(nss);
 			if (ht)  s += ', MCS %s'.format(mcs);
 			if (sgi) s += ', <%:Short GI%>';
+		}
+
+		if (he) {
+			s += ', HE-MCS %d'.format(mcs);
+			if (nss) s += ', HE-NSS %d'.format(nss);
+			if (he_gi) s += ', HE-GI %d'.format(he_gi);
+			if (he_dcm) s += ', HE-DCM %d'.format(he_dcm);
 		}
 
 		return s;
@@ -244,7 +253,7 @@
 					'<strong><%:Type%>: </strong>%s%s<br />',
 						ifc6.proto, (ifc6.ip6prefix) ? '-pd' : ''
 				);
-				
+
 				if (!ifc6.ip6prefix)
 				{
 					s += String.format(
@@ -637,10 +646,10 @@
 
 			if (e = document.getElementById('uptime'))
 				e.innerHTML = String.format('%t', info.uptime);
-				
+
 			if (e = document.getElementById('userinfo'))
 				e.innerHTML = info.userinfo;
-				
+
 			if (e = document.getElementById('cpuusage'))
 				e.innerHTML = info.cpuusage;
 
