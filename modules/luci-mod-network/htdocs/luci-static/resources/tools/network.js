@@ -1,5 +1,6 @@
 'use strict';
 'require ui';
+'require dom';
 'require uci';
 'require form';
 'require network';
@@ -46,11 +47,15 @@ function validateQoSMap(section_id, value) {
 	return true;
 }
 
-function deviceSectionExists(section_id, devname, devtype) {
+function deviceSectionExists(section_id, devname, ignore_type_match) {
 	var exists = false;
 
 	uci.sections('network', 'device', function(ss) {
-		exists = exists || (ss['.name'] != section_id && ss.name == devname && (!devtype || devtype == ss.type));
+		exists = exists || (
+			ss['.name'] != section_id &&
+			ss.name == devname &&
+			(!ignore_type_match || !ignore_type_match.test(ss.type || ''))
+		);
 	});
 
 	return exists;
@@ -76,16 +81,54 @@ function isBridgePort(dev) {
 	return isPort;
 }
 
-function renderDevBadge(dev) {
-	var type = dev.getType(), up = dev.isUp();
+function updateDevBadge(node, dev) {
+	var type = dev.getType(),
+	    up = dev.getCarrier();
 
-	return E('span', { 'class': 'ifacebadge', 'style': 'font-weight:normal' }, [
+	dom.content(node, [
 		E('img', {
 			'class': 'middle',
 			'src': L.resource('icons/%s%s.png').format(type, up ? '' : '_disabled')
 		}),
 		'\x0a', dev.getName()
 	]);
+
+	return node;
+}
+
+function renderDevBadge(dev) {
+	return updateDevBadge(E('span', {
+		'class': 'ifacebadge port-status-device',
+		'style': 'font-weight:normal',
+		'data-device': dev.getName()
+	}), dev);
+}
+
+function updatePortStatus(node, dev) {
+	var carrier = dev.getCarrier(),
+	    duplex = dev.getDuplex(),
+	    speed = dev.getSpeed(),
+	    desc;
+
+	if (carrier && speed > 0 && duplex != null)
+		desc = E('abbr', {
+			'title': '%d MBit/s, %s'.format(speed, duplex == 'full' ? _('full-duplex') : _('half-duplex'))
+		}, [ '%d%s'.format(speed, duplex == 'full' ? 'FD' : 'HD') ]);
+	else if (carrier)
+		desc = document.createTextNode(_('Connected'));
+	else
+		desc = document.createTextNode(_('no link'));
+
+	dom.content(node, [ desc ]);
+
+	return node;
+}
+
+function renderPortStatus(dev) {
+	return updatePortStatus(E('span', {
+		'class': 'port-status-link',
+		'data-device': dev.getName()
+	}), dev);
 }
 
 function lookupDevName(s, section_id) {
@@ -409,10 +452,11 @@ return baseclass.extend({
 		o.ucioption = 'name';
 		o.write = o.remove = setIfActive;
 		o.filter = function(section_id, value) {
-			return !deviceSectionExists(section_id, value);
+			return !deviceSectionExists(section_id, value, /^(?:bridge|8021q|8021ad|macvlan|veth)$/);
 		};
 		o.validate = function(section_id, value) {
-			return deviceSectionExists(section_id, value) ? _('A configuration for the device "%s" already exists').format(value) : true;
+			return deviceSectionExists(section_id, value, /^(?:bridge|8021q|8021ad|macvlan|veth)$/)
+				? _('A configuration for the device "%s" already exists').format(value) : true;
 		};
 		o.depends('type', '');
 
@@ -423,17 +467,19 @@ return baseclass.extend({
 		o.default = (dev ? dev.getName() : '').match(/^.+\.\d+$/) ? dev.getName().replace(/\.\d+$/, '') : '';
 		o.ucioption = 'ifname';
 		o.validate = function(section_id, value) {
-			var type = this.section.formvalue(section_id, 'type'),
-			    name = this.section.getUIElement(section_id, 'name_complex');
+			if (isNew) {
+				var type = this.section.formvalue(section_id, 'type'),
+				    name = this.section.getUIElement(section_id, 'name_complex');
 
-			if (type == 'macvlan' && value && name && !name.isChanged()) {
-				var i = 0;
+				if (type == 'macvlan' && value && name && !name.isChanged()) {
+					var i = 0;
 
-				while (deviceSectionExists(section_id, '%smac%d'.format(value, i)))
-					i++;
+					while (deviceSectionExists(section_id, '%smac%d'.format(value, i)))
+						i++;
 
-				name.setValue('%smac%d'.format(value, i));
-				name.triggerValidation();
+					name.setValue('%smac%d'.format(value, i));
+					name.triggerValidation();
+				}
 			}
 
 			return true;
@@ -477,7 +523,7 @@ return baseclass.extend({
 		o.ucioption = 'name';
 		o.write = o.remove = setIfActive;
 		o.validate = function(section_id, value) {
-			return deviceSectionExists(section_id, value) ? _('The device name "%s" is already taken').format(value) : true;
+			return deviceSectionExists(section_id, value, /^$/) ? _('The device name "%s" is already taken').format(value) : true;
 		};
 		o.depends({ type: '', '!reverse': true });
 
@@ -649,7 +695,7 @@ return baseclass.extend({
 		o.datatype = 'uinteger';
 		o.depends('type', '');
 
-		o = this.addOption(s, 'devadvanced', form.Flag, 'promisc', _('Enable promiscious mode'));
+		o = this.addOption(s, 'devadvanced', form.Flag, 'promisc', _('Enable promiscuous mode'));
 		o.default = o.disabled;
 		o.depends('type', '');
 
@@ -779,16 +825,6 @@ return baseclass.extend({
 
 		o = this.addOption(s, 'bridgevlan', form.SectionValue, 'bridge-vlan', form.TableSection, 'bridge-vlan');
 		o.depends('type', 'bridge');
-		o.renderWidget = function(/* ... */) {
-			return form.SectionValue.prototype.renderWidget.apply(this, arguments).then(L.bind(function(node) {
-				node.style.overflowX = 'auto';
-				node.style.overflowY = 'visible';
-				node.style.paddingBottom = '100px';
-				node.style.marginBottom = '-100px';
-
-				return node;
-			}, this));
-		};
 
 		ss = o.subsection;
 		ss.addremove = true;
@@ -811,6 +847,8 @@ return baseclass.extend({
 
 		ss.render = function(/* ... */) {
 			return form.TableSection.prototype.render.apply(this, arguments).then(L.bind(function(node) {
+				node.style.overflow = 'auto hidden';
+
 				if (this.node)
 					this.node.parentNode.replaceChild(node, this.node);
 
@@ -834,7 +872,7 @@ return baseclass.extend({
 			this.children = this.children.filter(function(opt) { return !opt.option.match(/^port_/) });
 
 			for (var i = 0; i < devices.length; i++) {
-				o = ss.option(cbiTagValue, 'port_%s'.format(sfh(devices[i].getName())), renderDevBadge(devices[i]));
+				o = ss.option(cbiTagValue, 'port_%s'.format(sfh(devices[i].getName())), renderDevBadge(devices[i]), renderPortStatus(devices[i]));
 				o.port = devices[i].getName();
 			}
 
@@ -883,6 +921,9 @@ return baseclass.extend({
 				});
 
 				s.getOption('vlan_filtering').updateDefaultValue(s.section);
+
+				s.map.addedVLANs = s.map.addedVLANs || [];
+				s.map.addedVLANs.push(section_id);
 
 				return this.redraw();
 			}, this));
@@ -936,8 +977,21 @@ return baseclass.extend({
 		for (var port_name in seen_ports)
 			ports.push(port_name);
 
-		ports.sort();
+		ports.sort(function(a, b) {
+			var m1 = a.match(/^(.+?)([0-9]*)$/),
+			    m2 = b.match(/^(.+?)([0-9]*)$/);
+
+			if (m1[1] < m2[1])
+				return -1;
+			else if (m1[1] > m2[1])
+				return 1;
+			else
+				return +(m1[2] || 0) - +(m2[2] || 0);
+		});
 
 		ss.updatePorts(ports);
-	}
+	},
+
+	updateDevBadge: updateDevBadge,
+	updatePortStatus: updatePortStatus
 });
