@@ -235,6 +235,16 @@ if hwtype == "mac80211" then
 		s:taboption("advanced", Value, "country", translate("Country Code"), translate("Use ISO/IEC 3166 alpha2 country codes."))
 	end
 
+	celldensity = s:taboption("advanced", ListValue, "cell_density", translate("Coverage cell density"),
+		translate("Configures data rates based on the coverage cell density. Normal configures basic rates to 6, 12, 24 Mbps if " ..
+			"legacy 802.11b rates are not used else to 5.5, 11 Mbps. High configures basic rates to 12, 24 Mbps if legacy 802.11b " ..
+			"rates are not used else to the 11 Mbps rate. Very High configures 24 Mbps as the basic rate. Supported rates lower than " ..
+			"the minimum basic rate are not offered."))
+	celldensity:value("0", translate("Disabled"))
+	celldensity:value("1", translate("Normal"))
+	celldensity:value("2", translate("High"))
+	celldensity:value("3", translate("Very High"))
+
 	legacyrates = s:taboption("advanced", Flag, "legacy_rates", translate("Allow legacy 802.11b rates"))
 	legacyrates.rmempty = false
 	legacyrates.default = "1"
