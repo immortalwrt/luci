@@ -37,7 +37,7 @@ for _, policy_num in ipairs(string.split(policy_nums, " ")) do
 
 	governor = s:taboption(policy_num, ListValue, "governor" .. policy_num, translate("CPU Scaling Governor"))
 	for _, e in ipairs(governor_array) do
-		if e ~= "" then governor:value(translate(e,string.upper(e))) end
+		if e ~= "" then governor:value(e, translate(e, string.upper(e))) end
 	end
 
 	minfreq = s:taboption(policy_num, ListValue, "minfreq" .. policy_num, translate("Min Idle CPU Freq"))
