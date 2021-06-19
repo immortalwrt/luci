@@ -37,7 +37,12 @@ case "$DISTRIB_TARGET" in
 		fi
 		;;
 	"sunxi/cortexa53")
-		uci_write_config 0 ondemand 648000 1296000 10 50
+		CPU_FREQS="$(cat '/sys/devices/system/cpu/cpufreq/policy0/scaling_available_frequencies')"
+		if echo "$CPU_FREQS" | grep -q "1800000"; then
+			uci_write_config 0 schedutil 888000 1800000
+		else
+			uci_write_config 0 ondemand 648000 1296000 10 50
+		fi
 		;;
 esac
 
