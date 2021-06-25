@@ -28,6 +28,15 @@ case "$DISTRIB_TARGET" in
 		uci_write_config 0 ondemand 600000 $CPU_MAX_FREQ 10 50
 		echo "$CPU_POLICYS" | grep -q "1" && uci_write_config 1 ondemand 600000 $CPU_MAX_FREQ 10 50
 		;;
+	"ipq807x/generic")
+		CPU_FREQS="$(cat '/sys/devices/system/cpu/cpufreq/policy0/scaling_available_frequencies')"
+		if echo "$CPU_FREQS" | grep -q "2208000"; then
+			CPU_MAX_FREQ="2208000"
+		else
+			CPU_MAX_FREQ="1382400"
+		fi
+		uci_write_config 0 ondemand 1017600 $CPU_MAX_FREQ 10 50
+		;;
 	"rockchip/armv8")
 		if echo "$CPU_POLICYS" | grep -q "4"; then
 			uci_write_config 0 schedutil 600000 1608000
