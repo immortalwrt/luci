@@ -311,7 +311,7 @@ check_status(){
 		if [ "$(cat "/sys/module/xt_FLOWOFFLOAD/refcnt")" -ne "0" ]; then
 			echo -n "Flow Offloading"
 			exit 0
-		elif [ "$(cat "/sys/module/qca_nss_drv/refcnt")" -ne "0" ]; then
+		elif lsmod | grep -q "ecm"; then
 			echo -n "QCA-NSS-ECM"
 			exit 0
 		elif lsmod | grep -q "fast_classifier"; then
