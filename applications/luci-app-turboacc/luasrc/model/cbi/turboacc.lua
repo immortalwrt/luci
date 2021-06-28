@@ -55,33 +55,25 @@ fullcone_nat.default = 0
 fullcone_nat.description = translate("Using FullCone NAT can improve gaming performance effectively")
 end 
 
-dns_acc = s:option(Flag, "dns_acc", translate("DNS Acceleration"))
-dns_acc.default = 0
-dns_acc.rmempty = false
-dns_acc.description = translate("Using optimized DNS records for GoogleHosts (Don't use under Clash Fake-IP mode)")
-
 dns_caching = s:option(Flag, "dns_caching", translate("DNS Caching"))
 dns_caching.default = 0
 dns_caching.rmempty = false
 dns_caching.description = translate("Enable DNS Caching and anti ISP DNS pollution")
 
-dns_caching_mode = s:option(ListValue, "dns_caching_mode", translate("Resolve DNS Mode"), translate("Only PDNSD and DNSForwarder is supported now"))
+dns_caching_mode = s:option(ListValue, "dns_caching_mode", translate("Resolve DNS Mode"), translate("DNS Program"))
 dns_caching_mode:value("1", translate("Using PDNSD to query and cache"))
 if nixio.fs.access("/usr/bin/dnsforwarder") then
 dns_caching_mode:value("2", translate("Using DNSForwarder to query and cache"))
 end
+if nixio.fs.access("/usr/bin/dnsproxy") then
+dns_caching_mode:value("3", translate("Using DNSProxy to query and cache"))
+end
 dns_caching_mode.default = 1
 dns_caching_mode:depends("dns_caching", 1)
 
-dns_caching_v4_dns = s:option(Value, "dns_caching_v4_dns", translate("Upsteam IPv4 DNS Server"))
-dns_caching_v4_dns.default = "114.114.114.114,114.114.115.115,223.5.5.5,223.6.6.6,180.76.76.76,119.29.29.29,119.28.28.28,1.2.4.8,210.2.4.8"
-dns_caching_v4_dns.description = translate("Muitiple IPv4 DNS server can saperate with ','")
-dns_caching_v4_dns:depends("dns_caching_mode", 1)
-dns_caching_v4_dns:depends("dns_caching_mode", 2)
-
-dns_caching_v6_dns = s:option(Value, "dns_caching_v6_dns", translate("Upsteam IPv6 DNS Server"))
-dns_caching_v6_dns.default = "2001:4860:4860::8888,2001:4860:4860::8844,2001:2001::1111,2001:2001::1001,2400:da00::6666,240C::6666,240C::6644"
-dns_caching_v6_dns.description = translate("Muitiple IPv6 DNS server can saperate with ','")
-dns_caching_v6_dns:depends("dns_caching_mode", 2)
+dns_caching_dns = s:option(Value, "dns_caching_dns", translate("Upsteam DNS Server"))
+dns_caching_dns.default = "114.114.114.114,114.114.115.115,223.5.5.5,223.6.6.6,180.76.76.76,119.29.29.29,119.28.28.28,1.2.4.8,210.2.4.8"
+dns_caching_dns.description = translate("Muitiple DNS server can saperate with ','")
+dns_caching_dns:depends("dns_caching", 1)
 
 return m
