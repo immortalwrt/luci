@@ -1,48 +1,54 @@
-# Copyright (C) 2016 Openwrt.org
+# SPDX-Identifier-License: GPL-3.0-only
 #
-# This is free software, licensed under the Apache License, Version 2.0 .
-#
+# Copyright (C) 2018 Lean <coolsnowwolf@gmail.com>
+# Copyright (C) 2019-2021 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-turboacc
-PKG_VERSION:=1.0
-PKG_RELEASE:=2
+PKG_RELEASE:=$(COMMITCOUNT)
 
-PKG_LICENSE:=GPLv3.0+
+PKG_LICENSE:=GPL-3.0-only
+PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 
 LUCI_TITLE:=LuCI support for Flow Offload / Shortcut-FE
 LUCI_DEPENDS:=+pdnsd-alt \
-              +PACKAGE_$(PKG_NAME)_INCLUDE_shortcut-fe:kmod-fast-classifier \
-              +PACKAGE_$(PKG_NAME)_INCLUDE_flow-offload:kmod-ipt-offload \
-              +PACKAGE_$(PKG_NAME)_INCLUDE_bbr-cca:kmod-tcp-bbr \
-              +PACKAGE_$(PKG_NAME)_INCLUDE_dnsforwarder:dnsforwarder
+	+PACKAGE_TURBOACC_INCLUDE_BBR_CCA:kmod-tcp-bbr \
+	+PACKAGE_TURBOACC_INCLUDE_DNSFORWARDER:dnsforwarder \
+	+PACKAGE_TURBOACC_INCLUDE_DNSPROXY:dnsproxy \
+	+PACKAGE_TURBOACC_INCLUDE_OFFLOADING:kmod-ipt-offload \
+	+PACKAGE_TURBOACC_INCLUDE_SHORTCUT_FE:kmod-fast-classifier
 LUCI_PKGARCH:=all
 
-define Package/$(PKG_NAME)/config
-config PACKAGE_$(PKG_NAME)_INCLUDE_flow-offload
+define Package/luci-app-turboacc/config
+config PACKAGE_TURBOACC_INCLUDE_OFFLOADING
 	bool "Include Flow Offload"
-	depends on PACKAGE_$(PKG_NAME)_INCLUDE_shortcut-fe=n
+	depends on PACKAGE_TURBOACC_INCLUDE_SHORTCUT_FE=n
 	default y
 
-config PACKAGE_$(PKG_NAME)_INCLUDE_shortcut-fe
+config PACKAGE_TURBOACC_INCLUDE_SHORTCUT_FE
 	bool "Include Shortcut-FE"
 	default n
 
-config PACKAGE_$(PKG_NAME)_INCLUDE_bbr-cca
+config PACKAGE_TURBOACC_INCLUDE_BBR_CCA
 	bool "Include BBR CCA"
 	default y
 
-config PACKAGE_$(PKG_NAME)_INCLUDE_dnsforwarder
+config PACKAGE_TURBOACC_INCLUDE_DNSFORWARDER
 	bool "Include DNSForwarder"
+	default n
+
+config PACKAGE_TURBOACC_INCLUDE_DNSPROXY
+	bool "Include DNSProxy"
 	default n
 endef
 
 PKG_CONFIG_DEPENDS:= \
-	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_shortcut-fe \
-	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_flow-offload \
-	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_bbr-cca \
-	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_dnsforwarder
+	CONFIG_PACKAGE_TURBOACC_INCLUDE_BBR_CCA \
+	CONFIG_PACKAGE_TURBOACC_INCLUDE_DNSFORWARDER \
+	CONFIG_PACKAGE_TURBOACC_INCLUDE_DNSPROXY \
+	CONFIG_PACKAGE_TURBOACC_INCLUDE_OFFLOADING \
+	CONFIG_PACKAGE_TURBOACC_INCLUDE_SHORTCUT_FE
 
 include ../../luci.mk
 
