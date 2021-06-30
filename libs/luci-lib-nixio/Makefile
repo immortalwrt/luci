@@ -14,7 +14,7 @@ PKG_LICENSE:=Apache-2.0
 define Package/luci-lib-nixio/config
 	choice
 		prompt "TLS Provider"
-		default PACKAGE_luci-lib-nixio_notls
+		default PACKAGE_luci-lib-nixio_openssl
 
 		config PACKAGE_luci-lib-nixio_notls
 			bool "Disabled"
