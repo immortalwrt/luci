@@ -57,7 +57,7 @@ function index()
 end
 local fs = require "luci.openclash"
 
-local core_path_mode = luci.sys.exec("uci get openclash.config.small_flash_memory 2>/dev/null |tr -d '\n'")
+local core_path_mode = luci.sys.exec("uci -q get openclash.config.small_flash_memory |tr -d '\n'")
 if core_path_mode ~= "1" then
 	dev_core_path="/etc/openclash/core/clash"
 	tun_core_path="/etc/openclash/core/clash_tun"
@@ -77,7 +77,7 @@ local function is_web()
 end
 
 local function restricted_mode()
-	return luci.sys.exec("uci get openclash.config.restricted_mode 2>/dev/null |tr -d '\n'")
+	return luci.sys.exec("uci -q get openclash.config.restricted_mode |tr -d '\n'")
 end
 
 local function is_watchdog()
@@ -90,11 +90,11 @@ local function is_watchdog()
 end
 
 local function cn_port()
-	return luci.sys.exec("uci get openclash.config.cn_port 2>/dev/null |tr -d '\n'")
+	return luci.sys.exec("uci -q get openclash.config.cn_port |tr -d '\n'")
 end
 
 local function mode()
-	return luci.sys.exec("uci get openclash.config.en_mode 2>/dev/null")
+	return luci.sys.exec("uci -q get openclash.config.en_mode")
 end
 
 local function ipdb()
@@ -118,22 +118,15 @@ local function chnroute()
 end
 
 local function daip()
-	local daip = luci.sys.exec("ifstatus lan 2>/dev/null |jsonfilter -e '@[\"ipv4-address\"][0].address' 2>/dev/null")
+	local daip = luci.sys.exec("uci -q get network.lan.ipaddr |awk -F '/' '{print $1}' 2>/dev/null |tr -d '\n'")
 	if not daip or daip == "" then
-		local daip = luci.sys.exec("uci get network.lan.ipaddr 2>/dev/null |awk -F '/' '{print $1}' 2>/dev/null |tr -d '\n'")
+		local daip = luci.sys.exec("ip addr show 2>/dev/null | grep -w 'inet' | grep 'global' | grep 'brd' | grep -Eo 'inet [0-9\.]+' | awk '{print $2}' | head -n 1 | tr -d '\n'")
 	end
 	return daip
 end
 
-local function uh_port()
-	local uh_port = luci.sys.exec("uci get uhttpd.main.listen_http |awk -F ':' '{print $NF}'")
-	if uh_port ~= "80" then
-		return ":" .. uh_port
-	end
-end
-
 local function dase()
-	return luci.sys.exec("uci get openclash.config.dashboard_password 2>/dev/null")
+	return luci.sys.exec("uci -q get openclash.config.dashboard_password")
 end
 
 local function check_lastversion()
@@ -146,7 +139,24 @@ local function check_currentversion()
 end
 
 local function startlog()
-	return luci.sys.exec("sed -n '$p' /tmp/openclash_start.log 2>/dev/null")
+	local info = ""
+	if nixio.fs.access("/tmp/openclash_start.log") then
+		info = luci.sys.exec("sed -n '$p' /tmp/openclash_start.log 2>/dev/null")
+		if not string.find (info, "【") and not string.find (info, "】") then
+   		info = luci.i18n.translate(string.sub(info, 0, -1))
+   	else
+   		local a = string.find (info, "【")
+   		local b = string.find (info, "】")+2
+   		if a <= 1 then
+   			info = string.sub(info, 0, b)..luci.i18n.translate(string.sub(info, b+1, -1))
+   		elseif b < string.len(info) then
+   			info = luci.i18n.translate(string.sub(info, 0, a-1))..string.sub(info, a, b)..luci.i18n.translate(string.sub(info, b+1, -1))
+   		elseif b == string.len(info) then
+   			info = luci.i18n.translate(string.sub(info, 0, a-1))..string.sub(info, a, -1)
+   		end
+   	end
+	end
+	return info
 end
 
 local function coremodel()
@@ -207,22 +217,22 @@ local function opup()
 end
 
 local function coreup()
-   luci.sys.call("uci set openclash.config.enable=1 && uci commit openclash && rm -rf /tmp/*_last_version 2>/dev/null && sh /usr/share/openclash/clash_version.sh >/dev/null 2>&1")
+   luci.sys.call("uci -q set openclash.config.enable=1 && uci commit openclash && rm -rf /tmp/*_last_version 2>/dev/null && sh /usr/share/openclash/clash_version.sh >/dev/null 2>&1")
    return luci.sys.call("/usr/share/openclash/openclash_core.sh >/dev/null 2>&1 &")
 end
 
 local function coretunup()
-   luci.sys.call("uci set openclash.config.enable=1 && uci commit openclash && rm -rf /tmp/*_last_version 2>/dev/null && sh /usr/share/openclash/clash_version.sh >/dev/null 2>&1")
+   luci.sys.call("uci -q set openclash.config.enable=1 && uci commit openclash && rm -rf /tmp/*_last_version 2>/dev/null && sh /usr/share/openclash/clash_version.sh >/dev/null 2>&1")
    return luci.sys.call("/usr/share/openclash/openclash_core.sh 'TUN' >/dev/null 2>&1 &")
 end
 
 local function coregameup()
-   luci.sys.call("uci set openclash.config.enable=1 && uci commit openclash && rm -rf /tmp/*_last_version 2>/dev/null && sh /usr/share/openclash/clash_version.sh >/dev/null 2>&1")
+   luci.sys.call("uci -q set openclash.config.enable=1 && uci commit openclash && rm -rf /tmp/*_last_version 2>/dev/null && sh /usr/share/openclash/clash_version.sh >/dev/null 2>&1")
    return luci.sys.call("/usr/share/openclash/openclash_core.sh 'Game' >/dev/null 2>&1 &")
 end
 
 local function corever()
-   return luci.sys.exec("uci get openclash.config.core_version 2>/dev/null")
+   return luci.sys.exec("uci -q get openclash.config.core_version")
 end
 
 local function upchecktime()
@@ -241,7 +251,7 @@ local function upchecktime()
 end
 
 local function historychecktime()
-	local CONFIG_FILE = string.sub(luci.sys.exec("uci get openclash.config.config_path 2>/dev/null"), 1, -2)
+	local CONFIG_FILE = string.sub(luci.sys.exec("uci -q get openclash.config.config_path"), 1, -2)
   local HISTORY_PATH = "/etc/openclash/history/" .. string.sub(luci.sys.exec(string.format("$(basename '%s' .yml) 2>/dev/null || $(basename '%s' .yaml) 2>/dev/null",CONFIG_FILE,CONFIG_FILE)), 1, -2)
 	if not nixio.fs.access(HISTORY_PATH) then
   	return "0"
@@ -285,7 +295,7 @@ function action_one_key_update_check()
 end
 
 function action_op_mode()
-	local op_mode = luci.sys.exec("uci get openclash.config.operation_mode 2>/dev/null |tr -d '\n'")
+	local op_mode = luci.sys.exec("uci -q get openclash.config.operation_mode |tr -d '\n'")
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
 	  op_mode = op_mode;
@@ -293,11 +303,11 @@ function action_op_mode()
 end
 
 function action_switch_mode()
-	local switch_mode = luci.sys.exec("uci get openclash.config.operation_mode 2>/dev/null |tr -d '\n'")
+	local switch_mode = luci.sys.exec("uci -q get openclash.config.operation_mode |tr -d '\n'")
 	if switch_mode == "redir-host" then
-	   luci.sys.call("uci set openclash.config.operation_mode=fake-ip >/dev/null 2>&1 && uci commit openclash")
+	   luci.sys.call("uci -q set openclash.config.operation_mode=fake-ip && uci commit openclash")
 	else
-	   luci.sys.call("uci set openclash.config.operation_mode=redir-host >/dev/null 2>&1 && uci commit openclash")
+	   luci.sys.call("uci -q set openclash.config.operation_mode=redir-host && uci commit openclash")
 	end
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
@@ -312,7 +322,6 @@ function action_status()
 		watchdog = is_watchdog(),
 		daip = daip(),
 		dase = dase(),
-		uh_port = uh_port(),
 		web = is_web(),
 		cn_port = cn_port(),
 		restricted_mode = restricted_mode(),
@@ -448,11 +457,33 @@ function action_refresh_log()
 		return
 	end
 	luci.http.prepare_content("text/plain; charset=utf-8")
-	local f=io.open(logfile, "r+")
-	f:seek("set")
-	local a=f:read(2048000) or ""
-	f:close()
-	luci.http.write(a)
+	local file=io.open(logfile, "r+")
+	file:seek("set")
+	local info = ""
+	for line in file:lines() do
+		if not string.find (line, "level=") then
+			if not string.find (line, "【") and not string.find (line, "】") then
+   			line = string.sub(line, 0, 20)..luci.i18n.translate(string.sub(line, 21, -1))
+   		else
+   			local a = string.find (line, "【")
+   			local b = string.find (line, "】")+2
+   			if a <= 21 then
+   				line = string.sub(line, 0, b)..luci.i18n.translate(string.sub(line, b+1, -1))
+   			elseif b < string.len(line) then
+   				line = string.sub(line, 0, 20)..luci.i18n.translate(string.sub(line, 21, a-1))..string.sub(line, a, b)..luci.i18n.translate(string.sub(line, b+1, -1))
+   			elseif b == string.len(line) then
+   				line = string.sub(line, 0, 20)..luci.i18n.translate(string.sub(line, 21, a-1))..string.sub(line, a, b)
+   			end
+   		end
+		end
+		if info ~= "" then
+			info = info.."\n"..line
+		else
+			info = line
+		end
+	end
+	file:close()
+	luci.http.write(info)
 end
 
 function action_del_log()
