@@ -9,14 +9,16 @@ include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=LuCI Support for QoSv4.
 LUCI_DESCRIPTION:=An agent script that makes qosv4 configuration simple.
-LUCI_DEPENDS:=+tc +iptables-mod-conntrack-extra +iptables-mod-conntrack-extra +iptables-mod-filter +iptables-mod-imq +iptables-mod-ipopt +iptables-mod-nat-extra +iptables-mod-imq +kmod-sched
+LUCI_DEPENDS:=+iptables-mod-conntrack-extra +iptables-mod-filter \
+	+iptables-mod-imq +iptables-mod-ipopt +iptables-mod-nat-extra \
+	+kmod-sched +tc
 LUCI_PKGARCH:=all
 
 PKG_NAME:=luci-app-qosv4
 PKG_VERSION:=1.1f
 PKG_RELEASE:=2
 
-PKG_MAINTAINER:=qq 3341249
+PKG_MAINTAINER:=<3341249@qq.com>
 
 include ../../luci.mk
 
