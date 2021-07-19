@@ -18,8 +18,6 @@ uci -q batch <<-EOF >/dev/null
 	set network.VPN.netmask="255.255.255.0"
 	commit network
 
-	set firewall.@defaults[0].forward="ACCEPT"
-
 	delete firewall.ike
 	add firewall rule
 	rename firewall.@rule[-1]="ike"
