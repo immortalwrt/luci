@@ -60,6 +60,12 @@ uci -q batch <<-EOF >/dev/null
 	set firewall.VPN.output="ACCEPT"
 	set firewall.VPN.network="VPN"
 
+	delete firewall.vpn
+	set firewall.vpn=forwarding
+	set firewall.vpn.name="vpn"
+	set firewall.vpn.dest="wan"
+	set firewall.vpn.src="VPN"
+
 	commit firewall
 EOF
 
