@@ -145,9 +145,9 @@ function getip(){
 		{
 			[ -z "$ipv6_urllist" ] && local ipv6_urllist="ip.sb ipv6.ddnspod.com api-ipv6.ip.sb/ip speed.neu6.edu.cn/getIP.php v6.myip.la/json"
 			local urlv6_number=`expr $(echo "$ipv6_urllist"|grep -o ' '|wc -l) + 1`
-			local ipv6_URL=`echo "$ipv6_urllist"|awk -v i=$(rand 1 $url_number) '{print $i}'`
+			local ipv6_URL=`echo "$ipv6_urllist"|awk -v i=$(rand 1 $urlv6_number) '{print $i}'`
 			[ ! -z "$ipv6_interface" ] && local hostIPv6=$(curl -k -s -6 --interface ${ipv6_interface} -m 5 ${ipv6_URL}) || local hostIPv6=$(curl -k -s -6 -m 5 ${ipv6_URL})
-			echo $hostIPv6|grep -oE '([\da-fA-F0-9]{1,4}(:{1,2})){1,15}[\da-fA-F0-9]{1,4}'
+			echo $hostIPv6|grep -oE '([\da-fA-F0-9]{1,4}(:{1,2})){1,15}[\da-fA-F0-9]{1,4}'|head -n1
 		}
 		local hostIPv6=`get_hostipv6`
 		[ -z "$hostIPv6" ] && local hostIPv6=`get_hostipv6`
