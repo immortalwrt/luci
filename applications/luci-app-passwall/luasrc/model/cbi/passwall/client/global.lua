@@ -1,7 +1,8 @@
-local uci = require"luci.model.uci".cursor()
 local api = require "luci.model.cbi.passwall.api.api"
 local appname = api.appname
+local uci = api.uci
 local has_xray = api.is_finded("xray")
+local datatypes = api.datatypes
 
 m = Map(appname)
 
@@ -177,7 +178,6 @@ s:tab("DNS", translate("DNS"))
 o = s:taboption("DNS", ListValue, "dns_mode", translate("Filter Mode"))
 o.rmempty = false
 o:reset_values()
-o:value("fake_ip", translatef("Fake IP"))
 if api.is_finded("pdnsd") then
     o:value("pdnsd", "pdnsd " .. translatef("Requery DNS By %s", translate("TCP Node")))
 end
@@ -250,6 +250,7 @@ o = s:taboption("DNS", Flag, "dns_cache", translate("Cache Resolved"))
 o.default = "1"
 o:depends({dns_mode = "dns2socks"})
 o:depends({dns_mode = "pdnsd"})
+o.rmempty = false
 ]]--
 
 o = s:taboption("DNS", Button, "clear_ipset", translate("Clear IPSET"), translate("Try this feature if the rule modification does not take effect."))
