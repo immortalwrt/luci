@@ -113,8 +113,8 @@ function brook_protocol.write(self, section, value)
 	m:set(section, "protocol", value)
 end
 
-brook_tls = s:option(Flag, "brook_tls", translate("Use TLS"))
-brook_tls:depends("brook_protocol", "wsserver")
+--brook_tls = s:option(Flag, "brook_tls", translate("Use TLS"))
+--brook_tls:depends("brook_protocol", "wsserver")
 
 port = s:option(Value, "port", translate("Listen Port"))
 port.datatype = "port"
@@ -295,6 +295,13 @@ flow:value("xtls-rprx-direct")
 flow:value("xtls-rprx-direct-udp443")
 flow:depends("xtls", true)
 
+alpn = s:option(ListValue, "alpn", translate("alpn"))
+alpn.default = "h2,http/1.1"
+alpn:value("h2,http/1.1")
+alpn:value("h2")
+alpn:value("http/1.1")
+alpn:depends({ type = "Xray", tls = true })
+
 -- [[ TLS部分 ]] --
 
 tls_certificateFile = s:option(FileUpload, "tls_certificateFile", translate("Public key absolute path"), translate("as:") .. "/etc/ssl/fullchain.pem")
@@ -388,6 +395,7 @@ ws_path:depends("transport", "ws")
 ws_path:depends("ss_transport", "ws")
 ws_path:depends("trojan_transport", "h2+ws")
 ws_path:depends("trojan_transport", "ws")
+ws_path:depends({ type = "Brook", brook_protocol = "wsserver" })
 
 -- [[ HTTP/2部分 ]]--
 
