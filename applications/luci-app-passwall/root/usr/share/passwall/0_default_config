@@ -32,7 +32,7 @@ config global_forwarding
 	option tcp_redir_ports '22,25,53,143,465,587,993,995,80,443'
 	option udp_redir_ports '1:65535'
 	option accept_icmp '0'
-	option tcp_proxy_way 'default'
+	option tcp_proxy_way 'redirect'
 	option proxy_ipv6 '0'
 	
 config global_other
@@ -62,6 +62,7 @@ config global_app
 	option trojan_go_file '/usr/bin/trojan-go'
 	option kcptun_client_file '/usr/bin/kcptun-client'
 	option brook_file '/usr/bin/brook'
+	option hysteria_file '/usr/bin/hysteria'
 
 config global_subscribe
 	option subscribe_proxy '0'
@@ -78,6 +79,7 @@ config auto_switch
 	option testing_time '1'
 	option connect_timeout '3'
 	option retry_num '3'
+	option shunt_logic '1'
 	
 config nodes '696cd32c1d5149ee95fd1b3accbad6df'
 	option remarks '分流总节点'

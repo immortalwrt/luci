@@ -18,10 +18,10 @@ function index()
 		return
 	end
 
-	local page = entry({"admin", "services", "aria2"}, cbi("aria2"), _("Aria2 Settings"))
+	local page = entry({"admin", "nas", "aria2"}, cbi("aria2"), _("Aria2 Settings"))
 	page.dependent = true
 
-	entry({"admin", "services", "aria2", "status"}, call("status")).leaf = true
+	entry({"admin", "nas", "aria2", "status"}, call("status")).leaf = true
 
 end
 
