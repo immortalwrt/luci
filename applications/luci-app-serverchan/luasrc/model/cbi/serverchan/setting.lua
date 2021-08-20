@@ -27,39 +27,51 @@ s.anonymous = true
 a=s:taboption("basic", Flag,"serverchan_enable",translate("启用"))
 a.rmempty = true
 
-a=s:taboption("basic", Flag,"lite_enable",translate("精简模式"))
-a.default=0
-a.rmempty = true
+a = s:taboption("basic", MultiValue, "lite_enable", translate("精简模式"))
+a:value("device", translate("精简当前设备列表"))
+a:value("nowtime", translate("精简当前时间"))
+a:value("content", translate("只推送标题"))
+a.widget = "checkbox"
+a.default = nil
+a.optional = true
 
-a= s:taboption("basic", Flag, "content_current_device", "精简当前设备列表")
-a.default = 0
+a=s:taboption("basic", ListValue,"send_mode",translate("推送模式"))
+a.default="1"
 a.rmempty = true
-a:depends({lite_enable="1"})
+a:value("1",translate("微信 Server酱"))
+a:value("2",translate("企业微信 Server酱"))
+a:value("3",translate("微信 wxpusher"))
+a:value("4",translate("微信 pushplus"))
+a:value("5",translate("Telegram"))
 
-a= s:taboption("basic", Flag, "content_nowtime", "精简当前时间")
-a.default = 0
+a=s:taboption("basic", Value,"sckey",translate('微信推送/新旧共用'), translate("").."Server酱 sendkey <a href='https://sct.ftqq.com/' target='_blank'>点击这里</a><br>")
 a.rmempty = true
-a:depends({lite_enable="1"})
+a:depends({send_mode="1"})
 
-a= s:taboption("basic", Flag, "content_content", "只推送标题")
-a.default = 0
+a=s:taboption("basic", Value,"qywx_token",translate('企业微信凭证'), translate("").."格式必须为：corpid;userid;agentid;corpsecret;mediaid，获取说明<a href='https://work.weixin.qq.com/api/doc/10013' target='_blank'>点击这里</a><br>图片对应 mediaid 是必须的，且因无法夸企业共享需要自行上传到素材库并获取 mediaid")
 a.rmempty = true
-a:depends({lite_enable="1"})
+a:depends({send_mode=2})
 
-a=s:taboption("basic", Value,"sckey",translate('微信推送/新旧共用'), translate("").."旧版调用代码<a href='http://sc.ftqq.com' target='_blank'>点击这里</a><br>新版代码获取<a href='https://sct.ftqq.com/' target='_blank'>点击这里</a><br>")
+a=s:taboption("basic",Value,"wxpusher_apptoken",translate('appToken'),translate("").."获取 appToken <a href='https://wxpusher.zjiecode.com/docs/#/?id=%e5%bf%ab%e9%80%9f%e6%8e%a5%e5%85%a5' target='_blank'>点击这里</a><br>")
 a.rmempty = true
-
-a=s:taboption("basic", Value,"qywx_token",translate('企业微信凭证'), translate("").."格式必须为：corpid;userid;agentid;corpsecret;mediaid，获取说明<a href='https://work.weixin.qq.com/api/doc/10013' target='_blank'>点击这里</a><br>图片对应 mediaid 是必须的，且因无法夸企业共享需要自行上传到素材库并获取 mediaid<br>注意：使用企业微信推送会导致其他推送的内容排版错乱")
+a:depends({send_mode=3})
+a=s:taboption("basic", Value,"wxpusher_uids",translate('uids'))
 a.rmempty = true
+a:depends({send_mode=3})
+a=s:taboption("basic",Value,"wxpusher_topicIds",translate('topicIds(群发)'),translate("").."接口说明 <a href='https://wxpusher.zjiecode.com/docs/#/?id=%e5%8f%91%e9%80%81%e6%b6%88%e6%81%af-1'target='_blank'>点击这里</a><br>")
+a.rmempty = true
+a:depends({send_mode=3})
 
 a=s:taboption("basic",Value,"pushplus_token",translate('pushplus_token'),translate("").."获取pushplus_token <a href='http://www.pushplus.plus/' target='_blank'>点击这里</a><br>")
 a.rmempty = true
+a:depends({send_mode=4})
 
 a=s:taboption("basic", Value, "tg_token", translate("TG_token"),translate("").."获取机器人<a href='https://t.me/BotFather' target='_blank'>点击这里</a><br>与创建的机器人发一条消息，开启对话<br>")
 a.rmempty = true
-
+a:depends({send_mode=5})
 a=s:taboption("basic", Value,"chat_id",translate('TG_chatid'),translate("").."获取 chat_id <a href='https://t.me/getuserIDbot' target='_blank'>点击这里</a>")
 a.rmempty = true
+a:depends({send_mode=5})
 
 a=s:taboption("basic", Value,"device_name",translate('本设备名称'))
 a.rmempty = true
@@ -205,7 +217,7 @@ a:depends({client_usage_disturb="1"})
 a.description = translate("请输入设备 MAC")
 
 --定时推送
-a=s:taboption("crontab", ListValue,"send_mode",translate("定时任务设定"))
+a=s:taboption("crontab", ListValue,"crontab",translate("定时任务设定"))
 a.rmempty = true
 a.default=""
 a:value("",translate("关闭"))
@@ -219,7 +231,7 @@ a:value(t,translate("每天"..t.."点"))
 end	
 a.default=8	
 a.datatype=uinteger
-a:depends("send_mode","1")
+a:depends("crontab","1")
 
 a=s:taboption("crontab", ListValue,"regular_time_2",translate("发送时间"))
 a.rmempty = true
@@ -229,7 +241,7 @@ a:value(t,translate("每天"..t.."点"))
 end	
 a.default="关闭"
 a.datatype=uinteger
-a:depends("send_mode","1")
+a:depends("crontab","1")
 
 a=s:taboption("crontab", ListValue,"regular_time_3",translate("发送时间"))
 a.rmempty = true
@@ -240,7 +252,7 @@ a:value(t,translate("每天"..t.."点"))
 end	
 a.default="关闭"
 a.datatype=uinteger
-a:depends("send_mode","1")
+a:depends("crontab","1")
 
 a=s:taboption("crontab", ListValue,"interval_time",translate("发送间隔"))
 a.rmempty = true
@@ -249,39 +261,39 @@ a:value(t,translate(t.."小时"))
 end
 a.default=6
 a.datatype=uinteger
-a:depends("send_mode","2")
+a:depends("crontab","2")
 a.description = translate("<br/>从 00:00 开始，每 * 小时发送一次")
 
 a= s:taboption("crontab", Value, "send_title", translate("微信推送标题"))
-a:depends("send_mode","1")
-a:depends("send_mode","2")
+a:depends("crontab","1")
+a:depends("crontab","2")
 a.placeholder = "OpenWrt By tty228 路由状态："
 a.description = translate("<br/>使用特殊符号可能会造成发送失败")
 
 a=s:taboption("crontab", Flag,"router_status",translate("系统运行情况"))
 a.default=1
-a:depends("send_mode","1")
-a:depends("send_mode","2")
+a:depends("crontab","1")
+a:depends("crontab","2")
 
 a=s:taboption("crontab", Flag,"router_temp",translate("设备温度"))
 a.default=1
-a:depends("send_mode","1")
-a:depends("send_mode","2")
+a:depends("crontab","1")
+a:depends("crontab","2")
  
 a=s:taboption("crontab", Flag,"router_wan",translate("WAN信息"))
 a.default=1
-a:depends("send_mode","1")
-a:depends("send_mode","2")
+a:depends("crontab","1")
+a:depends("crontab","2")
 
 a=s:taboption("crontab", Flag,"client_list",translate("客户端列表"))
 a.default=1
-a:depends("send_mode","1")
-a:depends("send_mode","2") 
+a:depends("crontab","1")
+a:depends("crontab","2") 
 
 e=s:taboption("crontab", Button,"_add",translate("手动发送"))
 e.inputtitle=translate("发送")
-e:depends("send_mode","1")
-e:depends("send_mode","2")
+e:depends("crontab","1")
+e:depends("crontab","2")
 e.inputstyle = "apply"
 function e.write(self, section)
 luci.sys.call("cbi.apply")
@@ -324,16 +336,17 @@ a:value("block",translate("仅通知列表内设备"))
 a:value("interface",translate("仅通知此接口设备"))
 a.rmempty = true
 
-
 a = s:taboption("disturb", DynamicList, "serverchan_whitelist", translate("忽略列表"))
 nt.mac_hints(function(mac, name) a :value(mac, "%s (%s)" %{ mac, name }) end)
 a.rmempty = true
 a:depends({macmechanism="allow"})
+a.description = translate("AA:AA:AA:AA:AA:AA\\|BB:BB:BB:BB:BB:B 可以将多个 MAC 视为同一用户<br/>任一设备在线后不再推送，设备全部离线时才会推送，避免双 wifi 频繁推送")
 
 a = s:taboption("disturb", DynamicList, "serverchan_blacklist", translate("关注列表"))
 nt.mac_hints(function(mac, name) a:value(mac, "%s (%s)" %{ mac, name }) end)
 a.rmempty = true
 a:depends({macmechanism="block"})
+a.description = translate("AA:AA:AA:AA:AA:AA\\|BB:BB:BB:BB:BB:B 可以将多个 MAC 视为同一用户<br/>任一设备在线后不再推送，设备全部离线时才会推送，避免双 wifi 频繁推送")
 
 a = s:taboption("disturb", ListValue, "serverchan_interface", translate("接口名称"))
 a:depends({macmechanism="interface"})
@@ -350,5 +363,21 @@ for _, iface in ipairs(ifaces) do
 		a:value(iface, ((#nets > 0) and "%s (%s)" % {iface, nets} or iface))
 	end
 end
+
+a=s:taboption("disturb", ListValue,"macmechanism2",translate("MAC过滤2"))
+a:value("",translate("disable"))
+a:value("MAC_online",translate("列表内任意设备在线时免打扰"))
+a:value("MAC_offline",translate("列表内设备都离线后免打扰"))
+a.rmempty = true
+
+a = s:taboption("disturb", DynamicList, "MAC_online_list", translate("在线免打扰列表"))
+nt.mac_hints(function(mac, name) a:value(mac, "%s (%s)" %{ mac, name }) end)
+a.rmempty = true
+a:depends({macmechanism2="MAC_online"})
+
+a = s:taboption("disturb", DynamicList, "MAC_offline_list", translate("任意离线免打扰列表"))
+nt.mac_hints(function(mac, name) a:value(mac, "%s (%s)" %{ mac, name }) end)
+a.rmempty = true
+a:depends({macmechanism2="MAC_offline"})
 
 return m
