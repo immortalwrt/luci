@@ -21,8 +21,8 @@ else
 	Status = translate("<strong><font color=\"red\">Mwol未运行...</font></strong>")
 end
 
-subTopic=string.format("<strong><font color=\"red\">Mwol订阅消息主题: /mwol/%s</font></strong>", mac)
-pubTopic=string.format("<strong><font color=\"red\">Mwol发布消息主题: /mwol/%s</font></strong>", mac)
+subTopic=string.format("<strong><font color=\"red\">Mwol订阅消息主题: /mwol/pub/%s</font></strong>", mac)
+pubTopic=string.format("<strong><font color=\"red\">Mwol发布消息主题: /mwol/sub/%s</font></strong>", mac)
 
 --
 -- LoRa Gateway config for gateway_conf
