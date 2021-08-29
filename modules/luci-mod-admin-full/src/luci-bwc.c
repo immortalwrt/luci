@@ -528,7 +528,7 @@ static int run_daemon(void)
 				if (strstr(line, "TIME_WAIT"))
 					continue;
 
-				if ((strstr(line, "src=127.0.0.1 ") && strstr(line, "dst=127.0.0.1 ")) 
+				if ((strstr(line, "src=127.0.0.1 ") && strstr(line, "dst=127.0.0.1 "))
 				|| (strstr(line, "src=::1 ") && strstr(line, "dst=::1 ")))
 					continue;
 

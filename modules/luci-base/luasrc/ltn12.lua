@@ -39,7 +39,7 @@ local string = require("string")
 local table = require("table")
 local base = _G
 
--- See http://lua-users.org/wiki/FiltersSourcesAndSinks for design concepts 
+-- See http://lua-users.org/wiki/FiltersSourcesAndSinks for design concepts
 module("luci.ltn12")
 
 filter = {}
@@ -56,7 +56,7 @@ _VERSION = "LTN12 1.0.1"
 -----------------------------------------------------------------------------
 
 
--- by passing it each chunk and updating a context between calls. 
+-- by passing it each chunk and updating a context between calls.
 function filter.cycle(low, ctx, extra)
     base.assert(low)
     return function(chunk)
@@ -313,4 +313,3 @@ function pump.all(src, snk, step)
         end
     end
 end
-

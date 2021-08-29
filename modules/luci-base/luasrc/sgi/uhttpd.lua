@@ -44,7 +44,6 @@ function handle_request(env)
 	local req = luci.http.Request(
 		renv, recv, luci.ltn12.sink.file(io.stderr)
 	)
-	
 
 	local x = coroutine.create(luci.dispatcher.httpdispatch)
 	local hcache = { }

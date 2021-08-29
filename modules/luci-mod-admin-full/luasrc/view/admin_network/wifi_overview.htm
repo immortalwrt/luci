@@ -73,10 +73,10 @@
 		-- hermes
 		elseif name == "eth" then
 			return translate("Hermes 802.11b Wireless Controller")
-			
+
 		elseif name == "host" then
 			return translate("Quantenna 802.11ac Wireless Controller")
-			
+
 		-- hostap
 		elseif name == "wlan" and fs.stat("/proc/net/hostap/" .. ifname, "type") == "dir" then
 			return translate("Prism2/2.5/3 802.11b Wireless Controller")
