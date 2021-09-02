@@ -66,13 +66,13 @@ function install_sysupgrade(url, keep, sha256) {
 						]);
 					} else {
 						displayStatus('warning spinning', E('p', _('Installing the sysupgrade. Do not unpower device!')));
-							L.resolveDefault(callUpgradeStart(keep), {}).then(response => {
-								if (keep) {
-									ui.awaitReconnect(window.location.host);
-								} else {
-									ui.awaitReconnect('192.168.1.1', 'openwrt.lan');
-								}
-							});
+						L.resolveDefault(callUpgradeStart(keep), {}).then(response => {
+							if (keep) {
+								ui.awaitReconnect(window.location.host);
+							} else {
+								ui.awaitReconnect('192.168.1.1', 'openwrt.lan');
+							}
+						});
 					}
 				});
 		});
@@ -170,14 +170,12 @@ function request_sysupgrade(server_url, data) {
 			case 202:
 				res = response.json()
 				data.request_hash = res.request_hash;
-				switch (res.status) {
-					case "queued":
-						displayStatus("notice spinning", E('p', _('Request in build queue')));
-						break;
-					case "started":
-						displayStatus("notice spinning", E('p', _('Building the sysupgrade image')));
-						break;
-				}
+
+				if ("queue_position" in res)
+					displayStatus("notice spinning", E('p', _('Request in build queue position %d'.format(res.queue_position))));
+				else
+					displayStatus("notice spinning", E('p', _('Building firmware sysupgrade image')));
+
 				setTimeout(function() {
 					request_sysupgrade(server_url, data);
 				}, 5000);
@@ -187,7 +185,7 @@ function request_sysupgrade(server_url, data) {
 			case 500: // build failed
 				res = response.json()
 				var body = [
-					E('p', {}, _(res.message)),
+					E('p', {}, res.detail),
 					E('p', {}, _("Please report the error message and request")),
 					E('b', {}, _("Request to server:")),
 					E('pre', {}, JSON.stringify(data, null, 4)),
@@ -228,7 +226,9 @@ function check_sysupgrade(server_url, current_version, target, board_name, packa
 	var advanced_mode = uci.get_first('attendedsysupgrade', 'client', 'advanced_mode') || 0;
 	var candidates = [];
 
-	fetch(server_url + "/api/latest")
+	request.get(server_url + "/json/latest.json", {
+			timeout: 8000
+		})
 		.then(response => response.json())
 		.then(response => {
 			if (current_version == "SNAPSHOT") {
@@ -320,6 +320,20 @@ function check_sysupgrade(server_url, current_version, target, board_name, packa
 					])
 				]);
 			}
+		})
+		.catch(error => {
+			ui.showModal(_('Error connecting to upgrade server'), [
+				E('p', {}, _('Could not reach API at "%s". Please try again later.'.format(server_url))),
+				E('pre', {}, error),
+				E('div', {
+					'class': 'right'
+				}, [
+					E('div', {
+						'class': 'btn',
+						'click': ui.hideModal
+					}, _('Close'))
+				])
+			]);
 		});
 }
 
