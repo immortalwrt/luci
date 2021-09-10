@@ -10,7 +10,7 @@ function index()
 		return
 	end
 
-	local page = entry({"admin", "services", "mjpg-streamer"}, cbi("mjpg-streamer"), _("MJPG-streamer"))
+	local page = entry({"admin", "nas", "mjpg-streamer"}, cbi("mjpg-streamer"), _("MJPG-streamer"))
 	page.i18n = "mjpg-streamer"
 	page.dependent = true
 
