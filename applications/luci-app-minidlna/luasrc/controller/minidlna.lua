@@ -10,10 +10,10 @@ function index()
 
 	local page
 
-	page = entry({"admin", "services", "minidlna"}, cbi("minidlna"), _("miniDLNA"))
+	page = entry({"admin", "nas", "minidlna"}, cbi("minidlna"), _("miniDLNA"))
 	page.dependent = true
 
-	entry({"admin", "services", "minidlna_status"}, call("minidlna_status"))
+	entry({"admin", "nas", "minidlna_status"}, call("minidlna_status"))
 end
 
 function minidlna_status()
