@@ -24,7 +24,7 @@
 
 <script type="text/javascript" src="<%=resource%>/cbi.js"></script>
 <script type="text/javascript">//<![CDATA[
-	XHR.poll(10, '<%=url("admin/services/aria2/log/read")%>', null,
+	XHR.poll(10, '<%=url("admin/nas/aria2/log/read")%>', null,
 		function(x, data) {
 			var logElm = document.getElementById('log_text');
 			if (logElm) {

@@ -14,26 +14,26 @@ function index()
 		return
 	end
 
-	local e = entry({"admin", "services", "aria2"}, firstchild(), _("Aria2"))
+	local e = entry({"admin", "nas", "aria2"}, firstchild(), _("Aria2"))
 	e.dependent = false
 	e.acl_depends = { "luci-app-aria2" }
 
-	entry({"admin", "services", "aria2", "config"},
+	entry({"admin", "nas", "aria2", "config"},
 		cbi("aria2/config"), _("Configuration"), 1)
 
-	entry({"admin", "services", "aria2", "file"},
+	entry({"admin", "nas", "aria2", "file"},
 		form("aria2/files"), _("Files"), 2)
 
-	entry({"admin", "services", "aria2", "log"},
+	entry({"admin", "nas", "aria2", "log"},
 		firstchild(), _("Log"), 3)
 
-	entry({"admin", "services", "aria2", "log", "view"},
+	entry({"admin", "nas", "aria2", "log", "view"},
 		template("aria2/log_template"))
 
-	entry({"admin", "services", "aria2", "log", "read"},
+	entry({"admin", "nas", "aria2", "log", "read"},
 		call("action_log_read"))
 
-	entry({"admin", "services", "aria2", "status"},
+	entry({"admin", "nas", "aria2", "status"},
 		call("action_status"))
 
 end
