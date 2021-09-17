@@ -14,15 +14,15 @@ enable.rmempty = false
 
 music_source = s:option(Value, "music_source", translate("音源接口"))
 music_source:value("default", translate("默认"))
-music_source:value("netease", translate("网易云音乐"))
-music_source:value("qq", translate("QQ音乐"))
+music_source:value("bilibili", translate("Bilibili音乐"))
+music_source:value("joox", translate("JOOX音乐"))
+music_source:value("kugou", translate("酷狗音乐"))
 music_source:value("kuwo", translate("酷我音乐"))
 music_source:value("migu", translate("咪咕音乐"))
-music_source:value("kugou", translate("酷狗音乐"))
-music_source:value("baidu", translate("百度音乐"))
-music_source:value("joox", translate("JOOX音乐"))
+music_source:value("pyncmd", translate("网易云音乐（pyncmd）"))
+music_source:value("qq", translate("QQ音乐"))
 music_source:value("youtube", translate("Youtube音乐"))
-music_source:value("bilibili", translate("Bilibili音乐"))
+music_source:value("ytdownload", translate("Youtube音乐（ytdownload）"))
 music_source.description = translate("自定义模式下，多个音源请用空格隔开")
 music_source.default = "default"
 music_source.rmempty = false
@@ -81,11 +81,6 @@ end
 update_time.default = "3"
 update_time.description = translate("设定每天自动检查更新时间")
 update_time:depends("auto_update", 1)
-
-daemon_enable = s:option(Flag, "daemon_enable", translate("启用进程守护"))
-daemon_enable.description = translate("开启后，附属程序会自动检测主程序运行状态，在主程序退出时自动重启")
-daemon_enable.default = 0
-daemon_enable.rmempty = false
 
 download_cert = s:option(Button,"certificate", translate("HTTPS 证书"))
 download_cert.inputtitle = translate("下载 CA 根证书")
