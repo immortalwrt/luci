@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-03-08 13:04+0000\n"
-"Last-Translator: Said Zakaria <said.zakaria@gmail.com>\n"
-"Language-Team: Arabic <https://hosted.weblate.org/projects/openwrt/luci/ar/"
-">\n"
+"PO-Revision-Date: 2021-09-17 06:52+0000\n"
+"Last-Translator: Mark MA <daomeideshu@gmail.com>\n"
+"Language-Team: Arabic <https://hosted.weblate.org/projects/openwrt/luci/ar/>"
+"\n"
 "Language: ar\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 4.5.1\n"
+"X-Generator: Weblate 4.9-dev\n"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1484
 msgid "%.1f dB"
@@ -246,7 +246,6 @@ msgstr "ANSI T1.413"
 msgid "APN"
 msgstr "APN"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:248
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:353
 msgid "ARP"
 msgstr "ARP"
@@ -346,22 +345,6 @@ msgstr "إجراءات"
 msgid "Active"
 msgstr "نشيط"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:251
-msgid "Active <abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Routes"
-msgstr "الطرق <abbr title=\"Internet Protocol Version 4\">IPv4</abbr>النشطة"
-
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:254
-msgid "Active <abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Rules"
-msgstr ""
-
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:261
-msgid "Active <abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-Routes"
-msgstr "الطرق <abbr title=\"Internet Protocol Version 6\">IPv6</abbr>النشطة"
-
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:264
-msgid "Active <abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-Rules"
-msgstr ""
-
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:81
 msgid "Active Connections"
 msgstr "روابط نشطة"
@@ -375,6 +358,22 @@ msgstr "روابط DHCP نشطة"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:176
 msgid "Active DHCPv6 Leases"
 msgstr "روابط DHCPV6 نشطة"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:255
+msgid "Active IPv4 Routes"
+msgstr "الطرق <abbr title=\"Internet Protocol Version 4\">IPv4</abbr>النشطة"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:258
+msgid "Active IPv4 Rules"
+msgstr ""
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:265
+msgid "Active IPv6 Routes"
+msgstr "الطرق <abbr title=\"Internet Protocol Version 6\">IPv6</abbr>النشطة"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:268
+msgid "Active IPv6 Rules"
+msgstr ""
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:205
 msgid "Active-Backup policy (active-backup, 1)"
@@ -425,7 +424,7 @@ msgstr "إضافة عنوان IPv6 …"
 msgid "Add LED action"
 msgstr "أضف عمل LED"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:219
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:221
 msgid "Add VLAN"
 msgstr "أضف VLAN"
 
@@ -507,7 +506,7 @@ msgstr "إدارة"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:633
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1523
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:39
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:126
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:127
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:924
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:988
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:241
@@ -1700,7 +1699,7 @@ msgstr "احذف هذه الشبكة"
 msgid "Delivery Traffic Indication Message Interval"
 msgstr "الفاصل الزمني لرسالة إشارة حركة التسليم"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:340
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:342
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:125
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:129
 msgid "Description"
@@ -1718,7 +1717,7 @@ msgstr "تصميم"
 msgid "Designated master"
 msgstr ""
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:158
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:159
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:386
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:71
 msgid "Destination"
@@ -1804,8 +1803,8 @@ msgstr "رقم الاتصال الهاتفي"
 msgid "Directory"
 msgstr "الدليل"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:112
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:197
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:113
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:195
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:897
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:937
 msgid "Disable"
@@ -1848,7 +1847,7 @@ msgstr "تعطيل هذه الشبكة"
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pppoe.js:57
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pptp.js:70
 msgid "Disabled"
-msgstr "معطل"
+msgstr "غير مفعل"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1185
 msgid "Disassociate On Low Acknowledgement"
@@ -2153,7 +2152,7 @@ msgstr "قم بتمكين مفاوضات IPv6"
 msgid "Enable IPv6 negotiation on the PPP link"
 msgstr "قم بتمكين مفاوضات IPv6 على ارتباط PPP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:192
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:194
 msgid "Enable Jumbo Frame passthrough"
 msgstr "تفعيل عبور الإطار الجامبو"
 
@@ -2194,15 +2193,15 @@ msgstr ""
 msgid "Enable key reinstallation (KRACK) countermeasures"
 msgstr "تفعيل الإجراءات المضادة لإعادة تثبيت المفتاح (KRACK)"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:187
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:189
 msgid "Enable learning and aging"
 msgstr "تمكين التعلم و التقادم"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:198
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:200
 msgid "Enable mirroring of incoming packets"
 msgstr "تفعيل عكس الحزم الواردة"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:199
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:201
 msgid "Enable mirroring of outgoing packets"
 msgstr "تفعيل عكس الحزم الصادرة"
 
@@ -2588,6 +2587,10 @@ msgstr "اعدادات جدار الحماية"
 msgid "Firewall Status"
 msgstr "حالة جدار الحماية"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:176
+msgid "Firewall mark"
+msgstr ""
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1487
 msgid "Firmware File"
 msgstr "ملف البرامج الثابتة"
@@ -2758,8 +2761,9 @@ msgstr "نفق GRETAP عبر IPv4"
 msgid "GRETAP tunnel over IPv6"
 msgstr "نفق GRETAP عبر IPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:74
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:75
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:44
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:188
 msgid "Gateway"
 msgstr "بوابة"
 
@@ -2775,7 +2779,7 @@ msgstr "عنوان البوابة غير صالح"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:251
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:477
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:38
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:125
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:126
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:240
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:108
 msgid "General Settings"
@@ -2837,11 +2841,11 @@ msgstr "انتقل إلى صفحة التكوين ذات الصلة"
 msgid "Grant access to DHCP configuration"
 msgstr "منح تسجيل الدخول إلى تكوين DHCP"
 
-#: modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json:115
+#: modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status-index.json:22
 msgid "Grant access to DHCP status display"
 msgstr "منح حق تسجيل الدخول إلى عرض حالة DHCP"
 
-#: modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json:124
+#: modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status-index.json:31
 msgid "Grant access to DSL status display"
 msgstr "منح حق تسجيل الدخول إلى عرض حالة DSL"
 
@@ -2873,7 +2877,7 @@ msgstr "منح حق تسجيل الدخول إلى حالة جدار الحما�
 msgid "Grant access to flash operations"
 msgstr "منح تسجيل الدخول إلى عمليات الفلاش"
 
-#: modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json:96
+#: modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status-index.json:3
 msgid "Grant access to main status display"
 msgstr "منح حق تسجيل الدخول إلى عرض الحالة الرئيسية"
 
@@ -2925,7 +2929,7 @@ msgstr "منح حق الدخول إلى سجلات النظام"
 msgid "Grant access to wireless channel status"
 msgstr ""
 
-#: modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json:133
+#: modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status-index.json:40
 msgid "Grant access to wireless status display"
 msgstr "امنح حق الدخول إلى شاشة عرض الحالة اللاسلكية"
 
@@ -3054,6 +3058,8 @@ msgid "IP Type"
 msgstr "نوع IP"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:501
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:178
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:204
 msgid "IP address"
 msgstr "نوع IP"
 
@@ -3086,8 +3092,16 @@ msgstr "IPv4"
 msgid "IPv4 Firewall"
 msgstr "جدار حماية IPv4"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:247
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:252
+msgid "IPv4 Neighbours"
+msgstr ""
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:251
 msgid "IPv4 Routing"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:120
+msgid "IPv4 Rules"
 msgstr ""
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:29
@@ -3098,7 +3112,6 @@ msgstr "IPv4 المنبع"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:38
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:585
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:88
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:178
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:164
 msgid "IPv4 address"
 msgstr "عنوان IPv4"
@@ -3112,7 +3125,6 @@ msgid "IPv4 broadcast"
 msgstr "بث IPv4"
 
 #: modules/luci-base/htdocs/luci-static/resources/protocol/static.js:180
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:188
 msgid "IPv4 gateway"
 msgstr "بوابة IPv4"
 
@@ -3175,7 +3187,7 @@ msgstr "جدار حماية IPv6"
 msgid "IPv6 MTU"
 msgstr ""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:258
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:262
 msgid "IPv6 Neighbours"
 msgstr "جيران IPv6"
 
@@ -3183,8 +3195,12 @@ msgstr "جيران IPv6"
 msgid "IPv6 RA Settings"
 msgstr ""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:257
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:261
 msgid "IPv6 Routing"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:120
+msgid "IPv6 Rules"
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:634
@@ -3202,7 +3218,6 @@ msgstr "IPv6 المنبع"
 #: modules/luci-base/htdocs/luci-static/resources/protocol/static.js:183
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:57
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:127
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:204
 msgid "IPv6 address"
 msgstr "عنوان IPv6"
 
@@ -3410,6 +3425,10 @@ msgstr ""
 msgid "Incoming checksum"
 msgstr "المجموع الاختباري الوارد"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:144
+msgid "Incoming interface"
+msgstr ""
+
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:92
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:97
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:94
@@ -3596,11 +3615,11 @@ msgstr "قيمة TOS غير صالحة ، المتوقع 00..FF أو ترث"
 msgid "Invalid Traffic Class value, expected 00..FF or inherit"
 msgstr "قيمة فئة حركة المرور غير صالحة ، المتوقع 00..FF أو ترث"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:285
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:287
 msgid "Invalid VLAN ID given! Only IDs between %d and %d are allowed."
 msgstr "تم إعطاء معرف VLAN غير صالح! فقط المعرفات  بين %d و %dمسموح لهم"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:294
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:296
 msgid "Invalid VLAN ID given! Only unique IDs are allowed"
 msgstr "تم تقديم معرف VLAN غير صالح! يسمح فقط بالمعرفات الفريدة"
 
@@ -3627,6 +3646,10 @@ msgstr "قيمة سداسية عشرية غير صالحة"
 #: modules/luci-base/luasrc/view/sysauth.htm:12
 msgid "Invalid username and/or password! Please try again."
 msgstr "اسم المستخدم و / أو كلمة المرور غير صالحة! حاول مرة اخرى."
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:191
+msgid "Invert match"
+msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1148
 msgid "Isolate Clients"
@@ -3657,6 +3680,10 @@ msgstr "الانضمام إلى الشبكة: المسح اللاسلكي"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2027
 msgid "Joining Network: %q"
 msgstr "الانضمام إلى الشبكة: q%"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:171
+msgid "Jump to rule"
+msgstr ""
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:228
 msgid "Keep settings and retain the current configuration"
@@ -4135,7 +4162,7 @@ msgstr "الفاصل الزمني MII"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:580
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1418
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:85
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:86
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:53
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:92
 msgid "MTU"
@@ -4279,7 +4306,7 @@ msgstr "طريقة مراقبة الارتباط"
 msgid "Method to determine link status"
 msgstr "طريقة لتحديد حالة الارتباط"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:78
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:79
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:189
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:215
 msgid "Metric"
@@ -4309,11 +4336,11 @@ msgid ""
 "Advertisement, ICMPv6 Type 134\">RA</abbr>. Default is 200 seconds."
 msgstr ""
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:202
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:204
 msgid "Mirror monitor port"
 msgstr "منفذ شاشة المرآة"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:201
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:203
 msgid "Mirror source port"
 msgstr "مرآة مصدر البوابة"
 
@@ -4639,6 +4666,15 @@ msgstr "لم تستلم أية بيانات"
 msgid "No enforcement"
 msgstr ""
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:229
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:232
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:235
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:238
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:241
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:244
+msgid "No entries available"
+msgstr ""
+
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2899
 msgid "No entries in this directory"
 msgstr "لا توجد إدخالات في هذا الدليل"
@@ -4835,13 +4871,13 @@ msgstr "تأخير خارج الحالة"
 msgid "On"
 msgstr "مفتوح"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:108
-msgid "On-link"
-msgstr "طريق على الارتباط"
-
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/timer.js:11
 msgid "On-State Delay"
 msgstr "حالة التأخير"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:109
+msgid "On-link"
+msgstr "طريق على الارتباط"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:592
 msgid "One of hostname or MAC address must be specified!"
@@ -5034,6 +5070,10 @@ msgstr "صادر:"
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:108
 msgid "Outgoing checksum"
 msgstr "المجموع الاختباري الصادر"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:155
+msgid "Outgoing interface"
+msgstr ""
 
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gre.js:96
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/gretap.js:101
@@ -5423,7 +5463,7 @@ msgstr "المنفذ"
 msgid "Port isolation"
 msgstr ""
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:278
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:280
 msgid "Port status:"
 msgstr "حالة المنفذ:"
 
@@ -5450,6 +5490,10 @@ msgstr "UMTS المفضل"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:33
 msgid "Prefix Delegated"
 msgstr "تفويض البادئة"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:186
+msgid "Prefix suppressor"
+msgstr ""
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:138
 msgid "Preshared Key"
@@ -5494,7 +5538,7 @@ msgid "Primary becomes active slave whenever it comes back up (always, 0)"
 msgstr "يصبح الأساسي مستخدماً نشطًا كلما ظهر مرة أخرى (دائمًا ، 0)"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:508
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:128
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:129
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:197
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:223
 msgid "Priority"
@@ -5989,24 +6033,28 @@ msgid "Router Password"
 msgstr "كلمة مرور جهاز التوجيه"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:28
+#: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:50
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:248
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:15
+msgid "Routing"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:28
 msgid ""
 "Routing defines over which interface and gateway a certain host or network "
 "can be reached."
 msgstr ""
 "تحدد المسارات من خلالها واجهة وبوابة يمكن الوصول إلى مضيف أو شبكة معينة."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:28
-#: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:50
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:244
-#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:15
-msgid "Routing"
-msgstr ""
-
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:218
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:198
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:224
 msgid "Rule"
 msgstr "القاعدة"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:136
+msgid "Rule type"
+msgstr ""
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:335
 msgid "Run a filesystem check before mounting the device"
@@ -6367,8 +6415,8 @@ msgstr ""
 "عذرًا ، لا يوجد دعم لترقية النظام ؛ يجب أن تومض صورة البرنامج الثابت الجديدة "
 "يدويًا. يرجى الرجوع إلى wiki للحصول على إرشادات التثبيت الخاصة بالجهاز."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:98
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:147
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:99
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:148
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:385
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:70
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:214
@@ -6865,8 +6913,8 @@ msgstr "معدل الإرسال"
 msgid "TX queue length"
 msgstr ""
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:90
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:165
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:91
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:166
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:18
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:190
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:216
@@ -7050,7 +7098,7 @@ msgstr ""
 "قارنهما بالملف الأصلي لضمان تكامل البيانات. <br /> انقر فوق \"متابعة\" أدناه "
 "لبدء إجراء الفلاش."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:245
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:249
 msgid "The following rules are currently active on this system."
 msgstr "القواعد التالية نشطة حاليًا على هذا النظام."
 
@@ -7481,6 +7529,10 @@ msgstr "قوة الإرسال"
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/map.js:43
 msgid "Type"
 msgstr "نوع"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:181
+msgid "Type of service"
+msgstr ""
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:328
 msgid "UDP:"
@@ -8244,16 +8296,16 @@ msgid "ZRam Size"
 msgstr "حجم ZRam"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:440
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:151
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:162
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:152
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:163
 msgid "any"
 msgstr "أي"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1463
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1471
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1476
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:101
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:132
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:102
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:133
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1230
 #: protocols/luci-proto-ncm/htdocs/luci-static/resources/protocol/ncm.js:79
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pppoe.js:48
@@ -8454,7 +8506,7 @@ msgstr "لا شيء"
 msgid "not present"
 msgstr "غير موجود"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:347
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:349
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:965
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:969
 msgid "off"
@@ -8517,7 +8569,7 @@ msgstr "مستوى السجل sstpc"
 msgid "strong security"
 msgstr "أمان قوي"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:352
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:354
 msgid "tagged"
 msgstr "موسومة"
 
@@ -8560,7 +8612,7 @@ msgstr "غير محدد"
 msgid "unspecified -or- create:"
 msgstr "غير محدد - أو - إنشاء:"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:350
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:352
 msgid "untagged"
 msgstr "بدون علامات"
 
