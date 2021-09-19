@@ -10,10 +10,10 @@ LUCI_PKGARCH:=all
 
 PKG_NAME:=luci-app-unblockneteasemusic
 PKG_VERSION:=2.11
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 
-include $(TOPDIR)/feeds/luci/luci.mk
+include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
