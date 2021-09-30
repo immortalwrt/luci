@@ -52,6 +52,10 @@
 
 #include <rpcd/plugin.h>
 
+#ifndef IN6_IS_ADDR_ULA
+#define IN6_IS_ADDR_ULA(a) (((a)->s6_addr[0] & 0xfe) == 0xfc)
+#endif
+
 
 static struct blob_buf blob;
 
@@ -1672,8 +1676,9 @@ rpc_luci_get_host_hints_rrdns_cb(struct ubus_request *req, int type,
 				avl_for_each_element(&rctx->avl, hint, avl) {
 					avl_for_each_element(&hint->ip6addrs, addr, avl) {
 						if (!memcmp(&addr->addr.in6, &in6, sizeof(in6))) {
-							free(hint->hostname);
-							hint->hostname = strdup(blobmsg_get_string(cur));
+							if (!hint->hostname)
+								hint->hostname = strdup(blobmsg_get_string(cur));
+
 							break;
 						}
 					}
@@ -1719,7 +1724,9 @@ rpc_luci_get_host_hints_rrdns(struct reply_context *rctx)
 			}
 		}
 		avl_for_each_element(&hint->ip6addrs, addr, avl) {
-			if (!IN6_IS_ADDR_UNSPECIFIED(&addr->addr.in6)) {
+			if (!IN6_IS_ADDR_UNSPECIFIED(&addr->addr.in6) &&
+			    !IN6_IS_ADDR_LINKLOCAL(&addr->addr.in6) &&
+			    !IN6_IS_ADDR_ULA(&addr->addr.in6)) {
 				inet_ntop(AF_INET6, &addr->addr.in6, buf, sizeof(buf));
 				blobmsg_add_string(&req, NULL, buf);
 				n++;
