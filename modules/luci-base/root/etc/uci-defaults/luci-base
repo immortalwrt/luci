@@ -9,8 +9,5 @@ then
 		commit uhttpd
 	EOF
 fi	
-uci -q batch <<-EOF >/dev/null
-	set luci.main.lang=zh_cn
-	commit luci
-EOF
+
 exit 0
