@@ -15,7 +15,7 @@ s:option(Value, "bandwidth_threshold", "Bandwidth Threshold")
 s:option(Value, "rssi_val", "RSSI Threshold")
 s:option(Value, "low_rssi_val", "Low RSSI Threshold")
 s:option(Value, "chan_util_val", "Channel Utilization Threshold")
-s:option(Value, "max_chan_util_val", "Maximaum Channel Utilization Threshold")
+s:option(Value, "max_chan_util_val", "Maximum Channel Utilization Threshold")
 s:option(Value, "min_probe_count", "Minimum Probe Count")
 s:option(Value, "min_number_to_kick", "Minimum Number After Kicking Client")
 
