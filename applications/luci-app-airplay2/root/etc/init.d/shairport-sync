@@ -142,6 +142,11 @@ start_service() {
 	config_foreach start_instance shairport-sync
 }
 
+reload_service() {
+	stop
+	start
+}
+
 boot() {
 	amixer set Master unmute
 	amixer set Master 100%
