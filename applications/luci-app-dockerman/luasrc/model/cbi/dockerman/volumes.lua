@@ -41,6 +41,7 @@ function get_volumes()
 			end
 		end
 		data[index]["_created"] = v.CreatedAt
+		data[index]["_size"] =  "<font class='volume_size_" .. v.Name .. "'>-</font>"
 	end
 
 	return data
@@ -69,6 +70,7 @@ local volume_list = not lost_state and get_volumes() or {}
 m = SimpleForm("docker", translate("Docker - Volumes"))
 m.submit=false
 m.reset=false
+m:append(Template("dockerman/volume_size"))
 
 s = m:section(Table, volume_list, translate("Volumes overview"))
 
@@ -81,14 +83,12 @@ o.write = function(self, section, value)
 end
 
 o = s:option(DummyValue, "_name", translate("Name"))
-
 o = s:option(DummyValue, "_driver", translate("Driver"))
-
 o = s:option(DummyValue, "_containers", translate("Containers"))
 o.rawhtml = true
-
 o = s:option(DummyValue, "_mountpoint", translate("Mount Point"))
-
+o = s:option(DummyValue, "_size", translate("Size"))
+o.rawhtml = true
 o = s:option(DummyValue, "_created", translate("Created"))
 
 s = m:section(SimpleSection)
