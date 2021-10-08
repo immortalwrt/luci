@@ -1,5 +1,5 @@
 mp = Map("unblockneteasemusic", translate("解除网易云音乐播放限制"))
-mp.description = translate("原理：采用 [QQ/百度/酷狗/酷我/咪咕/JOOX] 等音源，替换网易云音乐 无版权/收费 歌曲链接<br/>具体使用方法参见：https://github.com/immortalwrt/luci-app-unblockneteasemusic")
+mp.description = translate("原理：采用 [Bilibili/QQ/酷狗/酷我/咪咕/JOOX/Youtube] 等音源，替换网易云音乐 无版权/收费 歌曲链接<br/>具体使用方法参见：https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic")
 
 mp:section(SimpleSection).template = "unblockneteasemusic/unblockneteasemusic_status"
 
@@ -22,6 +22,7 @@ music_source:value("migu", translate("咪咕音乐"))
 music_source:value("pyncmd", translate("网易云音乐（pyncmd）"))
 music_source:value("qq", translate("QQ音乐"))
 music_source:value("youtube", translate("Youtube音乐"))
+music_source:value("youtubedl", translate("Youtube音乐（youtube-dl）"))
 music_source:value("ytdownload", translate("Youtube音乐（ytdownload）"))
 music_source.description = translate("自定义模式下，多个音源请用空格隔开")
 music_source.default = "default"
@@ -68,6 +69,11 @@ youtube_key = s:option(Value, "youtube_key", translate("Youtube API Key"))
 youtube_key.description = translate("API Key申请地址：https://developers.google.com/youtube/v3/getting-started#before-you-start")
 youtube_key.datatype = "string"
 youtube_key:depends("use_custom_cookie", 1)
+
+local_vip = s:option(Value, "local_vip", translate("启用本地 VIP"))
+local_vip.description = translate("启用后，可以使用去广告、个性换肤、鲸云音效等本地功能")
+local_vip.default = 0
+local_vip.rmempty = false
 
 auto_update = s:option(Flag, "auto_update", translate("启用自动更新"))
 auto_update.description = translate("启用后，每天将定时自动检查最新版本并更新")
