@@ -70,27 +70,27 @@ local mounts = luci.sys.mounts()
 local non_system_mounts = {}
 for rawmount, val in pairs(mounts) do
     if (string.find(val.mountpoint, "/tmp/.jail") == nil) then
-      repeat 
-          val.umount = false
-          if (val.mountpoint == "/") then
-              break
-          elseif (val.mountpoint == "/overlay") then
-              break
-          elseif (val.mountpoint == "/rom") then
-              break
-          elseif (val.mountpoint == "/tmp") then
-              break
-          elseif (val.mountpoint == "/tmp/shm") then
-              break
-          elseif (val.mountpoint == "/tmp/upgrade") then
-              break
-          elseif (val.mountpoint == "/dev") then
-              break
-          end
-          val.umount = true
-      until true
-      non_system_mounts[rawmount] = val       
-   end   
+		repeat
+			val.umount = false
+			if (val.mountpoint == "/") then
+				break
+			elseif (val.mountpoint == "/overlay") then
+				break
+			elseif (val.mountpoint == "/rom") then
+				break
+			elseif (val.mountpoint == "/tmp") then
+				break
+			elseif (val.mountpoint == "/tmp/shm") then
+				break
+			elseif (val.mountpoint == "/tmp/upgrade") then
+				break
+			elseif (val.mountpoint == "/dev") then
+				break
+			end
+			val.umount = true
+		until true
+		non_system_mounts[rawmount] = val
+	end
 end
 
 v = m:section(Table, non_system_mounts, translate("Mounted file systems"))

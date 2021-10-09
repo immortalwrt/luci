@@ -3,7 +3,7 @@
 -- Licensed to the public under the Apache License 2.0.
 
 local fs = require "nixio.fs"
-local cronfile = "/etc/crontabs/root" 
+local cronfile = "/etc/crontabs/root"
 
 f = SimpleForm("crontab", translate("Scheduled Tasks"),
 	translate("This is the system crontab in which scheduled tasks can be defined.") ..

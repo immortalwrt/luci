@@ -1,9 +1,9 @@
 #!/bin/sh
 
 uci -q batch <<-EOF >/dev/null
-	delete ucitrack.@dockerd[-1]
-	add ucitrack dockerd
-	set ucitrack.@dockerd[-1].init=dockerd
+	delete ucitrack.@docker[-1]
+	add ucitrack docker
+	set ucitrack.@docker[-1].init=docker
 	commit ucitrack
 EOF
 

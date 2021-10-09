@@ -190,9 +190,9 @@ if has_ntpd then
 	end
 
 	local has_section = false
-	m.uci:foreach("system", "timeserver", 
-		function(s) 
-			has_section = true 
+	m.uci:foreach("system", "timeserver",
+		function(s)
+			has_section = true
 			return false
 	end)
 
@@ -208,7 +208,7 @@ if has_ntpd then
 		x.inputstyle = "apply"
 
 	else
-		
+
 		s = m:section(TypedSection, "timeserver", translate("Time Synchronization"))
 		s.anonymous = true
 		s.addremove = false

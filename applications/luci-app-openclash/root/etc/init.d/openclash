@@ -13,7 +13,8 @@ CLASH_CONFIG="/etc/openclash"
 CRON_FILE="/etc/crontabs/root"
 RAW_CONFIG_FILE=$(uci -q get openclash.config.config_path)
 BACKUP_FILE="/etc/openclash/backup/$(uci -q get openclash.config.config_path |awk -F '/' '{print $5}' 2>/dev/null)"
-CACHE_PATH="/etc/openclash/.cache"
+CACHE_PATH_OLD="/etc/openclash/.cache"
+CACHE_PATH="/etc/openclash/cache.db"
 LOG_FILE="/tmp/openclash.log"
 START_LOG="/tmp/openclash_start.log"
 CONFIG_FILE="/etc/openclash/$(uci -q get openclash.config.config_path |awk -F '/' '{print $5}' 2>/dev/null)"
@@ -137,7 +138,6 @@ kill_clash()
    for clash_pid in $clash_pids; do
       kill -9 "$clash_pid" 2>/dev/null
    done >/dev/null 2>&1
-   sleep 1
 }
 
 start_fail()
@@ -294,7 +294,7 @@ if [ -z "$(pidof clash)" ] && [ -n "$provider_path_check" ]; then
    else
       LOG_OUT "Error: Failed To Download Rule-providers, Please Check The Log Page For Detailed error information!"
    fi
-   sleep 5
+   sleep 3
    start_fail
 elif [ "$provider_path_check_num" -gt 5 ]; then
    LOG_OUT "Warning: Providers File Check Timeout, If Failed To start, Please Check The Log Page For Detailed error information!"
@@ -432,7 +432,6 @@ yml_dns_custom()
          fi
       else
          LOG_OUT "Error: Nameserver Option Must Be Setted, Stop Customing DNS Servers"
-         sleep 2
       fi
    fi
 }
@@ -847,7 +846,8 @@ if [ -z "$RAW_CONFIG_FILE" ] || [ ! -f "$RAW_CONFIG_FILE" ]; then
    fi
 fi 2>/dev/null
 CONFIG_NAME=$(echo "$RAW_CONFIG_FILE" |awk -F '/' '{print $5}' 2>/dev/null)
-HISTORY_PATH="/etc/openclash/history/${CONFIG_NAME%.*}"
+HISTORY_PATH_OLD="/etc/openclash/history/${CONFIG_NAME%.*}"
+HISTORY_PATH="/etc/openclash/history/${CONFIG_NAME%.*}.db"
 
 if [ ! -f "$RAW_CONFIG_FILE" ]; then
    config_load "openclash"
@@ -855,13 +855,12 @@ if [ ! -f "$RAW_CONFIG_FILE" ]; then
    subscribe_auto_update=$(uci get openclash.config.auto_update 2>/dev/null)
    if [ "$subscribe_enable" = "1" ] && [ "$subscribe_auto_update" -eq 1 ]; then
       LOG_OUT "Config File Does Not Exist, You Have Set Subscription Information, Ready To Download..."
-      sleep 3
       nohup /usr/share/openclash/openclash.sh &
       del_lock
       exit 0
    else
       LOG_OUT "Error: Config Not Found"
-      sleep 5
+      sleep 3
       del_lock
       exit 0
    fi
@@ -1088,7 +1087,7 @@ do_run_file()
         echo "" >> $LOG_FILE
         echo "---------- https://mirrors.cloud.tencent.com/lede/snapshots/packages/ ----------" >> $LOG_FILE
         echo "" >> $LOG_FILE
-        sleep 5
+        sleep 3
         start_fail
       fi
    fi
@@ -1117,16 +1116,23 @@ check_interface_name()
 start_run_core()
 {
    LOG_OUT "$core_start_log"
-   sleep 2
    ulimit -SHn 65535 2>/dev/null
    ulimit -v unlimited 2>/dev/null
    modprobe tun >/dev/null 2>&1
    check_interface_name
-   config_reload=$(uci get openclash.config.config_reload 2>/dev/null)
+   config_reload=$(uci -q get openclash.config.config_reload)
    #Resore history cache
-   cmp -s "$CACHE_PATH" "$HISTORY_PATH"
-   if [ "$?" -ne "0" ]; then
-      cp "$HISTORY_PATH" "$CACHE_PATH" 2>/dev/null
+   if [ -f "$HISTORY_PATH" ]; then
+      cmp -s "$CACHE_PATH" "$HISTORY_PATH"
+      if [ "$?" -ne "0" ]; then
+         cp "$HISTORY_PATH" "$CACHE_PATH" 2>/dev/null
+      fi
+   fi
+   if [ -f "$HISTORY_PATH_OLD" ]; then
+      cmp -s "$CACHE_PATH_OLD" "$HISTORY_PATH_OLD"
+      if [ "$?" -ne "0" ]; then
+         cp "$HISTORY_PATH_OLD" "$CACHE_PATH_OLD" 2>/dev/null
+      fi
    fi
    if [ -n "$(pidof clash)" ] && [ "$core_type" != "TUN" ] && [ "$config_reload" != "0" ]; then
       curl -s --connect-timeout 5 -m 5 -H 'Content-Type: application/json' -H "Authorization: Bearer ${da_password}" -XPUT http://"$lan_ip":"$cn_port"/configs -d "{\"path\": \"$CONFIG_FILE\"}" 2>/dev/null
@@ -1189,7 +1195,7 @@ raw_config_start()
    
    if ! pidof clash >/dev/null; then
       LOG_OUT "Error: OpenClash Can Not Start, Please Check The Error Info And Try Again!"
-      sleep 5
+      sleep 3
       start_fail
    fi
    
@@ -1240,7 +1246,6 @@ try_restore_start()
    if [ -z "$(pidof clash)" ]; then
       if [ "$rule_source" = 0 ] && [ "$enable_custom_clash_rules" = 0 ]; then
          LOG_OUT "Error: OpenClash Can Not Start, Try Use Raw Config Restart Again..."
-         sleep 3
          raw_config_start
       else
          LOG_OUT "Error: OpenClash Can Not Start, Try Use Backup Rules Start Again..."
@@ -1266,7 +1271,6 @@ try_restore_start()
          check_core_status
          if ! pidof clash >/dev/null; then
             LOG_OUT "Error: OpenClash Can Not Start, Try Use Raw Config Restart Again..."
-            sleep 3
             raw_config_start
          fi
       fi
@@ -1314,37 +1318,48 @@ firewall_rule_exclude()
        return
    fi
    
+   dest_port=$(echo $dest_port |sed "s/-/:/g" 2>/dev/null)
+   
    if [ -z "$family" ] || [ "$family" == "ipv4" ]; then
       if [ -z "$en_mode_tun" ] || [ "$en_mode_tun" -eq 3 ]; then
-         if $e_tcp ; then
-             iptables -t nat -I openclash_output -p tcp --sport "$dest_port" -j RETURN >/dev/null 2>&1
-         fi
-         if $e_udp ; then
-             iptables -t mangle -I openclash_output -p udp --sport "$dest_port" -j RETURN >/dev/null 2>&1
-             iptables -t mangle -I openclash -p udp --dport "$dest_port" -j RETURN >/dev/null 2>&1
-         fi
+         for i in $dest_port; do
+            if $e_tcp ; then
+               iptables -t nat -I openclash_output -p tcp --sport "$i" -j RETURN >/dev/null 2>&1
+               iptables -t nat -I openclash -p tcp --dport "$i" -j RETURN >/dev/null 2>&1
+            fi
+            if $e_udp ; then
+               iptables -t mangle -I openclash_output -p udp --sport "$i" -j RETURN >/dev/null 2>&1
+               iptables -t mangle -I openclash -p udp --dport "$i" -j RETURN >/dev/null 2>&1
+            fi
+         done
       elif [ "$en_mode_tun" -ne 3 ]; then
-         if $e_tcp ; then
-             iptables -t mangle -I openclash_output -p tcp --sport "$dest_port" -j RETURN >/dev/null 2>&1
-             iptables -t mangle -I openclash -p tcp --dport "$dest_port" -j RETURN >/dev/null 2>&1
-         fi
-         if $e_udp ; then
-             iptables -t mangle -I openclash_output -p udp --sport "$dest_port" -j RETURN >/dev/null 2>&1
-             iptables -t mangle -I openclash -p udp --dport "$dest_port" -j RETURN >/dev/null 2>&1
-         fi
+         for i in $dest_port; do
+            if $e_tcp ; then
+               iptables -t mangle -I openclash_output -p tcp --sport "$i" -j RETURN >/dev/null 2>&1
+               iptables -t mangle -I openclash -p tcp --dport "$i" -j RETURN >/dev/null 2>&1
+            fi
+            if $e_udp ; then
+               iptables -t mangle -I openclash_output -p udp --sport "$i" -j RETURN >/dev/null 2>&1
+               iptables -t mangle -I openclash -p udp --dport "$i" -j RETURN >/dev/null 2>&1
+            fi
+         done
       fi
    fi
    
    if [ "$ipv6_enable" -eq 1 ] && [ -n "$(ip6tables -t mangle -L 2>&1 | grep -o 'Chain')" ]; then
       if [ -z "$family" ] || [ "$family" == "ipv6" ]; then
-         if $e_tcp ; then
-            ip6tables -t mangle -I openclash -p tcp --sport "$dest_port" -j RETURN >/dev/null 2>&1
-            ip6tables -t mangle -I openclash_output -p tcp --sport "$dest_port" -j RETURN >/dev/null 2>&1
-         fi
-         if $e_udp ; then
-            ip6tables -t mangle -I openclash -p udp --sport "$dest_port" -j RETURN >/dev/null 2>&1
-            ip6tables -t mangle -I openclash_output -p udp --sport "$dest_port" -j RETURN >/dev/null 2>&1
-         fi
+         for i in $dest_port; do
+            if $e_tcp ; then
+               ip6tables -t mangle -I openclash -p tcp --sport "$i" -j RETURN >/dev/null 2>&1
+               ip6tables -t mangle -I openclash -p tcp --dport "$i" -j RETURN >/dev/null 2>&1
+               ip6tables -t mangle -I openclash_output -p tcp --sport "$i" -j RETURN >/dev/null 2>&1
+            fi
+            if $e_udp ; then
+               ip6tables -t mangle -I openclash -p udp --sport "$i" -j RETURN >/dev/null 2>&1
+               ip6tables -t mangle -I openclash -p udp --dport "$i" -j RETURN >/dev/null 2>&1
+               ip6tables -t mangle -I openclash_output -p udp --sport "$i" -j RETURN >/dev/null 2>&1
+            fi
+         done
       fi
    fi
 }
@@ -1432,11 +1447,10 @@ if [ "$china_ip_route" = "1" ] || [ "$disable_udp_quic" = "1" ]; then
    ipset -! restore </etc/openclash/china_ip_route.ipset 2>/dev/null
 fi
 
-if [ "$enable_redirect_dns" -eq 1 ] && [ -z "$(iptables -t nat -nL PREROUTING --line-number |grep 'dns_hijack')"]; then
-   if [ -z "$(netstat -nlp |grep -E '127.0.0.1:53.*dnsmasq')" ]; then
-      DNSPORT="$dns_port"
-   else
-      DNSPORT="$(uci -q get dhcp.@dnsmasq[0].port || echo 53)"
+if [ "$enable_redirect_dns" -eq 1 ] && [ -z "$(iptables -t nat -nL PREROUTING --line-number |grep 'DNS Hijack')"]; then
+   DNSPORT=$(uci -q get dhcp.@dnsmasq[0].port)
+   if [ -z "$DNSPORT" ]; then
+    DNSPORT=$(netstat -nlp |grep -E '127.0.0.1:.*dnsmasq' |awk -F '127.0.0.1:' '{print $2}' |awk '{print $1}' |head -1 || echo "$dns_port")
    fi
    iptables -t nat -I PREROUTING -p udp --dport 53 -j REDIRECT --to-ports "$DNSPORT" -m comment --comment "DNS Hijack"
    iptables -t nat -I PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports "$DNSPORT" -m comment --comment "DNS Hijack"
@@ -1532,8 +1546,8 @@ if [ -z "$en_mode_tun" ] || [ "$en_mode_tun" -eq 3 ]; then
    iptables -t nat -A PREROUTING -p tcp -j openclash
    if [ -z "$en_mode_tun" ]; then
       #Google dns
-      iptables -t nat -I PREROUTING -p tcp -d 8.8.8.8 --dport 53 -j REDIRECT --to-ports "$proxy_port"
-      iptables -t nat -I PREROUTING -p tcp -d 8.8.4.4 --dport 53 -j REDIRECT --to-ports "$proxy_port"
+      iptables -t nat -I PREROUTING -m comment --comment "OpenClash Google DNS Hijack" -p tcp -d 8.8.8.8 --dport 53 -j REDIRECT --to-ports "$proxy_port"
+      iptables -t nat -I PREROUTING -m comment --comment "OpenClash Google DNS Hijack" -p tcp -d 8.8.4.4 --dport 53 -j REDIRECT --to-ports "$proxy_port"
       #udp
       if [ "$enable_udp_proxy" -eq 1 ]; then
          modprobe xt_TPROXY >/dev/null 2>&1
@@ -1609,8 +1623,10 @@ if [ -n "$en_mode_tun" ]; then
       ip link set utun up
    elif [ "$en_mode_tun" -eq 1 ] || [ "$en_mode_tun" -eq 3 ]; then
       TUN_WAIT=0
+      ip link set utun up
       while ( [ -n "$(pidof clash)" ] && [ -z "$(ip route list |grep utun)" ] && [ "$TUN_WAIT" -le 3 ] )
       do
+         ip link set utun up
          let TUN_WAIT++
          sleep 2
       done
@@ -1669,14 +1685,14 @@ if [ -n "$en_mode_tun" ]; then
    
    if [ "$en_mode_tun" -ne 3 ]; then
       iptables -t mangle -I PREROUTING -j openclash
-      iptables -t nat -I PREROUTING -p tcp --dport 53 -j ACCEPT
+      iptables -t nat -I PREROUTING -m comment --comment "OpenClash TCP DNS Hijack" -p tcp --dport 53 -j ACCEPT
    else
       iptables -t mangle -I PREROUTING -p tcp --dport 53 -j openclash_dns_hijack
-      iptables -t mangle -A openclash_dns_hijack -d 8.8.8.8 -j MARK --set-mark "$PROXY_FWMARK"
-      iptables -t mangle -A openclash_dns_hijack -d 8.8.4.4 -j MARK --set-mark "$PROXY_FWMARK"
+      iptables -t mangle -A openclash_dns_hijack -m comment --comment "OpenClash Google DNS Hijack" -d 8.8.8.8 -j MARK --set-mark "$PROXY_FWMARK"
+      iptables -t mangle -A openclash_dns_hijack -m comment --comment "OpenClash Google DNS Hijack" -d 8.8.4.4 -j MARK --set-mark "$PROXY_FWMARK"
       iptables -t mangle -I PREROUTING -p udp -j openclash
-      iptables -t nat -I PREROUTING -p tcp --dport 53 -d 8.8.8.8 -j ACCEPT
-      iptables -t nat -I PREROUTING -p tcp --dport 53 -d 8.8.4.4 -j ACCEPT
+      iptables -t nat -I PREROUTING -m comment --comment "OpenClash Google DNS Hijack" -p tcp --dport 53 -d 8.8.8.8 -j ACCEPT
+      iptables -t nat -I PREROUTING -m comment --comment "OpenClash Google DNS Hijack" -p tcp --dport 53 -d 8.8.4.4 -j ACCEPT
    fi
    
    #snat routerself for tun while bindaddress enable
@@ -1694,7 +1710,7 @@ if [ -n "$en_mode_tun" ]; then
       fi
    fi
    #TUN FORWORD
-   iptables -I FORWARD -o utun -j ACCEPT
+   iptables -I FORWARD -m comment --comment "OpenClash TUN Forward" -o utun -j ACCEPT
 fi
 
 #quic
@@ -1740,8 +1756,8 @@ if [ "$ipv6_enable" -eq 1 ] && [ -n "$(ip6tables -t mangle -L 2>&1 | grep -o 'Ch
    ip -6 route add local ::/0 dev lo table "$PROXY_ROUTE_TABLE"
    
    #Google dns
-   ip6tables -t nat -I PREROUTING -p tcp -d 2001:4860:4860::8888 --dport 53 -j ACCEPT
-   ip6tables -t nat -I PREROUTING -p tcp -d 2001:4860:4860::8844 --dport 53 -j ACCEPT
+   ip6tables -t nat -I PREROUTING -m comment --comment "OpenClash Google DNS Hijack" -p tcp -d 2001:4860:4860::8888 --dport 53 -j ACCEPT
+   ip6tables -t nat -I PREROUTING -m comment --comment "OpenClash Google DNS Hijack" -p tcp -d 2001:4860:4860::8844 --dport 53 -j ACCEPT
    
    ip6tables -t mangle -N openclash
    ip6tables -t mangle -F openclash
@@ -1796,108 +1812,38 @@ revert_firewall()
 {
    rm -rf /var/etc/openclash.include
 
-   #ipv4
-
    ip rule del fwmark "$PROXY_FWMARK" table "$PROXY_ROUTE_TABLE" >/dev/null 2>&1
    ip route del local 0.0.0.0/0 dev lo table "$PROXY_ROUTE_TABLE" >/dev/null 2>&1
-
-   iptables -t nat -D PREROUTING -p tcp --dport 53 -j ACCEPT >/dev/null 2>&1
-   #quic
-	 iptables -D INPUT -p udp --dport 443 -m comment --comment "OpenClash QUIC REJECT" -m set ! --match-set china_ip_route dst -j REJECT >/dev/null 2>&1
-   iptables -D FORWARD -p udp --dport 443 -o utun -m comment --comment "OpenClash QUIC REJECT" -m set ! --match-set china_ip_route dst -j REJECT >/dev/null 2>&1
-
-
-   out_lines=$(iptables -nvL OUTPUT -t nat |sed 1,2d |sed -n '/openclash/=' 2>/dev/null |sort -rn)
-   for out_line in $out_lines; do
-      iptables -t nat -D OUTPUT "$out_line" >/dev/null 2>&1
-   done >/dev/null 2>&1
-   iptables -t nat -D OUTPUT -j openclash_output >/dev/null 2>&1
    
-   out_lines=$(iptables -nvL OUTPUT -t mangle |sed 1,2d |sed -n '/openclash/=' 2>/dev/null |sort -rn)
-   for out_line in $out_lines; do
-      iptables -t mangle -D OUTPUT "$out_line" >/dev/null 2>&1
-   done >/dev/null 2>&1
-   iptables -t mangle -D OUTPUT -j openclash_output >/dev/null 2>&1
-
-   pre_lines=$(iptables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/8\.8\./=' 2>/dev/null |sort -rn)
-   for pre_line in $pre_lines; do
-      iptables -t nat -D PREROUTING "$pre_line" >/dev/null 2>&1
-   done >/dev/null 2>&1
-
-   pre_lines=$(iptables -nvL PREROUTING -t mangle |sed 1,2d |sed -n '/openclash/=' 2>/dev/null |sort -rn)
-   for pre_line in $pre_lines; do
-      iptables -t mangle -D PREROUTING "$pre_line" >/dev/null 2>&1
-   done >/dev/null 2>&1
-
-   pre_lines=$(iptables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/openclash/=' 2>/dev/null |sort -rn)
-   for pre_line in $pre_lines; do
-      iptables -t nat -D PREROUTING "$pre_line" >/dev/null 2>&1
-   done >/dev/null 2>&1
-   iptables -t nat -D PREROUTING -p tcp -j openclash >/dev/null 2>&1
-
-   pre_lines=$(iptables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/DNS Hijack/=' 2>/dev/null |sort -rn)
-   for pre_line in $pre_lines; do
-      iptables -t nat -D PREROUTING "$pre_line" >/dev/null 2>&1
-   done >/dev/null 2>&1
-
-   iptables -t nat -F openclash >/dev/null 2>&1
-   iptables -t nat -X openclash >/dev/null 2>&1
+   ip -6 rule del fwmark "$PROXY_FWMARK" table "$PROXY_ROUTE_TABLE" >/dev/null 2>&1
+   ip -6 route del local ::/0 dev lo table "$PROXY_ROUTE_TABLE" >/dev/null 2>&1
    
-   iptables -t nat -F openclash_output >/dev/null 2>&1
-   iptables -t nat -X openclash_output >/dev/null 2>&1
-   
-   iptables -t nat -F openclash_post >/dev/null 2>&1
-   iptables -t nat -X openclash_post >/dev/null 2>&1
-   iptables -t nat -D POSTROUTING -j openclash_post >/dev/null 2>&1
-
    #TUN
    ip route del default dev utun table "$PROXY_ROUTE_TABLE" >/dev/null 2>&1
    ip rule del fwmark "$PROXY_FWMARK" table "$PROXY_ROUTE_TABLE" >/dev/null 2>&1
    ip link set dev utun down >/dev/null 2>&1
    ip tuntap del utun mode tun >/dev/null 2>&1
-
-   iptables -D FORWARD -o utun -j ACCEPT >/dev/null 2>&1
-   iptables -t mangle -D OUTPUT -j openclash_output >/dev/null 2>&1
-   iptables -t mangle -D PREROUTING -j openclash >/dev/null 2>&1
-   iptables -t mangle -D PREROUTING -p udp -j openclash >/dev/null 2>&1
-   iptables -t mangle -D PREROUTING -p tcp --dport 53 -j openclash_dns_hijack >/dev/null 2>&1
-   iptables -t mangle -F openclash >/dev/null 2>&1
-   iptables -t mangle -X openclash >/dev/null 2>&1
-   iptables -t mangle -F openclash_dns_hijack >/dev/null 2>&1
-   iptables -t mangle -X openclash_dns_hijack >/dev/null 2>&1
-   iptables -t mangle -F openclash_output >/dev/null 2>&1
-   iptables -t mangle -X openclash_output >/dev/null 2>&1
-
-   #Revert IPv6 rules
    
-   ip -6 rule del fwmark "$PROXY_FWMARK" table "$PROXY_ROUTE_TABLE" >/dev/null 2>&1
-   ip -6 route del local ::/0 dev lo table "$PROXY_ROUTE_TABLE" >/dev/null 2>&1
-
-   pre_lines=$(ip6tables -nvL PREROUTING -t mangle |sed 1,2d |sed -n '/openclash/=' 2>/dev/null |sort -rn)
-   for pre_line in $pre_lines; do
-      ip6tables -t mangle -D PREROUTING "$pre_line" >/dev/null 2>&1
-   done >/dev/null 2>&1
-
-   out_lines=$(ip6tables -nvL OUTPUT -t mangle |sed 1,2d |sed -n '/openclash/=' 2>/dev/null |sort -rn)
-   for out_line in $out_lines; do
-      ip6tables -t mangle -D OUTPUT "$out_line" >/dev/null 2>&1
+   for ipt in "iptables -nvL INPUT" "iptables -nvL FORWARD" "iptables -nvL POSTROUTING -t nat" "iptables -nvL OUTPUT -t nat" "iptables -nvL OUTPUT -t mangle" "iptables -nvL PREROUTING -t nat" "iptables -nvL PREROUTING -t mangle" "ip6tables -nvL PREROUTING -t mangle" "ip6tables -nvL OUTPUT -t mangle" "ip6tables -nvL PREROUTING -t nat" "ip6tables -nvL INPUT"; do
+      for comment in "openclash" "DNS Hijack" "OpenClash"; do
+         local lines=$($ipt |sed 1,2d |sed -n "/${comment}/=" 2>/dev/null |sort -rn)
+         if [ -n "$lines" ]; then
+            for line in $lines; do
+               $(echo "$ipt" |awk -v OFS=" " '{print $1,$4,$5}' |sed 's/[ ]*$//g') -D $(echo "$ipt" |awk '{print $3}') $line
+            done
+         fi
+      done
    done >/dev/null 2>&1
    
-   pre_lines=$(ip6tables -nvL PREROUTING -t nat |sed 1,2d |sed -n '/DNS Hijack/=' 2>/dev/null |sort -rn)
-   for pre_line in $pre_lines; do
-      ip6tables -t nat -D PREROUTING "$pre_line" >/dev/null 2>&1
+   for chain in "openclash" "openclash_output" "openclash_post" "openclash_dns_hijack"; do
+      iptables -t nat -F $chain
+      iptables -t nat -X $chain
+      iptables -t mangle -F $chain
+      iptables -t mangle -X $chain
+      ip6tables -t mangle -F $chain
+      ip6tables -t mangle -X $chain
    done >/dev/null 2>&1
-   
-   ip6tables -t nat -D PREROUTING -p tcp -d 2001:4860:4860::8888 --dport 53 -j ACCEPT >/dev/null 2>&1
-   ip6tables -t nat -D PREROUTING -p tcp -d 2001:4860:4860::8844 --dport 53 -j ACCEPT >/dev/null 2>&1
 
-   ip6tables -t mangle -F openclash >/dev/null 2>&1
-   ip6tables -t mangle -X openclash >/dev/null 2>&1
-   ip6tables -t mangle -F openclash_output >/dev/null 2>&1
-   ip6tables -t mangle -X openclash_output >/dev/null 2>&1
-   #quic
-	 ip6tables -D INPUT -p udp --dport 443 -m comment --comment "OpenClash QUIC REJECT" -m set ! --match-set china_ip6_route dst -j REJECT >/dev/null 2>&1
-   
    ipset destroy localnetwork6 >/dev/null 2>&1
    ipset destroy china_ip6_route >/dev/null 2>&1
    ipset destroy lan_ac_white_ipv6s >/dev/null 2>&1
@@ -2016,14 +1962,14 @@ start()
    add_cron
    if [ -z "$(uci -q get dhcp.lan.dhcpv6)" ] && [ "$(uci -q get openclash.config.restricted_mode)" != "1" ]; then
       LOG_OUT "OpenClash Start Successful!"
-      sleep 5
+      sleep 3
    elif [ -n "$(uci -q get dhcp.lan.dhcpv6)" ] && [ "$ipv6_enable" -eq 0 ]; then
-      LOG_OUT "Warning: OpenClash Start Successful, Please Note That Network May Abnormal With IPV6's DHCP Server"
-      sleep 5
+      LOG_OUT "Warning: OpenClash Start Successful, Please Note That Network May Abnormal With IPv6's DHCP Server"
+      sleep 3
    fi
    if [ "$(uci -q get openclash.config.restricted_mode)" = "1" ]; then
       LOG_OUT "Warning: OpenClash Start Successful With Raw Config File, Please Note That It's Restricted Mode Now"
-      sleep 5
+      sleep 3
    fi
    echo "OpenClash Already Start!"
    SLOG_CLEAN
@@ -2076,7 +2022,7 @@ stop()
       
       del_lock
       LOG_OUT "OpenClash Already Stop!"
-      sleep 5
+      sleep 3
    fi
    
    del_cron

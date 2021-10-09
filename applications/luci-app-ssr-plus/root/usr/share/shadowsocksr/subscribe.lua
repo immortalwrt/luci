@@ -260,7 +260,6 @@ local function processData(szType, content)
 		end
 	elseif szType == "sip008" then
 		result.type = v2_ss
-		result.v2ray_protocol = "shadowsocks"
 		result.server = content.server
 		result.server_port = content.server_port
 		result.password = content.password
@@ -277,7 +276,6 @@ local function processData(szType, content)
 		end
 	elseif szType == "ssd" then
 		result.type = v2_ss
-		result.v2ray_protocol = "shadowsocks"
 		result.server = content.server
 		result.server_port = content.port
 		result.password = content.password
@@ -467,7 +465,7 @@ local execute = function()
 					nodes = servers
 				-- SS SIP008 直接使用 Json 格式
 				elseif jsonParse(raw) then
-					nodes = jsonParse(raw)
+					nodes = jsonParse(raw).servers or jsonParse(raw)
 					if nodes[1].server and nodes[1].method then
 						szType = 'sip008'
 					end

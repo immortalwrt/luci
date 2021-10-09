@@ -98,10 +98,10 @@ function Request.setfilehandler(self, callback)
 			-- We're only interested in files
 			if (not value["file"]) then break end
 			-- If we were able to write to temporary file
-			if (value["fd"]) then 
+			if (value["fd"]) then
 				fd = value["fd"]
 				local eof = false
-				repeat	
+				repeat
 					filedata = fd:read(1024)
 					if (filedata:len() < 1024) then
 						eof = true
