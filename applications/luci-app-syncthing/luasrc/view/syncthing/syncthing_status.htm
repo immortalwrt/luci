@@ -1,5 +1,5 @@
 <script type="text/javascript">//<![CDATA[
-	XHR.poll(1, '<%=url([[admin]], [[services]], [[syncthing]], [[status]])%>', null,
+	XHR.poll(1, '<%=url([[admin]], [[nas]], [[syncthing]], [[status]])%>', null,
 		function (x, data) {
 			var tb = document.getElementById('syncthing_status');
 			if (data && tb) {
