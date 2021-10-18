@@ -1,22 +1,22 @@
 <script type="text/javascript">//<![CDATA[
-XHR.poll(1, '<%=url([[admin]], [[nas]], [[syncthing]], [[status]])%>', null,
-	function(x, data) {
-		var tb = document.getElementById('syncthing_status');
-		if (data && tb) {
-			if (data.running) {
-				var links = '<font color=green>Syncthing <%:RUNNING%></font><input class="cbi-button mar-10" type="button" value="<%:Open Web Interface%>" onclick="openwebui();" />';
-				tb.innerHTML = links;
-			} else {
-				tb.innerHTML = '<font color=red>Syncthing <%:NOT RUNNING%></font>';
+	XHR.poll(1, '<%=url([[admin]], [[nas]], [[syncthing]], [[status]])%>', null,
+		function (x, data) {
+			var tb = document.getElementById('syncthing_status');
+			if (data && tb) {
+				if (data.running) {
+					var links = '<em><b><font color="green">Syncthing <%:RUNNING%></font></b></em><input class="btn cbi-button mar-10" type="button" value="<%:Open Syncthing page%>" onclick="openwebui();" />';
+					tb.innerHTML = links;
+				} else {
+					tb.innerHTML = '<em><b><font color="red">Syncthing <%:NOT RUNNING%></font></b></em>';
+				}
 			}
 		}
-	}
-);
+	);
 
-function openwebui(){                                                                                                                            
-	var url = window.location.host+":<%=luci.sys.exec("uci -q get syncthing.config.port"):gsub("^%s*(.-)%s*$", "%1")%>";   
-	window.open('http://'+url,'target','');                
-};
+function openwebui(){
+	var url = window.location.host+":<%=luci.sys.exec("uci -q get syncthing.syncthing.gui_address"):match(":[0-9]+"):gsub(":", "")%>";
+	window.open('http://'+url,'target','');
+}
 //]]>
 </script>
 <style>.mar-10 {margin-left: 50px; margin-right: 10px;}</style>
