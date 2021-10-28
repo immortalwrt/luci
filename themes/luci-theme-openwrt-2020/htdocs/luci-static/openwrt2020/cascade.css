@@ -54,6 +54,10 @@ body {
 	min-width: 100%;
 }
 
+abbr[title], acronym[title] {
+	text-decoration: dotted underline;
+}
+
 /*
  * scaffholding
  */
@@ -148,7 +152,8 @@ body {
 }
 
 #mainmenu {
-	flex: 1 1 200px;
+	flex: 1 1 100px;
+	max-width: 250px;
 	background: var(--main-dark-color);
 	color: var(--main-bright-color);
 	padding: 1em;
@@ -627,6 +632,10 @@ ul > li {
 	list-style: disc;
 }
 
+p > a {
+	text-decoration: underline;
+}
+
 /*
  * widgets
  */
@@ -663,7 +672,7 @@ ul > li {
 	padding: 0;
 	text-align: center;
 	width: 100%;
-	max-width: 100px;
+	max-width: 150px;
 }
 
 .ifacebox-head {
