@@ -564,6 +564,7 @@ Start_Run() {
 		echolog "Main node:$($(first_type $type) --version 2>&1 | head -1) , $threads Threads Started!"
 		;;
 	naiveproxy)
+		[ "$(uci_get_by_type global threads 0)" == "0" ] && threads=1
 		gen_config_file $GLOBAL_SERVER $type 1 $tcp_port
 		ln_start_bin $(first_type naive) naive $tcp_config_file
 		echolog "Main node:$($(first_type naive) --version 2>&1 | head -1) , $threads Threads Started!"
