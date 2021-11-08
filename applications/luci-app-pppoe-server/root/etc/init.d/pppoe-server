@@ -96,6 +96,6 @@ stop() {
 			nums2=$(expr $nums2 - 1)
 		done
 	fi
-	ps | grep "pppd plugin rp-pppoe.so" | grep -v "grep" | awk '{print $1}' | xargs kill -9 >/dev/null 2>&1 &
+	ps | grep "pppd plugin *pppoe.so" | grep -v "grep" | awk '{print $1}' | xargs kill -9 >/dev/null 2>&1 &
 	killall -q -9 pppoe-server
 }
