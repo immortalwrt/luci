@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: LuCI\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-04-20 09:40+0200\n"
-"PO-Revision-Date: 2021-10-20 14:50+0000\n"
+"PO-Revision-Date: 2021-11-02 17:27+0000\n"
 "Last-Translator: Matthaiks <kitynska@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/openwrt/luci/pl/>"
 "\n"
@@ -186,7 +186,7 @@ msgstr "Maska sieci <abbr title=\"Internet Protocol Version 4\">IPv4</abbr>"
 msgid "<abbr title=\"Light Emitting Diode\">LED</abbr> Configuration"
 msgstr "Konfiguracja diod <abbr title=\"Light Emitting Diode\">LED</abbr>"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/leds.js:69
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/leds.js:70
 msgid "<abbr title=\"Light Emitting Diode\">LED</abbr> Name"
 msgstr "Nazwa diody <abbr title=\"Light Emitting Diode\">LED</abbr>"
 
@@ -654,17 +654,17 @@ msgstr "Dozwolone IP"
 msgid "Always"
 msgstr "Zawsze"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/none.js:5
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/none.js:6
 msgid "Always off (kernel: none)"
 msgstr "Zawsze wyłączony (kernel: brak)"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/default-on.js:6
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/default-on.js:5
 msgid "Always on (kernel: default-on)"
 msgstr "Zawsze włączony (kernel: domyślnie włączone)"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:538
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:537
 msgid "Always send DHCP Options. Sometimes needed, with e.g. PXELinux."
-msgstr ""
+msgstr "Zawsze wysyłaj opcje DHCP. Czasami potrzebne, np. z PXELinux."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:971
 msgid ""
@@ -802,9 +802,9 @@ msgstr "Anonimowy swap"
 msgid "Any zone"
 msgstr "Dowolna strefa"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:532
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:531
 msgid "Apply DHCP Options to this net. (Empty = all clients)."
-msgstr ""
+msgstr "Zastosuj opcje DHCP do tej sieci. (Puste = wszystkie klienty)."
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:119
 msgid "Apply backup?"
@@ -1588,9 +1588,9 @@ msgstr "Port DAE"
 msgid "DAE-Secret"
 msgstr "Sekret DAE"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:525
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:524
 msgid "DHCP Options"
-msgstr ""
+msgstr "Opcje DHCP"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:483
 msgid "DHCP Server"
@@ -1686,7 +1686,7 @@ msgid "DTIM Interval"
 msgstr "Interwał DTIM"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:59
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:700
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:699
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:128
 msgid "DUID"
 msgstr "DUID"
@@ -1710,7 +1710,7 @@ msgstr "Domyślne %d"
 msgid "Default router"
 msgstr "Router domyślny"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/default-on.js:11
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/none.js:12
 msgid "Default state"
 msgstr "Stan domyślny"
 
@@ -1813,7 +1813,7 @@ msgstr "Strefa docelowa"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1107
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1403
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:55
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:12
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:13
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:247
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:280
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:356
@@ -1962,11 +1962,13 @@ msgstr "Optymalizacja odległości"
 msgid "Distance to farthest network member in meters."
 msgstr "Odległość do najdalej oddalonego użytkownika sieci w metrach."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:543
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:542
 msgid ""
 "Dnsmasq instance to which this boot section is bound. If unspecified, the "
 "section is valid for all dnsmasq instances."
 msgstr ""
+"Instancja Dnsmasq, z którą powiązana jest ta sekcja startowa. Jeśli nie "
+"określono, sekcja obowiązuje dla wszystkich instancji dnsmasq."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:246
 msgid ""
@@ -2054,7 +2056,7 @@ msgstr ""
 "Czy jesteś pewien, że chcesz skasować katalog \"%s\" ze wszystkimi jego "
 "podkatalogami?"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:593
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:592
 msgid "Domain"
 msgstr "Domena"
 
@@ -2347,7 +2349,7 @@ msgstr "Włącz flagę DF (Nie fragmentuj) pakietów szyfrujących."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:480
 msgid "Enable the built-in single-instance TFTP server."
-msgstr ""
+msgstr "Włącz wbudowany jednoinstancyjny serwer TFTP."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:895
 msgid "Enable this network"
@@ -2622,11 +2624,11 @@ msgid "File with upstream resolvers."
 msgstr "Plik ze źródłowymi resolwerami."
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2832
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:507
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:506
 msgid "Filename"
 msgstr "Nazwa pliku"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:493
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:492
 msgid "Filename of the boot image advertised to clients."
 msgstr "Rozgłaszana nazwa pliku obrazu startowego do klientów."
 
@@ -2738,7 +2740,7 @@ msgstr "Trwa wgrywanie obrazu…"
 msgid "For QR-Code support please install the qrencode package!"
 msgstr "Zainstaluj pakiet qrencode do obsługi kodów QR!"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:537
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:536
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:686
 msgid "Force"
 msgstr "Wymuś"
@@ -3152,17 +3154,17 @@ msgstr "Host"
 msgid "Host expiry timeout"
 msgstr "Czas wygasania hosta"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:508
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:507
 msgid "Host requests this filename from the boot server."
-msgstr ""
+msgstr "Host żąda tej nazwy pliku z serwera startowego."
 
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pppoe.js:88
 msgid "Host-Uniq tag content"
 msgstr "Zawartość znacznika Host-Uniq"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:38
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:559
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:607
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:558
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:606
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js:54
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:87
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:134
@@ -3177,7 +3179,7 @@ msgstr "Nazwa hosta wysyłana podczas negocjacji DHCP"
 msgid "Hostnames"
 msgstr "Nazwy hostów"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:551
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:550
 msgid ""
 "Hostnames are used to bind a domain name to an IP address. This setting is "
 "redundant for hostnames already configured with static leases, but it can be "
@@ -3186,6 +3188,14 @@ msgstr ""
 "Nazwy hostów służą do powiązania nazwy domeny z adresem IP. To ustawienie "
 "jest zbędne w przypadku nazw hostów już skonfigurowanych z dzierżawami "
 "statycznymi, ale ponowne powiązanie nazwy FQDN może być przydatne."
+
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/timer.js:19
+msgid "How long (in milliseconds) the LED should be off"
+msgstr "Jak długo (w milisekundach) dioda LED powinna być wyłączona"
+
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/timer.js:13
+msgid "How long (in milliseconds) the LED should be on"
+msgstr "Jak długo (w milisekundach) dioda LED powinna być włączona"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:276
 msgid "Human-readable counters"
@@ -3224,7 +3234,7 @@ msgstr "Zestawy IP"
 msgid "IP Type"
 msgstr "Typ IP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:563
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:562
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:178
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:204
 msgid "IP address"
@@ -3240,7 +3250,7 @@ msgstr "Nieprawidłowy adres IP"
 msgid "IP address is missing"
 msgstr "Brakuje adresu IP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:589
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:588
 msgid "IP set"
 msgstr "Zestaw IP"
 
@@ -3285,7 +3295,7 @@ msgstr "Połączenie IPv4"
 
 #: modules/luci-base/htdocs/luci-static/resources/protocol/static.js:178
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:39
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:665
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:664
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:88
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:164
 msgid "IPv4 address"
@@ -3448,7 +3458,7 @@ msgstr "Trasowanie źródłowe IPv6"
 msgid "IPv6 suffix"
 msgstr "Sufiks IPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:706
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:705
 msgid "IPv6 suffix (hex)"
 msgstr "Sufiks <abbr title=\"Internet Protocol Version 6\">IPv6</abbr>(hex)"
 
@@ -3683,9 +3693,9 @@ msgstr "Ograniczenie wewnętrznego certyfikatu (Wildcard)"
 msgid "Install protocol extensions..."
 msgstr "Instaluj rozszerzenia protokołów..."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:542
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:541
 msgid "Instance"
-msgstr ""
+msgstr "Instancja"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2026
 msgid ""
@@ -4007,7 +4017,7 @@ msgstr "Poznaj trasy"
 msgid "Lease file"
 msgstr "Plik dzierżawy"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:697
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:696
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:679
 msgid "Lease time"
 msgstr "Czas dzierżawy"
@@ -4075,7 +4085,7 @@ msgstr "Agregacja połączeń (łączenie kanałów)"
 msgid "Link Monitoring"
 msgstr "Monitorowanie połączeń"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:23
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:24
 msgid "Link On"
 msgstr "Połączenie aktywne"
 
@@ -4084,7 +4094,7 @@ msgid "List of IP addresses to convert into NXDOMAIN responses."
 msgstr "Lista adresów IP do konwersji na odpowiedzi NXDOMAIN."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:296
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:581
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:580
 msgid "List of IP sets to populate with the specified domain IPs."
 msgstr ""
 "Lista zestawów adresów IP do wypełnienia określonymi adresami IP domeny."
@@ -4328,7 +4338,7 @@ msgstr "MAC VLAN"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:591
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:40
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:619
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:618
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2157
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:56
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:89
@@ -4761,7 +4771,7 @@ msgstr "Lista serwerów NTP"
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3808
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:27
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1087
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/leds.js:67
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/leds.js:68
 msgid "Name"
 msgstr "Nazwa"
 
@@ -4797,7 +4807,7 @@ msgstr "Sieć SSID"
 msgid "Network Utilities"
 msgstr "Narzędzia sieciowe"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:492
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:491
 msgid "Network boot image"
 msgstr "Sieciowy obraz startowy"
 
@@ -4828,9 +4838,9 @@ msgstr "Migracja konfiguracji sieciowej ifname"
 msgid "Network interface"
 msgstr "Interfejs sieciowy"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:531
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:530
 msgid "Network-ID"
-msgstr ""
+msgstr "Identyfikator sieci"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:706
 msgid "Never"
@@ -5104,20 +5114,20 @@ msgstr "Ukryte hasło"
 msgid "Obtain IPv6 address"
 msgstr "Uzyskaj adres IPv6"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/default-on.js:18
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/none.js:19
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:352
 msgid "Off"
 msgstr "Wyłączone"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/timer.js:15
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/timer.js:18
 msgid "Off-State Delay"
 msgstr "Zwłoka wyłączenia"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/default-on.js:18
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/none.js:19
 msgid "On"
 msgstr "Włączone"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/timer.js:11
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/timer.js:12
 msgid "On-State Delay"
 msgstr "Zwłoka połączenia"
 
@@ -5125,7 +5135,7 @@ msgstr "Zwłoka połączenia"
 msgid "On-link"
 msgstr "Trasa łącza"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:672
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:671
 msgid "One of hostname or MAC address must be specified!"
 msgstr "Nazwa hosta lub adres MAC musi być podany!"
 
@@ -5311,13 +5321,17 @@ msgstr ""
 msgid "Options"
 msgstr "Opcje"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:526
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:525
 msgid ""
 "Options for the Network-ID. (Note: needs also Network-ID.) E.g. "
 "\"<code>42,192.168.1.4</code>\" for NTP server, \"<code>3,192.168.4.4</code>"
 "\" for default route. <code>0.0.0.0</code> means \"the address of the system "
 "running dnsmasq\"."
 msgstr ""
+"Opcje identyfikatora sieci. (Uwaga: wymaga również identyfikatora sieci.) "
+"Np. \"<code>42,192.168.1.4</code>\" dla serwera NTP, \"<code>3,192.168.4.4</"
+"code>\" dla domyślnego trasowania. <code>0.0.0.0</code> oznacza \"adres "
+"systemu z uruchomionym dnsmasq\"."
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/sshkeys.js:119
 msgid "Options:"
@@ -5545,7 +5559,7 @@ msgstr "PTM/EFM (tryb transferu pakietów)"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:254
 msgid "PXE/TFTP Settings"
-msgstr ""
+msgstr "Ustawienia PXE/TFTP"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1456
 msgid "Packet Steering"
@@ -6018,7 +6032,7 @@ msgstr "Restartowanie…"
 msgid "Reboots the operating system of your device"
 msgstr "Uruchamia ponownie system na twoim urządzeniu"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:25
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:26
 msgid "Receive"
 msgstr "Odebrane"
 
@@ -6293,10 +6307,13 @@ msgstr "Wytrzymałość"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:485
 msgid ""
-"Root directory for files served via TFTP.<br><code>Enable TFTP server</code> "
-"and <code>TFTP server root</code> turn on the TFTP server and serve files "
-"from <code>TFTP server root</code>."
+"Root directory for files served via TFTP. <em>Enable TFTP server</em> and "
+"<em>TFTP server root</em> turn on the TFTP server and serve files from "
+"<em>TFTP server root</em>."
 msgstr ""
+"Katalog główny dla plików udostępnianych przez TFTP. <em>Włącz serwer TFTP</"
+"em> oraz <em>katalog główny serwera TFTP</em> włącz serwer TFTP i "
+"udostępniaj pliki z <em>katalogu głównego serwera TFTP</em>."
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:297
 msgid "Root preparation"
@@ -6517,13 +6534,13 @@ msgstr ""
 msgid "Send the hostname of this device"
 msgstr "Wysyłaj nazwę hosta tego urządzenia"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:519
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:518
 msgid "Server address"
-msgstr ""
+msgstr "Adres serwera"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:513
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:512
 msgid "Server name"
-msgstr ""
+msgstr "Nazwa serwera"
 
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pppoe.js:50
 msgid "Service Name"
@@ -6751,11 +6768,13 @@ msgstr "Źródło"
 msgid "Source interface"
 msgstr "Interfejs źródłowy"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:500
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:499
 msgid ""
 "Special <abbr title=\"Preboot eXecution Environment\">PXE</abbr> boot "
 "options for Dnsmasq."
 msgstr ""
+"Specjalne opcje startowe <abbr title=\"Preboot eXecution Environment\">PXE</"
+"abbr> dla Dnsmasq."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:891
 msgid ""
@@ -7119,7 +7138,7 @@ msgstr "Dzierżawy statyczne"
 msgid "Static address"
 msgstr "Stały adres"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:598
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:597
 msgid ""
 "Static leases are used to assign fixed IP addresses and symbolic hostnames "
 "to DHCP clients. They are also required for non-dynamic interface "
@@ -7372,17 +7391,17 @@ msgstr ""
 "Konfiguracja aktualizacji punktu końcowego HE.net uległa zmianie, musisz "
 "teraz użyć zwykłej nazwy użytkownika zamiast ID użytkownika!"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:681
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:680
 msgid "The IP address %h is already used by another static lease"
 msgstr "Adres IP %h jest już używany przez inną statyczną dzierżawę"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:690
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:689
 msgid "The IP address is outside of any DHCP pool address range"
 msgstr "Adres IP jest poza zakresem adresów puli DHCP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:520
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:519
 msgid "The IP address of the boot server"
-msgstr ""
+msgstr "Adres IP serwera startowego"
 
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:40
 msgid "The IPv4 address or the fully-qualified domain name of the remote end."
@@ -7413,6 +7432,29 @@ msgid ""
 "The IPv6 prefix assigned to the provider, usually ends with <code>::</code>"
 msgstr ""
 "Prefiks IPv6 przypisany do dostawcy, zazwyczaj kończy się <code>::</code>"
+
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/timer.js:7
+msgid "The LED blinks with the configured on/off frequency"
+msgstr "Dioda LED miga ze skonfigurowaną częstotliwością włączania/wyłączania"
+
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/heartbeat.js:6
+msgid "The LED flashes to simulate actual heart beat."
+msgstr "Dioda LED miga, symulując rzeczywiste bicie serca."
+
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:8
+msgid ""
+"The LED flashes with link status and activity on the configured interface."
+msgstr ""
+"Dioda LED miga w zależności od stanu łącza i aktywności skonfigurowanego "
+"interfejsu."
+
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/none.js:7
+msgid "The LED is always in default state off."
+msgstr "Dioda LED jest zawsze domyślnie wyłączona."
+
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/default-on.js:6
+msgid "The LED is always in default state on."
+msgstr "Dioda LED jest zawsze domyślnie włączona."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:222
 msgid ""
@@ -7520,6 +7562,12 @@ msgstr ""
 msgid "The following rules are currently active on this system."
 msgstr "Następujące zasady są obecnie aktywne w tym systemie."
 
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/heartbeat.js:7
+msgid "The frequency is in direct proportion to 1-minute average CPU load."
+msgstr ""
+"Częstotliwość jest wprost proporcjonalna do 1-minutowego średniego "
+"obciążenia procesora."
+
 #: modules/luci-base/htdocs/luci-static/resources/protocol/static.js:154
 msgid "The gateway address must not be a local IP address"
 msgstr "Adres bramki nie może być lokalnym adresem IP"
@@ -7536,9 +7584,9 @@ msgstr ""
 "Podany klucz publiczny SSH jest nieprawidłowy. Podaj odpowiedni publiczny "
 "RSA lub klucze ECDSA."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:514
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:513
 msgid "The hostname of the boot server"
-msgstr ""
+msgstr "Nazwa hosta serwera startowego"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1093
 msgid "The interface name is already used"
@@ -7744,8 +7792,8 @@ msgstr ""
 msgid "The value is overridden by configuration. Original: %s"
 msgstr "Wartość jest zastępowana przez konfigurację. Oryginał: %s"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:737
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:769
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:736
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:768
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:122
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:171
 msgid "There are no active leases"
@@ -7943,7 +7991,7 @@ msgstr "Klasa ruchu"
 msgid "Transfer"
 msgstr "Transfer"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:24
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:25
 msgid "Transmit"
 msgstr "Nadawanie"
 
@@ -7951,11 +7999,11 @@ msgstr "Nadawanie"
 msgid "Transmit Hash Policy"
 msgstr "Zasady przesyłania skrótów"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/leds.js:74
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/leds.js:75
 msgid "Trigger"
 msgstr "Wyzwalacz"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:19
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:20
 msgid "Trigger Mode"
 msgstr "Rodzaj wyzwalacza"
 
@@ -8343,7 +8391,7 @@ msgstr "Użyj certyfikatów systemowych"
 msgid "Use system certificates for inner-tunnel"
 msgstr "Użyj certyfikatów systemowych dla tunelu wewnętrznego"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:599
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:598
 msgid ""
 "Use the <em>Add</em> Button to add a new lease entry. The <em>MAC address</"
 "em> identifies the host, the <em>IPv4 address</em> specifies the fixed "
@@ -8884,8 +8932,8 @@ msgstr "np.: --proxy 10.10.10.10"
 msgid "e.g: dump"
 msgstr "np: dump"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:726
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:747
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:725
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:746
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:101
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:140
 msgid "expired"
@@ -9082,8 +9130,8 @@ msgid "unknown"
 msgstr "nieznane"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:455
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:724
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:745
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:723
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:744
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:99
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:138
 msgid "unlimited"
