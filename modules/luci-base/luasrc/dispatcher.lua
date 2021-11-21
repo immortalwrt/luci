@@ -225,6 +225,11 @@ function dispatch(request)
 				lang = lpat
 				break
 			end
+			lpat = lpat and lpat:lower()
+			if conf.languages[lpat] then
+				lang = lpat
+				break
+			end
 		end
 	end
 	if lang == "auto" then
