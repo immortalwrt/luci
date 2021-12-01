@@ -1,7 +1,7 @@
 local e = {}
 local o = require "luci.dispatcher"
 local a = luci.util.execi(
-              "/bin/busybox top -bn1 | grep 'pppd plugin rp-pppoe.so' | grep -v 'grep'")
+              "/bin/busybox top -bn1 | grep 'pppd plugin *pppoe.so' | grep -v 'grep'")
 for t in a do
     local a, n, h, s, o = t:match(
                               "^ *(%d+) +(%d+) +.+rp_pppoe_sess 1:+([A-Fa-f0-9]+:[A-Fa-f0-9]+:[A-Fa-f0-9]+:[A-Fa-f0-9]+:[A-Fa-f0-9]+:[A-Fa-f0-9]+[A-Fa-f0-9]) +.+options +(%S.-%S)%:(%S.-%S) ")
