@@ -269,7 +269,7 @@ body {
 	line-height: 18px;
 	color: var(--text-color-high);
 	padding: 5px;
-	height: 100%;
+	min-height: 100%;
 	display: flex;
 	flex-direction: column;
 }
@@ -502,11 +502,6 @@ pre {
 /* Forms.less
  * Base styles for various input types, form layouts, and states
  * ------------------------------------------------------------- */
-form,
-.cbi-value {
-	margin-bottom: 18px;
-}
-
 fieldset {
 	margin-bottom: 9px;
 	padding-top: 9px;
@@ -520,11 +515,6 @@ fieldset legend {
 	padding-top: 20px;
 }
 
-form .cbi-tab-descr {
-	line-height: 18px;
-	margin-bottom: 18px;
-}
-
 label,
 input,
 button,
@@ -536,19 +526,28 @@ textarea {
 	line-height: normal;
 }
 
-form .input,
+.cbi-value {
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 18px;
+}
+
 .cbi-value-field {
-	margin-left: 200px;
+	margin-left: 20px;
+	flex: 1;
 }
 
 .cbi-value label.cbi-value-title {
 	padding-top: 6px;
 	font-size: 13px;
 	line-height: 18px;
-	float: left;
-	width: 180px;
+	flex: 0 0 180px;
 	text-align: right;
 	color: var(--text-color-high);
+}
+
+.cbi-value > .cbi-tblsection {
+	width: 100%;
 }
 
 label > input[type="checkbox"],
@@ -1243,8 +1242,8 @@ a.menu:after {
 	font-weight: bold;
 }
 
-.cbi-tabcontainer > fieldset.cbi-section[id] > legend {
-	display: none;
+.cbi-tab-descr {
+	margin: -9px 0 18px 0;
 }
 
 .tabs .menu-dropdown, .tabs .dropdown-menu {
@@ -1774,7 +1773,7 @@ select + .cbi-button,
 	height: 100%;
 	transition: width .25s ease-in;
 	width: 0%;
-	border-radius: 3px;
+	border-radius: 2px;
 }
 
 .cbi-progressbar::before {
@@ -2023,6 +2022,7 @@ table table td,
 .td.cbi-section-actions {
 	text-align: right;
 	vertical-align: middle;
+	width: 15%;
 }
 
 .td.cbi-section-actions > * {
@@ -2103,7 +2103,7 @@ table table td,
 
 .ifacebox .ifacebox-head {
 	border-bottom: 1px solid var(--border-color-high);
-	border-radius: 4px 4px 0 0;
+	border-radius: 3px 3px 0 0;
 	padding: 2px;
 	background: #eee;
 	color: var(--text-color-high);
@@ -2354,10 +2354,6 @@ div.cbi-value var.cbi-tooltip-container,
 
 #applyreboot-section {
 	line-height: 300%;
-}
-
-[data-page="admin-network-dhcp"] [data-name="ip"] {
-	width: 15%;
 }
 
 @keyframes flash {

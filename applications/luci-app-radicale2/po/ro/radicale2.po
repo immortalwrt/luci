@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: luci-app-radicale 2\n"
-"PO-Revision-Date: 2021-11-17 19:57+0000\n"
+"PO-Revision-Date: 2021-11-30 13:10+0000\n"
 "Last-Translator: Simona Iacob <s@zp1.net>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsradicale2/ro/>\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 4.9.1-dev\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:8
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/logging.lua:4
@@ -120,7 +120,7 @@ msgstr "Codificare pentru stocarea colecțiilor locale"
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:110
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:155
 msgid "Encrypted Password"
-msgstr ""
+msgstr "Parolă criptată"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:29
 msgid "Encryption"
@@ -128,7 +128,7 @@ msgstr "Criptare"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:23
 msgid "Filename"
-msgstr ""
+msgstr "Numele fișierului"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/storage.lua:19
 msgid "Folder"
@@ -136,11 +136,11 @@ msgstr "Dosar"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/storage.lua:19
 msgid "Folder in which to store collections"
-msgstr ""
+msgstr "Dosarul în care se stochează colecțiile"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:70
 msgid "For verifying client certificates"
-msgstr ""
+msgstr "Pentru verificarea certificatelor clienților"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:29
 msgid "General Settings"
@@ -154,42 +154,47 @@ msgid ""
 "plaintext in a field that will appear on this page if python3-passlib is "
 "installed."
 msgstr ""
+"Generați acest câmp utilizând un generator pentru fișiere de autentificare "
+"de tip Apache htpasswd (pentru formatul hash pe care l-ați ales mai sus) sau "
+"instalați python3-passlib pentru a activa capacitatea de a crea hash-ul prin "
+"introducerea textului în clar într-un câmp care va apărea pe această pagină "
+"dacă python3-passlib este instalat."
 
 #: applications/luci-app-radicale2/luasrc/view/cbi/raduigo.htm:24
 msgid "Go to Radicale 2.x Web UI"
-msgstr ""
+msgstr "Mergeți la Radicale 2.x Web UI"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:14
 msgid "Go to Radicale v2 Web UI"
-msgstr ""
+msgstr "Mergeți la Radicale v2 Web UI"
 
 #: applications/luci-app-radicale2/root/usr/share/rpcd/acl.d/luci-app-radicale2.json:3
 msgid "Grant UCI access for luci-app-radicale2"
-msgstr ""
+msgstr "Acordă acces la UCI pentru luci-app-radicale2"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:109
 msgid "HTTP(S) Basic Authentication Realm"
-msgstr ""
+msgstr "Autentificare HTTP(S) Basic Authentication Realm"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:124
 msgid "HTTP(S) Headers"
-msgstr ""
+msgstr "Antetele HTTP(S)"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:32
 msgid "HTTP(S) Listeners (address:port)"
-msgstr ""
+msgstr "Ascultători HTTP(S) (adresă:port)"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:128
 msgid "Header: X-Access-Control-Allow-Origin"
-msgstr ""
+msgstr "Antet: X-Access-Control-Allow-Origin"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:124
 msgid "Headers"
-msgstr ""
+msgstr "Anteturi"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/storage.lua:44
 msgid "Hook"
-msgstr ""
+msgstr "Cârlig"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:110
 msgid ""
@@ -198,57 +203,64 @@ msgid ""
 "the existing hash (you can also put your own hash value for the type of hash "
 "listed above)."
 msgstr ""
+"Dacă \"Plaintext Password\" este completat și se potrivește cu \"Confirm "
+"Plaintext Password\", atunci acest câmp devine hash-ul acelei parole; în caz "
+"contrar, acest câmp rămâne hash-ul existent (puteți, de asemenea, să "
+"introduceți propria valoare hash pentru tipul de hash enumerat mai sus)."
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/logging.lua:30
 msgid "Include full environment in logs"
-msgstr ""
+msgstr "Includeți mediul complet în jurnale"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:46
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:48
 msgid "Insecure hashes"
-msgstr ""
+msgstr "Hașuri nesigure"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:102
 msgid "Install package python3-openssl to support SSL connections"
-msgstr ""
+msgstr "Instalați pachetul python3-openssl pentru a suporta conexiuni SSL"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:46
 msgid "Install python3-passlib and python3-bcrypt to enable a secure hash"
 msgstr ""
+"Instalați python3-passlib și python3-bcrypt pentru a activa un hash securizat"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/logging.lua:12
 msgid ""
 "Log configuration file (no file means default procd which ends up in syslog"
 msgstr ""
+"Fișier de configurare a jurnalului (niciun fișier înseamnă procd implicit "
+"care ajunge în syslog"
 
 #: applications/luci-app-radicale2/luasrc/controller/radicale2.lua:29
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/logging.lua:6
 msgid "Logging"
-msgstr ""
+msgstr "Înregistrare"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/logging.lua:12
 msgid "Logging File"
-msgstr ""
+msgstr "Fișier de jurnalizare"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:105
 msgid "Lookup reverse DNS for clients for logging"
-msgstr ""
+msgstr "Căutați DNS invers pentru clienți pentru logare"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/logging.lua:34
 msgid "Mask Passwords"
-msgstr ""
+msgstr "Parole de mascare"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:36
 msgid "Max Connections"
-msgstr ""
+msgstr "Conexiuni Max"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:42
 msgid "Max Content Length"
-msgstr ""
+msgstr "Lungimea maximă a conținutului"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/storage.lua:31
 msgid "Max Sync Token Age"
-msgstr ""
+msgstr "Vârsta maximă a jetoanelor de sincronizare"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:36
 msgid "Maximum number of simultaneous connections"
@@ -290,7 +302,7 @@ msgstr ""
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:66
 msgid "Private Key"
-msgstr ""
+msgstr "Cheie privată"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:18
 msgid "REMOTE_USER from web server"
@@ -378,7 +390,7 @@ msgstr ""
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:52
 msgid "SSL"
-msgstr ""
+msgstr "SSL"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:102
 msgid "SSL not available"
@@ -403,7 +415,7 @@ msgstr ""
 #: applications/luci-app-radicale2/luasrc/controller/radicale2.lua:17
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:18
 msgid "Server Settings"
-msgstr ""
+msgstr "Setări server"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:47
 msgid "Socket timeout (seconds)"
@@ -426,6 +438,8 @@ msgstr ""
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/server.lua:85
 msgid "This permanently deletes the cert, key, and configuration to use same."
 msgstr ""
+"Acest lucru șterge definitiv certificatul, cheia și configurația pentru "
+"utilizarea acestora."
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:182
 msgid "This permanently deletes the rights file and configuration to use same."
@@ -445,7 +459,7 @@ msgstr ""
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:66
 msgid "User"
-msgstr ""
+msgstr "Utilizator"
 
 #: applications/luci-app-radicale2/luasrc/model/cbi/radicale2/auth.lua:162
 msgid "User-based ACL Settings"

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-11-17 19:57+0000\n"
+"PO-Revision-Date: 2021-11-30 13:27+0000\n"
 "Last-Translator: Simona Iacob <s@zp1.net>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsdnscrypt-proxy/ro/>\n"
@@ -9,7 +9,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 4.9.1-dev\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:139
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:161
@@ -129,7 +129,7 @@ msgstr "Suma de verificare a fișierelor"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:106
 msgid "File Date"
-msgstr ""
+msgstr "Data fișierului"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:60
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:147
@@ -137,14 +137,16 @@ msgid ""
 "For further information <a href=\"%s\" target=\"_blank\">see the wiki "
 "online</a>"
 msgstr ""
+"Pentru mai multe informații <a href=\"%s\" target=\"_blank\">vezi wiki "
+"online</a>"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:97
 msgid "General Options"
-msgstr ""
+msgstr "Opțiuni generale"
 
 #: applications/luci-app-dnscrypt-proxy/root/usr/share/rpcd/acl.d/luci-app-dnscrypt-proxy.json:3
 msgid "Grant UCI access for luci-app-dnscrypt-proxy"
-msgstr ""
+msgstr "Acordarea accesului UCI pentru luci-app-dnscrypt-proxy"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:189
 msgid "IP Address"
@@ -153,6 +155,8 @@ msgstr "Adresa IP"
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:221
 msgid "Improve privacy by using an ephemeral public key for each query."
 msgstr ""
+"Îmbunătățirea confidențialității prin utilizarea unei chei publice efemere "
+"pentru fiecare interogare."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/cfg_dnsmasq_tab.lua:9
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/cfg_resolvcrypt_tab.lua:9
@@ -162,36 +166,44 @@ msgstr "Fișierul de intrare nu a fost găsit, vă rugăm verificaţi configura�
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:185
 msgid "Instance Options"
-msgstr ""
+msgstr "Opțiuni de instanță"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:239
 msgid "Local Cache"
-msgstr ""
+msgstr "Memoria cache locală"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:229
 msgid ""
 "Local blacklists allow you to block abuse sites by domains or ip addresses."
 msgstr ""
+"Listele negre locale vă permit să blocați site-urile abuzive în funcție de "
+"domenii sau adrese IP."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:246
 msgid ""
 "Log the received DNS queries to a file, so you can watch in real-time what "
 "is happening on the network."
 msgstr ""
+"Înregistrați interogările DNS primite într-un fișier, astfel încât să puteți "
+"urmări în timp real ce se întâmplă în rețea."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:201
 msgid ""
 "Name of the remote DNS service for resolving queries incl. Location, DNSSEC- "
 "and NOLOG-Flag."
 msgstr ""
+"Numele serviciului DNS la distanță pentru rezolvarea interogărilor, inclusiv "
+"Location, DNSSEC- și NOLOG-Flag."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:137
 msgid "No SSL support available.<br />"
-msgstr ""
+msgstr "Nu este disponibil suport SSL.<br />"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:21
 msgid "No default resolver list and no SSL support available.<br />"
 msgstr ""
+"Nu există o listă de rezolvare implicită și nu este disponibil suport "
+"SSL.<br />"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/controller/dnscrypt-proxy.lua:19
 msgid "Overview"
@@ -199,25 +211,31 @@ msgstr "Prezentare generală"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:160
 msgid "Please edit the file manually in the 'Advanced' section."
-msgstr ""
+msgstr "Vă rugăm să editați manual fișierul în secțiunea 'Advanced'."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:138
 msgid ""
 "Please install a 'libustream-ssl' library to download the current resolver "
 "list from 'github.com/dyne/dnscrypt-proxy'."
 msgstr ""
+"Vă rugăm să instalați o bibliotecă \"libustream-ssl\" pentru a descărca "
+"lista curentă de rezolvare din 'github.com/dyne/dnscrypt-proxy'."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:22
 msgid ""
 "Please install a resolver list to '/usr/share/dnscrypt-proxy/dnscrypt-"
 "resolvers.csv' to use this package."
 msgstr ""
+"Vă rugăm să instalați o listă de rezolvatori în '/usr/share/dnscrypt-proxy/"
+"dnscrypt-resolvers.csv' pentru a utiliza acest pachet."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:259
 msgid ""
 "Please note: This may change the values for 'noresolv', 'resolvfile', "
 "'allservers' and the list 'server' settings."
 msgstr ""
+"Vă rugăm să rețineți: Acest lucru poate modifica valorile pentru setările "
+"\"noresolv\", \"resolvfile\", \"allservers\" și lista \"server\"."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:194
 msgid "Port"
@@ -225,16 +243,16 @@ msgstr "Port"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:125
 msgid "Refresh List"
-msgstr ""
+msgstr "Actualizați lista"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:123
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:136
 msgid "Refresh Resolver List"
-msgstr ""
+msgstr "Actualizarea listei de rezolvare"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:200
 msgid "Resolver (LOC/SEC/NOLOG)"
-msgstr ""
+msgstr "Rezolvator (LOC/SEC/NOLOG)"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/cfg_dnsmasq_tab.lua:17
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/cfg_resolvcrypt_tab.lua:17
@@ -244,7 +262,7 @@ msgstr "Salvați"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:216
 msgid "Specify a non-default Resolver List."
-msgstr ""
+msgstr "Specificați o listă de rezolvare care nu este implicită."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:168
 msgid "Startup Trigger"
@@ -252,23 +270,28 @@ msgstr "Declanșator la pornire"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:159
 msgid "The config file '/etc/resolv-crypt.conf' already exist.<br />"
-msgstr ""
+msgstr "Fișierul de configurare '/etc/resolv-crypt.conf' există deja.<br />"
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:195
 msgid "The listening port for DNS queries."
-msgstr ""
+msgstr "Portul de ascultare pentru interogările DNS."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:190
 msgid ""
 "The local IPv4 or IPv6 address. The latter one should be specified within "
 "brackets, e.g. '[::1]'."
 msgstr ""
+"Adresa IPv4 sau IPv6 locală. Aceasta din urmă trebuie specificată între "
+"paranteze, de exemplu \"[::1]'."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/overview_tab.lua:230
 msgid ""
 "The value for this property is the blocklist type and path to the file, e."
 "g.'domains:/path/to/dbl.txt' or 'ips:/path/to/ipbl.txt'."
 msgstr ""
+"Valoarea pentru această proprietate este tipul de listă de blocuri și calea "
+"către fișier, de exemplu \"domains:/path/to/dbl.txt\" sau \"ips:/path/to/ipbl"
+".txt\"."
 
 #: applications/luci-app-dnscrypt-proxy/luasrc/model/cbi/dnscrypt-proxy/configuration_tab.lua:21
 msgid ""

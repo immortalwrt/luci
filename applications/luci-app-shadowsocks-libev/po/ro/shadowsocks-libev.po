@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-11-17 19:57+0000\n"
+"PO-Revision-Date: 2021-11-30 13:27+0000\n"
 "Last-Translator: Simona Iacob <s@zp1.net>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsshadowsocks-libev/ro/>\n"
@@ -9,7 +9,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 4.9.1-dev\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/instances.js:45
 msgid "-- instance type --"
@@ -133,28 +133,35 @@ msgstr "Argumente suplimentare"
 msgid ""
 "File containing ip/net for the purposes as with <em>Dst ip/net bypass</em>"
 msgstr ""
+"Fișier care conține ip/net în scopuri similare cu <em>Dst ip/net bypass</em>"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:100
 msgid ""
 "File containing ip/net for the purposes as with <em>Dst ip/net forward</em>"
 msgstr ""
+"Fișier care conține ip/net în scopuri similare cu <em>Dst ip/net forward</em>"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:119
 msgid "Forward recentrst"
-msgstr ""
+msgstr "Recentrare înainte"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:120
 msgid ""
 "Forward those packets whose dst have recently sent to us multiple tcp-rst"
 msgstr ""
+"Redirecționează acele pachete ale căror dst ne-au trimis recent mai multe "
+"tcp-rst"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:91
 msgid "Forward through ss-redir for packets with dst address in this list"
 msgstr ""
+"Redirecționare prin ss-redir pentru pachetele cu adresa dst din această listă"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:77
 msgid "Forward through ss-redir for packets with src address in this list"
 msgstr ""
+"Redirecționează prin ss-redir pentru pachetele cu adresa src din această "
+"listă"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/instances.js:77
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:42
@@ -164,32 +171,34 @@ msgstr "Setări generale"
 #: applications/luci-app-shadowsocks-libev/root/usr/share/rpcd/acl.d/luci-app-shadowsocks-libev.json:3
 msgid "Grant service list access to LuCI app shadowsocks-libev"
 msgstr ""
+"Acordarea accesului la lista de servicii pentru aplicația LuCI shadowsocks-"
+"libev"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:192
 msgid "IPv6 First"
-msgstr ""
+msgstr "IPv6 mai întâi"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/servers.js:51
 msgid "Import"
-msgstr ""
+msgstr "Importați"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/servers.js:22
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/servers.js:59
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/servers.js:61
 msgid "Import Links"
-msgstr ""
+msgstr "Linkuri de import"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:63
 msgid "Ingress interfaces"
-msgstr ""
+msgstr "Interfețe de intrare"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:249
 msgid "Install package"
-msgstr ""
+msgstr "Instalarea pachetului"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:112
 msgid "Install package iptables-mod-conntrack-extra"
-msgstr ""
+msgstr "Instalați pachetul iptables-mod-conntrack-extra"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/instances.js:27
 msgid ""
@@ -197,10 +206,14 @@ msgid ""
 "tunnel, ss-server, etc. To enable an instance it is required to enable both "
 "the instance itself and the remote server it refers to."
 msgstr ""
+"Instanțe ale componentelor shadowsocks-libev, de exemplu, ss-local, ss-"
+"redir, ss-tunnel, ss-server etc. Pentru a activa o instanță este necesar să "
+"se activeze atât instanța în sine, cât și serverul la distanță la care se "
+"referă."
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:169
 msgid "Key (base64)"
-msgstr ""
+msgstr "Cheie (base64)"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/instances.js:93
 msgid "Local IPv4 address"
@@ -213,20 +226,20 @@ msgstr "Adresa IPv6 locală"
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/instances.js:26
 #: applications/luci-app-shadowsocks-libev/root/usr/share/luci/menu.d/luci-app-shadowsocks-libev.json:14
 msgid "Local Instances"
-msgstr ""
+msgstr "Instanțe locale"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:127
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/instances.js:88
 msgid "Local address"
-msgstr ""
+msgstr "Adresa locală"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:131
 msgid "Local port"
-msgstr ""
+msgstr "Port local"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:59
 msgid "Local-out default"
-msgstr ""
+msgstr "Local-out implicit"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:185
 msgid "MTU"
@@ -234,11 +247,11 @@ msgstr "MTU"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:160
 msgid "Method"
-msgstr ""
+msgstr "Metoda"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:180
 msgid "Mode of operation"
-msgstr ""
+msgstr "Modul de funcționare"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:32
 msgid ""
@@ -249,10 +262,18 @@ msgid ""
 "give the default action to be taken. If the prior check results in action "
 "<em>checkdst</em>, packets will continue to have their dst addresses checked."
 msgstr ""
+"În această pagină puteți configura modul în care traficul va fi "
+"redirecționat către instanțele ss-redir. Dacă este activată, pachetelor li "
+"se vor verifica mai întâi adresele ip src în funcție de <em>Src ip/net "
+"bypass</em>, <em>Src ip/net forward</em>, <em>Src ip/net checkdst</em>, iar "
+"dacă niciuna nu se potrivește <em>Src default</em> va oferi acțiunea "
+"implicită care trebuie luată. Dacă verificarea anterioară are ca rezultat "
+"acțiunea <em>checkdst</em>, pachetele vor continua să aibă adresele dst "
+"verificate."
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:64
 msgid "Only apply rules on packets from these network interfaces"
-msgstr ""
+msgstr "Aplicați regulile numai pe pachetele de la aceste interfețe de rețea"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/instances.js:115
 msgid "Overview"
@@ -260,11 +281,11 @@ msgstr "Prezentare generală"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:248
 msgid "Package is not installed"
-msgstr ""
+msgstr "Pachetul nu este instalat"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/rules.js:70
 msgid "Passes additional arguments to iptables. Use with care!"
-msgstr ""
+msgstr "Transmite argumente suplimentare către iptables. Folosiți cu grijă!"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:165
 msgid "Password"
@@ -302,11 +323,11 @@ msgstr ""
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/view/shadowsocks-libev/instances.js:127
 msgid "Running"
-msgstr ""
+msgstr "Rulare"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:152
 msgid "Server"
-msgstr ""
+msgstr "Serverul"
 
 #: applications/luci-app-shadowsocks-libev/htdocs/luci-static/resources/shadowsocks-libev.js:156
 msgid "Server port"
