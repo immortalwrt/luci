@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-11-30 13:10+0000\n"
+"PO-Revision-Date: 2021-12-07 19:35+0000\n"
 "Last-Translator: Simona Iacob <s@zp1.net>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsfrpc/ro/>\n"
@@ -312,15 +312,15 @@ msgstr "RULARE"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:50
 msgid "Remote port"
-msgstr ""
+msgstr "Port la distanță"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:14
 msgid "Respawn when crashed"
-msgstr "Respawn atunci când se prăbușește"
+msgstr "Respawn când crapă"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:67
 msgid "Role"
-msgstr ""
+msgstr "Rol"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:13
 msgid "Run daemon as group"
@@ -332,36 +332,40 @@ msgstr "Rulați daemonul ca utilizator"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:20
 msgid "Server address"
-msgstr ""
+msgstr "Adresa serverului"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:21
 msgid "Server port"
-msgstr ""
+msgstr "Port de server"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:20
 msgid ""
 "ServerAddr specifies the address of the server to connect to.<br />By "
 "default, this value is \"0.0.0.0\"."
 msgstr ""
+"ServerAddr specifică adresa serverului la care trebuie să se conecteze.<br /"
+">În mod implicit, această valoare este \"0.0.0.0\"."
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:21
 msgid ""
 "ServerPort specifies the port to connect to the server on.<br />By default, "
 "this value is 7000."
 msgstr ""
+"ServerPort specifică portul de conectare la server.<br />În mod implicit, "
+"această valoare este 7000."
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:68
 msgid "Sk"
-msgstr ""
+msgstr "Sk"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:177
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:181
 msgid "Startup Settings"
-msgstr ""
+msgstr "Setări de pornire"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:55
 msgid "Subdomain"
-msgstr ""
+msgstr "Subdomeniu"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:31
 msgid "TCP mux"
@@ -369,13 +373,15 @@ msgstr "Mux TCP"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:35
 msgid "TLS"
-msgstr ""
+msgstr "TLS"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:35
 msgid ""
 "TLSEnable specifies whether or not TLS should be used when communicating "
 "with the server."
 msgstr ""
+"TLSEnable specifică dacă TLS trebuie să fie utilizat sau nu atunci când se "
+"comunică cu serverul."
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:31
 msgid ""
@@ -384,16 +390,22 @@ msgid ""
 "must have TCP multiplexing enabled as well.<br />By default, this value is "
 "true."
 msgstr ""
+"TcpMux comută multiplexarea fluxurilor TCP. Acest lucru permite ca mai multe "
+"cereri de la un client să partajeze o singură conexiune TCP. Dacă această "
+"valoare este adevărată, serverul trebuie să aibă activată și multiplexarea "
+"TCP.<br />În mod implicit, această valoare este adevărată."
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:38
 msgid ""
 "This list can be used to specify some additional parameters which have not "
 "been included in this LuCI."
 msgstr ""
+"Această listă poate fi utilizată pentru a specifica anumiți parametri "
+"suplimentari care nu au fost incluși în acest LuCI."
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:25
 msgid "Token"
-msgstr ""
+msgstr "Token"
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:25
 msgid ""
@@ -401,12 +413,18 @@ msgid ""
 "the server. The server must have a matching token for authorization to "
 "succeed. <br />By default, this value is \"\"."
 msgstr ""
+"Token specifică tokenul de autorizare utilizat pentru a crea cheile care "
+"urmează să fie trimise către server. Serverul trebuie să aibă un token "
+"corespunzător pentru ca autorizarea să reușească. <br />În mod implicit, "
+"această valoare este \"\"."
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:44
 msgid ""
 "UseCompression controls whether or not communication with the server will be "
 "compressed.<br />By default, this value is false."
 msgstr ""
+"UseCompression controlează dacă comunicarea cu serverul va fi sau nu "
+"comprimată.<br />În mod implicit, această valoare este falsă."
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:43
 msgid ""
@@ -414,6 +432,10 @@ msgid ""
 "encrypted. Encryption is done using the tokens supplied in the server and "
 "client configuration.<br />By default, this value is false."
 msgstr ""
+"UseEncryption controlează dacă comunicarea cu serverul va fi sau nu "
+"criptată. Criptarea se face cu ajutorul token-urilor furnizate în "
+"configurația serverului și a clientului.<br />În mod implicit, această "
+"valoare este falsă."
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:32
 msgid "User"
@@ -425,10 +447,14 @@ msgid ""
 "clients. If this value is not \"\", proxy names will automatically be "
 "changed to \"{user}.{proxy_name}\".<br />By default, this value is \"\"."
 msgstr ""
+"Utilizatorul specifică un prefix pentru numele proxy pentru a le distinge de "
+"alți clienți. Dacă această valoare nu este \"\", numele proxy-ului va fi "
+"schimbat automat în \"{utilizator}.{nume_proxy}\".<br />În mod implicit, "
+"această valoare este \"\"."
 
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:141
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:143
 #: applications/luci-app-frpc/htdocs/luci-static/resources/view/frpc.js:153
 #: applications/luci-app-frpc/root/usr/share/luci/menu.d/luci-app-frpc.json:3
 msgid "frp Client"
-msgstr ""
+msgstr "client frp"

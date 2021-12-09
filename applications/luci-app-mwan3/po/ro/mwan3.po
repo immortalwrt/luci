@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-11-30 13:10+0000\n"
+"PO-Revision-Date: 2021-12-08 22:45+0000\n"
 "Last-Translator: Simona Iacob <s@zp1.net>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsmwan3/ro/>\n"
@@ -104,7 +104,7 @@ msgstr "-- Selectarea interfeței --"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/rule.js:84
 msgid "-- Please choose --"
-msgstr "-- Te rog să alegi --"
+msgstr "-- Vă rugăm să alegeți --"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:75
 msgid ""
@@ -285,7 +285,7 @@ msgstr "IPv4"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/rule.js:37
 msgid "IPv4 and IPv6"
-msgstr ""
+msgstr "IPv4 și IPv6"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/rule.js:38
 msgid "IPv4 only"
@@ -305,7 +305,7 @@ msgstr "Informații"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:34
 msgid "Initial state"
-msgstr ""
+msgstr "Starea inițială"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/member.js:26
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/status/diagnostics.js:83
@@ -318,61 +318,65 @@ msgstr "Interfață"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:227
 msgid "Interface down"
-msgstr ""
+msgstr "Interfață oprită"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:241
 msgid "Interface up"
-msgstr ""
+msgstr "Interfață up"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:228
 msgid "Interface will be deemed down after this many failed ping tests"
-msgstr ""
+msgstr "Interfața va fi considerată căzută după atâtea teste ping eșuate"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:24
 msgid ""
 "Interfaces may not share the same name as configured members, policies or "
 "rules."
 msgstr ""
+"Interfețele nu pot purta același nume cu membrii, politicile sau regulile "
+"configurate."
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:41
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/rule.js:35
 msgid "Internet Protocol"
-msgstr ""
+msgstr "Protocolul Internet"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:205
 msgid "Keep failure interval"
-msgstr ""
+msgstr "Păstrați intervalul de eșec"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:206
 msgid "Keep ping failure interval during failure state"
-msgstr ""
+msgstr "Păstrați intervalul de eșec ping în timpul stării de eșec"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/policy.js:37
 msgid "Last resort"
-msgstr ""
+msgstr "Ultima soluție"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/notify.js:34
 msgid "Lines beginning with # are comments and are not executed."
-msgstr ""
+msgstr "Liniile care încep cu # sunt comentarii și nu sunt executate."
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/policy.js:20
 msgid ""
 "Load-balanced member interfaces distribute more traffic out those with "
 "higher weights."
 msgstr ""
+"Interfețele membre cu echilibrare a sarcinii distribuie mai mult trafic pe "
+"cele cu ponderi mai mari."
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/globals.js:19
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/rule.js:92
 msgid "Logging"
-msgstr "Înregistrare"
+msgstr "Jurnalizare"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/globals.js:22
 msgid "Loglevel"
-msgstr ""
+msgstr "Nivel de jurnal"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:103
 msgid "Max TTL"
-msgstr ""
+msgstr "TTL maxim"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/rule.js:47
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/rule.js:56
@@ -380,33 +384,42 @@ msgid ""
 "May be entered as a single or multiple port(s) (eg \"22\" or \"80,443\") or "
 "as a portrange (eg \"1024:2048\") without quotes"
 msgstr ""
+"Poate fi introdus ca port(uri) unic(e) sau multiplu(e) (de exemplu, \"22\" "
+"sau \"80,443\") sau ca o serie de porturi (de exemplu, \"1024:2048\") fără "
+"ghilimele"
 
 #: applications/luci-app-mwan3/root/usr/share/luci/menu.d/luci-app-mwan3.json:72
 msgid "Member"
-msgstr ""
+msgstr "Membru"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/policy.js:18
 msgid "Member interfaces with lower metrics are used first."
-msgstr ""
+msgstr "Interfețele membre cu metrici mai mici sunt utilizate mai întâi."
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/policy.js:19
 msgid "Member interfaces with the same metric will be load-balanced."
 msgstr ""
+"Interfețele membre cu aceeași metrică vor fi echilibrate în funcție de "
+"sarcină."
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/policy.js:30
 msgid "Member used"
-msgstr ""
+msgstr "Membru utilizat"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/member.js:17
 msgid ""
 "Members are profiles attaching a metric and weight to an MWAN interface."
 msgstr ""
+"Membrii sunt profiluri care atașează o metrică și o greutate unei interfețe "
+"MWAN."
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/member.js:19
 msgid ""
 "Members may not share the same name as configured interfaces, policies or "
 "rules."
 msgstr ""
+"Membrii nu pot purta același nume ca interfețele, politicile sau regulile "
+"configurate."
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:263
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/member.js:33
@@ -417,77 +430,83 @@ msgstr "Metrică"
 #: applications/luci-app-mwan3/root/usr/share/luci/menu.d/luci-app-mwan3.json:3
 #: applications/luci-app-mwan3/root/usr/share/luci/menu.d/luci-app-mwan3.json:46
 msgid "MultiWAN Manager"
-msgstr ""
+msgstr "Managerul MultiWAN"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/status/diagnostics.js:79
 msgid "MultiWAN Manager - Diagnostics"
-msgstr ""
+msgstr "MultiWAN Manager - Diagnosticare"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/globals.js:10
 msgid "MultiWAN Manager - Globals"
-msgstr ""
+msgstr "Manager MultiWAN - Globale"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:20
 msgid "MultiWAN Manager - Interfaces"
-msgstr ""
+msgstr "MultiWAN Manager - Interfețe"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/member.js:16
 msgid "MultiWAN Manager - Members"
-msgstr ""
+msgstr "MultiWAN Manager - Membri"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/notify.js:26
 msgid "MultiWAN Manager - Notify"
-msgstr ""
+msgstr "Manager MultiWAN - Notificare"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/status/overview.js:92
 msgid "MultiWAN Manager - Overview"
-msgstr ""
+msgstr "MultiWAN Manager - Prezentare generală"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/policy.js:16
 msgid "MultiWAN Manager - Policies"
-msgstr ""
+msgstr "MultiWAN Manager - Politici"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/rule.js:18
 msgid "MultiWAN Manager - Rules"
-msgstr ""
+msgstr "MultiWAN Manager - Reguli"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/status/detail.js:12
 msgid "MultiWAN Manager - Status"
-msgstr ""
+msgstr "Manager MultiWAN - Stare"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/status/troubleshooting.js:12
 msgid "MultiWAN Manager - Troubleshooting"
-msgstr ""
+msgstr "MultiWAN Manager - Rezolvarea problemelor"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:21
 msgid ""
 "Mwan3 requires that all interfaces have a unique metric configured in /etc/"
 "config/network."
 msgstr ""
+"Mwan3 necesită ca toate interfețele să aibă o metrică unică configurată în /"
+"etc/config/network."
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/rule.js:83
 msgid ""
 "Name of IPset rule. Requires IPset rule in /etc/dnsmasq.conf (eg \"ipset=/"
 "youtube.com/youtube\")"
 msgstr ""
+"Numele regulii IPset. Necesită o regulă IPset în /etc/dnsmasq.conf (de "
+"exemplu, \"ipset=/youtube.com/youtube\")"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:23
 msgid "Names may contain characters A-Z, a-z, 0-9, _ and no spaces-"
-msgstr ""
+msgstr "Numele pot conține caracterele A-Z, a-z, 0-9, _ și fără spații-"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/member.js:18
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/policy.js:21
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/rule.js:26
 msgid "Names may contain characters A-Z, a-z, 0-9, _ and no spaces."
-msgstr ""
+msgstr "Numele pot conține caracterele A-Z, a-z, 0-9, _ și fără spații."
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/policy.js:22
 msgid "Names must be 15 characters or less."
-msgstr ""
+msgstr "Numele trebuie să aibă cel mult 15 caractere."
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:22
 msgid "Names must match the interface name found in /etc/config/network."
 msgstr ""
+"Numele trebuie să se potrivească cu numele interfeței găsite în /etc/config/"
+"network."
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/rule.js:74
 msgid "No"
@@ -495,12 +514,12 @@ msgstr "Nu"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/status/overview.js:20
 msgid "No MWAN interfaces found"
-msgstr ""
+msgstr "Nu s-au găsit interfețe MWAN"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/status/overview.js:43
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/status/include/90_mwan3.js:51
 msgid "No Tracking"
-msgstr ""
+msgstr "Fără urmărire"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/interface.js:271
 msgid "No interface metric set!"
@@ -676,7 +695,7 @@ msgstr ""
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/status/diagnostics.js:91
 msgid "Task"
-msgstr ""
+msgstr "Sarcină"
 
 #: applications/luci-app-mwan3/htdocs/luci-static/resources/view/mwan3/network/notify.js:29
 msgid "The file is also preserved during sysupgrade."

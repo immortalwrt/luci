@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"PO-Revision-Date: 2021-11-30 13:10+0000\n"
-"Last-Translator: Simona Iacob <s@zp1.net>\n"
+"PO-Revision-Date: 2021-12-08 22:45+0000\n"
+"Last-Translator: CRISTIAN ANDREI <cristianvdr@gmail.com>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsolsr/ro/>\n"
 "Language: ro\n"
@@ -180,7 +180,7 @@ msgstr ""
 #: applications/luci-app-olsr/luasrc/view/status-olsr/smartgw.htm:55
 #: applications/luci-app-olsr/luasrc/view/status-olsr/smartgw.htm:107
 msgid "Gateway"
-msgstr "Poarta de acces"
+msgstr "Poartă de acces"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:42
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:222
@@ -340,7 +340,7 @@ msgstr "IPv4"
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:278
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface.lua:103
 msgid "IPv4 broadcast"
-msgstr ""
+msgstr "Difuzarea IPv4"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:279
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface.lua:104
@@ -349,11 +349,14 @@ msgid ""
 "be 255.255.255.255. Default is \"0.0.0.0\", which triggers the usage of the "
 "interface broadcast IP."
 msgstr ""
+"Adresa de difuzare IPv4 pentru pachetele OLSR de ieșire. Un exemplu util ar "
+"fi 255.255.255.255.255.255. Valoarea implicită este \"0.0.0.0\", care "
+"declanșează utilizarea IP de difuzare a interfeței."
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:291
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface.lua:116
 msgid "IPv4 source"
-msgstr ""
+msgstr "Sursa IPv4"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:292
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface.lua:117
@@ -361,6 +364,8 @@ msgid ""
 "IPv4 src address for outgoing OLSR packages. Default is \"0.0.0.0\", which "
 "triggers usage of the interface IP."
 msgstr ""
+"Adresa IPv4 src pentru pachetele OLSR de ieșire. Valoarea implicită este \"0."
+"0.0.0\", care declanșează utilizarea IP-ului interfeței."
 
 #: applications/luci-app-olsr/luasrc/view/status-olsr/smartgw.htm:62
 #: applications/luci-app-olsr/luasrc/view/status-olsr/smartgw.htm:114
@@ -372,7 +377,7 @@ msgstr "IPv6"
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface.lua:110
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface6.lua:103
 msgid "IPv6 multicast"
-msgstr ""
+msgstr "multicast IPv6"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:286
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:273
@@ -382,19 +387,23 @@ msgid ""
 "IPv6 multicast address. Default is \"FF02::6D\", the manet-router linklocal "
 "multicast."
 msgstr ""
+"Adresa multicast IPv6. Valoarea implicită este \"FF02::6D\", multicastul "
+"linklocal manet-router."
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdhna.lua:28
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdhna6.lua:10
 msgid ""
 "IPv6 network must be given in full notation, prefix must be in CIDR notation."
 msgstr ""
+"Rețeaua IPv6 trebuie indicată în notație completă, iar prefixul trebuie să "
+"fie în notație CIDR."
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:297
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:278
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface.lua:122
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface6.lua:109
 msgid "IPv6 source"
-msgstr ""
+msgstr "Sursa IPv6"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:298
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:279
@@ -405,11 +414,14 @@ msgid ""
 "the prefix of this parameter. Default is \"0::/0\", which triggers the usage "
 "of a not-linklocal interface IP."
 msgstr ""
+"Prefixul IPv6 src. OLSRd va alege unul dintre IP-urile interfeței care se "
+"potrivește cu prefixul din acest parametru. Valoarea implicită este \"0::/0\""
+", care declanșează utilizarea unui IP de interfață nelinklocal."
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:184
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:178
 msgid "IPv6-Prefix of the uplink"
-msgstr ""
+msgstr "IPv6-Prefixul IPv6 al legăturii ascendente"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:202
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:196
@@ -420,12 +432,20 @@ msgid ""
 "if changed.<br /><b>WARNING:</b> This parameter should not be used together "
 "with the etx_ffeth metric!<br />Defaults to \"1.0\"."
 msgstr ""
+"În cazul în care traseul către poarta de acces curentă urmează să fie "
+"modificat, valoarea ETX a acestei porți de acces se înmulțește cu această "
+"valoare înainte de a fi comparată cu cea nouă. Parametrul poate fi o valoare "
+"între 0,1 și 1,0, dar ar trebui să fie aproape de 1,0 dacă este "
+"modificat.<br /><b>Atenție:</b> Acest parametru nu trebuie utilizat împreună "
+"cu metrica etx_ffeth!<br />Defectul implicit este \"1,0\"."
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:166
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:160
 msgid ""
 "If this Node uses NAT for connections to the internet. Default is \"yes\"."
 msgstr ""
+"În cazul în care acest nod utilizează NAT pentru conexiunile la internet. "
+"Valoarea implicită este \"da\"."
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface.lua:27
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface6.lua:27
@@ -446,6 +466,9 @@ msgid ""
 "ethernet interfaces. Valid modes are \"mesh\" and \"ether\". Default is "
 "\"mesh\"."
 msgstr ""
+"Modul interfață este utilizat pentru a preveni redirecționarea inutilă a "
+"pachetelor pe interfețele ethernet comutate. Modurile valabile sunt \"mesh\" "
+"și \"ether\". Valoarea implicită este \"mesh\"."
 
 #: applications/luci-app-olsr/luasrc/controller/olsr.lua:71
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:354
@@ -462,7 +485,7 @@ msgstr "Interfeţe implicite"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:47
 msgid "Internet protocol"
-msgstr ""
+msgstr "Protocolul Internet"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:60
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:54
@@ -470,6 +493,8 @@ msgid ""
 "Interval to poll network interfaces for configuration changes (in seconds). "
 "Default is \"2.5\"."
 msgstr ""
+"Intervalul de interogare a interfețelor de rețea pentru modificări de "
+"configurare (în secunde). Valoarea implicită este \"2.5\"."
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:268
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:262
@@ -477,6 +502,8 @@ msgstr ""
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface6.lua:93
 msgid "Invalid Value for LQMult-Value. Must be between 0.01 and 1.0."
 msgstr ""
+"Valoare invalidă pentru LQMult-Value. Trebuie să fie cuprinsă între 0.01 și 1"
+".0."
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:271
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:265
@@ -486,19 +513,21 @@ msgid ""
 "Invalid Value for LQMult-Value. You must use a decimal number between 0.01 "
 "and 1.0 here."
 msgstr ""
+"Valoare invalidă pentru LQMult-Value. Trebuie să utilizați aici un număr "
+"zecimal între 0.01 și 1.0."
 
 #: applications/luci-app-olsr/luasrc/view/status-olsr/routes.htm:98
 msgid "Known OLSR routes"
-msgstr ""
+msgstr "Rute OLSR cunoscute"
 
 #: applications/luci-app-olsr/luasrc/view/status-olsr/topology.htm:24
 msgid "LQ"
-msgstr ""
+msgstr "LQ"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:90
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:84
 msgid "LQ aging"
-msgstr ""
+msgstr "Îmbătrânirea LQ"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:96
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:90
@@ -508,7 +537,7 @@ msgstr "Algoritm LQ"
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:111
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:105
 msgid "LQ fisheye"
-msgstr ""
+msgstr "Ochi de pește LQ"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:82
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:76
@@ -523,10 +552,12 @@ msgid ""
 "LQMult requires two values (IP address or 'default' and multiplicator) "
 "separated by space."
 msgstr ""
+"LQMult necesită două valori (adresa IP sau \"default\" și multiplicatorul) "
+"separate prin spațiu."
 
 #: applications/luci-app-olsr/luasrc/view/status-olsr/topology.htm:23
 msgid "Last hop"
-msgstr ""
+msgstr "Ultimul salt"
 
 #: applications/luci-app-olsr/luasrc/view/status-olsr/legend.htm:1
 msgid "Legend"
@@ -537,12 +568,12 @@ msgstr "Legendă"
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdplugins6.lua:23
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdplugins6.lua:257
 msgid "Library"
-msgstr ""
+msgstr "Biblioteca"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:43
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:43
 msgid "Link Quality Settings"
-msgstr ""
+msgstr "Setări privind calitatea legăturii"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:91
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:85
@@ -551,6 +582,10 @@ msgid ""
 "etx_float and etx_fpm, smaller values mean slower changes of ETX value. "
 "(allowed values are between 0.01 and 1.0)"
 msgstr ""
+"Factorul de îmbătrânire a calității legăturii (numai pentru nivelul lq 2). "
+"Parametru de reglare pentru etx_float și etx_fpm, valorile mai mici înseamnă "
+"schimbări mai lente ale valorii ETX. (valorile permise sunt cuprinse între "
+"0.01 și 1.0)"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:97
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:91
@@ -562,6 +597,13 @@ msgid ""
 "calculation<br /><b>etx_ffeth</b>: incompatible variant of etx_ff that "
 "allows ethernet links with ETX 0.1.<br />Defaults to \"etx_ff\""
 msgstr ""
+"Algoritm de calitate a legăturii (numai pentru nivelul 2 de lq). <br "
+"/><b>etx_float</b>: ETX în virgulă mobilă cu îmbătrânire exponențială<br "
+"/><b>etx_fpm</b> : același lucru ca și etx_float, dar cu aritmetică de "
+"numere întregi<br /><b>etx_ff</b> : ETX freifunk, o variantă de etx care "
+"utilizează tot traficul OLSR (în loc de doar hellos) pentru calculul ETX<br "
+"/><b>etx_ffeth</b>: variantă incompatibilă de etx_ff care permite legături "
+"ethernet cu ETX 0. 1.<br />Defaults la \"etx_ff\""
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:83
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:77
@@ -570,46 +612,50 @@ msgid ""
 "routing.<br /><b>0</b> = do not use link quality<br /><b>2</b> = use link "
 "quality for MPR selection and routing<br />Default is \"2\""
 msgstr ""
+"Comutarea nivelului de calitate a legăturii între rutarea bazată pe număr de "
+"salturi și cea bazată pe costuri (mai ales ETX).<br /><b>0</b> = nu folosiți "
+"calitatea legăturii<br /><b>2</b> = folosiți calitatea legăturii pentru "
+"selectarea și rutarea MPR<br />Default este \"2\""
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:245
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:239
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface.lua:70
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface6.lua:70
 msgid "LinkQuality Multiplicator"
-msgstr ""
+msgstr "Multiplicatorul LinkQuality"
 
 #: applications/luci-app-olsr/luasrc/view/status-olsr/overview.htm:188
 msgid "Links per node (average)"
-msgstr ""
+msgstr "Legături pe nod (medie)"
 
 #: applications/luci-app-olsr/luasrc/view/status-olsr/overview.htm:183
 msgid "Links total"
-msgstr ""
+msgstr "Total legături"
 
 #: applications/luci-app-olsr/luasrc/view/status-olsr/neighbors.htm:63
 #: applications/luci-app-olsr/luasrc/view/status-olsr/neighbors.htm:129
 msgid "Local interface IP"
-msgstr ""
+msgstr "Interfața locală IP"
 
 #: applications/luci-app-olsr/luasrc/controller/olsr.lua:59
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:395
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:376
 msgid "MID"
-msgstr ""
+msgstr "MID"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:329
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:310
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface.lua:153
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface6.lua:140
 msgid "MID interval"
-msgstr ""
+msgstr "Intervalul MID"
 
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:335
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:316
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface.lua:159
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrdiface6.lua:146
 msgid "MID validity time"
-msgstr ""
+msgstr "Durata de valabilitate a MID"
 
 #: applications/luci-app-olsr/luasrc/view/status-olsr/interfaces.htm:26
 msgid "MTU"
@@ -618,13 +664,15 @@ msgstr "MTU"
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd.lua:132
 #: applications/luci-app-olsr/luasrc/model/cbi/olsr/olsrd6.lua:126
 msgid "Main IP"
-msgstr ""
+msgstr "IP principal"
 
 #: applications/luci-app-olsr/luasrc/view/status-olsr/error_olsr.htm:10
 msgid ""
 "Make sure that OLSRd is running, the \"jsoninfo\" plugin is loaded, "
 "configured on port 9090 and accepts connections from \"127.0.0.1\"."
 msgstr ""
+"Asigurați-vă că OLSRd rulează, că plugin-ul \"jsoninfo\" este încărcat, că "
+"este configurat pe portul 9090 și că acceptă conexiuni de la \"127.0.0.1\"."
 
 #: applications/luci-app-olsr/luasrc/view/status-olsr/routes.htm:50
 #: applications/luci-app-olsr/luasrc/view/status-olsr/routes.htm:110

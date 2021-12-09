@@ -3,8 +3,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"PO-Revision-Date: 2021-11-30 13:10+0000\n"
-"Last-Translator: Simona Iacob <s@zp1.net>\n"
+"PO-Revision-Date: 2021-12-08 22:45+0000\n"
+"Last-Translator: CRISTIAN ANDREI <cristianvdr@gmail.com>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsstatistics/ro/>\n"
 "Language: ro\n"
@@ -114,7 +114,7 @@ msgstr "Stocarea în memoria cache a datelor colectate pentru"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/iptables.js:99
 msgid "Chain"
-msgstr "Lanț"
+msgstr "Legătură"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/unixsock.js:19
 msgid "Change the ownership of the socket file to the specified group."
@@ -258,11 +258,11 @@ msgstr "Utilizarea discului"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/graphs.js:221
 msgid "Display Host »"
-msgstr ""
+msgstr "Afișează gazda »"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/graphs.js:229
 msgid "Display timespan »"
-msgstr "Afișați intervalul de timp \""
+msgstr "Afișează intervalul de timp »"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/graphs.js:204
 msgid "Do not refresh"
@@ -361,31 +361,31 @@ msgstr "Executabil"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/exec.js:7
 msgid "Exec Plugin Configuration"
-msgstr ""
+msgstr "Configurarea Plugin-ului Exec"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/rrdtool.js:67
 msgid "Expecting decimal value lower than one"
-msgstr ""
+msgstr "Așteptarea unei valori zecimale mai mici decât unu"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/email.js:33
 msgid "Expecting permssions in octal notation"
-msgstr ""
+msgstr "Așteptarea permisiunilor în notație octală"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/rrdtool.js:49
 msgid "Expecting valid time range"
-msgstr ""
+msgstr "Așteptarea unui interval de timp valid"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/cpufreq.js:15
 msgid "Extra items"
-msgstr ""
+msgstr "Articole suplimentare"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/curl.js:14
 msgid "Fetch pages"
-msgstr ""
+msgstr "Preluare pagini"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/netlink.js:36
 msgid "Filter class monitoring"
-msgstr ""
+msgstr "Monitorizarea clasei de filtrare"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/statistics/rrdtool/definitions/iptables.js:7
 #: applications/luci-app-statistics/root/usr/share/luci/statistics/plugins/iptables.json:2
@@ -394,36 +394,38 @@ msgstr "Firewall"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/statistics/rrdtool/definitions/ip6tables.js:7
 msgid "Firewall (IPv6)"
-msgstr ""
+msgstr "Firewall (IPv6)"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/rrdtool.js:90
 msgid "Flush cache after"
-msgstr ""
+msgstr "Ștergeți memoria cache după"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/network.js:25
 msgid "Forwarding between listen and server addresses"
-msgstr ""
+msgstr "Redirecționarea între adresele de ascultare și cele de server"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/df.js:92
 msgid ""
 "Free space, reserved space and used space is reported as relative values"
 msgstr ""
+"Spațiul liber, spațiul rezervat și spațiul utilizat sunt raportate ca valori "
+"relative"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/openvpn.js:21
 msgid "Gather compression statistics"
-msgstr ""
+msgstr "Adunați statisticile de compresie"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/collectd.js:86
 msgid "General plugins"
-msgstr ""
+msgstr "Plugin-uri generale"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/openvpn.js:15
 msgid "Generate a separate graph for each logged user"
-msgstr ""
+msgstr "Generați un grafic separat pentru fiecare utilizator logat"
 
 #: applications/luci-app-statistics/root/usr/share/rpcd/acl.d/luci-app-statistics.json:3
 msgid "Grant access to statistics resources"
-msgstr ""
+msgstr "Acordarea accesului la resursele statistice"
 
 #: applications/luci-app-statistics/root/usr/share/luci/menu.d/luci-app-statistics.json:15
 msgid "Graphs"
@@ -439,6 +441,8 @@ msgid ""
 "Here you can define external commands which will be started by collectd in "
 "order to read certain values. The values will be read from stdout."
 msgstr ""
+"Aici puteți defini comenzi externe care vor fi lansate de collectd pentru a "
+"citi anumite valori. Valorile vor fi citite din stdout."
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/exec.js:37
 msgid ""
@@ -446,12 +450,17 @@ msgid ""
 "certain threshold values have been reached. The values leading to invocation "
 "will be fed to the the called programs stdin."
 msgstr ""
+"Aici puteți defini comenzi externe care vor fi lansate de collectd atunci "
+"când sunt atinse anumite valori de prag. Valorile care conduc la invocare "
+"vor fi transmise în stdin-ul programelor apelate."
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/iptables.js:21
 msgid ""
 "Here you can define various criteria by which the monitored iptables rules "
 "are selected."
 msgstr ""
+"Aici puteți defini diverse criterii în funcție de care sunt selectate "
+"regulile iptables monitorizate."
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/olsrd.js:14
 msgid "Host"
@@ -459,7 +468,7 @@ msgstr "Gazdă"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/chrony.js:14
 msgid "Host running chrony"
-msgstr ""
+msgstr "Gazda care rulează crony"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/collectd.js:51
 msgid "Hostname"
@@ -467,16 +476,16 @@ msgstr "Numele gazdei ( hostname )"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/olsrd.js:15
 msgid "IP or hostname where to get the txtinfo output from"
-msgstr ""
+msgstr "IP sau numele de gazdă de unde se obține rezultatul txtinfo"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/statistics/rrdtool/definitions/ipstatistics.js:7
 #: applications/luci-app-statistics/root/usr/share/luci/statistics/plugins/ipstatistics.json:2
 msgid "IP-Statistics"
-msgstr ""
+msgstr "Statistici IP"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/ipstatistics.js:7
 msgid "IP-Statistics Plugin Configuration"
-msgstr ""
+msgstr "Configurarea plugin-ului IP-Statistics"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/ipstatistics.js:11
 msgid "IPv4/IPv6 Statistics monitoring enabled"
@@ -1063,7 +1072,7 @@ msgstr ""
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/network.js:62
 msgid "Server port"
-msgstr ""
+msgstr "Port de server"
 
 #: applications/luci-app-statistics/htdocs/luci-static/resources/view/statistics/plugins/network.js:20
 msgid "Set the maximum size for datagrams sent over the network"
