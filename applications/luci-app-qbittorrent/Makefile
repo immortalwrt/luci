@@ -10,8 +10,11 @@ LUCI_DEPENDS:=+qBittorrent-Enhanced-Edition
 LUCI_PKGARCH:=all
 
 PKG_NAME:=luci-app-qbittorrent
-PKG_VERSION=1.0
-PKG_RELEASE:=2
+PKG_RELEASE:=$(AUTORELEASE)
+
+define Package/luci-app-qbittorrent/conffiles
+/etc/qBittorrent/
+endef
 
 include ../../luci.mk
 
