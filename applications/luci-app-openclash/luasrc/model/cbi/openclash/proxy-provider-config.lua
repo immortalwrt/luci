@@ -6,8 +6,8 @@ local sys = require "luci.sys"
 local sid = arg[1]
 local fs = require "luci.openclash"
 
-font_red = [[<font color="red">]]
-font_off = [[</font>]]
+font_red = [[<b style=color:red>]]
+font_off = [[</b>]]
 bold_on  = [[<strong>]]
 bold_off = [[</strong>]]
 
@@ -78,6 +78,10 @@ o:depends("type", "file")
 o = s:option(Value, "provider_url", translate("Provider URL"))
 o.rmempty = false
 o:depends("type", "http")
+
+o = s:option(Value, "provider_filter", translate("Provider Filter"))
+o.rmempty = true
+o.placeholder = "bgp|sg"
 
 o = s:option(Value, "provider_interval", translate("Provider Interval(s)"))
 o.default = "3600"

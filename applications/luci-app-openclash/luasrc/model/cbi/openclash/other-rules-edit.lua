@@ -6,9 +6,9 @@ local fs = require "luci.openclash"
 local sys = require "luci.sys"
 local sid = arg[1]
 
-font_red = [[<font color="red">]]
-font_green = [[<font color="green">]]
-font_off = [[</font>]]
+font_red = [[<b style=color:red>]]
+font_green = [[<b style=color:green>]]
+font_off = [[</b>]]
 bold_on  = [[<strong>]]
 bold_off = [[</strong>]]
 
@@ -211,7 +211,7 @@ end
 o:value("DIRECT")
 o:value("REJECT")
 
-o = s:option(ListValue, "Disney", translate("Disney"))
+o = s:option(ListValue, "Disney", translate("Disney Plus"))
 o:depends("rule_name", "lhie1")
 o.rmempty = true
 for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
