@@ -5,7 +5,7 @@ local http = require "luci.http"
 function index()
     if not nixio.fs.access("/etc/config/ssr_libev_server") then return end
     entry({"admin", "vpn"}, firstchild(), "VPN", 45).dependent = false
-    entry({"admin", "vpn", "ssr_libev_server"}, cbi("ssr_libev_server/index"),
+    local page = entry({"admin", "vpn", "ssr_libev_server"}, cbi("ssr_libev_server/index"),
           _("SSR Libev Server"))
     page.order = 2
     page.dependent = true
