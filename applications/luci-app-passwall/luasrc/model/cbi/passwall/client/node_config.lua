@@ -334,6 +334,7 @@ password:depends({ type = "Xray", protocol = "trojan" })
 hysteria_protocol = s:option(ListValue, "hysteria_protocol", translate("Protocol"))
 hysteria_protocol:value("udp", "UDP")
 hysteria_protocol:value("faketcp", "faketcp")
+hysteria_protocol:value("wechat-video", "wechat-video")
 hysteria_protocol:depends("type", "Hysteria")
 function hysteria_protocol.cfgvalue(self, section)
 	return m:get(section, "protocol")
@@ -419,6 +420,10 @@ end
 function x_ss_encrypt_method.write(self, section, value)
 	m:set(section, "method", value)
 end
+
+iv_check = s:option(Flag, "iv_check", translate("IV Check"))
+iv_check:depends({ type = "V2ray", protocol = "shadowsocks" })
+iv_check:depends({ type = "Xray", protocol = "shadowsocks" })
 
 ssr_protocol = s:option(Value, "ssr_protocol", translate("Protocol"))
 for a, t in ipairs(ssr_protocol_list) do ssr_protocol:value(t) end
