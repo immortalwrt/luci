@@ -24,7 +24,7 @@ function index()
 	entry({"admin", "services", "openclash", "update_geoip"},call("action_update_geoip"))
 	entry({"admin", "services", "openclash", "currentversion"},call("action_currentversion"))
 	entry({"admin", "services", "openclash", "lastversion"},call("action_lastversion"))
-	entry({"admin", "services", "openclash", "save_corever"},call("action_save_corever"))
+	entry({"admin", "services", "openclash", "save_corever_branch"},call("action_save_corever_branch"))
 	entry({"admin", "services", "openclash", "update"},call("action_update"))
 	entry({"admin", "services", "openclash", "update_ma"},call("action_update_ma"))
 	entry({"admin", "services", "openclash", "opupdate"},call("action_opupdate"))
@@ -47,6 +47,7 @@ function index()
 	entry({"admin", "services", "openclash", "dler_logout"}, call("action_dler_logout"))
 	entry({"admin", "services", "openclash", "dler_login"}, call("action_dler_login"))
 	entry({"admin", "services", "openclash", "dler_login_info_save"}, call("action_dler_login_info_save"))
+	entry({"admin", "services", "openclash", "sub_info_get"}, call("sub_info_get"))
 	entry({"admin", "services", "openclash", "config_name"}, call("action_config_name"))
 	entry({"admin", "services", "openclash", "switch_config"}, call("action_switch_config"))
 	entry({"admin", "services", "openclash", "toolbar_show"}, call("action_toolbar_show"))
@@ -219,13 +220,8 @@ local function startlog()
 end
 
 local function coremodel()
-  local coremodel = luci.sys.exec("cat /usr/lib/os-release 2>/dev/null |grep OPENWRT_ARCH 2>/dev/null |awk -F '\"' '{print $2}' 2>/dev/null")
-  local coremodel2 = luci.sys.exec("opkg status libc 2>/dev/null |grep 'Architecture' |awk -F ': ' '{print $2}' 2>/dev/null")
-  if not coremodel or coremodel == "" then
-     return coremodel2 .. "," .. coremodel2
-  else
-     return coremodel .. "," .. coremodel2
-  end
+  local coremodel = luci.sys.exec("opkg status libc 2>/dev/null |grep 'Architecture' |awk -F ': ' '{print $2}' 2>/dev/null")
+  return coremodel
 end
 
 local function corecv()
@@ -278,8 +274,13 @@ local function corever()
 	return uci:get("openclash", "config", "core_version")
 end
 
-local function save_corever()
-	uci:set("openclash", "config", "core_version", luci.http.formvalue("core_ver"))
+local function save_corever_branch()
+	if luci.http.formvalue("core_ver") then
+		uci:set("openclash", "config", "core_version", luci.http.formvalue("core_ver"))
+	end
+	if luci.http.formvalue("release_branch") then
+		uci:set("openclash", "config", "release_branch", luci.http.formvalue("release_branch"))
+	end
 	uci:commit("openclash")
 	return "success"
 end
@@ -534,6 +535,50 @@ function action_switch_config()
 	uci:commit("openclash")
 end
 
+function sub_info_get()
+	local filename, sub_url, sub_info, info, upload, download, total, expire, http_code
+	filename = luci.http.formvalue("filename")
+	sub_info = ""
+	if filename then
+		uci:foreach("openclash", "config_subscribe",
+			function(s)
+				if s.name == filename and s.address then
+			  	sub_url = s.address
+			  	info = luci.sys.exec(string.format("curl -sLI -m 10 -w 'http_code='%%{http_code} -H 'User-Agent: Clash' '%s'", sub_url))
+			  	if info then
+			  		http_code=string.sub(string.match(info, "http_code=%d+"), 11, -1)
+			  		if tonumber(http_code) == 200 then
+			  			info = string.lower(info)
+			  			if string.find(info, "subscription%-userinfo") then
+			  				info = luci.sys.exec("echo '%s' |grep 'subscription-userinfo'" %info)
+			  				upload = string.sub(string.match(info, "upload=%d+"), 8, -1) or nil
+			  				download = string.sub(string.match(info, "download=%d+"), 10, -1) or nil
+			  				total = fs.filesize(string.sub(string.match(info, "total=%d+"), 7, -1)) or nil
+			  				expire = os.date("%Y-%m-%d %H:%M:%S", string.sub(string.match(info, "expire=%d+"), 8, -1)) or nil
+			  				used = fs.filesize(upload + download) or nil
+			  				sub_info = "Successful"
+			  			else
+			  				sub_info = "No Sub Info Found"
+			  			end
+			  		end
+			  	end
+				end
+			end
+		)
+		if not sub_url then
+			sub_info = "No Sub Info Found"
+		end
+	end
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		http_code = http_code,
+		sub_info = sub_info,
+		used = used,
+		total = total,
+		expire = expire;
+	})
+end
+
 function action_rule_mode()
 	local mode, info
 	if is_running() then
@@ -743,10 +788,10 @@ function action_config_name()
 	})
 end
 
-function action_save_corever()
+function action_save_corever_branch()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
-		save_corever = save_corever();
+		save_corever_branch = save_corever_branch();
 	})
 end
 

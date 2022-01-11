@@ -108,8 +108,8 @@ yml_proxy_provider_set()
    if [ "$config" = "$CONFIG_NAME" ] || [ "$config" = "all" ]; then
       if [ -n "$(grep -w "path: $path" "$PROXY_PROVIDER_FILE" 2>/dev/null)" ]; then
          return
-      elif [ "$(grep -w "$name$" "$proxy_provider_name" |wc -l 2>/dev/null)" -ge 2 ] && [ -z "$(grep -w "path: $path" "$PROXY_PROVIDER_FILE" 2>/dev/null)" ]; then
-      	 sed -i "1,/${name}/{//d}" "$proxy_provider_name" 2>/dev/null
+      elif [ "$(grep -w "^$name$" "$proxy_provider_name" |wc -l 2>/dev/null)" -ge 2 ] && [ -z "$(grep -w "path: $path" "$PROXY_PROVIDER_FILE" 2>/dev/null)" ]; then
+      	 sed -i "1,/^${name}$/{//d}" "$proxy_provider_name" 2>/dev/null
          return
       fi
    fi
@@ -270,7 +270,7 @@ yml_servers_set()
    
    #避免重复节点
    if [ "$config" = "$CONFIG_NAME" ] || [ "$config" = "all" ]; then
-      if [ "$(grep -w "$name$" "$servers_name" |wc -l 2>/dev/null)" -ge 2 ] && [ -n "$(grep -w "name: \"$name\"" "$SERVER_FILE" 2>/dev/null)" ]; then
+      if [ "$(grep -w "^$name$" "$servers_name" |wc -l 2>/dev/null)" -ge 2 ] && [ -n "$(grep -w "name: \"$name\"" "$SERVER_FILE" 2>/dev/null)" ]; then
          return
       fi
    fi
@@ -278,8 +278,8 @@ yml_servers_set()
    if [ "$config" = "$CONFIG_NAME" ] || [ "$config" = "all" ]; then
       if [ -n "$(grep -w "name: \"$name\"" "$SERVER_FILE" 2>/dev/null)" ]; then
          return
-      elif [ "$(grep -w "$name$" "$servers_name" |wc -l 2>/dev/null)" -ge 2 ] && [ -z "$(grep -w "name: \"$name\"" "$SERVER_FILE" 2>/dev/null)" ]; then
-      	 sed -i "1,/${name}/{//d}" "$servers_name" 2>/dev/null
+      elif [ "$(grep -w "^$name$" "$servers_name" |wc -l 2>/dev/null)" -ge 2 ] && [ -z "$(grep -w "name: \"$name\"" "$SERVER_FILE" 2>/dev/null)" ]; then
+      	 sed -i "1,/^${name}$/{//d}" "$servers_name" 2>/dev/null
          return
       fi
    fi
@@ -806,7 +806,7 @@ cat >> "$SERVER_FILE" <<-EOF
       - Proxy
       - DIRECT
       - Domestic
-  - name: AsianTV
+  - name: Asian TV
     type: select
     proxies:
       - DIRECT
@@ -820,7 +820,7 @@ EOF
 fi
 cat /tmp/Proxy_Provider >> $SERVER_FILE 2>/dev/null
 cat >> "$SERVER_FILE" <<-EOF
-  - name: GlobalTV
+  - name: Global TV
     type: select
     proxies:
       - Proxy
@@ -841,8 +841,8 @@ ${UCI_SET}rule_source="1"
 ${uci_set}enable="1"
 ${uci_set}rule_name="ConnersHua"
 ${uci_set}config="$CONFIG_NAME"
-${uci_set}GlobalTV="GlobalTV"
-${uci_set}AsianTV="AsianTV"
+${uci_set}GlobalTV="Global TV"
+${uci_set}AsianTV="Asian TV"
 ${uci_set}Proxy="Proxy"
 ${uci_set}AdBlock="AdBlock"
 ${uci_set}Domestic="Domestic"
@@ -850,10 +850,11 @@ ${uci_set}Others="Others"
 
 [ "$config_auto_update" -eq 1 ] && [ "$new_servers_group_set" -eq 1 ] && {
 	${UCI_SET}servers_update="1"
+	${UCI_DEL_LIST}="all" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Auto - UrlTest" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Auto - UrlTest" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Proxy" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Proxy" >/dev/null 2>&1
-	${UCI_DEL_LIST}="AsianTV" >/dev/null 2>&1 && ${UCI_ADD_LIST}="AsianTV" >/dev/null 2>&1
-	${UCI_DEL_LIST}="GlobalTV" >/dev/null 2>&1 && ${UCI_ADD_LIST}="GlobalTV" >/dev/null 2>&1
+	${UCI_DEL_LIST}="Asian TV" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Asian TV" >/dev/null 2>&1
+	${UCI_DEL_LIST}="Global TV" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Global TV" >/dev/null 2>&1
 }
 elif [ "$rule_sources" = "lhie1" ] && [ "$servers_if_update" != "1" ] && [ -z "$if_game_proxy" ]; then
 LOG_OUT "Creating By Using lhie1 Rules..."
@@ -924,6 +925,20 @@ EOF
 fi
 cat /tmp/Proxy_Provider >> $SERVER_FILE 2>/dev/null
 cat >> "$SERVER_FILE" <<-EOF
+  - name: Google FCM
+    type: select
+    proxies:
+      - DIRECT
+      - Proxy
+EOF
+cat /tmp/Proxy_Server >> $SERVER_FILE 2>/dev/null
+if [ -f "/tmp/Proxy_Provider" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    use:
+EOF
+fi
+cat /tmp/Proxy_Provider >> $SERVER_FILE 2>/dev/null
+cat >> "$SERVER_FILE" <<-EOF
   - name: Scholar
     type: select
     proxies:
@@ -941,7 +956,7 @@ cat >> "$SERVER_FILE" <<-EOF
   - name: Bilibili
     type: select
     proxies:
-      - AsianTV
+      - Asian TV
       - DIRECT
 EOF
 cat /tmp/Proxy_Server >> $SERVER_FILE 2>/dev/null
@@ -955,7 +970,7 @@ cat >> "$SERVER_FILE" <<-EOF
   - name: Bahamut
     type: select
     proxies:
-      - GlobalTV
+      - Global TV
       - DIRECT
 EOF
 cat /tmp/Proxy_Server >> $SERVER_FILE 2>/dev/null
@@ -966,10 +981,24 @@ EOF
 fi
 cat /tmp/Proxy_Provider >> $SERVER_FILE 2>/dev/null
 cat >> "$SERVER_FILE" <<-EOF
-  - name: HBO
+  - name: HBO Max
     type: select
     proxies:
-      - GlobalTV
+      - Global TV
+      - DIRECT
+EOF
+cat /tmp/Proxy_Server >> $SERVER_FILE 2>/dev/null
+if [ -f "/tmp/Proxy_Provider" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    use:
+EOF
+fi
+cat /tmp/Proxy_Provider >> $SERVER_FILE 2>/dev/null
+cat >> "$SERVER_FILE" <<-EOF
+  - name: HBO Go
+    type: select
+    proxies:
+      - Global TV
       - DIRECT
 EOF
 cat /tmp/Proxy_Server >> $SERVER_FILE 2>/dev/null
@@ -983,7 +1012,7 @@ cat >> "$SERVER_FILE" <<-EOF
   - name: Pornhub
     type: select
     proxies:
-      - GlobalTV
+      - Global TV
       - DIRECT
 EOF
 cat /tmp/Proxy_Server >> $SERVER_FILE 2>/dev/null
@@ -997,7 +1026,7 @@ cat >> "$SERVER_FILE" <<-EOF
   - name: Netflix
     type: select
     proxies:
-      - GlobalTV
+      - Global TV
       - DIRECT
 EOF
 cat /tmp/Proxy_Server >> $SERVER_FILE 2>/dev/null
@@ -1011,7 +1040,7 @@ cat >> "$SERVER_FILE" <<-EOF
   - name: Disney
     type: select
     proxies:
-      - GlobalTV
+      - Global TV
       - DIRECT
 EOF
 cat /tmp/Proxy_Server >> $SERVER_FILE 2>/dev/null
@@ -1026,7 +1055,7 @@ cat >> "$SERVER_FILE" <<-EOF
     type: select
     disable-udp: true
     proxies:
-      - GlobalTV
+      - Global TV
       - DIRECT
 EOF
 cat /tmp/Proxy_Server >> $SERVER_FILE 2>/dev/null
@@ -1040,7 +1069,7 @@ cat >> "$SERVER_FILE" <<-EOF
   - name: Spotify
     type: select
     proxies:
-      - GlobalTV
+      - Global TV
       - DIRECT
 EOF
 cat /tmp/Proxy_Server >> $SERVER_FILE 2>/dev/null
@@ -1071,7 +1100,7 @@ cat >> "$SERVER_FILE" <<-EOF
       - REJECT
       - DIRECT
       - Proxy
-  - name: AsianTV
+  - name: Asian TV
     type: select
     proxies:
       - DIRECT
@@ -1085,7 +1114,7 @@ EOF
 fi
 cat /tmp/Proxy_Provider >> $SERVER_FILE 2>/dev/null
 cat >> "$SERVER_FILE" <<-EOF
-  - name: GlobalTV
+  - name: Global TV
     type: select
     proxies:
       - Proxy
@@ -1148,15 +1177,17 @@ ${UCI_SET}rule_source="1"
 ${uci_set}enable="1"
 ${uci_set}rule_name="lhie1"
 ${uci_set}config="$CONFIG_NAME"
-${uci_set}GlobalTV="GlobalTV"
-${uci_set}AsianTV="AsianTV"
+${uci_set}GlobalTV="Global TV"
+${uci_set}AsianTV="Asian TV"
 ${uci_set}Proxy="Proxy"
 ${uci_set}Youtube="Youtube"
 ${uci_set}Bilibili="Bilibili"
 ${uci_set}Bahamut="Bahamut"
-${uci_set}HBO="HBO"
+${uci_set}HBOMax="HBO Max"
+${uci_set}HBOGo="HBO Go"
 ${uci_set}Pornhub="Pornhub"
 ${uci_set}Apple="Apple"
+${uci_set}GoogleFCM="Google FCM"
 ${uci_set}Scholar="Scholar"
 ${uci_set}Microsoft="Microsoft"
 ${uci_set}Netflix="Netflix"
@@ -1172,17 +1203,20 @@ ${uci_set}Others="Others"
 
 [ "$config_auto_update" -eq 1 ] && [ "$new_servers_group_set" -eq 1 ] && {
 	${UCI_SET}servers_update="1"
+	${UCI_DEL_LIST}="all" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Auto - UrlTest" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Auto - UrlTest" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Proxy" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Proxy" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Youtube" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Youtube" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Bilibili" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Bilibili" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Bahamut" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Bahamut" >/dev/null 2>&1
-	${UCI_DEL_LIST}="HBO" >/dev/null 2>&1 && ${UCI_ADD_LIST}="HBO" >/dev/null 2>&1
+	${UCI_DEL_LIST}="HBO Max" >/dev/null 2>&1 && ${UCI_ADD_LIST}="HBO Max" >/dev/null 2>&1
+	${UCI_DEL_LIST}="HBO Go" >/dev/null 2>&1 && ${UCI_ADD_LIST}="HBO Go" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Pornhub" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Pornhub" >/dev/null 2>&1
-	${UCI_DEL_LIST}="AsianTV" >/dev/null 2>&1 && ${UCI_ADD_LIST}="AsianTV" >/dev/null 2>&1
-	${UCI_DEL_LIST}="GlobalTV" >/dev/null 2>&1 && ${UCI_ADD_LIST}="GlobalTV" >/dev/null 2>&1
+	${UCI_DEL_LIST}="Asian TV" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Asian TV" >/dev/null 2>&1
+	${UCI_DEL_LIST}="Global TV" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Global TV" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Netflix" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Netflix" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Apple" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Apple" >/dev/null 2>&1
+	${UCI_DEL_LIST}="Google FCM" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Google FCM" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Scholar" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Scholar" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Disney" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Disney" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Spotify" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Spotify" >/dev/null 2>&1
@@ -1246,6 +1280,7 @@ ${uci_set}Proxy="Proxy"
 ${uci_set}Others="Others"
 [ "$config_auto_update" -eq 1 ] && [ "$new_servers_group_set" -eq 1 ] && {
 	${UCI_SET}servers_update="1"
+	${UCI_DEL_LIST}="all" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Auto - UrlTest" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Auto - UrlTest" >/dev/null 2>&1
 	${UCI_DEL_LIST}="Proxy" >/dev/null 2>&1 && ${UCI_ADD_LIST}="Proxy" >/dev/null 2>&1
 }
