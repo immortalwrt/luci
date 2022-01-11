@@ -1,8 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-vssr
-PKG_VERSION:=1.22-2
-PKG_RELEASE:=20210512
+PKG_VERSION:=1.23
+PKG_RELEASE:=20220108
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun \
@@ -15,7 +15,7 @@ LUCI_TITLE:=A New SS/SSR/Xray/Trojan LuCI interface
 LUCI_PKGARCH:=all
 LUCI_DEPENDS:= \
 	+bash +coreutils +coreutils-base64 +dnsmasq-full +ip-full +ipset +iptables-mod-tproxy \
-	+lua +lua-maxminddb +luasocket +pdnsd-alt +shadowsocksr-libev-ssr-check +shadowsocksr-libev-ssr-redir \
+	+lua +lua-cjson +lua-maxminddb +luasocket +pdnsd-alt +shadowsocksr-libev-ssr-check +shadowsocksr-libev-ssr-redir \
 	+shadowsocks-libev-ss-local +shadowsocksr-libev-ssr-local +shadowsocks-libev-ss-redir +simple-obfs +wget-ssl \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun:kcptun-client \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Libev_Server:shadowsocksr-libev-ssr-server \
