@@ -6,8 +6,8 @@ body {
 body {
     background: #ffffff;
     color: #333;
-    font-family: Helvetica, Arial, sans-serif;
-    font-size: 14px;
+    font-family: "Helvetica Neue, Helvetica, Arial, sans-serif";
+    font-size: 13px;
     line-height: 1.8;
     margin: 0;
     /* padding-top: 60px; */
@@ -556,29 +556,36 @@ p {
 
 .tabs,
 .cbi-tabmenu {
-    border-bottom: 2px solid #ddd;
-    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
 }
 
 .tabs li,
 .cbi-tabmenu li {
     display: inline-block;
+    margin-bottom: -1px;
 }
 
 .tabs a,
 .cbi-tabmenu a {
     display: block;
-    color: #404040;
+    /* color: #404040; */
     line-height: 34px;
-    margin-bottom: -2px;
-    margin-right: 20px;
-    padding: 0 3px;
+    margin-right: 3px;
+    padding: 0 15px;
 }
 
 .active a,
 .cbi-tab a {
     border-bottom: 2px solid #111;
     color: #111;
+}
+
+.tabs>li>a:hover,
+.cbi-tabmenu>li>a:hover {
+    text-decoration: none;
+    background-color: #eee;
+    border-color: #eee #eee #ddd;
 }
 
 
@@ -603,6 +610,7 @@ fieldset fieldset {
 table .cbi-value-field,
 .table .cbi-value-field {
     display: table-cell;
+    width: unset;
 }
 
 .cbi-value-title {
@@ -613,7 +621,7 @@ table .cbi-value-field,
     padding-top: 0.4em;
     line-height: 1.2em;
     float: left;
-    width: 13em;
+    width: 14em;
     margin-right: 1.5em;
     text-align: right;
     color: #404040;
@@ -622,6 +630,7 @@ table .cbi-value-field,
 .cbi-value-field {
     color: #811;
     display: table-cell;
+    width: 0.1%;
 }
 
 .cbi-section-table-cell {
@@ -808,6 +817,17 @@ select {
     line-height: 18px;
 }
 
+input[disabled],
+select[disabled],
+textarea[disabled],
+input[readonly],
+select[readonly],
+textarea[readonly] {
+    background-color: #f5f5f5;
+    border-color: #ddd;
+    color: unset;
+}
+
 table.cbi-section-table input,
 table.cbi-section-table textarea,
 table.cbi-section-table select,
@@ -880,11 +900,11 @@ input[type=file] {
 }
 
 .cbi-value-description {
-    /* display: inline; */
+    display: inline;
     background-image: url(/luci-static/resources/cbi/help.gif);
     /* background-position-x: 0px;
 	background-position-y: 1px; */
-    background-position: 0em 0.3em;
+    background-position: 0em 0.2em;
     background-repeat: no-repeat;
     padding: 0 1.2rem;
 }
@@ -961,8 +981,7 @@ button:focus {
 .cbi-button-add:active,
 .cbi-button-add:focus,
 .cbi-input-add:active,
-.cbi-input-add:focus {
-}
+.cbi-input-add:focus {}
 
 .cbi-button-remove,
 .cbi-input-remove,
@@ -977,8 +996,7 @@ button:focus {
 .cbi-input-remove:active,
 .cbi-input-remove:focus,
 .cbi-section-remove input:active,
-.cbi-section-remove input:focus {
-}
+.cbi-section-remove input:focus {}
 
 .cbi-button-reload,
 .cbi-input-reload {
@@ -990,8 +1008,7 @@ button:focus {
 .cbi-button-reload:active,
 .cbi-button-reload:focus,
 .cbi-input-reload:active,
-.cbi-input-reload:focus {
-}
+.cbi-input-reload:focus {}
 
 .cbi-button-reset,
 .cbi-input-reset {
@@ -1003,8 +1020,7 @@ button:focus {
 .cbi-button-reset:active,
 .cbi-button-reset:focus,
 .cbi-input-reset:active,
-.cbi-input-reset:focus {
-}
+.cbi-input-reset:focus {}
 
 .cbi-button-edit,
 .cbi-input-edit {
@@ -1016,8 +1032,7 @@ button:focus {
 .cbi-button-edit:active,
 .cbi-button-edit:focus,
 .cbi-input-edit:active,
-.cbi-input-edit:focus {
-}
+.cbi-input-edit:focus {}
 
 .cbi-button-apply,
 .cbi-input-apply {
@@ -1029,8 +1044,7 @@ button:focus {
 .cbi-button-apply:active,
 .cbi-button-apply:focus,
 .cbi-input-apply:active,
-.cbi-input-apply:focus {
-}
+.cbi-input-apply:focus {}
 
 .cbi-button-save,
 .cbi-input-save {
@@ -1042,14 +1056,13 @@ button:focus {
 .cbi-button-save:active,
 .cbi-button-save:focus,
 .cbi-input-save:active,
-.cbi-input-save:focus {
-}
+.cbi-input-save:focus {}
 
 /* LuCI 18 DynamicList */
-input[type="text"] + .cbi-button,
-input[type="password"] + .cbi-button,
-select + .cbi-button {
-	padding: 4px 8px;
+input[type="text"]+.cbi-button,
+input[type="password"]+.cbi-button,
+select+.cbi-button {
+    padding: 4px 8px;
 }
 
 
@@ -1121,9 +1134,9 @@ select + .cbi-button {
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
     border-radius: 4px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-    display: inline-flex;
+    /* display: inline-flex; */
     flex-direction: column;
-    line-height: 1.2em;
+    line-height: 1.6em;
     min-width: 100px;
 }
 
@@ -1259,8 +1272,7 @@ footer a {
 
 /* login */
 body.node-main-login {
-    /* background: url(bg.jpg); */
-    background: linear-gradient(#22b9a4, #9a87d4);
+    background: rgba(0, 0, 0, 0.7);
     background-repeat: no-repeat;
     background-size: 100% 100%;
     -moz-background-size: 100% 100%;
@@ -1270,6 +1282,10 @@ body.node-main-login {
 body.node-main-login>header {
     background: none;
     border-bottom: none;
+}
+
+body.node-main-login>header .brand {
+    display: none;
 }
 
 body.node-main-login .alert-message {
@@ -1283,32 +1299,17 @@ body.node-main-login .alert-message {
     border-radius: .375rem;
     text-align: center;
     position: absolute;
-    top: 50%;
+    top: 30%;
     left: 50%;
     transform: translate(-50%, -50%);
+    background: #fff;
 }
 
 .node-main-login>.container>form .errorbox {
     color: red;
 }
 
-.node-main-login>.container>form>.cbi-map>h2 {
-    width: 100px;
-    height: 100px;
-    color: #fff;
-    text-align: center;
-    letter-spacing: 4px;
-    display: block;
-    margin: -100px auto 15px auto;
-    padding: 0;
-    text-indent: -500px;
-    overflow: hidden;
-    border-radius: 60px;
-    /* border: #ccc 3px solid; */
-    background-image: url(wifi.png);
-    background-size: cover;
-    /* box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(156, 39, 176, 0.4); */
-}
+.node-main-login>.container>form>.cbi-map>h2 {}
 
 .node-main-login>.container>form input[name='luci_username'],
 .node-main-login>.container>form input[name='luci_password'] {
@@ -1332,6 +1333,14 @@ body.node-main-login .alert-message {
 
 .node-main-login>.container>form .cbi-page-actions {
     text-align: center !important;
+}
+
+.node-main-login>.container .cbi-button-apply {
+    width: 100% !important;
+}
+
+.node-main-login>.container .cbi-button-reset {
+    display: none;
 }
 
 /* luci18 */
@@ -1365,6 +1374,10 @@ body.node-main-login .alert-message {
 }
 
 /* luci 19 */
+.node-main-login>header .nav {
+    display: none;
+}
+
 body.modal-overlay-active {
     overflow: hidden;
     height: 100vh;
@@ -1575,18 +1588,18 @@ body.modal-overlay-active #modal_overlay>.modal {
 }
 
 header [data-indicator] {
-	padding: 1px 3px 2px;
-	font-size: 9.75px;
-	font-weight: bold;
-	color: #fff !important;
-	text-transform: uppercase;
-	white-space: nowrap;
-	background-color: #bfbfbf;
-	border-radius: 3px;
-	text-shadow: none;
-	margin-left: .4em;
+    padding: 1px 3px 2px;
+    font-size: 9.75px;
+    font-weight: bold;
+    color: #fff !important;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background-color: #bfbfbf;
+    border-radius: 3px;
+    text-shadow: none;
+    margin-left: .4em;
 }
 
 header [data-indicator][data-style="active"] {
-	background-color: #62cffc;
+    background-color: #62cffc;
 }
