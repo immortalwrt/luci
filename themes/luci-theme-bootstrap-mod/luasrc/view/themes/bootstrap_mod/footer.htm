@@ -28,7 +28,18 @@
   </div>
  </body>
  <script>
-	window.onload = function(){
+	function addLoadEvent(func) {
+		var oldonload = window.onload;
+		if (typeof window.onload != 'function') {
+			window.onload = func;
+		} else {
+			window.onload = function () {
+				oldonload();
+				func();
+			}
+		}
+	}
+	addLoadEvent(function(){
 		var content = document.getElementsByName("content");
 		var luci_username = document.getElementsByName("luci_username");
 		var luci_password = document.getElementsByName("luci_password");
@@ -58,6 +69,6 @@
 				}
 			}
 		}
-	}
+	});
  </script>
 </html>
