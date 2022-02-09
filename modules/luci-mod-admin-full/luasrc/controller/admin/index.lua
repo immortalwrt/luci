@@ -26,10 +26,6 @@ function index()
 
 	entry({"admin", "vpn"}, firstchild(), _("VPN"), 44).index = true
 
-	if nixio.fs.access("/www/login.sh") then
-		entry({"admin", "gargoyle"}, call("act_gargoyle"), _("Gargoyle"), 80)
-	end
-
 	entry({"admin", "logout"}, call("action_logout"), _("Logout"), 90)
 end
 
