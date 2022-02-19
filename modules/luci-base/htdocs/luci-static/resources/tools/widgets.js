@@ -62,7 +62,7 @@ var CBIZoneSelect = form.ListValue.extend({
 		if (this.allowlocal) {
 			choices[''] = E('span', {
 				'class': 'zonebadge',
-				'style': 'background-color:' + firewall.getColorForName(null)
+				'style': firewall.getZoneColorStyle(null)
 			}, [
 				E('strong', _('Device')),
 				(this.allowany || this.allowlocal)
@@ -72,14 +72,14 @@ var CBIZoneSelect = form.ListValue.extend({
 		else if (!this.multiple && (this.rmempty || this.optional)) {
 			choices[''] = E('span', {
 				'class': 'zonebadge',
-				'style': 'background-color:' + firewall.getColorForName(null)
+				'style': firewall.getZoneColorStyle(null)
 			}, E('em', _('unspecified')));
 		}
 
 		if (this.allowany) {
 			choices['*'] = E('span', {
 				'class': 'zonebadge',
-				'style': 'background-color:' + firewall.getColorForName(null)
+				'style': firewall.getZoneColorStyle(null)
 			}, [
 				E('strong', _('Any zone')),
 				(this.allowany && this.allowlocal && !isOutputOnly) ? E('span', ' (%s)'.format(_('forward'))) : ''
@@ -125,7 +125,7 @@ var CBIZoneSelect = form.ListValue.extend({
 
 			choices[name] = E('span', {
 				'class': 'zonebadge',
-				'style': 'background-color:' + zone.getColor()
+				'style': firewall.getZoneColorStyle(zone)
 			}, [ E('strong', name) ].concat(ifaces));
 		}
 
@@ -187,9 +187,10 @@ var CBIZoneSelect = form.ListValue.extend({
 						emptyval.setAttribute('data-value', '');
 					}
 
-					L.dom.content(emptyval.querySelector('span'), [
-						E('strong', _('Device')), E('span', ' (%s)'.format(_('input')))
-					]);
+					if (opt[0].allowlocal)
+						L.dom.content(emptyval.querySelector('span'), [
+							E('strong', _('Device')), E('span', ' (%s)'.format(_('input')))
+						]);
 
 					L.dom.content(anyval.querySelector('span'), [
 						E('strong', _('Any zone')), E('span', ' (%s)'.format(_('forward')))
@@ -283,7 +284,7 @@ var CBIZoneForwards = form.DummyValue.extend({
 
 		return E('label', {
 			'class': 'zonebadge cbi-tooltip-container',
-			'style': 'background-color:' + zone.getColor()
+			'style': firewall.getZoneColorStyle(zone)
 		}, [
 			E('strong', name),
 			E('div', { 'class': 'cbi-tooltip' }, ifaces)

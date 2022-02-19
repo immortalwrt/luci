@@ -46,7 +46,7 @@ function rule_src_txt(s, hosts) {
 	var z = uci.get('firewall', s, 'src');
 
 	return fwtool.fmt(_('From %{src}%{src_ip?, IP %{src_ip#%{next?, }<var%{item.inv? data-tooltip="Match IP addresses except %{item.val}."}>%{item.ival}</var>}}%{src_port?, port %{src_port#%{next?, }<var%{item.inv? data-tooltip="Match ports except %{item.val}."}>%{item.ival}</var>}}%{src_mac?, MAC %{src_mac#%{next?, }<var%{item.inv? data-tooltip="Match MACs except %{item.val}%{item.hint.name? a.k.a. %{item.hint.name}}.":%{item.hint.name? data-tooltip="%{item.hint.name}"}}>%{item.ival}</var>}}'), {
-		src: E('span', { 'class': 'zonebadge', 'style': 'background-color:' + fwmodel.getColorForName((z && z != '*') ? z : null) }, [(z == '*') ? E('em', _('any zone')) : (z ? E('strong', z) : E('em', _('this device')))]),
+		src: E('span', { 'class': 'zonebadge', 'style': fwmodel.getZoneColorStyle(z) }, [(z == '*') ? E('em', _('any zone')) : (z ? E('strong', z) : E('em', _('this device')))]),
 		src_ip: fwtool.map_invert(uci.get('firewall', s, 'src_ip'), 'toLowerCase'),
 		src_mac: fwtool.map_invert(uci.get('firewall', s, 'src_mac'), 'toUpperCase').map(function(v) { return Object.assign(v, { hint: hosts[v.val] }) }),
 		src_port: fwtool.map_invert(uci.get('firewall', s, 'src_port'))
@@ -55,7 +55,7 @@ function rule_src_txt(s, hosts) {
 
 function rule_dest_txt(s) {
 	return fwtool.fmt(_('To %{dest}%{dest_ip?, IP %{dest_ip#%{next?, }<var%{item.inv? data-tooltip="Match IP addresses except %{item.val}."}>%{item.ival}</var>}}%{dest_port?, port %{dest_port#%{next?, }<var%{item.inv? data-tooltip="Match ports except %{item.val}."}>%{item.ival}</var>}}'), {
-		dest: E('span', { 'class': 'zonebadge', 'style': 'background-color:' + fwmodel.getColorForName(null) }, [E('em', _('this device'))]),
+		dest: E('span', { 'class': 'zonebadge', 'style': fwmodel.getZoneColorStyle(null) }, [E('em', _('this device'))]),
 		dest_ip: fwtool.map_invert(uci.get('firewall', s, 'src_dip'), 'toLowerCase'),
 		dest_port: fwtool.map_invert(uci.get('firewall', s, 'src_dport'))
 	});
@@ -149,9 +149,10 @@ return view.extend({
 			var config_name = this.uciconfig || this.map.config,
 			    section_id = uci.add(config_name, this.sectiontype);
 
+			uci.set(config_name, section_id, 'dest', 'lan');
 			uci.set(config_name, section_id, 'target', 'DNAT');
 
-			this.addedSection = section_id;
+			m.addedSection = section_id;
 			this.renderMoreOptionsModal(section_id);
 		};
 
@@ -229,7 +230,6 @@ return view.extend({
 		o.modalonly = true;
 		o.rmempty = true;
 		o.nocreate = true;
-		o.default = 'lan';
 
 		o = fwtool.addIPOption(s, 'general', 'dest_ip', _('Internal IP address'),
 			_('Redirect matched incoming traffic to the specified internal host'), 'ipv4', hosts);
