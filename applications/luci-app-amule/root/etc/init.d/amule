@@ -128,7 +128,7 @@ amule() {
 		chown $group:$runasuser "$config_dir"
 		touch "$config_file" "$config_dir/addresses.dat" "$config_dir/shareddir.dat" \
 			"$config_dir/ipfilter_static.dat"
-		[ -d "$config_dir/.aMule" ] || ln -s ./ $config_dir/.aMule
+		#[ -d "$config_dir/.aMule" ] || ln -s ./ $config_dir/.aMule
 		#[ -z "$runasuser" ] || set_owner "$config_dir" $runasuser $group
 	#}
 	
