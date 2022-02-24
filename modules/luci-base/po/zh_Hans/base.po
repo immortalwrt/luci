@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-01-25 09:41+0000\n"
+"PO-Revision-Date: 2022-02-20 15:55+0000\n"
 "Last-Translator: Eric <alchemillatruth@purelymail.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "openwrt/luci/zh_Hans/>\n"
@@ -1699,6 +1699,10 @@ msgid ""
 "priority on incoming frames"
 msgstr "定义在传入帧上 VLAN 标头优先级到 Linux 内部数据包优先级的映射"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:86
+msgid "Defines a specific MTU for this route"
+msgstr "为此路由定义一个特定的 MTU"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:970
 msgid "Delegate IPv6 prefixes"
 msgstr "委托 IPv6 前缀"
@@ -1836,7 +1840,7 @@ msgid "Directory"
 msgstr "目录"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:113
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:195
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:200
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:897
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:937
 msgid "Disable"
@@ -3469,6 +3473,10 @@ msgid ""
 "classes."
 msgstr "如果设置，则仅从给定的 IPv6 前缀类别中分配下游子网。"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:196
+msgid "If set, the meaning of the match options is inverted"
+msgstr "设置后，匹配选项的含义将颠倒"
+
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:254
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:360
 msgid ""
@@ -3803,7 +3811,7 @@ msgstr "无效 16 进制值"
 msgid "Invalid username and/or password! Please try again."
 msgstr "无效的用户名和/或密码！请重试。"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:191
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:196
 msgid "Invert match"
 msgstr "反向匹配"
 
@@ -4740,6 +4748,10 @@ msgstr "网络 SSID"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:79
 msgid "Network Utilities"
 msgstr "网络工具"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:56
+msgid "Network address"
+msgstr "网络地址"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:491
 msgid "Network boot image"
@@ -5701,7 +5713,7 @@ msgstr "首选 UMTS"
 msgid "Prefix Delegated"
 msgstr "分发前缀"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:186
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:191
 msgid "Prefix suppressor"
 msgstr "前缀抑制器"
 
@@ -5964,6 +5976,12 @@ msgstr "引用"
 #: modules/luci-base/htdocs/luci-static/resources/luci.js:2717
 msgid "Refreshing"
 msgstr "刷新"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:191
+msgid ""
+"Reject routing decisions that have a prefix length less than or equal to the "
+"specified value"
+msgstr "拒绝前缀长度小于或等于指定值的路由决策"
 
 #: modules/luci-compat/luasrc/model/network/proto_relay.lua:153
 #: protocols/luci-proto-relay/htdocs/luci-static/resources/protocol/relay.js:39
@@ -6693,6 +6711,13 @@ msgstr ""
 "指定一个通过 DHCPv6 宣布的 IPv6 DNS 服务器地址的固定列表。如未指定，设备会宣"
 "布自己是 IPv6 DNS 服务器，除非<em>本地 IPv6 DNS 服务器</em>选项被禁用。"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:186
+msgid ""
+"Specifies an individual UID or range of UIDs to match, e.g. 1000 to match "
+"corresponding UID or 1000-1005 to inclusively match all UIDs within the "
+"corresponding range"
+msgstr "指定要匹配的单个 UID 或 UID 范围，例如，1000 用于匹配对应的 UID，1000-1005 用于匹配对应范围内的所有 UID"
+
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:343
 msgid ""
 "Specifies that duplicate frames (received on inactive ports) should be "
@@ -6711,9 +6736,17 @@ msgstr "指定用于 ARP 监控的 IP 地址"
 msgid "Specifies the MII link monitoring frequency in milliseconds"
 msgstr "以毫秒为单位指定 MII 链接监控频率"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:181
+msgid "Specifies the TOS value to match in IP headers"
+msgstr "指定要在 IP 头中匹配的 TOS 值"
+
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:261
 msgid "Specifies the aggregation selection logic to use"
 msgstr "指定要使用的聚合选择逻辑"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:159
+msgid "Specifies the destination subnet to match (CIDR notation)"
+msgstr "指定要匹配的目标子网（CIDR 符号）"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:292
 msgid "Specifies the directory the device is attached to"
@@ -6727,6 +6760,22 @@ msgid ""
 msgstr ""
 "指定<abbr title=\"路由器通告\">RA</abbr>消息中发送的标记，比如指示客户端通过"
 "有状态 DHCPv6 请求进一步的信息。"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:176
+msgid ""
+"Specifies the fwmark and optionally its mask to match, e.g. 0xFF to match "
+"mark 255 or 0x0/0x1 to match any even mark value"
+msgstr "指定要匹配的 fwmark 及其 mask（可选），例如 0xFF 匹配 mark 255，0x0/0x1 匹配任意 mark 值"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:144
+msgid "Specifies the incoming logical interface name"
+msgstr "输入传入逻辑接口名称"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:41
+msgid ""
+"Specifies the logical interface name of the parent (or master) interface "
+"this route belongs to"
+msgstr "指定该路由所属的父（或主）接口的逻辑接口名"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:254
 msgid ""
@@ -6767,6 +6816,13 @@ msgstr "指定 asserting 运营商前必须处于活跃状态的链接的最小�
 msgid "Specifies the mode to be used for this bonding interface"
 msgstr "指定用于此 bonding 接口的模式"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:75
+msgid ""
+"Specifies the network gateway. If omitted, the gateway from the parent "
+"interface is taken if any, otherwise creates a link scope route. If set to "
+"0.0.0.0 no gateway will be specified for the route"
+msgstr "指定网络网关。如省略，则采用父接口的网关（如果有的话），否则创建一个链接范围路由。如设置为 0.0.0.0，则不为该路由指定网关"
+
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:334
 msgid ""
 "Specifies the number of IGMP membership reports to be issued after a "
@@ -6793,6 +6849,20 @@ msgid ""
 msgstr ""
 "指定 bonding 驱动程序向每个从属设备连接的交换机发送学习数据包的间隔秒数"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:129
+msgid "Specifies the ordering of the IP rules"
+msgstr "指定 IP 规则的顺序"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:155
+msgid "Specifies the outgoing logical interface name"
+msgstr "指定传出逻辑接口名"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:99
+msgid ""
+"Specifies the preferred source address when sending to destinations covered "
+"by the target"
+msgstr "指定发送到目标覆盖的目的地时的首选源地址"
+
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:375
 msgid "Specifies the quantity of ARP IP targets that must be reachable"
 msgstr "指定必须可达的 ARP IP 目标数"
@@ -6808,6 +6878,22 @@ msgid ""
 "Specifies the reselection policy for the primary slave when failure of the "
 "active slave or recovery of the primary slave occurs"
 msgstr "指定当活动从属设备发生故障或主从属设备恢复时，主从属设备的重选策略"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:79
+msgid "Specifies the route metric to use"
+msgstr "指定要使用的路由度量"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:45
+msgid "Specifies the route type to be created"
+msgstr "指定要创建的路由类型"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:136
+msgid "Specifies the rule target routing action"
+msgstr "指定规则目标路由动作"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:148
+msgid "Specifies the source subnet to match (CIDR notation)"
+msgstr "指定要匹配的源子网（CIDR符号）"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:246
 msgid "Specifies the system priority"
@@ -7528,6 +7614,21 @@ msgstr ""
 "健壮性值允许调整网络上预期的数据包丢失。 如果预期网络丢包率较高，可以增加健壮"
 "值。IGMP对于（Robustness-1）数据包丢失具有鲁棒性"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:171
+msgid ""
+"The rule target is a jump to another rule specified by its priority value"
+msgstr "规则目标是跳转到由其优先级值指定的另一条规则"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:91
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:166
+msgid ""
+"The rule target is a table lookup ID: a numeric table index ranging from 0 "
+"to 65535 or symbol alias declared in /etc/iproute2/rt_tables. Special "
+"aliases local (255), main (254) and default (253) are also valid"
+msgstr ""
+"规则目标是一个表查找 ID：从 0 到 65535 的数字表索引或在 /etc/iproute2/rt 表中声明的符号别名。特殊别名 "
+"local(255)、main(254) 和 default(253) 也有效"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1371
 msgid "The selected %s mode is incompatible with %s encryption"
 msgstr "模式 %s 与 %s 加密方法不兼容"
@@ -8212,6 +8313,10 @@ msgstr "用户组"
 msgid "User certificate (PEM encoded)"
 msgstr "用户证书（PEM）"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:186
+msgid "User identifier"
+msgstr "用户标识符"
+
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:132
 msgid "User key (PEM encoded)"
 msgstr "用户密钥（PEM）"
@@ -8423,6 +8528,12 @@ msgid ""
 "preference value are considered first when allocating subnets."
 msgstr ""
 "将前缀委派给多个下游时，在分配子网时，将首先考虑具有较高优先级值的接口。"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:109
+msgid ""
+"When enabled, gateway is on link even if the gateway does not match any "
+"interface prefix"
+msgstr "启用后，即使网关没有匹配任何接口前缀，网关也处于链路状态"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1537
 msgid ""

@@ -2,17 +2,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LuCI: base\n"
 "POT-Creation-Date: 2010-05-09 01:01+0300\n"
-"PO-Revision-Date: 2022-01-14 15:42+0000\n"
-"Last-Translator: Alexey <agarkov.alexey.viktorovich@gmail.com>\n"
-"Language-Team: Russian <https://hosted.weblate.org/projects/openwrt/luci/ru/"
-">\n"
+"PO-Revision-Date: 2022-02-24 06:56+0000\n"
+"Last-Translator: Anton Kikin <a.a.kikin@gmail.com>\n"
+"Language-Team: Russian <https://hosted.weblate.org/projects/openwrt/luci/ru/>"
+"\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.10.1\n"
+"X-Generator: Weblate 4.11-dev\n"
 "Project-Info: Это технический перевод, не дословный. Главное-удобный русский "
 "интерфейс, все проверялось в графическом режиме, совместим с другими apps\n"
 
@@ -1762,6 +1762,10 @@ msgstr ""
 "Определяет соответствие приоритета заголовка VLAN внутреннему приоритету "
 "пакета Linux для входящих кадров"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:86
+msgid "Defines a specific MTU for this route"
+msgstr "Определяет специальный MTU для этого маршрута"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:970
 msgid "Delegate IPv6 prefixes"
 msgstr "Делегировать IPv6 префиксы"
@@ -1899,7 +1903,7 @@ msgid "Directory"
 msgstr "Папка"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:113
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:195
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:200
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:897
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:937
 msgid "Disable"
@@ -2157,15 +2161,15 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1429
 msgid "Dynamic Authorization Extension client."
-msgstr ""
+msgstr "Клиент расширения динамической авторизации (DAE)."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1434
 msgid "Dynamic Authorization Extension port."
-msgstr ""
+msgstr "Порт расширения динамической авторизации (DAE)."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1440
 msgid "Dynamic Authorization Extension secret."
-msgstr ""
+msgstr "Секрет расширения динамической авторизации (DAE)."
 
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/6in4.js:60
 msgid "Dynamic tunnel"
@@ -3310,7 +3314,7 @@ msgstr "Переопределение поддельного NX-домена"
 
 #: protocols/luci-proto-xfrm/htdocs/luci-static/resources/protocol/xfrm.js:9
 msgid "IPsec XFRM"
-msgstr ""
+msgstr "IPsec XFRM"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:90
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:113
@@ -3563,6 +3567,10 @@ msgstr ""
 "Если установлено, нисходящие подсети выделяются только из заданных классов "
 "префиксов IPv6."
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:196
+msgid "If set, the meaning of the match options is inverted"
+msgstr "Если установлено, значение параметров соответствия инвертируется"
+
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:254
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:360
 msgid ""
@@ -3780,7 +3788,7 @@ msgstr "Настройка сети"
 
 #: protocols/luci-proto-xfrm/htdocs/luci-static/resources/protocol/xfrm.js:39
 msgid "Interface ID"
-msgstr ""
+msgstr "ID интерфейса"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:111
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:151
@@ -3919,7 +3927,7 @@ msgstr "Неверное шестнадцатеричное значение"
 msgid "Invalid username and/or password! Please try again."
 msgstr "Неверный логин и/или пароль! Попробуйте снова."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:191
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:196
 msgid "Invert match"
 msgstr "Инвертировать совпадение"
 
@@ -4242,7 +4250,7 @@ msgstr "Загрузка QR-кода..."
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1163
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1971
 msgid "Loading data…"
-msgstr ""
+msgstr "Загрузка данных…"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2973
 msgid "Loading directory contents…"
@@ -4882,6 +4890,10 @@ msgstr "SSID сети"
 msgid "Network Utilities"
 msgstr "Сетевые утилиты"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:56
+msgid "Network address"
+msgstr "Сетевой адрес"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:491
 msgid "Network boot image"
 msgstr "Образ системы для сетевой загрузки"
@@ -5374,7 +5386,7 @@ msgstr ""
 
 #: protocols/luci-proto-xfrm/htdocs/luci-static/resources/protocol/xfrm.js:46
 msgid "Optional. Maximum Transmission Unit of the XFRM interface."
-msgstr ""
+msgstr "Необязательно. MTU XFRM интерфейса."
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:144
 msgid "Optional. Maximum Transmission Unit of tunnel interface."
@@ -5866,7 +5878,7 @@ msgstr "Предпочитать UMTS"
 msgid "Prefix Delegated"
 msgstr "Делегированный префикс"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:186
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:191
 msgid "Prefix suppressor"
 msgstr "Подавитель префикса"
 
@@ -6144,6 +6156,14 @@ msgstr "Ссылки"
 msgid "Refreshing"
 msgstr "Обновляется"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:191
+msgid ""
+"Reject routing decisions that have a prefix length less than or equal to the "
+"specified value"
+msgstr ""
+"Отклонять решения о маршрутизации, длина префикса которых меньше или равна "
+"указанному значению"
+
 #: modules/luci-compat/luasrc/model/network/proto_relay.lua:153
 #: protocols/luci-proto-relay/htdocs/luci-static/resources/protocol/relay.js:39
 msgid "Relay"
@@ -6241,11 +6261,13 @@ msgstr "Обязательно. Публичный ключ узла в коди
 
 #: protocols/luci-proto-xfrm/htdocs/luci-static/resources/protocol/xfrm.js:42
 msgid "Required. Underlying interface."
-msgstr ""
+msgstr "Обязательно. Основной интерфейс."
 
 #: protocols/luci-proto-xfrm/htdocs/luci-static/resources/protocol/xfrm.js:39
 msgid "Required. XFRM interface ID to be used for SA."
 msgstr ""
+"Обязательно. Идентификатор интерфейса XFRM, который будет использоваться для "
+"SA."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1313
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1314
@@ -6891,6 +6913,16 @@ msgstr ""
 "через DHCPv6. Если не указано, устройство будет объявлять себя в качестве "
 "IPv6 DNS-сервера, если не отключена опция <em>Локальный IPv6 DNS-сервер</em>."
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:186
+msgid ""
+"Specifies an individual UID or range of UIDs to match, e.g. 1000 to match "
+"corresponding UID or 1000-1005 to inclusively match all UIDs within the "
+"corresponding range"
+msgstr ""
+"Определяет индивидуальный UID или диапазон UID для соответствия. Например, "
+"1000 для соответствия определенному UID или 1000-1005 для соответствия всем "
+"UID в указанном диапазоне"
+
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:343
 msgid ""
 "Specifies that duplicate frames (received on inactive ports) should be "
@@ -6911,9 +6943,17 @@ msgstr "Определяет IP-адреса, которые будут испо
 msgid "Specifies the MII link monitoring frequency in milliseconds"
 msgstr "Определяет частоту MII мониторинга соединения в миллисекундах"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:181
+msgid "Specifies the TOS value to match in IP headers"
+msgstr "Определяет значение TOS для сопоставления в IP-заголовках"
+
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:261
 msgid "Specifies the aggregation selection logic to use"
 msgstr "Определяет используемую логику выбора для агрегации"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:159
+msgid "Specifies the destination subnet to match (CIDR notation)"
+msgstr "Определяет подсеть назначения для соответствия (CIDR-нотация)"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:292
 msgid "Specifies the directory the device is attached to"
@@ -6928,6 +6968,27 @@ msgstr ""
 "Определяет флаги, отправляемые в сообщениях <abbr title=\"Router "
 "Advertisement\">RA</abbr>, например, для указания клиентам запрашивать "
 "дополнительную информацию через stateful DHCPv6."
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:176
+msgid ""
+"Specifies the fwmark and optionally its mask to match, e.g. 0xFF to match "
+"mark 255 or 0x0/0x1 to match any even mark value"
+msgstr ""
+"Определяет fwmark и, опционально, его маску для соответствия. Например, 0xFF "
+"для соответствия метке 255 или 0x0/0x1 для соответствия любому четному "
+"значению метки"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:144
+msgid "Specifies the incoming logical interface name"
+msgstr "Определяет имя входящего логического интерфейса"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:41
+msgid ""
+"Specifies the logical interface name of the parent (or master) interface "
+"this route belongs to"
+msgstr ""
+"Определяет имя логического интерфейса родительского (или главного) "
+"интерфейса, которому принадлежит этот маршрут"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:254
 msgid ""
@@ -6978,6 +7039,17 @@ msgstr ""
 "Определяет режим, который будет использоваться для этого интерфейса "
 "объединения"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:75
+msgid ""
+"Specifies the network gateway. If omitted, the gateway from the parent "
+"interface is taken if any, otherwise creates a link scope route. If set to "
+"0.0.0.0 no gateway will be specified for the route"
+msgstr ""
+"Определяет сетевой шлюз. Если опущено, берется шлюз из родительского "
+"интерфейса, если таковой имеется, в противном случае создается маршрут с "
+"охватом соединения (link scope). Если установлено значение 0.0.0.0, шлюз не "
+"будет определён для маршрута"
+
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:334
 msgid ""
 "Specifies the number of IGMP membership reports to be issued after a "
@@ -7010,6 +7082,22 @@ msgstr ""
 "Определяет количество секунд между моментами, когда драйвер объединения "
 "посылает обучающие пакеты на каждый пир ведомого устройства"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:129
+msgid "Specifies the ordering of the IP rules"
+msgstr "Определяет порядок следования IP-правил"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:155
+msgid "Specifies the outgoing logical interface name"
+msgstr "Определяет имя исходящего логического интерфейса"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:99
+msgid ""
+"Specifies the preferred source address when sending to destinations covered "
+"by the target"
+msgstr ""
+"Определяет предпочтительный адрес источника при отправке в места назначения, "
+"охватываемые целью"
+
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:375
 msgid "Specifies the quantity of ARP IP targets that must be reachable"
 msgstr ""
@@ -7031,6 +7119,22 @@ msgid ""
 msgstr ""
 "Определяет политику повторного выбора для первичного ведомого, когда "
 "происходит сбой активного ведомого или восстановление первичного ведомого"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:79
+msgid "Specifies the route metric to use"
+msgstr "Определяет метрику маршрута для использования"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:45
+msgid "Specifies the route type to be created"
+msgstr "Определяет тип маршрута, который необходимо создать"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:136
+msgid "Specifies the rule target routing action"
+msgstr "Определяет целевое действие маршрутизации для правила"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:148
+msgid "Specifies the source subnet to match (CIDR notation)"
+msgstr "Определяет подсеть источника для сопоставления (CIDR-нотация)"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:246
 msgid "Specifies the system priority"
@@ -7818,6 +7922,25 @@ msgstr ""
 "Если в сети ожидаются потери, значение надежности может быть увеличено. IGMP "
 "устойчив к (надежность – 1) потерям пакетов"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:171
+msgid ""
+"The rule target is a jump to another rule specified by its priority value"
+msgstr ""
+"Целью правила является переход к другому правилу, определенному значением "
+"его приоритета"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:91
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:166
+msgid ""
+"The rule target is a table lookup ID: a numeric table index ranging from 0 "
+"to 65535 or symbol alias declared in /etc/iproute2/rt_tables. Special "
+"aliases local (255), main (254) and default (253) are also valid"
+msgstr ""
+"Целью правила является идентификатор таблицы поиска: числовой индекс таблицы "
+"в диапазоне от 0 до 65535 или символьный псевдоним, объявленный в /etc/"
+"iproute2/rt_tables. Специальные псевдонимы local (255), main (254) и default "
+"(253) также допустимы"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1371
 msgid "The selected %s mode is incompatible with %s encryption"
 msgstr "Выбранный режим %s несовместим с шифрованием %s"
@@ -8542,6 +8665,10 @@ msgstr "Группа пользователя"
 msgid "User certificate (PEM encoded)"
 msgstr "Сертификат пользователя (PEM encoded)"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:186
+msgid "User identifier"
+msgstr "Идентификатор пользователя"
+
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:132
 msgid "User key (PEM encoded)"
 msgstr "Ключ пользователя (PEM encoded)"
@@ -8764,6 +8891,14 @@ msgstr ""
 "При делегировании префиксов нескольким нисходящим потокам, интерфейсы с "
 "более высоким значением привилегий учитываются в первую очередь при "
 "распределении подсетей."
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:109
+msgid ""
+"When enabled, gateway is on link even if the gateway does not match any "
+"interface prefix"
+msgstr ""
+"Если включено, шлюз будет находиться на связи, даже если шлюз не "
+"соответствует какому-либо префиксу интерфейса"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1537
 msgid ""
