@@ -6,9 +6,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-passwall
-PKG_VERSION:=4.50
+PKG_VERSION:=4.51
 PKG_RELEASE:=2
-#20220219
+#20220228
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Brook \
@@ -16,7 +16,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Haproxy \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Hysteria \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_IPv6_Nat \
-	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_NaiveProxy \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_PDNSD \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Shadowsocks_Libev_Client \
@@ -36,15 +35,14 @@ PKG_CONFIG_DEPENDS:= \
 LUCI_TITLE:=LuCI support for PassWall
 LUCI_PKGARCH:=all
 LUCI_DEPENDS:=+coreutils +coreutils-base64 +coreutils-nohup +curl \
-	+dnsmasq-full +luci-compat +dns2socks +ipset +ip-full +ipt2socks +iptables-mod-tproxy +iptables-mod-iprange \
-	+libuci-lua +lua +luci-lib-jsonc +microsocks +tcping +resolveip \
+	+dnsmasq-full +dns2socks +ip-full +ipset +ipt2socks +iptables +iptables-mod-tproxy +iptables-mod-iprange \
+	+kmod-ipt-nat +libuci-lua +lua +luci-compat +luci-lib-jsonc +microsocks +resolveip +tcping \
 	+unzip \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Brook:brook \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_ChinaDNS_NG:chinadns-ng \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Haproxy:haproxy \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Hysteria:hysteria \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_IPv6_Nat:ip6tables-mod-nat \
-	+PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun:kcptun-client \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_NaiveProxy:naiveproxy \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_PDNSD:pdnsd-alt \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Shadowsocks_Libev_Client:shadowsocks-libev-ss-local \
@@ -84,10 +82,6 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_Hysteria
 config PACKAGE_$(PKG_NAME)_INCLUDE_IPv6_Nat
 	depends on PACKAGE_ip6tables
 	bool "Include IPv6 Nat"
-	default n
-
-config PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun
-	bool "Include Kcptun"
 	default n
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_NaiveProxy
