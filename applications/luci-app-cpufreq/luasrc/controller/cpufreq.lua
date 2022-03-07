@@ -7,7 +7,7 @@ function index()
 	end
 
 	local page
-	page = entry({"admin", "system", "cpufreq"}, cbi("cpufreq"), _("CPU Freq"), 900)
+	page = entry({"admin", "system", "cpufreq"}, cbi("cpufreq"), _("CPU Freq"), 90)
 	page.dependent = false
 	page.acl_depends = { "luci-app-cpufreq" }
 end
