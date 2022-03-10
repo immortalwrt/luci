@@ -238,11 +238,13 @@ revert_dns() {
 
 revert_fullcone() {
 	local count="$(iptables -t nat -L PREROUTING | grep 'FULLCONENAT' -c)"
-	for i in "${count}"
-	do
-		iptables -t nat -D PREROUTING -i "${ifname}" -j FULLCONENAT
-		iptables -t nat -D POSTROUTING -o "${ifname}" -j FULLCONENAT
-	done
+	[ "${count}" -ne "0" ] && [ -n "${ifname}" ] && {
+		for i in "${count}"
+		do
+			iptables -t nat -D PREROUTING -i "${ifname}" -j FULLCONENAT
+			iptables -t nat -D POSTROUTING -o "${ifname}" -j FULLCONENAT
+		done
+	}
 }
 
 start(){
@@ -252,11 +254,11 @@ start(){
 	uci set firewall.@defaults[0].flow_offloading_hw="${hw_flow}"
 	uci commit firewall
 
-	if [ "${fullcone_nat}" -eq "1" ];  then
+	[ "${fullcone_nat}" -eq "1" ] && [ -n "${ifname}" ] && {
 		revert_fullcone
 		iptables -t nat -A PREROUTING -i "${ifname}" -j FULLCONENAT
 		iptables -t nat -A POSTROUTING -o "${ifname}" -j FULLCONENAT
-	fi
+	}
 
 	[ "${sw_flow}" -ne "1" ] && [ "${sfe_flow}" -eq "1" ] && {
 		lsmod | grep -q fast_classifier || modprobe fast_classifier 2>"/dev/null"
@@ -272,7 +274,7 @@ start(){
 		sysctl -w net.ipv4.tcp_congestion_control="bbr"
 	else
 		sysctl -w net.ipv4.tcp_congestion_control="cubic"
-	fi	
+	fi
 
 	if [ "${dns_caching}" -eq "1" ];  then
 		stop_dnscache
