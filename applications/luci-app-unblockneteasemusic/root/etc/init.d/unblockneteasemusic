@@ -119,10 +119,9 @@ start_service()
 	procd_set_param stderr 1
 	procd_set_param respawn
 
-	local lan_addr
-	lan_addr="$(uci -q get network.lan.ipaddr)"
+	local lan_addr="$(uci -q get network.lan.ipaddr)"
 	if [ "${hijack_ways}" = "use_ipset" ]; then
-		## TODO:wating for dnsmasq support nftset
+		# TODO: wating for dnsmasq support nftset
 		mkdir -p "/tmp/dnsmasq.d"
 		rm -f "/tmp/dnsmasq.d/dnsmasq-$NAME.conf"
 		cat <<-EOF > "/tmp/dnsmasq.d/dnsmasq-$NAME.conf"
@@ -137,36 +136,30 @@ start_service()
 		EOF
 		/etc/init.d/dnsmasq reload
 
-		ip_addr_num="$(uci show "$NAME" | grep -c "filter_mode")"
+		local ip_addr_num="$(uci show "$NAME" | grep -c "filter_mode")"
 		let ip_addr_num="ip_addr_num-1"
 		local acl_http_addr acl_https_addr
 		[ "${ip_addr_num}" -ge "0" ] && for i in $(seq 0 "${ip_addr_num}")
 		do
 			ip_addr="$(uci_get_by_name "acl_rule" "ip_addr" "" "$i")"
 			filter_mode="$(uci_get_by_name "acl_rule" "filter_mode" "" "$i")"
+
 			case "${filter_mode}" in
 			"disable_http")
-				[ -n "$(command -v fw4)" ] && acl_http_addr="${acl_http_addr}${ip_addr}\n" || ipset -! add "acl_neteasemusic_http" "${ip_addr}"
+				acl_http_addr="${acl_http_addr}${ip_addr}\n"
 				;;
 			"disable_https")
-				[ -n "$(command -v fw4)" ] && acl_https_addr="${acl_https_addr}${ip_addr}\n" || ipset -! add "acl_neteasemusic_https" "${ip_addr}"
+				acl_https_addr="${acl_https_addr}${ip_addr}\n"
 				;;
 			"disable_all")
-				if [ -n "$(command -v fw4)" ]; then
-					acl_http_addr="${acl_http_addr}${ip_addr}\n"
-					acl_https_addr="${acl_https_addr}${ip_addr}\n"
-				else
-					ipset -! add "acl_neteasemusic_http" "${ip_addr}"
-					ipset -! add "acl_neteasemusic_https" "${ip_addr}"
-				fi
+				acl_http_addr="${acl_http_addr}${ip_addr}\n"
+				acl_https_addr="${acl_https_addr}${ip_addr}\n"
 				;;
 			esac
 		done
 
-		local neteasemusic_addr
-		netease_music_ips="$(uclient-fetch -qO- "http://httpdns.n.netease.com/httpdns/v2/d?domain=music.163.com,interface.music.163.com,interface3.music.163.com,apm.music.163.com,apm3.music.163.com,clientlog.music.163.com,clientlog3.music.163.com" |jsonfilter -e '@.data.*.ip.*')"
-		netease_music_ips2="$(uclient-fetch -qO- "https://music.httpdns.c.163.com/d" --post-data="music.163.com,interface.music.163.com,interface3.music.163.com,apm.music.163.com,apm3.music.163.com,clientlog.music.163.com,clientlog3.music.163.com" |jsonfilter -e '@.dns.*["ips"].*')"
-		## Feature: use ucode to init NAT rules
+		local netease_music_ips="$(uclient-fetch -qO- "http://httpdns.n.netease.com/httpdns/v2/d?domain=music.163.com,interface.music.163.com,interface3.music.163.com,apm.music.163.com,apm3.music.163.com,clientlog.music.163.com,clientlog3.music.163.com" |jsonfilter -e '@.data.*.ip.*')"
+		local netease_music_ips2="$(uclient-fetch -qO- "https://music.httpdns.c.163.com/d" --post-data="music.163.com,interface.music.163.com,interface3.music.163.com,apm.music.163.com,apm3.music.163.com,clientlog.music.163.com,clientlog3.music.163.com" |jsonfilter -e '@.dns.*["ips"].*')"
 		local tmp="/tmp/$NAME"
 		local neteasemusic_addr="$(echo -e "${netease_music_ips}\n${netease_music_ips2}" |sort -u |awk '{print $1}')"
 		json_init
@@ -181,13 +174,12 @@ start_service()
 			&& ! cmp -s "$tmp.nft" "$RULES_NFT"; then
 			echo "table inet chk {include \"$tmp.nft\";}" >"$tmp.nft.chk"
 			if nft -f "$tmp.nft.chk" -c; then
-				mv "$tmp.nft" "$RULES_NFT"
+				mv -f "$tmp.nft" "$RULES_NFT"
 				fw4 reload
 			fi
 			rm -f "$tmp.nft.chk"
 		fi
-		rm -f "$tmp.json"
-		rm -f "$tmp.nft"
+		rm -f "$tmp.json" "$tmp.nft"
 	elif [ "${hijack_ways}" = "use_hosts" ]; then
 		mkdir -p "/tmp/dnsmasq.d"
 		rm -f "/tmp/dnsmasq.d/dnsmasq-$NAME.conf"
@@ -222,6 +214,7 @@ stop_service()
 		echo "/usr/share/$NAME/core/" >> "${UPGRADE_CONF}"
 		echo "/usr/share/$NAME/local_ver" >> "${UPGRADE_CONF}"
 	}
+
 	local self_issue_cert_crt self_issue_cert_key
 	config_get "self_issue_cert_crt" "config" "self_issue_cert_crt"
 	config_get "self_issue_cert_key" "config" "self_issue_cert_key"
@@ -237,9 +230,8 @@ stop_service()
 			commit firewall
 		EOF
 	}
-	if [ -f "$RULES_NFT" ]; then
-		rm -f "$RULES_NFT"
-	fi
+
+	[ ! -e "$RULES_NFT" ] || rm -f "$RULES_NFT"
 	fw4 reload
 
 	rm -f "/tmp/dnsmasq.d/dnsmasq-$NAME.conf"
