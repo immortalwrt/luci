@@ -22,15 +22,6 @@ case "$DISTRIB_TARGET" in
 	"ipq40xx/generic")
 		uci_write_config 0 ondemand 200000 716000 10 50
 		;;
-	"ipq60xx/generic")
-		if echo "$CPU_FREQS" | grep -q "1800000"; then
-			# IPQ6010/18/28
-			uci_write_config 0 ondemand 864000 1800000 10 50
-		else
-			# IPQ6000
-			uci_write_config 0 ondemand 864000 1200000 10 50
-		fi
-		;;
 	"ipq806x/generic")
 		if echo "$CPU_FREQS" | grep -q "1725000"; then
 			# IPQ8065
@@ -45,16 +36,6 @@ case "$DISTRIB_TARGET" in
 		uci_write_config 0 ondemand 600000 $CPU_MAX_FREQ 10 50
 		# IPQ8064/5
 		echo "$CPU_POLICYS" | grep -q "1" && uci_write_config 1 ondemand 600000 1200000 10 50
-		;;
-	"ipq807x/generic")
-		if echo "$CPU_FREQS" | grep -q "2208000"; then
-			# IPQ8072/4/6/8A
-			CPU_MAX_FREQ="2208000"
-		else
-			# IPQ8071A
-			CPU_MAX_FREQ="1382400"
-		fi
-		uci_write_config 0 ondemand 1017600 $CPU_MAX_FREQ 10 50
 		;;
 	"mediatek/mt7622")
 		uci_write_config 0 ondemand 600000 1350000 10 50
