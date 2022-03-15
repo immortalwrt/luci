@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"PO-Revision-Date: 2022-02-24 06:56+0000\n"
-"Last-Translator: CRISTIAN ANDREI <cristianvdr@gmail.com>\n"
+"PO-Revision-Date: 2022-03-13 16:07+0000\n"
+"Last-Translator: Simona Iacob <s@zp1.net>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/openwrt/luci/ro/"
 ">\n"
 "Language: ro\n"
@@ -11,7 +11,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 4.11-dev\n"
+"X-Generator: Weblate 4.12-dev\n"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:621
+msgctxt "Yet unknown nftables table family (\"family\" table \"name\")"
+msgid "\"%h\" table \"%h\""
+msgstr "\"%h\" tabel \"%h\""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1516
 msgid "%.1f dB"
@@ -21,6 +26,7 @@ msgstr "%.1f dB"
 msgid "%d Bit"
 msgstr "%d Bit"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4028
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3735
 msgid "%d invalid field(s)"
 msgstr "%d câmp(uri) nevalid(e)"
@@ -39,16 +45,19 @@ msgstr "(%d fereastra minute, %d interval secunde)"
 
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:118
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:124
-#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:258
-#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:282
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:259
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:283
 #: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:88
 #: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:91
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:258
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:282
 msgid "(empty)"
 msgstr "(gol)"
 
-#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:351
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:352
 #: modules/luci-compat/luasrc/view/cbi/network_netinfo.htm:23
 #: modules/luci-compat/luasrc/view/cbi/network_netlist.htm:58
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:351
 msgid "(no interfaces attached)"
 msgstr "(nici o interfață atașată)"
 
@@ -57,13 +66,15 @@ msgid "-- Additional Field --"
 msgstr "-- Câmp suplimentar --"
 
 #: modules/luci-base/htdocs/luci-static/resources/cbi.js:275
-#: modules/luci-base/htdocs/luci-static/resources/form.js:3669
-#: modules/luci-base/htdocs/luci-static/resources/form.js:4037
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3733
+#: modules/luci-base/htdocs/luci-static/resources/form.js:4101
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:798
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:1036
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2009
 #: modules/luci-compat/luasrc/view/cbi/header.htm:8
 #: protocols/luci-proto-3g/htdocs/luci-static/resources/protocol/3g.js:89
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3669
+#: modules/luci-base/htdocs/luci-static/resources/form.js:4037
 msgid "-- Please choose --"
 msgstr "-- Vă rugăm să alegeți --"
 
@@ -109,6 +120,14 @@ msgstr "1"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/load.js:233
 msgid "1 Minute Load:"
 msgstr "Încărcarea în ultimul minut:"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:299
+msgctxt "nft amount of flags"
+msgid "1 flag"
+msgid_plural "%d flags"
+msgstr[0] "steag"
+msgstr[1] "steaguri"
+msgstr[2] "stegulețe"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/load.js:253
 msgid "15 Minute Load:"
@@ -216,6 +235,51 @@ msgstr "<abbr title=\"Router Advertisement\">RA</abbr> MTU"
 msgid "<abbr title=\"Router Advertisement\">RA</abbr>-Service"
 msgstr "Serviciu-<abbr title=\"Router Advertisement\">RA</abbr>"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:78
+msgctxt "nft relational \">\" operator expression"
+msgid "<var>%s</var> greater than <strong>%s</strong>"
+msgstr "<var>%s</var> mai mare decât <strong>%s</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:76
+msgctxt "nft relational \">=\" operator expression"
+msgid "<var>%s</var> greater than or equal to <strong>%s</strong>"
+msgstr "<var>%s</var> mai mare sau egală cu <strong>%s</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:81
+msgctxt "nft set match expression"
+msgid "<var>%s</var> in set <strong>%s</strong>"
+msgstr "<var>%s</var> în setul <strong>%s</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:74
+msgctxt "nft relational \"==\" operator expression"
+msgid "<var>%s</var> is <strong>%s</strong>"
+msgstr "<var>%s</var> este <strong>%s</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:80
+msgctxt "nft relational \"in\" operator expression"
+msgid "<var>%s</var> is one of <strong>%s</strong>"
+msgstr "<var>%s</var> este unul dintre <strong>%s</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:79
+msgctxt "nft relational \"<\" operator expression"
+msgid "<var>%s</var> lower than <strong>%s</strong>"
+msgstr "<var>%s</var> mai mic decât <strong>%s</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:77
+msgctxt "nft relational \"<=\" operator expression"
+msgid "<var>%s</var> lower than or equal to <strong>%s</strong>"
+msgstr "<var>%s</var> mai mic sau egal cu <strong>%s</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:75
+msgctxt "nft relational \"!=\" operator expression"
+msgid "<var>%s</var> not <strong>%s</strong>"
+msgstr "<var>%s</var> nu <strong>%s</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:82
+msgctxt "nft not in set match expression"
+msgid "<var>%s</var> not in set <strong>%s</strong>"
+msgstr "<var>%s</var> nu este în setul <strong>%s</strong>"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:370
 msgid "A configuration for the device \"%s\" already exists"
 msgstr "O configurație pentru dispozitivul \"%s\" deja există"
@@ -224,6 +288,7 @@ msgstr "O configurație pentru dispozitivul \"%s\" deja există"
 msgid "A directory with the same name already exists."
 msgstr "Un director cu acelaşi nume există deja."
 
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2664
 #: modules/luci-base/htdocs/luci-static/resources/luci.js:2662
 msgid "A new login is required since the authentication session expired."
 msgstr ""
@@ -288,6 +353,10 @@ msgstr "Monitorizarea ARP nu este acceptată pentru politica selectată!"
 msgid "ARP retry threshold"
 msgstr "prag de reîncercare ARP"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:609
+msgid "ARP traffic table \"%h\""
+msgstr "Tabelul de trafic ARP \"%h\""
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1504
 msgid "ATM (Asynchronous Transfer Mode)"
 msgstr "ATM (Mod de Transfer Asincron)"
@@ -325,6 +394,9 @@ msgstr "Număr echipament ATM"
 msgid "ATU-C System Vendor ID"
 msgstr "ID-ul furnizorului sistemului ATU-C"
 
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:266
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:548
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:552
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:265
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:547
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:551
@@ -340,6 +412,11 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:647
 msgid "Accept local"
 msgstr "Acceptați local"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:86
+msgctxt "nft accept action"
+msgid "Accept packet"
+msgstr "Acceptă pachetul"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:647
 msgid "Accept packets with local source addresses"
@@ -414,7 +491,7 @@ msgstr "Echilibrarea adaptivă a sarcinii de transmisie (balance-tlb, 5)"
 #: modules/luci-base/htdocs/luci-static/resources/form.js:2232
 #: modules/luci-base/htdocs/luci-static/resources/form.js:2245
 #: modules/luci-base/htdocs/luci-static/resources/form.js:2253
-#: modules/luci-base/htdocs/luci-static/resources/form.js:3467
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3531
 #: modules/luci-compat/luasrc/view/cbi/nsection.htm:25
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:189
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:197
@@ -422,6 +499,7 @@ msgstr "Echilibrarea adaptivă a sarcinii de transmisie (balance-tlb, 5)"
 #: modules/luci-compat/luasrc/view/cbi/tsection.htm:47
 #: modules/luci-compat/luasrc/view/cbi/ucisection.htm:54
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:885
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3467
 msgid "Add"
 msgstr "Adăugați"
 
@@ -466,7 +544,7 @@ msgstr "Adăugați cheia"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:409
 msgid "Add local domain suffix to names served from hosts files."
 msgstr ""
-"Adăugați sufixul de domeniu local la numele servite din fișierele hosts."
+"Adăugați sufixul domeniului local la numele servite din fișierele hosts."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:465
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1129
@@ -505,6 +583,11 @@ msgstr "Fișier suplimentar pentru servere"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:43
 msgid "Address"
 msgstr "Adresă"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:22
+msgctxt "nft meta nfproto"
+msgid "Address family"
+msgstr "Familie de adrese"
 
 #: protocols/luci-proto-relay/htdocs/luci-static/resources/protocol/relay.js:151
 msgid "Address to access local relay bridge"
@@ -799,10 +882,16 @@ msgstr "Montează Anonim"
 msgid "Anonymous Swap"
 msgstr "Swap anonim"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:490
+msgctxt "nft match any traffic"
+msgid "Any packet"
+msgstr "Orice pachet"
+
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:84
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:174
-#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:195
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:196
 #: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:60
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:195
 msgid "Any zone"
 msgstr "Orice zonă"
 
@@ -814,15 +903,19 @@ msgstr "Aplicați opțiunile DHCP la această rețea. (Gol = toți clienții)."
 msgid "Apply backup?"
 msgstr "Aplicați backup?"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4615
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4322
 msgid "Apply request failed with status <code>%h</code>"
 msgstr "Solicitarea de aplicare a eșuat cu statusul <code>%h</code>"
 
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2175
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4481
 #: modules/luci-base/htdocs/luci-static/resources/luci.js:2173
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4188
 msgid "Apply unchecked"
 msgstr "Aplicați nebifate"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4554
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4261
 msgid "Applying configuration changes… %ds"
 msgstr "Se aplică schimbările configurării… %ds"
@@ -858,6 +951,24 @@ msgstr "Stații asociate"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:151
 msgid "Associations"
 msgstr "Asocieri"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:116
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:117
+msgid ""
+"At least <strong>%h</strong> per <strong>%h</strong>, burst of <strong>%h</"
+"strong>"
+msgstr ""
+"Cel puțin <strong>%h</strong> pe <strong>%h</strong>, explozie de "
+"<strong>%h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:114
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:115
+msgid ""
+"At most <strong>%h</strong> per <strong>%h</strong>, burst of <strong>%h</"
+"strong>"
+msgstr ""
+"Cel mult <strong>%h</strong> pe <strong>%h</strong>, explozie de "
+"<strong>%h</strong>"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:154
 msgid "Attempt to enable configured mount points for attached devices"
@@ -971,6 +1082,7 @@ msgstr "BR / DMR / AFTR"
 msgid "BSSID"
 msgstr "BSSID"
 
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3200
 #: modules/luci-base/htdocs/luci-static/resources/form.js:3136
 msgid "Back"
 msgstr "Inapoi"
@@ -1092,6 +1204,10 @@ msgstr "Opțiuni specifice portului de punte"
 msgid "Bridge ports"
 msgstr "Porturile punții"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:613
+msgid "Bridge traffic table \"%h\""
+msgstr "Tabel de trafic punte \"%h\""
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1565
 msgid "Bridge unit number"
 msgstr "Numărul unității de punte"
@@ -1113,6 +1229,7 @@ msgid "Broadcast policy (broadcast, 3)"
 msgstr "Politica de difuzare (difuzarea, 3)"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2845
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4138
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3845
 msgid "Browse…"
 msgstr "Răsfoiți…"
@@ -1145,7 +1262,7 @@ msgid "Call failed"
 msgstr "Apel eșuat"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2938
-#: modules/luci-base/htdocs/luci-static/resources/ui.js:3854
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4147
 #: modules/luci-compat/luasrc/view/cbi/delegator.htm:14
 #: modules/luci-compat/luasrc/view/cbi/simpleform.htm:52
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:188
@@ -1154,8 +1271,39 @@ msgstr "Apel eșuat"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:128
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:295
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/sshkeys.js:203
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:3854
 msgid "Cancel"
 msgstr "Anulare"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:540
+msgctxt "Chain hook: forward"
+msgid "Capture incoming packets addressed to other hosts"
+msgstr "Capturați pachetele primite adresate altor gazde"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:532
+msgctxt "Chain hook: prerouting"
+msgid "Capture incoming packets before any routing decision"
+msgstr "Capturați pachetele primite înainte de orice decizie de rutare"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:536
+msgctxt "Chain hook: input"
+msgid "Capture incoming packets routed to the local system"
+msgstr "Capturați pachetele primite direcționate către sistemul local"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:548
+msgctxt "Chain hook: postrouting"
+msgid "Capture outgoing packets after any routing decision"
+msgstr "Capturați pachetele de ieșire după orice decizie de rutare"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:544
+msgctxt "Chain hook: output"
+msgid "Capture outgoing packets originating from the local system"
+msgstr "Capturați pachetele de ieșire care provin din sistemul local"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:528
+msgctxt "Chain hook: ingress"
+msgid "Capture packets directly after the NIC received them"
+msgstr "Capturați pachetele direct după ce NIC le-a primit"
 
 #: protocols/luci-proto-hnet/htdocs/luci-static/resources/protocol/hnet.js:17
 msgid "Category"
@@ -1219,10 +1367,17 @@ msgstr ""
 msgid "Chain"
 msgstr "Legătură"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:552
+msgctxt "Yet unknown nftables chain hook"
+msgid "Chain hook \"%h\""
+msgstr "Cârlig în lanț \"%h\""
+
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4367
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4074
 msgid "Changes"
 msgstr "Modificări"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4650
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4357
 msgid "Changes have been reverted."
 msgstr "Modificările au fost anulate."
@@ -1241,6 +1396,7 @@ msgstr "Schimbă parola de administrator pentru accesarea dispozitivului"
 msgid "Channel"
 msgstr "Canal"
 
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:98
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:81
 msgid "Channel Analysis"
 msgstr "Analizarea canalelor"
@@ -1328,9 +1484,10 @@ msgstr "Client"
 msgid "Client ID to send when requesting DHCP"
 msgstr "ID-ul de client care se trimite la solicitarea DHCP"
 
-#: modules/luci-base/htdocs/luci-static/resources/ui.js:4091
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4384
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/sshkeys.js:167
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/sshkeys.js:173
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4091
 msgid "Close"
 msgstr "Închideți"
 
@@ -1397,15 +1554,18 @@ msgstr ""
 msgid "Compute outgoing checksum (optional)."
 msgstr "Calculați suma de control de ieșire (opțional)."
 
-#: modules/luci-base/htdocs/luci-static/resources/ui.js:4074
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4367
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:454
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4074
 msgid "Configuration"
 msgstr "Configurație"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4529
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4236
 msgid "Configuration changes applied."
 msgstr "Modificările de configurare aplicate."
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4467
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4174
 msgid "Configuration changes have been rolled back!"
 msgstr "Schimbările asupra configurării au fost anulate!"
@@ -1492,9 +1652,20 @@ msgstr "Încercarea de conectare a eșuat."
 msgid "Connection lost"
 msgstr "Conexiunea s-a pierdut"
 
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:153
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:136
 msgid "Connections"
 msgstr "Conexiuni"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:28
+msgctxt "nft ct state"
+msgid "Conntrack state"
+msgstr "Starea Conntrack"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:30
+msgctxt "nft ct status"
+msgid "Conntrack status"
+msgstr "Starea Conntrack"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:378
 msgid "Consider the slave up when all ARP IP targets are reachable (all, 1)"
@@ -1522,6 +1693,21 @@ msgstr "Conţinutul a fost salvat."
 msgid "Continue"
 msgstr "Continuați"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:88
+msgctxt "nft jump action"
+msgid "Continue in <strong><a href=\"#%q.%q\">%h</a></strong>"
+msgstr "Continuați în <strong><a href=\"#%q.%q\">%h</a></strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:119
+msgid "Continue in calling chain"
+msgstr "Continuați în lanțul de apelare"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:522
+msgctxt "Chain policy: accept"
+msgid "Continue processing unmatched packets"
+msgstr "Continuați procesarea pachetelor nepotrivite"
+
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4503
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4210
 msgid ""
 "Could not regain access to the device after applying the configuration "
@@ -1565,12 +1751,14 @@ msgstr "Nivelul jurnalului Cron"
 msgid "Current power"
 msgstr "Puterea actuală"
 
-#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:572
-#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:574
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:573
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:575
 #: modules/luci-compat/luasrc/view/cbi/network_ifacelist.htm:51
 #: modules/luci-compat/luasrc/view/cbi/network_ifacelist.htm:53
 #: modules/luci-compat/luasrc/view/cbi/network_ifacelist.htm:82
 #: modules/luci-compat/luasrc/view/cbi/network_ifacelist.htm:83
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:572
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:574
 msgid "Custom Interface"
 msgstr "Interfață personalizată"
 
@@ -1765,13 +1953,16 @@ msgid "Delegate IPv6 prefixes"
 msgstr "Delegați prefixele IPv6"
 
 #: modules/luci-base/htdocs/luci-static/resources/form.js:2309
-#: modules/luci-base/htdocs/luci-static/resources/form.js:2738
-#: modules/luci-base/htdocs/luci-static/resources/form.js:2742
-#: modules/luci-base/htdocs/luci-static/resources/form.js:3451
+#: modules/luci-base/htdocs/luci-static/resources/form.js:2740
+#: modules/luci-base/htdocs/luci-static/resources/form.js:2744
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3515
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2907
 #: modules/luci-compat/luasrc/view/cbi/nsection.htm:11
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:162
 #: modules/luci-compat/luasrc/view/cbi/tsection.htm:16
+#: modules/luci-base/htdocs/luci-static/resources/form.js:2738
+#: modules/luci-base/htdocs/luci-static/resources/form.js:2742
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3451
 msgid "Delete"
 msgstr "Ștergeți"
 
@@ -1816,7 +2007,22 @@ msgstr "Desemnat principal"
 msgid "Destination"
 msgstr "Destinaţie"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:41
+msgctxt "nft ip daddr"
+msgid "Destination IP"
+msgstr "IP-ul destinației"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:45
+msgctxt "nft ip6 daddr"
+msgid "Destination IPv6"
+msgstr "Destinația IPv6"
+
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:48
+msgid "Destination port"
+msgstr "Portul de destinație"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:43
+msgctxt "nft ip dport"
 msgid "Destination port"
 msgstr "Portul de destinație"
 
@@ -1826,7 +2032,7 @@ msgid "Destination zone"
 msgstr "Zonă de destinație"
 
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:67
-#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:191
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:192
 #: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:43
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:46
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:81
@@ -1839,6 +2045,7 @@ msgstr "Zonă de destinație"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:280
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:356
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:392
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:191
 msgid "Device"
 msgstr "Dispozitiv"
 
@@ -1871,6 +2078,7 @@ msgstr "Dispozitivul nu este prezent"
 msgid "Device type"
 msgstr "Tipul dispozitivului"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4502
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4209
 msgid "Device unreachable!"
 msgstr "Dispozitiv inaccesibil!"
@@ -1975,12 +2183,16 @@ msgid "Disk space"
 msgstr "Spațiu pe disc"
 
 #: modules/luci-base/htdocs/luci-static/resources/form.js:607
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3012
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3213
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:3646
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4473
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1770
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:358
 #: modules/luci-base/htdocs/luci-static/resources/form.js:3010
 #: modules/luci-base/htdocs/luci-static/resources/form.js:3149
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3353
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4180
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1770
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:358
 msgid "Dismiss"
 msgstr "Închideți"
 
@@ -2124,6 +2336,7 @@ msgstr "Descărcați mtdblock"
 msgid "Downstream SNR offset"
 msgstr "Decalaj SNR în flux"
 
+#: modules/luci-base/htdocs/luci-static/resources/form.js:2698
 #: modules/luci-base/htdocs/luci-static/resources/form.js:2696
 msgid "Drag to reorder"
 msgstr "Trageți pentru a reordona"
@@ -2131,6 +2344,16 @@ msgstr "Trageți pentru a reordona"
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:342
 msgid "Drop Duplicate Frames"
 msgstr "Renunțați la cadrele duplicate"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:87
+msgctxt "nft drop action"
+msgid "Drop packet"
+msgstr "Aruncă pachetul"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:518
+msgctxt "Chain policy: drop"
+msgid "Drop unmatched packets"
+msgstr "Aruncă pachetele nepotrivite"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:12
 msgid "Dropbear Instance"
@@ -2186,13 +2409,16 @@ msgstr "Lungimea EA-bits"
 msgid "EAP-Method"
 msgstr "Metoda-EAP"
 
-#: modules/luci-base/htdocs/luci-static/resources/form.js:2716
-#: modules/luci-base/htdocs/luci-static/resources/form.js:2719
-#: modules/luci-base/htdocs/luci-static/resources/form.js:3314
+#: modules/luci-base/htdocs/luci-static/resources/form.js:2718
+#: modules/luci-base/htdocs/luci-static/resources/form.js:2721
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3378
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:154
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:160
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:495
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:902
+#: modules/luci-base/htdocs/luci-static/resources/form.js:2716
+#: modules/luci-base/htdocs/luci-static/resources/form.js:2719
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3314
 msgid "Edit"
 msgstr "Editați"
 
@@ -2216,9 +2442,19 @@ msgstr "Editați această rețea"
 msgid "Edit wireless network"
 msgstr "Editați rețeaua wireless"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:60
+msgctxt "nft rt mtu"
+msgid "Effective route MTU"
+msgstr "Ruta efectivă MTU"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:462
 msgid "Egress QoS mapping"
 msgstr "Maparea QoS de ieșire"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:11
+msgctxt "nft meta oifname"
+msgid "Egress device name"
+msgstr "Numele dispozitivului de ieșire"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:166
 msgctxt "VLAN port state"
@@ -2482,6 +2718,11 @@ msgstr "Impune MLD versiunea 1"
 msgid "Enforce MLD version 2"
 msgstr "Impune MLD versiunea 2"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:13
+msgctxt "nft meta oif"
+msgid "Engress device id"
+msgstr "Identificarea dispozitivului Engress"
+
 #: modules/luci-compat/luasrc/view/cbi/dropdown.htm:16
 msgid "Enter custom value"
 msgstr "Introduceți valoarea personalizată"
@@ -2645,6 +2886,7 @@ msgstr "Protocolul FT"
 msgid "Failed to change the system password."
 msgstr "Nu s-a reușit schimbarea parolei sistemului."
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4461
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4168
 msgid "Failed to confirm apply within %ds, waiting for rollback…"
 msgstr "Nu a reușit să confirme aplicarea în %ds, așteptând rollback…"
@@ -2734,8 +2976,12 @@ msgid "Finish"
 msgstr "Terminați"
 
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:27
-msgid "Firewall"
-msgstr "Firewall"
+msgid "Firewall (iptables)"
+msgstr "Firewall (iptables)"
+
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:43
+msgid "Firewall (nftables)"
+msgstr "Firewall (nftables)"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:149
 msgid "Firewall Mark"
@@ -2903,6 +3149,11 @@ msgstr "Mod de redirecționare"
 msgid "Fragmentation Threshold"
 msgstr "Pragul de fragmentare"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:57
+msgctxt "nft nat flag fully-random"
+msgid "Full port randomization"
+msgstr "Randomizarea completă a porturilor"
+
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:162
 msgid ""
 "Further information about WireGuard interfaces and peers at <a href='http://"
@@ -3023,10 +3274,12 @@ msgstr "Mergeți la actualizarea firmware-ului..."
 msgid "Go to password configuration..."
 msgstr "Mergeți la configurarea parolei..."
 
-#: modules/luci-base/htdocs/luci-static/resources/form.js:2638
-#: modules/luci-base/htdocs/luci-static/resources/form.js:3633
+#: modules/luci-base/htdocs/luci-static/resources/form.js:2640
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3697
 #: modules/luci-compat/luasrc/view/cbi/full_valueheader.htm:4
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:58
+#: modules/luci-base/htdocs/luci-static/resources/form.js:2638
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3633
 msgid "Go to relevant configuration page"
 msgstr "Mergeți la pagina de configurare relevantă"
 
@@ -3192,6 +3445,11 @@ msgstr "Ascundeți legăturile goale"
 msgid "High"
 msgstr "Mare"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:565
+msgctxt "Chain hook description"
+msgid "Hook: <strong>%h</strong> (%h), Priority: <strong>%d</strong>"
+msgstr "Cârlig: <strong>%h</strong> (%h), Prioritate: <strong>%d</strong>"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:57
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2164
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:126
@@ -3255,6 +3513,18 @@ msgstr "Cât timp (în milisecunde) trebuie să rămână aprins LED-ul"
 msgid "Hybrid"
 msgstr "Hibrid"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:46
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:48
+msgctxt "nft icmpv6 code"
+msgid "ICMPv6 code"
+msgstr "Codul ICMPv6"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:47
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:49
+msgctxt "nft icmpv6 type"
+msgid "ICMPv6 type"
+msgstr "Tipul ICMPv6"
+
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:53
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:48
 msgid "ID used to uniquely identify the VXLAN"
@@ -3299,6 +3569,16 @@ msgstr "Adresa IP este invalidă"
 #: modules/luci-compat/luasrc/model/network.lua:31
 msgid "IP address is missing"
 msgstr "Adresa IP lipsește"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:33
+msgctxt "nft ip protocol"
+msgid "IP protocol"
+msgstr "Protocolul IP"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:15
+msgctxt "nft meta l4proto"
+msgid "IP protocol"
+msgstr "Protocolul IP"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:588
 msgid "IP set"
@@ -3389,6 +3669,10 @@ msgstr "Prefix IPv4"
 msgid "IPv4 prefix length"
 msgstr "Lungime prefix IPv4"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:597
+msgid "IPv4 traffic table \"%h\""
+msgstr "Tabelul de trafic IPv4 \"%h\""
+
 #: protocols/luci-proto-ncm/htdocs/luci-static/resources/protocol/ncm.js:84
 msgid "IPv4+IPv6"
 msgstr "IPv4+IPv6"
@@ -3401,6 +3685,10 @@ msgstr "IPv4-în-IPv4 (RFC2003)"
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:127
 msgid "IPv4/IPv6 (both - defaults to IPv4)"
 msgstr "IPv4/IPv6 (ambele - valoarea implicită este IPv4)"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:605
+msgid "IPv4/IPv6 traffic table \"%h\""
+msgstr "Tabelul de trafic IPv4/IPv6 \"%h\""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:91
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:114
@@ -3520,6 +3808,10 @@ msgstr "Sufixul IPv6 (hexagonal)"
 msgid "IPv6 support"
 msgstr "Suport IPv6"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:601
+msgid "IPv6 traffic table \"%h\""
+msgstr "Tabelul de trafic IPv6 \"%h\""
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:101
 msgid "IPv6-PD"
 msgstr "Delegarea prefixului IPv6"
@@ -3569,7 +3861,7 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:196
 msgid "If set, the meaning of the match options is inverted"
-msgstr ""
+msgstr "Dacă este setată, semnificația opțiunilor de potrivire este inversată"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:254
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:360
@@ -3717,6 +4009,16 @@ msgstr "Informație"
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:456
 msgid "Ingress QoS mapping"
 msgstr "Maparea QoS de intrare"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:12
+msgctxt "nft meta iif"
+msgid "Ingress device id"
+msgstr "ID-ul dispozitivului de intrare"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:10
+msgctxt "nft meta iifname"
+msgid "Ingress device name"
+msgstr "Numele dispozitivului de intrare"
 
 #: modules/luci-compat/luasrc/model/network/proto_ncm.lua:67
 #: protocols/luci-proto-ncm/htdocs/luci-static/resources/protocol/ncm.js:25
@@ -3967,6 +4269,7 @@ msgid "Keep settings and retain the current configuration"
 msgstr "Păstrați setările și păstrați configurația curentă"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/dmesg.js:20
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:77
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:60
 msgid "Kernel Log"
 msgstr "Jurnalul Kernel-ului"
@@ -4000,6 +4303,11 @@ msgstr "Cheia pentru pachetele primite (opțional)."
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:103
 msgid "Key for outgoing packets (optional)."
 msgstr "Cheia pentru pachetele de ieșire (opțional)."
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:66
+msgctxt "nft unit"
+msgid "KiB"
+msgstr "KiB"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/processes.js:54
 msgid "Kill"
@@ -4117,6 +4425,7 @@ msgstr ""
 "fi semnificativ redusă în cazul în care sunt utilizate aceste dispozitive. "
 "Se recomandă să nu se permită ratele 802.11b atunci când este posibil."
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4369
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4076
 msgid "Legend:"
 msgstr "Legendă:"
@@ -4236,8 +4545,9 @@ msgstr ""
 msgid "Listening port for inbound DNS queries."
 msgstr "Port de ascultare pentru interogările DNS de intrare."
 
-#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:106
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:123
 #: themes/luci-theme-openwrt/luasrc/view/themes/openwrt.org/header.htm:54
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:106
 msgid "Load"
 msgstr "Încărcare"
 
@@ -4258,10 +4568,11 @@ msgstr "Încărcare date…"
 msgid "Loading directory contents…"
 msgstr "Încărcarea conținutului directorului…"
 
-#: modules/luci-base/htdocs/luci-static/resources/luci.js:1940
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:1942
 #: modules/luci-base/luasrc/view/view.htm:4
 #: modules/luci-mod-status/luasrc/view/admin_status/index.htm:12
 #: themes/luci-theme-bootstrap/luasrc/view/themes/bootstrap/sysauth.htm:45
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:1940
 msgid "Loading view…"
 msgstr "Se încarcă vizualizarea…"
 
@@ -4623,6 +4934,11 @@ msgstr "Metoda de determinare a stării legăturii"
 msgid "Metric"
 msgstr "Metrică"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:65
+msgctxt "nft unit"
+msgid "MiB"
+msgstr "MiB"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:818
 msgid "Min <abbr title=\"Router Advertisement\">RA</abbr> interval"
 msgstr "Minim <abbr title=\"Router Advertisement\">RA</abbr> interval"
@@ -4821,6 +5137,10 @@ msgstr "Multicast către unicast"
 msgid "NAS ID"
 msgstr "NAS ID"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:508
+msgid "NAT action chain \"%h\""
+msgstr "Lanțul de acțiuni NAT \"%h\""
+
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:87
 msgid "NAT-T Mode"
 msgstr "NAT-T Mod"
@@ -4847,10 +5167,11 @@ msgid "NTP server candidates"
 msgstr "Serverele NTP candidate"
 
 #: modules/luci-base/htdocs/luci-static/resources/form.js:2618
-#: modules/luci-base/htdocs/luci-static/resources/ui.js:3831
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4124
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:27
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1097
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/leds.js:68
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:3831
 msgid "Name"
 msgstr "Nume"
 
@@ -4912,6 +5233,10 @@ msgstr "Activitatea dispozitivului de rețea (kernel: netdev)"
 msgid "Network device is not present"
 msgstr "Dispozitivul de rețea nu este prezent"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:617
+msgid "Network device table \"%h\""
+msgstr "Tabelul dispozitivelor de rețea \"%h\""
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:426
 msgid "Network ifname configuration migration"
 msgstr "Migrarea configurației rețelei ifname"
@@ -4949,9 +5274,10 @@ msgstr "Nume nou interfață…"
 msgid "Next »"
 msgstr "Următoarea »"
 
-#: modules/luci-base/htdocs/luci-static/resources/form.js:3974
+#: modules/luci-base/htdocs/luci-static/resources/form.js:4038
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:298
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:346
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3974
 msgid "No"
 msgstr "Nu"
 
@@ -4993,6 +5319,11 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:69
 msgid "No client associated"
 msgstr "Niciun client asociat"
+
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:3194
+msgctxt "empty table placeholder"
+msgid "No data"
+msgstr "Nu există date"
 
 #: modules/luci-base/htdocs/luci-static/resources/rpc.js:406
 msgid "No data received"
@@ -5053,6 +5384,10 @@ msgstr "Nu mai sunt secundare disponibile, nu se poate salva interfața"
 msgid "No negative cache"
 msgstr "Fără memorie cache negativă"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:651
+msgid "No nftables ruleset load"
+msgstr "Nu se încarcă setul de reguli nftables"
+
 #: themes/luci-theme-bootstrap/luasrc/view/themes/bootstrap/header.htm:69
 #: themes/luci-theme-openwrt-2020/luasrc/view/themes/openwrt2020/header.htm:59
 #: themes/luci-theme-openwrt/luasrc/view/themes/openwrt.org/header.htm:79
@@ -5067,6 +5402,11 @@ msgstr "Nu sunt definiți încă colegi"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/sshkeys.js:277
 msgid "No public keys present yet."
 msgstr "Fără chei publice prezente încă."
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:585
+msgctxt "nft chain is empty"
+msgid "No rules in this chain"
+msgstr "Nu există reguli în acestă legătură"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:91
 msgid "No rules in this chain."
@@ -5298,6 +5638,7 @@ msgid "Operating frequency"
 msgstr "Frecvență de operare"
 
 #: modules/luci-base/htdocs/luci-static/resources/form.js:2002
+#: modules/luci-base/htdocs/luci-static/resources/form.js:4050
 #: modules/luci-base/htdocs/luci-static/resources/form.js:3986
 msgid "Option \"%s\" contains an invalid input value."
 msgstr "Opțiunea \"%s\" conține o valoare de intrare invalidă."
@@ -5306,10 +5647,12 @@ msgstr "Opțiunea \"%s\" conține o valoare de intrare invalidă."
 msgid "Option \"%s\" must not be empty."
 msgstr "Opțiunea \"%s\" nu trebuie să fie goală."
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4376
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4083
 msgid "Option changed"
 msgstr "Opțiune modificată"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4378
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4085
 msgid "Option removed"
 msgstr "Opțiune eliminată"
@@ -5654,6 +5997,11 @@ msgstr "Setări PXE/TFTP"
 msgid "Packet Steering"
 msgstr "Direcționarea pachetelor"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:26
+msgctxt "nft meta mark"
+msgid "Packet mark"
+msgstr "Marca pachetului"
+
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:54
 msgid "Packets"
 msgstr "Pachete"
@@ -5733,6 +6081,7 @@ msgstr "Calea de acces la certificatul intern"
 msgid "Path to inner Private Key"
 msgstr "Cale către cheia privată interioară"
 
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2725
 #: modules/luci-base/htdocs/luci-static/resources/luci.js:2723
 msgid "Paused"
 msgstr "Întrerupt"
@@ -5830,6 +6179,7 @@ msgstr "Pachete."
 msgid "Please enter your username and password."
 msgstr "Vă rugăm să introduceți numele de utilizator și parola."
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4107
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3814
 msgid "Please select the file to upload."
 msgstr "Vă rugăm să selectați fișierul de încărcat."
@@ -5837,6 +6187,11 @@ msgstr "Vă rugăm să selectați fișierul de încărcat."
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:54
 msgid "Policy"
 msgstr "Politica"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:566
+msgctxt "Chain hook policy"
+msgid "Policy: <strong>%h</strong> (%h)"
+msgstr "Politica: <strong>%h</strong> (%h)"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:21
 msgid "Port"
@@ -5940,6 +6295,7 @@ msgid "Private Key"
 msgstr "Cheie privată"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/processes.js:64
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:86
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:69
 msgid "Processes"
 msgstr "Procese"
@@ -6084,6 +6440,11 @@ msgstr "Rată de recepție"
 msgid "RX Rate / TX Rate"
 msgstr "Rată de recepție / Rată de transmisie"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:56
+msgctxt "nft nat flag random"
+msgid "Randomize source port mapping"
+msgstr "Randomizarea mapării porturilor sursă"
+
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pppoe.js:88
 msgid "Raw hex-encoded bytes. Leave empty unless your ISP require this"
 msgstr ""
@@ -6098,6 +6459,7 @@ msgstr "Citiți <code>/etc/ethers</code> pentru a configura serverul DHCP."
 msgid "Really switch protocol?"
 msgstr "Sigur doriți să schimbați protocolul?"
 
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:111
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:94
 msgid "Realtime Graphs"
 msgstr "Grafice în timp real"
@@ -6142,19 +6504,52 @@ msgstr "Reconectați această interfață"
 msgid "Redirect to HTTPS"
 msgstr "Redirecționați către HTTPS"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:108
+msgctxt "nft redirect to port"
+msgid "Redirect to local port <strong>%h</strong>"
+msgstr "Redirecționare către portul local <strong>%h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:107
+msgctxt "nft redirect"
+msgid "Redirect to local system"
+msgstr "Redirecționare către sistemul local"
+
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:57
 msgid "References"
 msgstr "Referințe"
 
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2719
 #: modules/luci-base/htdocs/luci-static/resources/luci.js:2717
 msgid "Refreshing"
 msgstr "Împrospătare"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:91
+msgctxt "nft reject with icmp type"
+msgid "Reject IPv4 packet with <strong>ICMP type %h</strong>"
+msgstr "Respinge pachetul IPv4 cu <strong>ICMP tip %h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:93
+msgctxt "nft reject with icmpx type"
+msgid "Reject packet with <strong>ICMP type %h</strong>"
+msgstr "Respingeți pachetul cu <strong>ICMP tip %h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:92
+msgctxt "nft reject with icmpv6 type"
+msgid "Reject packet with <strong>ICMPv6 type %h</strong>"
+msgstr "Respingeți pachetul cu <strong>ICMPv6 tip %h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:90
+msgctxt "nft reject with tcp reset"
+msgid "Reject packet with <strong>TCP reset</strong>"
+msgstr "Respingeți pachetul cu <strong>TCP reset</strong>"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:191
 msgid ""
 "Reject routing decisions that have a prefix length less than or equal to the "
 "specified value"
 msgstr ""
+"Respinge deciziile de rutare care au o lungime a prefixului mai mică sau "
+"egală cu valoarea specificată"
 
 #: modules/luci-compat/luasrc/model/network/proto_relay.lua:153
 #: protocols/luci-proto-relay/htdocs/luci-static/resources/protocol/relay.js:39
@@ -6330,11 +6725,12 @@ msgstr "Necesită wpa-supplicant cu suport WEP"
 msgid "Reselection policy for primary slave"
 msgstr "Politica de realegere pentru secundara principală"
 
-#: modules/luci-base/htdocs/luci-static/resources/luci.js:2195
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2197
 #: modules/luci-base/luasrc/view/sysauth.htm:39
 #: modules/luci-compat/luasrc/view/cbi/delegator.htm:17
 #: modules/luci-compat/luasrc/view/cbi/footer.htm:30
 #: modules/luci-compat/luasrc/view/cbi/simpleform.htm:66
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2195
 msgid "Reset"
 msgstr "Resetați"
 
@@ -6397,21 +6793,69 @@ msgstr "Arată / ascunde parola"
 msgid "Reverse path filter"
 msgstr "Filtru de cale inversă"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4392
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4099
 msgid "Revert"
 msgstr "Reveniți"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4477
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4184
 msgid "Revert changes"
 msgstr "Restabilește la schimbările anterioare"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4659
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4366
 msgid "Revert request failed with status <code>%h</code>"
 msgstr "Cererea de revenire a eșuat cu statusul <code>%h</code>"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4639
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4346
 msgid "Reverting configuration…"
 msgstr "Refacerea configurației…"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:101
+msgctxt "nft dnat ip to addr"
+msgid "Rewrite destination to <strong>%h</strong>"
+msgstr "Rescrieți destinația în <strong>%h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:104
+msgctxt "nft dnat ip6 to addr"
+msgid "Rewrite destination to <strong>%h</strong>"
+msgstr "Rescrieți destinația în <strong>%h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:102
+msgctxt "nft dnat ip to addr:port"
+msgid "Rewrite destination to <strong>%h</strong>, port <strong>%h</strong>"
+msgstr "Rescrieți destinația în <strong>%h</strong>, portul <strong>%h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:105
+msgctxt "nft dnat ip6 to addr:port"
+msgid "Rewrite destination to <strong>%h</strong>, port <strong>%h</strong>"
+msgstr "Rescrieți destinația în <strong>%h</strong>, portul <strong>%h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:95
+msgctxt "nft snat ip to addr"
+msgid "Rewrite source to <strong>%h</strong>"
+msgstr "Rescrieți sursa în <strong>%h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:98
+msgctxt "nft snat ip6 to addr"
+msgid "Rewrite source to <strong>%h</strong>"
+msgstr "Rescrieți sursa în <strong>%h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:96
+msgctxt "nft snat ip to addr:port"
+msgid "Rewrite source to <strong>%h</strong>, port <strong>%h</strong>"
+msgstr "Rescrieți sursa în <strong>%h</strong>, portul <strong>%h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:99
+msgctxt "nft snat ip6 to addr:port"
+msgid "Rewrite source to <strong>%h</strong>, port <strong>%h</strong>"
+msgstr "Rescrieți sursa în <strong>%h</strong>, portul <strong>%h</strong>"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:110
+msgid "Rewrite to egress device address"
+msgstr "Rescriere la adresa dispozitivului de ieșire"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:551
 msgid "Robustness"
@@ -6438,6 +6882,10 @@ msgstr "Politica Round-Robin (balance-rr, 0)"
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:280
 msgid "Route Allowed IPs"
 msgstr "Rutarea IP-urilor permise"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:504
+msgid "Route action chain \"%h\""
+msgstr "Lanțul de acțiuni de rută \"%h\""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:45
 msgid "Route type"
@@ -6477,6 +6925,23 @@ msgstr ""
 msgid "Rule"
 msgstr "Regula"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:574
+msgid "Rule actions"
+msgstr "Acțiunile de regulii"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:447
+msgctxt "nft comment"
+msgid "Rule comment: %s"
+msgstr "Comentariul regulii: %s"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:512
+msgid "Rule container chain \"%h\""
+msgstr "Regulă lanț container \"%h\""
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:573
+msgid "Rule matches"
+msgstr "Regula se potrivește"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:136
 msgid "Rule type"
 msgstr "Tipul de regulă"
@@ -6491,6 +6956,7 @@ msgstr ""
 msgid "Run filesystem check"
 msgstr "Verifică sistemul de fișiere"
 
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2358
 #: modules/luci-base/htdocs/luci-static/resources/luci.js:2356
 msgid "Runtime error"
 msgstr "Eroare de execuție"
@@ -6546,19 +7012,23 @@ msgstr "Serverul SSTP"
 msgid "SWAP"
 msgstr "SWAP"
 
-#: modules/luci-base/htdocs/luci-static/resources/form.js:3154
-#: modules/luci-base/htdocs/luci-static/resources/luci.js:2190
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3218
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2192
 #: modules/luci-compat/luasrc/view/cbi/error.htm:17
 #: modules/luci-compat/luasrc/view/cbi/footer.htm:26
 #: modules/luci-compat/luasrc/view/cbi/header.htm:20
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:463
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:123
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3154
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2190
 msgid "Save"
 msgstr "Salvați"
 
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2174
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4388
+#: modules/luci-compat/luasrc/view/cbi/footer.htm:22
 #: modules/luci-base/htdocs/luci-static/resources/luci.js:2172
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4095
-#: modules/luci-compat/luasrc/view/cbi/footer.htm:22
 msgid "Save & Apply"
 msgstr "Salvați și aplicați"
 
@@ -6583,10 +7053,12 @@ msgstr "Scanați"
 msgid "Scheduled Tasks"
 msgstr "Operațiuni programate"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4372
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4079
 msgid "Section added"
 msgstr "Secțiune adăugată"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4374
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4081
 msgid "Section removed"
 msgstr "Secțiune eliminată"
@@ -6667,6 +7139,7 @@ msgstr "Tipul de serviciu"
 msgid "Services"
 msgstr "Servicii"
 
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2662
 #: modules/luci-base/htdocs/luci-static/resources/luci.js:2660
 msgid "Session expired"
 msgstr "Sesiunea a expirat"
@@ -6675,6 +7148,11 @@ msgstr "Sesiunea a expirat"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:167
 msgid "Set Static"
 msgstr "Setați Static"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:112
+msgctxt "nft mangle"
+msgid "Set header field <var>%s</var> to <strong>%s</strong>"
+msgstr "Setați câmpul de antet <var>%s</var> la <strong>%s</strong>"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:921
 msgid "Set interface as NDP-Proxy external slave. Default is off."
@@ -6806,8 +7284,9 @@ msgstr "Rata de reîmprospătare a semnalului"
 msgid "Signal:"
 msgstr "Semnal:"
 
-#: modules/luci-base/htdocs/luci-static/resources/ui.js:3832
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4125
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:222
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:3832
 msgid "Size"
 msgstr "Mărime"
 
@@ -6877,10 +7356,25 @@ msgstr ""
 msgid "Source"
 msgstr "Sursă"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:40
+msgctxt "nft ip saddr"
+msgid "Source IP"
+msgstr "Sursă IP"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:44
+msgctxt "nft ip6 saddr"
+msgid "Source IPv6"
+msgstr "Sursă IPv6"
+
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:57
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:57
 msgid "Source interface"
 msgstr "Interfață sursă"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:42
+msgctxt "nft ip sport"
+msgid "Source port"
+msgstr "Portul sursă"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:499
 msgid ""
@@ -6916,6 +7410,10 @@ msgid ""
 "corresponding UID or 1000-1005 to inclusively match all UIDs within the "
 "corresponding range"
 msgstr ""
+"Specifică un UID individual sau un interval de UID-uri care trebuie să "
+"corespundă, de exemplu, 1000 pentru a corespunde UID-ului corespunzător sau "
+"1000-1005 pentru a corespunde inclusiv tuturor UID-urilor din intervalul "
+"corespunzător"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:343
 msgid ""
@@ -6940,7 +7438,7 @@ msgstr "Specifică frecvența de monitorizare a legăturii MII în milisecunde"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:181
 msgid "Specifies the TOS value to match in IP headers"
-msgstr ""
+msgstr "Specifică valoarea TOS pentru a se potrivi în antetele IP"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:261
 msgid "Specifies the aggregation selection logic to use"
@@ -6949,6 +7447,7 @@ msgstr "Specifică logica de selecție a agregării care trebuie utilizată"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:159
 msgid "Specifies the destination subnet to match (CIDR notation)"
 msgstr ""
+"Specifică sub-rețeaua de destinație care trebuie să corespundă (notație CIDR)"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:292
 msgid "Specifies the directory the device is attached to"
@@ -6969,6 +7468,9 @@ msgid ""
 "Specifies the fwmark and optionally its mask to match, e.g. 0xFF to match "
 "mark 255 or 0x0/0x1 to match any even mark value"
 msgstr ""
+"Specifică marca fwmark și, opțional, masca acesteia pentru a se potrivi, de "
+"exemplu, 0xFF pentru a se potrivi cu marca 255 sau 0x0/0x1 pentru a se "
+"potrivi cu orice valoare pară a mărcii"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:144
 msgid "Specifies the incoming logical interface name"
@@ -6979,6 +7481,8 @@ msgid ""
 "Specifies the logical interface name of the parent (or master) interface "
 "this route belongs to"
 msgstr ""
+"Specifică numele interfeței logice a interfeței părinte (sau principală) de "
+"care aparține această rută"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:254
 msgid ""
@@ -7035,6 +7539,10 @@ msgid ""
 "interface is taken if any, otherwise creates a link scope route. If set to "
 "0.0.0.0 no gateway will be specified for the route"
 msgstr ""
+"Specifică gateway-ul de rețea. Dacă se omite, se ia gateway-ul de la "
+"interfața părinte, dacă există, în caz contrar se creează o rută de tip link "
+"scope. Dacă este setat la 0.0.0.0.0.0, nu se va specifica nici o poartă de "
+"acces pentru rută"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:334
 msgid ""
@@ -7082,6 +7590,8 @@ msgid ""
 "Specifies the preferred source address when sending to destinations covered "
 "by the target"
 msgstr ""
+"Specifică adresa sursă preferată la trimiterea către destinații acoperite de "
+"țintă"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:375
 msgid "Specifies the quantity of ARP IP targets that must be reachable"
@@ -7105,7 +7615,7 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:79
 msgid "Specifies the route metric to use"
-msgstr ""
+msgstr "Specifică metrica de rută care trebuie utilizată"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:45
 msgid "Specifies the route type to be created"
@@ -7113,11 +7623,11 @@ msgstr "Specifică tipul de rută care trebuie creat"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:136
 msgid "Specifies the rule target routing action"
-msgstr ""
+msgstr "Specifică acțiunea de rutare țintă a regulii"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:148
 msgid "Specifies the source subnet to match (CIDR notation)"
-msgstr ""
+msgstr "Specifică sub-rețeaua sursă care trebuie să corespundă (notație CIDR)"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:246
 msgid "Specifies the system priority"
@@ -7288,6 +7798,7 @@ msgstr "Prioritatea de pornire"
 msgid "Start refresh"
 msgstr "Porniți reîmprospătarea"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4592
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4299
 msgid "Starting configuration apply…"
 msgstr "Se aplică configurația de pornire…"
@@ -7451,6 +7962,8 @@ msgid "System"
 msgstr "Sistem"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:25
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:56
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:68
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:39
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:51
 msgid "System Log"
@@ -7476,6 +7989,26 @@ msgstr "Sistemul rulează în modul de recuperare (initramfs)."
 #: themes/luci-theme-material/luasrc/view/themes/material/header.htm:86
 msgid "Sytem running in recovery (initramfs) mode."
 msgstr "Sistemul rulează în modul de recuperare (initramfs)."
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:62
+msgctxt "nft tcp option maxseg size"
+msgid "TCP MSS"
+msgstr "TCP MSS"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:51
+msgctxt "nft tcp dport"
+msgid "TCP destination port"
+msgstr "Portul de destinație TCP"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:54
+msgctxt "nft tcp flags"
+msgid "TCP flags"
+msgstr "Etichete TCP"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:50
+msgctxt "nft tcp sport"
+msgid "TCP source port"
+msgstr "Portul sursă TCP"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:338
 msgid "TCP:"
@@ -7515,7 +8048,7 @@ msgstr "Țintă"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js:57
 msgid "Target Platform"
-msgstr "Platforma țintă"
+msgstr "Platformă țintă"
 
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:103
 msgid "Target network"
@@ -7704,6 +8237,7 @@ msgstr ""
 "SSID-ul corect trebuie specificat manual atunci când vă alăturați unei "
 "rețele fără fir ascunse"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4468
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4175
 msgid ""
 "The device could not be reached within %d seconds after applying the pending "
@@ -7930,6 +8464,8 @@ msgstr ""
 msgid ""
 "The rule target is a jump to another rule specified by its priority value"
 msgstr ""
+"Ținta regulii este un salt către o altă regulă specificată prin valoarea "
+"priorității sale"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:91
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:166
@@ -7938,6 +8474,10 @@ msgid ""
 "to 65535 or symbol alias declared in /etc/iproute2/rt_tables. Special "
 "aliases local (255), main (254) and default (253) are also valid"
 msgstr ""
+"Ținta regulii este un ID de căutare a tabelului: un index de tabel numeric "
+"cuprins între 0 și 65535 sau un alias de simbol declarat în /etc/iproute2/"
+"rt_tables. Aliasurile speciale locale (255), principale (254) și implicite "
+"(253) sunt, de asemenea, valabile"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1371
 msgid "The selected %s mode is incompatible with %s encryption"
@@ -8022,6 +8562,7 @@ msgstr "Valoarea este suprascrisă de configurare. Original: %s"
 msgid "There are no active leases"
 msgstr "Nu există închirieri active"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4607
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4314
 msgid "There are no changes to apply"
 msgstr "Nu există modificări de aplicat"
@@ -8174,6 +8715,7 @@ msgstr ""
 msgid "Timezone"
 msgstr "Fusul orar"
 
+#: modules/luci-base/htdocs/luci-static/resources/luci.js:2672
 #: modules/luci-base/htdocs/luci-static/resources/luci.js:2670
 msgid "To login…"
 msgstr "Mergeți la autentificare…"
@@ -8204,6 +8746,7 @@ msgstr "Urmărire traseu"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:54
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:65
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:132
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:115
 msgid "Traffic"
 msgstr "Trafic"
@@ -8212,6 +8755,15 @@ msgstr "Trafic"
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:84
 msgid "Traffic Class"
 msgstr "Clasa de trafic"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:500
+msgid "Traffic filter chain \"%h\""
+msgstr "Lanțul filtrului de trafic \"%h\""
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:438
+msgctxt "nft counter"
+msgid "Traffic matched by rule: %.1000mPackets, %.1024mBytes"
+msgstr "Traficul potrivit cu regula: %.1000mPackets, %.1024mBytes"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:387
 msgid "Transfer"
@@ -8266,6 +8818,16 @@ msgstr "Tip"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:181
 msgid "Type of service"
 msgstr "Tipul serviciului"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:53
+msgctxt "nft udp dport"
+msgid "UDP destination port"
+msgstr "Portul de destinație UDP"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:52
+msgctxt "nft udp sport"
+msgid "UDP source port"
+msgstr "Portul sursă UDP"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:328
 msgid "UDP:"
@@ -8407,6 +8969,7 @@ msgstr "Demontează"
 msgid "Unnamed key"
 msgstr "Cheie fără nume"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4312
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4019
 msgid "Unsaved Changes"
 msgstr "Modificări nesalvate"
@@ -8437,6 +9000,7 @@ msgstr "Sus"
 msgid "Up Delay"
 msgstr "Până la întârziere"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4199
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3906
 msgid "Upload"
 msgstr "Încărcați"
@@ -8463,10 +9027,13 @@ msgid "Upload file…"
 msgstr "Încărcați fișierul…"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2773
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4187
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3894
 msgid "Upload request failed: %s"
 msgstr "Solicitarea de încărcare a eșuat: %s"
 
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4106
+#: modules/luci-base/htdocs/luci-static/resources/ui.js:4160
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3813
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3867
 msgid "Uploading file…"
@@ -8611,6 +9178,11 @@ msgstr ""
 msgid "Use routing table"
 msgstr "Utilizați tabelul de rutare"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:58
+msgctxt "nft nat flag persistent"
+msgid "Use same source and destination for each connection"
+msgstr "Utilizați aceeași sursă și destinație pentru fiecare conexiune"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1575
 msgid "Use system certificates"
 msgstr "Utilizați certificatele de sistem"
@@ -8685,6 +9257,10 @@ msgstr "Cheie utilizator (codare PEM)"
 #: themes/luci-theme-bootstrap/luasrc/view/themes/bootstrap/sysauth.htm:18
 msgid "Username"
 msgstr "Nume Utilizator"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:121
+msgid "Utilize flow table <strong>%h</strong>"
+msgstr "Utilizați tabelul de flux <strong>%h</strong>"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1562
 msgid "VC-Mux"
@@ -8897,11 +9473,11 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:109
 msgid ""
-"When enabled, gateway is on link even if the gateway does not match any "
+"When enabled, gateway is on-link even if the gateway does not match any "
 "interface prefix"
 msgstr ""
-"Când este activat, gateway-ul este conectat chiar dacă gateway-ul nu se "
-"potrivește cu niciun prefix de interfață"
+"Atunci când este activată, gateway-ul este pe legătură chiar dacă gateway-ul "
+"nu se potrivește cu niciun prefix de interfață"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1537
 msgid ""
@@ -8941,6 +9517,7 @@ msgstr "VPN WireGuard"
 
 #: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:17
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:10
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:141
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:124
 msgid "Wireless"
 msgstr "Fără fir"
@@ -9001,9 +9578,10 @@ msgstr "Scrieți jurnalul de sistem într-un fișier"
 msgid "XOR policy (balance-xor, 2)"
 msgstr "Politica XOR (balance-xor, 2)"
 
-#: modules/luci-base/htdocs/luci-static/resources/form.js:3974
+#: modules/luci-base/htdocs/luci-static/resources/form.js:4038
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:297
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:345
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3974
 msgid "Yes"
 msgstr "Da"
 
@@ -9098,10 +9676,11 @@ msgid "bridged"
 msgstr "cu punte"
 
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:146
-#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:405
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:406
 #: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:35
 #: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:99
 #: modules/luci-compat/luasrc/view/cbi/network_netlist.htm:31
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:405
 msgid "create"
 msgstr "creați"
 
@@ -9145,6 +9724,11 @@ msgstr "creați:"
 msgid "dBm"
 msgstr "dBm"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:68
+msgctxt "nft unit"
+msgid "day"
+msgstr "zi"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1087
 msgid "disable"
 msgstr "Dezactivat"
@@ -9184,8 +9768,9 @@ msgid "forced"
 msgstr "forțat"
 
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:85
-#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:195
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:196
 #: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:61
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:195
 msgid "forward"
 msgstr "redirecționare"
 
@@ -9208,6 +9793,11 @@ msgstr "valoare codificată în hexazecimal"
 msgid "hidden"
 msgstr "ascuns"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:69
+msgctxt "nft unit"
+msgid "hour"
+msgstr "ora"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:771
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:879
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:913
@@ -9219,8 +9809,9 @@ msgid "ignore"
 msgstr "ignorați"
 
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:69
-#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:191
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:192
 #: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:46
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:191
 msgid "input"
 msgstr "intrare"
 
@@ -9239,6 +9830,11 @@ msgstr "configurație gestionată (M)"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1390
 msgid "medium security"
 msgstr "securitate medie"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:70
+msgctxt "nft unit"
+msgid "minute"
+msgstr "minut"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1542
 msgid "minutes"
@@ -9266,8 +9862,9 @@ msgstr "fără legătură"
 msgid "non-empty value"
 msgstr "valoare nevidă"
 
-#: modules/luci-base/htdocs/luci-static/resources/form.js:3304
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3368
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:800
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3304
 msgid "none"
 msgstr "niciunul"
 
@@ -9299,6 +9896,11 @@ msgstr "altă configurație (O)"
 #: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:46
 msgid "output"
 msgstr "ieșire"
+
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:64
+msgctxt "nft unit"
+msgid "packets"
+msgstr "pachete"
 
 #: modules/luci-base/htdocs/luci-static/resources/validation.js:252
 msgid "positive decimal value"
@@ -9376,16 +9978,22 @@ msgstr "necunoscut"
 msgid "unlimited"
 msgstr "nelimitat"
 
-#: modules/luci-base/htdocs/luci-static/resources/form.js:3669
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3733
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:76
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:138
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:370
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:397
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:433
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:470
+#: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:566
+#: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:53
+#: modules/luci-compat/luasrc/view/cbi/network_netlist.htm:38
+#: modules/luci-base/htdocs/luci-static/resources/form.js:3669
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:369
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:396
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:432
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:469
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:565
-#: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:53
-#: modules/luci-compat/luasrc/view/cbi/network_netlist.htm:38
 msgid "unspecified"
 msgstr "nespecificat"
 
@@ -9573,6 +10181,11 @@ msgstr "valoare cu cel mult %d caractere"
 msgid "weak security"
 msgstr "securitate slabă"
 
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:67
+msgctxt "nft unit"
+msgid "week"
+msgstr "săptămâna"
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:47
 msgid "yes"
 msgstr "da"
@@ -9580,6 +10193,18 @@ msgstr "da"
 #: modules/luci-compat/luasrc/view/cbi/delegator.htm:20
 msgid "« Back"
 msgstr "« Înapoi"
+
+#: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:27
+msgid "Firewall"
+msgstr "Firewall"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:109
+msgid ""
+"When enabled, gateway is on link even if the gateway does not match any "
+"interface prefix"
+msgstr ""
+"Când este activat, gateway-ul este conectat chiar dacă gateway-ul nu se "
+"potrivește cu niciun prefix de interfață"
 
 #~ msgid "Default %d"
 #~ msgstr "Implicit %d"
