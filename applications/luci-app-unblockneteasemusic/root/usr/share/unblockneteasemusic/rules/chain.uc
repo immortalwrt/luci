@@ -8,7 +8,8 @@ let pub_access = o_pub_access;
 
 {% if (pub_access == 1): %}
 chain input_wan {
-	tcp dport {{ http_port }}-{{ https_port }} counter accept comment "!fw4: unblockneteasemusic-pub-access"
+	tcp dport {{ http_port }} counter accept comment "!fw4: unblockneteasemusic-http-pub-access"
+	tcp dport {{ https_port }} counter accept comment "!fw4: unblockneteasemusic-https-pub-access"
 }
 {% endif %}
 
