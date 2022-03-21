@@ -198,11 +198,9 @@ else
 	end
 
 	noscan = s:taboption("general", Flag, "noscan", translate("Force 40MHz mode"),
-	translate("Always use 40MHz channels even if the secondary channel overlaps. Using this option does not comply with IEEE 802.11n-2009!"))
+		translate("Always use 40MHz channels even if the secondary channel overlaps. " ..
+			"Using this option does not comply with IEEE 802.11n-2009!"))
 	noscan.default = noscan.disabled
-
-	vendor_vht = s:taboption("general", Flag, "vendor_vht", translate("Enable 256-QAM"),translate("802.11n 2.4Ghz Only"))
-	vendor_vht.default = vendor_vht.disabled
 end
 
 ------------------- MAC80211 Device ------------------
@@ -235,9 +233,18 @@ if hwtype == "mac80211" then
 		s:taboption("advanced", Value, "country", translate("Country Code"), translate("Use ISO/IEC 3166 alpha2 country codes."))
 	end
 
-	legacyrates = s:taboption("advanced", Flag, "legacy_rates", translate("Allow legacy 802.11b rates"))
+	legacyrates = s:taboption("advanced", Flag, "legacy_rates", translate("Allow legacy 802.11b rates"),
+		translate("Legacy or badly behaving devices may require legacy 802.11b rates to interoperate. " ..
+			"Airtime efficiency may be significantly reduced where these are used. It is recommended " ..
+			"to not allow 802.11b rates where possible."))
 	legacyrates.rmempty = false
-	legacyrates.default = "1"
+	legacyrates.default = "0"
+
+	if hw_modes.g then
+		vendor_vht = s:taboption("advanced", Flag, "vendor_vht", translate("Enable 256QAM modulation"),
+			translate("802.11n 2.4Ghz only, may not supported by some hardware!"))
+		vendor_vht.default = vendor_vht.disabled
+	end
 
 	mubeamformer = s:taboption("advanced", Flag, "mu_beamformer", translate("MU-MIMO"))
 	mubeamformer.rmempty = false
@@ -500,8 +507,9 @@ if hwtype == "mac80211" then
 	ifname = s:taboption("advanced", Value, "ifname", translate("Interface name"), translate("Override default interface name"))
 	ifname.optional = true
 
-  disassoc_low_ack = s:taboption("general", Flag, "disassoc_low_ack", translate("Disassociate On Low Acknowledgement"),translate("Allow AP mode to disconnect STAs based on low ACK condition"))
-  disassoc_low_ack.default = disassoc_low_ack.enabled
+	disassoc_low_ack = s:taboption("general", Flag, "disassoc_low_ack", translate("Disassociate On Low Acknowledgement"),
+		translate("Allow AP mode to disconnect STAs based on low ACK condition"))
+	disassoc_low_ack.default = disassoc_low_ack.enabled
 end
 
 
@@ -849,7 +857,10 @@ end
 if hwtype == "mac80211" or hwtype == "prism2" then
 
 	-- Probe 802.11k support
-	ieee80211k = s:taboption("encryption", Flag, "ieee80211k", translate("802.11k"), translate("Enables The 802.11k standard provides information to discover the best available access point"))
+	ieee80211k = s:taboption("encryption", Flag, "ieee80211k",
+		translate("802.11k"),
+		translate("Enables The 802.11k standard provides information " ..
+			"to discover the best available access point"))
 	ieee80211k:depends({mode="ap", encryption="wpa"})
 	ieee80211k:depends({mode="ap", encryption="wpa2"})
 	ieee80211k:depends({mode="ap-wds", encryption="wpa"})
@@ -866,19 +877,25 @@ if hwtype == "mac80211" or hwtype == "prism2" then
 	ieee80211k:depends({mode="ap-wds", encryption="sae-mixed"})
 	ieee80211k.rmempty = true
 
-	rrmneighborreport = s:taboption("encryption", Flag, "rrm_neighbor_report", translate("Enable neighbor report via radio measurements"))
+	rrmneighborreport = s:taboption("encryption", Flag, "rrm_neighbor_report",
+		translate("Enable neighbor report via radio measurements"))
 	rrmneighborreport.default = rrmneighborreport.enabled
 	rrmneighborreport:depends({ieee80211k="1"})
 	rrmneighborreport.rmempty = true
 
-	rrmbeaconreport = s:taboption("encryption", Flag, "rrm_beacon_report", translate("Enable beacon report via radio measurements"))
+	rrmbeaconreport = s:taboption("encryption", Flag, "rrm_beacon_report",
+		translate("Enable beacon report via radio measurements"))
 	rrmbeaconreport.default = rrmbeaconreport.enabled
 	rrmbeaconreport:depends({ieee80211k="1"})
 	rrmbeaconreport.rmempty = true
 	-- End of 802.11k options
 
 	-- Probe 802.11v support
-	ieee80211v = s:taboption("encryption", Flag, "ieee80211v", translate("802.11v"), translate("Enables 802.11v allows client devices to exchange information about the network topology,tating overall improvement of the wireless network."))
+	ieee80211v = s:taboption("encryption", Flag, "ieee80211v",
+		translate("802.11v"),
+		translate("Enables 802.11v allows client devices to exchange " ..
+			"information about the network topology, tating overall " ..
+			"improvement of the wireless network."))
 	ieee80211v:depends({mode="ap", encryption="wpa"})
 	ieee80211v:depends({mode="ap", encryption="wpa2"})
 	ieee80211v:depends({mode="ap-wds", encryption="wpa"})
@@ -895,25 +912,28 @@ if hwtype == "mac80211" or hwtype == "prism2" then
 	ieee80211v:depends({mode="ap-wds", encryption="sae-mixed"})
 	ieee80211v.rmempty = true
 
-
-	wnmsleepmode = s:taboption("encryption", Flag, "wnm_sleep_mode", translate("extended sleep mode for stations"))
+	wnmsleepmode = s:taboption("encryption", Flag, "wnm_sleep_mode",
+		translate("extended sleep mode for stations"))
 	wnmsleepmode.default = wnmsleepmode.disabled
 	wnmsleepmode:depends({ieee80211v="1"})
 	wnmsleepmode.rmempty = true
 
-	bsstransition = s:taboption("encryption", Flag, "bss_transition", translate("BSS Transition Management"))
+	bsstransition = s:taboption("encryption", Flag, "bss_transition",
+		translate("BSS Transition Management"))
 	bsstransition.default = bsstransition.disabled
 	bsstransition:depends({ieee80211v="1"})
 	bsstransition.rmempty = true
 
-	timeadvertisement = s:taboption("encryption", ListValue, "time_advertisement", translate("Time advertisement"))
+	timeadvertisement = s:taboption("encryption", ListValue,
+		"time_advertisement", translate("Time advertisement"))
 	timeadvertisement:depends({ieee80211v="1"})
 	timeadvertisement:value("0", translatef("disabled"))
 	timeadvertisement:value("2", translatef("UTC time at which the TSF timer is 0"))
 	timeadvertisement.rmempty = true
 
 	time_zone = s:taboption("encryption", Value, "time_zone",
-	translate("time zone"), translate("Local time zone as specified in 8.3 of IEEE Std 1003.1-2004"))
+		translate("time zone"),
+		translate("Local time zone as specified in 8.3 of IEEE Std 1003.1-2004"))
 	time_zone:depends({time_advertisement="2"})
 	time_zone.placeholder = "UTC8"
 	time_zone.rmempty = true
@@ -1265,9 +1285,7 @@ if hwtype == "mac80211" then
 	if has_80211w then
 		ieee80211w = s:taboption("encryption", ListValue, "ieee80211w",
 			translate("802.11w Management Frame Protection"),
-			translate("Requires the 'full' version of wpad/hostapd " ..
-				"and support from the wifi driver <br />(as of Feb 2017: " ..
-				"ath9k and ath10k, in LEDE also mwlwifi and mt76)"))
+			translate("Note: Some wireless drivers do not fully support 802.11w. E.g. mwlwifi may have problems"))
 		ieee80211w.default = ""
 		ieee80211w.rmempty = true
 		ieee80211w:value("", translate("Disabled (default)"))
@@ -1309,7 +1327,10 @@ if hwtype == "mac80211" then
 
 	local key_retries = s:taboption("encryption", Flag, "wpa_disable_eapol_key_retries",
 		translate("Enable key reinstallation (KRACK) countermeasures"),
-		translate("Complicates key reinstallation attacks on the client side by disabling retransmission of EAPOL-Key frames that are used to install keys. This workaround might cause interoperability issues and reduced robustness of key negotiation especially in environments with heavy traffic load."))
+		translate("Complicates key reinstallation attacks on the client side by disabling " ..
+			"retransmission of EAPOL-Key frames that are used to install keys. This " ..
+			"workaround might cause interoperability issues and reduced robustness of " ..
+			"key negotiation especially in environments with heavy traffic load."))
 
 	key_retries:depends({mode="ap", encryption="wpa2"})
 	key_retries:depends({mode="ap", encryption="psk2"})

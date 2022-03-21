@@ -342,7 +342,7 @@ msgstr "总是通告默认路由"
 msgid ""
 "Always use 40MHz channels even if the secondary channel overlaps. Using this "
 "option does not comply with IEEE 802.11n-2009!"
-msgstr "强制启用 40MHz 频宽并忽略辅助信道重叠。此选项可能不兼容某些无线硬件导致无法启用!"
+msgstr "即使辅助信道重叠，也始终使用 40MHz 信道。使用此选项不符合 IEEE 802.11n-2009!"
 
 msgid "Annex"
 msgstr "Annex"
@@ -529,6 +529,9 @@ msgstr "指定了错误的地址！"
 msgid "Band"
 msgstr "频宽"
 
+msgid "Beacon Interval"
+msgstr "信标间隔"
+
 msgid "Behind NAT"
 msgstr "在 NAT 网络内"
 
@@ -714,6 +717,9 @@ msgstr "国家"
 msgid "Country Code"
 msgstr "国家代码"
 
+msgid "Coverage cell density"
+msgstr "无线信号覆盖密度"
+
 msgid "Cover the following interface"
 msgstr "包括以下接口"
 
@@ -816,6 +822,9 @@ msgstr "DSL 状态"
 
 msgid "DSL line mode"
 msgstr "DSL 线路模式"
+
+msgid "DTIM Interval"
+msgstr "DTIM 间隔"
 
 msgid "DUID"
 msgstr "DUID"
@@ -1031,6 +1040,9 @@ msgstr "紧急"
 msgid "Enable"
 msgstr "启用"
 
+msgid "Enable 256QAM modulation"
+msgstr "启用 256QAM 调制"
+
 msgid ""
 "Enable <abbr title=\"Internet Group Management Protocol\">IGMP</abbr> "
 "snooping"
@@ -1228,9 +1240,6 @@ msgstr "固件文件"
 
 msgid "Firmware Version"
 msgstr "固件版本"
-
-msgid "Target Platform"
-msgstr "目标平台"
 
 msgid "Fixed source port for outbound DNS queries"
 msgstr "指定的 DNS 查询源端口"
@@ -1768,6 +1777,14 @@ msgstr "留空则自动探测"
 msgid "Leave empty to use the current WAN address"
 msgstr "留空则使用当前 WAN 地址"
 
+msgid ""
+"Legacy or badly behaving devices may require legacy 802.11b rates to "
+"interoperate. Airtime efficiency may be significantly reduced where these "
+"are used. It is recommended to not allow 802.11b rates where possible."
+msgstr ""
+"过时或性能欠佳的设备可能需要旧的 802.11b 速率才能互联。在使用这些速率的情况"
+"下，信道占用效率可能会显著降低。建议尽可能不使用 802.11b 速率。"
+
 msgid "Legend:"
 msgstr "图例："
 
@@ -2189,6 +2206,12 @@ msgstr "注意：配置文件将被删除。"
 
 msgid "Note: interface name length"
 msgstr "注意：接口名称长度"
+
+msgid ""
+"Note: Some wireless drivers do not fully support 802.11w. E.g. "
+"mwlwifi may have problems"
+msgstr ""
+"注意：有些无线驱动程序不完全支持 802.11w。例如：mwlwifi 可能会有一些问题"
 
 msgid "Notice"
 msgstr "注意"
@@ -2766,13 +2789,6 @@ msgstr ""
 "和通过隧道的路由网络。"
 
 msgid ""
-"Requires the 'full' version of wpad/hostapd and support from the wifi driver "
-"<br />(as of Feb 2017: ath9k and ath10k, in LEDE also mwlwifi and mt76)"
-msgstr ""
-"需要完整版本的 wpad/hostapd，并且 WiFi 驱动支持<br />（截止 2017.02，已知支持"
-"此特性的驱动有 ath9k、ath10k，以及 LEDE 中的 mwlwifi 和 mt76）"
-
-msgid ""
 "Requires upstream supports DNSSEC; verify unsigned domain responses really "
 "come from unsigned domains"
 msgstr "需要上级支持 DNSSEC，验证未签名的响应确实是来自未签名的域名"
@@ -3176,6 +3192,9 @@ msgstr "对象"
 
 msgid "Target network"
 msgstr "目标网络"
+
+msgid "Target Platform"
+msgstr "目标平台"
 
 msgid "Temperature"
 msgstr "温度"
@@ -4037,9 +4056,6 @@ msgstr "« 后退"
 #~ msgid "Join Network: Settings"
 #~ msgstr "加入网络：设置"
 
-#~ msgid "CPU"
-#~ msgstr "CPU"
-
 #~ msgid "Port %d"
 #~ msgstr "端口 %d"
 
@@ -4070,7 +4086,9 @@ msgstr "点击\"备份MTD\"可以下载指定分区数据.(注意！仅提供给
 msgid "Use all servers"
 msgstr "使用 all-servers 并发查询"
 
-msgid "Setting this flag forces dnsmasq to send all queries to all available servers. The reply from the server which answers first will be returned to the original requester."
+msgid ""
+"Setting this flag forces dnsmasq to send all queries to all available servers. The "
+"reply from the server which answers first will be returned to the original requester."
 msgstr "对所有 DNS 服务器发起查询，选择回应最快的一条作为查询结果返回"
 
 msgid "Custom domain"
@@ -4094,7 +4112,9 @@ msgstr "启用无线电测量邻居报告"
 msgid "Enable beacon report via radio measurements"
 msgstr "启用无线电测量信标报告"
 
-msgid "Enables 802.11v allows client devices to exchange information about the network topology,tating overall improvement of the wireless network."
+msgid ""
+"Enables 802.11v allows client devices to exchange information about the network topology, "
+"tating overall improvement of the wireless network."
 msgstr "启用 802.11v 将允许客户端设备交换有关网络拓扑的信息，从而全面改善无线网络漫游"
 
 msgid "extended sleep mode for stations"
@@ -4115,8 +4135,5 @@ msgstr "时区"
 msgid "Local time zone as specified in 8.3 of IEEE Std 1003.1-2004"
 msgstr "本地时区采用 IEEE Std 1003.1-2004 的 8.3 格式（例如 UTC8）"
 
-msgid "Enable 256-QAM"
-msgstr "启用 256-QAM"
-
-msgid "802.11n 2.4Ghz Only"
-msgstr "只适合 802.11n 2.4Ghz"
+msgid "802.11n 2.4Ghz only, may not supported by some hardware!"
+msgstr "只适合 802.11n 2.4Ghz, 某些无线硬件可能不支持!"
