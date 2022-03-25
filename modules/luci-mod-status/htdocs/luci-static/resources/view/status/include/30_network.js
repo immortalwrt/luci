@@ -87,25 +87,28 @@ return baseclass.extend({
 
 		var fields = [
 			_('Active Connections'), ct_max ? ct_count : null,
+			_('Online Users'), onlineusers
 		];
 
 		var ctstatus = E('table', { 'class': 'table' });
 
 		for (var i = 0; i < fields.length; i += 2) {
-			ctstatus.appendChild(E('tr', { 'class': 'tr' }, [
-				E('td', { 'class': 'td left', 'width': '33%' }, [ fields[i] ]),
-				E('td', { 'class': 'td left' }, [
-					(fields[i + 1] != null) ? progressbar(fields[i + 1], ct_max) : '?'
-				])
-			]));
+			if (fields[i] == _('Online Users')) {
+				ctstatus.appendChild(E('tr', { 'class': 'tr' }, [
+					E('td', { 'class': 'td left', 'width': '33%' }, [ fields[i] ]),
+					E('td', { 'class': 'td left' }, [
+						(fields[i + 1] != null) ? fields[i + 1] : '?'
+					])
+				]));
+			} else {
+				ctstatus.appendChild(E('tr', { 'class': 'tr' }, [
+					E('td', { 'class': 'td left', 'width': '33%' }, [ fields[i] ]),
+					E('td', { 'class': 'td left' }, [
+						(fields[i + 1] != null) ? progressbar(fields[i + 1], ct_max) : '?'
+					])
+				]));
+			}
 		}
-
-		ctstatus.appendChild(E('tr', {'clash': 'tr'}, [
-			E('td', { 'class': 'td left', 'width': '33%' }, [ _('Online Users') ]),
-			E('td', { 'class': 'td left' }, [
-				(onlineusers != null ) ? onlineusers : '?'
-			])
-		]));
 
 		var netstatus = E('div', { 'class': 'network-status-table' });
 
