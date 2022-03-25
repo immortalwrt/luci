@@ -87,7 +87,6 @@ return baseclass.extend({
 
 		var fields = [
 			_('Active Connections'), ct_max ? ct_count : null,
-			_('Online Users'), onlineusers.onlineusers
 		];
 
 		var ctstatus = E('table', { 'class': 'table' });
@@ -100,6 +99,13 @@ return baseclass.extend({
 				])
 			]));
 		}
+
+		ctstatus.appendChild(E('tr', {'clash': 'tr'}, [
+			E('td', { 'class': 'td left', 'width': '33%' }, [ _('Online Users') ]),
+			E('td', { 'class': 'td left' }, [
+				(onlineusers != null ) ? onlineusers : '?'
+			])
+		]));
 
 		var netstatus = E('div', { 'class': 'network-status-table' });
 
