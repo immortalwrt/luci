@@ -87,7 +87,7 @@ return baseclass.extend({
 
 		var fields = [
 			_('Active Connections'), ct_max ? ct_count : null,
-			_('Online Users'), onlineusers
+			_('Online Users'), onlineusers ? onlineusers.onlineusers : null
 		];
 
 		var ctstatus = E('table', { 'class': 'table' });
