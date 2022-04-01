@@ -5,8 +5,10 @@
 START=50
 
 HISTORY_DIR="/etc/config/guestwifi"
+[ -e HISTORY_DIR ] || mkdir -p $HISTORY_DIR
 
 inital_conf() {
+	config_load guest-wifi
 	config_get enabled config enable 0
 	config_get wifi_name config wifi_name
 	config_get interface_name config interface_name
