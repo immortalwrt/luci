@@ -5,23 +5,27 @@
 START=50
 
 HISTORY_DIR="/etc/config/guestwifi"
-[ -e /etc/config/guestwifi ]||mkdir -p /etc/config/guestwifi
+[ -e HISTORY_DIR ] || mkdir -p $HISTORY_DIR
 
-enabled=$(uci get guest-wifi.@guest-wifi[0].enable)
-wifi_name=$(uci get guest-wifi.@guest-wifi[0].wifi_name)
-interface_name=$(uci get guest-wifi.@guest-wifi[0].interface_name)
-encryption=$(uci get guest-wifi.@guest-wifi[0].encryption)
-passwd=$(uci get guest-wifi.@guest-wifi[0].passwd)
-interface_ip=$(uci get guest-wifi.@guest-wifi[0].interface_ip)
-isolate=$(uci get guest-wifi.@guest-wifi[0].isolate)
-start=$(uci get guest-wifi.@guest-wifi[0].start)
-limit=$(uci get guest-wifi.@guest-wifi[0].limit)
-leasetime=$(uci get guest-wifi.@guest-wifi[0].leasetime)
-device=$(uci get guest-wifi.@guest-wifi[0].device)
-create=$(uci get guest-wifi.@guest-wifi[0].create)
-
+inital_conf() {
+	config_load guest-wifi
+	config_get enabled config enable 0
+	config_get wifi_name config wifi_name
+	config_get interface_name config interface_name
+	config_get encryption config encryption
+	config_get passwd config passwd
+	config_get interface_ip config interface_ip
+	config_get isolate config isolate
+	config_get start config start
+	config_get limit config limit
+	config_get leasetime config leasetime
+	config_get device config device
+	config_get create config create
+}
 
 start() {
+	inital_conf
+
 	[ $enabled = 1 ] && {
 		[ $create = 1 ] && {
 			[ -f /etc/config/guestwifi/guest_del ] || echo "#! /bin/sh" > ${HISTORY_DIR}/guest_del
@@ -40,8 +44,9 @@ start() {
 	}
 }
 
-
 stop() {
+	inital_conf
+
 	[ $enabled = 0 ] && {
 		[ $create = 1 ] && {
 			${HISTORY_DIR}/guest_del
@@ -69,7 +74,7 @@ stop() {
 restart() {
 	stop
 	sleep 2
-	start		
+	start
 }
 
 add_interface() {
@@ -210,4 +215,3 @@ mod_fw() {
 		unset num_c
 	fi
 }
-

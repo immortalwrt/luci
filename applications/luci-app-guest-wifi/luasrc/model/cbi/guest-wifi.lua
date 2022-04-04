@@ -1,10 +1,9 @@
-
 require("luci.tools.webadmin")
 
 m = Map("guest-wifi", translate("Guest-wifi"))
 
 s = m:section(TypedSection, "guest-wifi", translate("Config"), translate("You can set guest wifi here. The wifi will be disconnected when enabling/disabling. When modifying the password, first disable the guest wifi, and then do the modification, save and apply. Finally check both Enable and Create, save and apply."))
-s.anonymous = true 
+s.anonymous = true
 s.addremove = false
 
 enable = s:option(Flag, "enable", translate("Enable"), translate("Enable or disable guest wifi"))
@@ -63,4 +62,3 @@ leasetime.default = "1h"
 leasetime.rmempty = true
 
 return m
-

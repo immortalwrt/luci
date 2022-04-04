@@ -9,7 +9,7 @@
 		attr("id", cbid) ..
 		attr("name", cbid) ..
 		ifattr(self.size, "size")
-	%>>
+	%><%=self.readonly and " disabled"%>>
 		<% for i, key in pairs(self.keylist) do -%>
 			<option<%=
 				attr("id", cbid.."-"..key) ..
@@ -32,7 +32,7 @@
 					attr("name", cbid) ..
 					attr("value", key) ..
 					ifattr((self:cfgvalue(section) or self.default) == key, "checked", "checked")
-				%> />
+				%><%=(self.readonly and (self:cfgvalue(section) or self.default ~= key)) and " disabled"%> />
 				<label<%= attr("for", cbid.."-"..key)%>></label>
 				<%=pcdata(self.vallist[i])%>
 			</label>
