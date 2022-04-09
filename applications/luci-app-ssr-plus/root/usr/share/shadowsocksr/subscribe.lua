@@ -400,8 +400,7 @@ local function processData(szType, content)
 				result.quic_security = params.quicSecurity or "none"
 			end
 			if params.type == 'grpc' then
-				if params.path then result.serviceName = params.path end
-				if params.serviceName then result.serviceName = params.serviceName end
+				result.serviceName = params.path
 			end
 			if params.security == "tls" then
 				result.tls = "1"
