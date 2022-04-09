@@ -193,8 +193,11 @@ local function processData(szType, content)
 			result.write_buffer_size = 2
 		end
 		if info.net == 'grpc' then
-			if info.path then result.serviceName = info.path end
-			if info.serviceName then result.serviceName = info.serviceName end
+			if info.path then
+				result.serviceName = info.path
+			elseif info.serviceName then
+				result.serviceName = info.serviceName
+			end
 		end
 		if info.net == 'quic' then
 			result.quic_guise = info.type
