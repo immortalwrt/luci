@@ -26,7 +26,7 @@ gen_v2ray_config_file() {
 		[ ! -f "$ret" ] && ret="/usr/bin/v2ray"
 		cp -a $ret /var/v2server
 	fi
-	/var/v2server -config $CONFIG_PATH/$1.json >/dev/null 2>&1 &
+	/var/v2server run -config $CONFIG_PATH/$1.json >/dev/null 2>&1 &
 }
 
 start_v2ray_server() {
