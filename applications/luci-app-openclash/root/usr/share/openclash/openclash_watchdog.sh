@@ -67,7 +67,9 @@ if [ "$enable" -eq 1 ]; then
 	         touch /tmp/openclash.log 2>/dev/null
            chmod o+w /etc/openclash/proxy_provider/* 2>/dev/null
            chmod o+w /etc/openclash/rule_provider/* 2>/dev/null
+           chmod o+w /etc/openclash/history/* 2>/dev/null
            chmod o+w /tmp/openclash.log 2>/dev/null
+           chmod o+w /etc/openclash/cache.db 2>/dev/null
            chown nobody:nogroup /etc/openclash/core/* 2>/dev/null
            capabilties="cap_sys_resource,cap_dac_override,cap_net_raw,cap_net_bind_service,cap_net_admin,cap_sys_ptrace"
            capsh --caps="${capabilties}+eip" -- -c "capsh --user=nobody --addamb='${capabilties}' -- -c 'nohup $CLASH -d $CLASH_CONFIG -f \"$CONFIG_FILE\" >> $LOG_FILE 2>&1 &'" >> $LOG_FILE 2>&1
@@ -75,7 +77,7 @@ if [ "$enable" -eq 1 ]; then
            nohup $CLASH -d $CLASH_CONFIG -f "$CONFIG_FILE" >> $LOG_FILE 2>&1 &
         fi
 	      sleep 3
-	      if [ "$core_type" = "TUN" ]; then
+	      if [ "$core_type" == "TUN" ] || [ "$core_type" == "Meta" ]; then
 	         ip route replace default dev utun table "$PROXY_ROUTE_TABLE" 2>/dev/null
 	         ip rule add fwmark "$PROXY_FWMARK" table "$PROXY_ROUTE_TABLE" 2>/dev/null
 	      fi
@@ -193,6 +195,8 @@ fi
          fi
       fi
       STREAM_AUTO_SELECT=$(expr "$STREAM_AUTO_SELECT" + 1)
+   elif [ "$router_self_proxy" != "1" ] && [ "$stream_auto_select" -eq 1 ]; then
+      LOG_OUT "Error: Streaming Unlock Could not Work Because of Router-Self Proxy Disabled, Exiting..."
    fi
 
 ##STREAM_DNS_PREFETCH
@@ -219,6 +223,8 @@ fi
          fi
       fi
       STREAM_DOMAINS_PREFETCH=$(expr "$STREAM_DOMAINS_PREFETCH" + 1)
+   elif [ "$router_self_proxy" != "1" ] && [ "$stream_domains_prefetch" -eq 1 ]; then
+      LOG_OUT "Error: Streaming DNS Prefetch Could not Work Because of Router-Self Proxy Disabled, Exiting..."
    fi
 
    SLOG_CLEAN
