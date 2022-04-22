@@ -1,6 +1,0 @@
-#!/bin/sh
-
-[ "Z$ACTION" = "Zifup" -a "Z$INTERFACE" = "Zwan" ] || exit 0
-
-logger -t turboacc "Reloading turboacc due to $ACTION of $INTERFACE ($DEVICE)"
-sleep 10 && /etc/init.d/turboacc restart >> /var/log/turboacc.log

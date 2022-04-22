@@ -5,19 +5,11 @@
 START=90
 STOP=10
 
-. /usr/share/libubox/jshn.sh
-
 extra_command "check_status" "Check running status of utils"
 
 restart_utils="true"
 
-get_ifname(){
-	json_load "$(ubus call network.interface.wan status)"
-	json_get_var "ifname" "l3_device"
-}
-
 inital_conf(){
-	get_ifname
 	config_load "turboacc"
 	config_get "sw_flow" "config" "sw_flow" "0"
 	config_get "hw_flow" "config" "hw_flow" "0"
@@ -33,7 +25,7 @@ inital_conf(){
 	[ ! -e "/lib/modules/$(uname -r)/nft_flow_offload.ko" ] && { sw_flow="0"; hw_flow="0"; }
 	[ ! -e "/lib/modules/$(uname -r)/fast-classifier.ko" ] && { sfe_flow="0"; sfe_bridge="0"; sfe_ipv6="0"; }
 	[ ! -e "/lib/modules/$(uname -r)/tcp_bbr.ko" ] && bbr_cca="0"
-	[ ! -e "/lib/modules/$(uname -r)/xt_FULLCONENAT.ko" ] && fullcone_nat="0"
+	[ ! -e "/lib/modules/$(uname -r)/nft_fullcone.ko" ] && fullcone_nat="0"
 }
 
 start_pdnsd() {
@@ -236,29 +228,13 @@ revert_dns() {
 	rm -f "/var/run/dnscache/.dns-changed"
 }
 
-revert_fullcone() {
-	local count="$(iptables -t nat -L PREROUTING | grep 'FULLCONENAT' -c)"
-	[ "${count}" -ne "0" ] && [ -n "${ifname}" ] && {
-		for i in "${count}"
-		do
-			iptables -t nat -D PREROUTING -i "${ifname}" -j FULLCONENAT
-			iptables -t nat -D POSTROUTING -o "${ifname}" -j FULLCONENAT
-		done
-	}
-}
-
 start(){
 	inital_conf
 
 	uci set firewall.@defaults[0].flow_offloading="${sw_flow}"
 	uci set firewall.@defaults[0].flow_offloading_hw="${hw_flow}"
+	uci set firewall.@defaults[0].fullcone="${fullcone_nat}"
 	uci commit firewall
-
-	[ "${fullcone_nat}" -eq "1" ] && [ -n "${ifname}" ] && {
-		revert_fullcone
-		iptables -t nat -A PREROUTING -i "${ifname}" -j FULLCONENAT
-		iptables -t nat -A POSTROUTING -o "${ifname}" -j FULLCONENAT
-	}
 
 	[ "${sw_flow}" -ne "1" ] && [ "${sfe_flow}" -eq "1" ] && {
 		lsmod | grep -q fast_classifier || modprobe fast_classifier 2>"/dev/null"
@@ -300,7 +276,7 @@ start(){
 	if [ "${restart_utils}" = "true" ]; then
 		echo "DNSMASQ change"
 		/etc/init.d/dnsmasq restart >"/dev/null" 2>&1
-		/etc/init.d/firewall restart >"/dev/null" 2>&1
+		/etc/init.d/firewall reload >"/dev/null" 2>&1
 	fi
 }
 
@@ -309,9 +285,8 @@ stop(){
 
 	uci set firewall.@defaults[0].flow_offloading="${sw_flow}"
 	uci set firewall.@defaults[0].flow_offloading_hw="${hw_flow}"
+	uci set firewall.@defaults[0].fullcone="${fullcone_nat}"
 	uci commit firewall
-
-	[ "${fullcone_nat}" -eq "1" ] || revert_fullcone
 
 	[ "${sfe_flow}" -eq "1" ] || {
 		echo "0" > "/sys/fast_classifier/skip_to_bridge_ingress" 2>"/dev/null"
@@ -325,7 +300,7 @@ stop(){
 	if [ "${restart_utils}" = "true" ]; then
 		echo "DNSMASQ revert"
 		/etc/init.d/dnsmasq restart >"/dev/null" 2>&1
-		/etc/init.d/firewall restart >"/dev/null" 2>&1
+		/etc/init.d/firewall reload >"/dev/null" 2>&1
 	fi
 }
 
@@ -337,7 +312,7 @@ restart(){
 
 	echo "DNSMASQ restart"
 	/etc/init.d/dnsmasq restart >"/dev/null" 2>&1
-	/etc/init.d/firewall restart >"/dev/null" 2>&1
+	/etc/init.d/firewall reload >"/dev/null" 2>&1
 }
 
 
@@ -358,7 +333,7 @@ check_status(){
 		fi
 		;;
 	"fullconenat")
-		[ "$(cat "/sys/module/xt_FULLCONENAT/refcnt" 2>"/dev/null" || echo 0)" -ne "0" ] && \
+		[ "$(cat "/sys/module/nft_fullcone/refcnt" 2>"/dev/null" || echo 0)" -ne "0" ] && \
 			exit 0 || exit 1
 		;;
 	"bbr")
