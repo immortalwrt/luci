@@ -330,6 +330,8 @@ run_v2ray() {
 		local route_only=$(config_t_get global_forwarding route_only 0)
 		[ "${route_only}" = "1" ] && _extra_param="${_extra_param} -route_only 1"
 	}
+	local buffer_size=$(config_t_get global_forwarding buffer_size)
+	[ -n "${buffer_size}" ] && _extra_param="${_extra_param} -buffer_size ${buffer_size}"
 	case "$dns_proto" in
 		tcp)
 			local _dns_forward=$(get_first_dns dns_tcp_server 53 | sed 's/#/:/g')
@@ -351,7 +353,7 @@ run_v2ray() {
 	_extra_param="${_extra_param} -tcp_proxy_way $tcp_proxy_way"
 	_extra_param="${_extra_param} -loglevel $loglevel"
 	lua $API_GEN_V2RAY ${_extra_param} > $config_file
-	ln_run "$(first_type $(config_t_get global_app ${type}_file) ${type})" ${type} $log_file -config="$config_file"
+	ln_run "$(first_type $(config_t_get global_app ${type}_file) ${type})" ${type} $log_file run -c "$config_file"
 }
 
 run_dns2socks() {
@@ -434,7 +436,7 @@ run_socks() {
 			local _extra_param="-local_http_port $http_port"
 		}
 		lua $API_GEN_V2RAY_PROTO -local_socks_port $socks_port ${_extra_param} -server_proto socks -server_address ${_socks_address} -server_port ${_socks_port} -server_username ${_socks_username} -server_password ${_socks_password} > $config_file
-		ln_run "$bin" $type $log_file -config="$config_file"
+		ln_run "$bin" $type $log_file run -c "$config_file"
 	;;
 	v2ray|\
 	xray)
@@ -511,8 +513,9 @@ run_socks() {
 		fi
 		[ -z "$type" ] && return 1
 		lua $API_GEN_V2RAY_PROTO -local_http_port $http_port -server_proto socks -server_address "127.0.0.1" -server_port $socks_port -server_username $_username -server_password $_password > $http_config_file
-		ln_run "$bin" ${type} /dev/null -config="$http_config_file"
+		ln_run "$bin" ${type} /dev/null run -c "$http_config_file"
 	}
+	unset http_flag
 }
 
 run_redir() {
@@ -1143,7 +1146,7 @@ start_dns() {
 	smartdns)
 		local group_domestic=$(config_t_get global group_domestic)
 		CHINADNS_NG=0
-		source $APP_PATH/helper_smartdns.sh add DNS_MODE=$DNS_MODE SMARTDNS_CONF=/tmp/etc/smartdns/$CONFIG.conf REMOTE_FAKEDNS=$fakedns DEFAULT_DNS=$DEFAULT_DNS LOCAL_GROUP=$group_domestic TUN_DNS=$TUN_DNS TCP_NODE=$TCP_NODE PROXY_MODE=${TCP_PROXY_MODE}${LOCALHOST_TCP_PROXY_MODE}${ACL_TCP_PROXY_MODE} NO_PROXY_IPV6=${filter_proxy_ipv6}
+		source $APP_PATH/helper_smartdns.sh add FLAG="default" DNS_MODE=$DNS_MODE SMARTDNS_CONF=/tmp/etc/smartdns/$CONFIG.conf REMOTE_FAKEDNS=$fakedns DEFAULT_DNS=$DEFAULT_DNS LOCAL_GROUP=$group_domestic TUN_DNS=$TUN_DNS TCP_NODE=$TCP_NODE PROXY_MODE=${TCP_PROXY_MODE}${LOCALHOST_TCP_PROXY_MODE}${ACL_TCP_PROXY_MODE} NO_PROXY_IPV6=${filter_proxy_ipv6}
 		source $APP_PATH/helper_smartdns.sh restart
 		echolog "  - 域名解析：使用SmartDNS，请确保配置正常。"
 	;;
@@ -1178,7 +1181,7 @@ start_dns() {
 	
 	[ "$DNS_SHUNT" = "dnsmasq" ] && {
 		source $APP_PATH/helper_dnsmasq.sh stretch
-		source $APP_PATH/helper_dnsmasq.sh add DNS_MODE=$DNS_MODE TMP_DNSMASQ_PATH=$TMP_DNSMASQ_PATH DNSMASQ_CONF_FILE=/tmp/dnsmasq.d/dnsmasq-passwall.conf REMOTE_FAKEDNS=$fakedns DEFAULT_DNS=$DEFAULT_DNS LOCAL_DNS=$LOCAL_DNS TUN_DNS=$TUN_DNS CHINADNS_DNS=$china_ng_listen TCP_NODE=$TCP_NODE PROXY_MODE=${TCP_PROXY_MODE}${LOCALHOST_TCP_PROXY_MODE}${ACL_TCP_PROXY_MODE} NO_PROXY_IPV6=${filter_proxy_ipv6}
+		source $APP_PATH/helper_dnsmasq.sh add FLAG="default" DNS_MODE=$DNS_MODE TMP_DNSMASQ_PATH=$TMP_DNSMASQ_PATH DNSMASQ_CONF_FILE=/tmp/dnsmasq.d/dnsmasq-passwall.conf REMOTE_FAKEDNS=$fakedns DEFAULT_DNS=$DEFAULT_DNS LOCAL_DNS=$LOCAL_DNS TUN_DNS=$TUN_DNS CHINADNS_DNS=$china_ng_listen TCP_NODE=$TCP_NODE PROXY_MODE=${TCP_PROXY_MODE}${LOCALHOST_TCP_PROXY_MODE}${ACL_TCP_PROXY_MODE} NO_PROXY_IPV6=${filter_proxy_ipv6}
 	}
 }
 
@@ -1434,7 +1437,6 @@ stop() {
 	unset XRAY_LOCATION_ASSET
 	stop_crontab
 	source $APP_PATH/helper_smartdns.sh del
-	source $APP_PATH/helper_smartdns.sh restart no_log=1
 	source $APP_PATH/helper_dnsmasq.sh del
 	source $APP_PATH/helper_dnsmasq.sh restart no_log=1
 	rm -rf ${TMP_PATH}
