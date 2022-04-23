@@ -250,7 +250,7 @@ start(){
 		sysctl -w net.ipv4.tcp_congestion_control="bbr"
 	else
 		sysctl -w net.ipv4.tcp_congestion_control="cubic"
-	fi	
+	fi
 
 	if [ "${dns_caching}" -eq "1" ];  then
 		stop_dnscache
@@ -322,10 +322,13 @@ check_status(){
 		if [ "$(cat "/sys/module/xt_FLOWOFFLOAD/refcnt" 2>"/dev/null" || echo 0)" -ne "0" ]; then
 			echo -n "Flow Offloading"
 			exit 0
-		elif lsmod | grep -q "ecm"; then
+		elif [ -d /sys/kernel/debug/ecm/ecm_nss_ipv4 ]; then
 			echo -n "QCA-NSS-ECM"
 			exit 0
-		elif lsmod | grep -q "fast_classifier"; then
+		elif [ -d /sys/kernel/debug/ecm/ecm_sfe_ipv4 ]; then
+			echo -n "QCA-ECM-SFE"
+			exit 0
+		elif [ -e /sys/sfe_ipv4/debug_dev ]; then
 			echo -n "Shortcut-FE"
 			exit 0
 		else
