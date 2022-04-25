@@ -43,7 +43,7 @@ a:depends({soc_code="pve"})
 a=s:option(Value,"server_port",translate("宿主机 SSH 端口"))
 a.rmempty=true
 a.default="22"
-a.description = translate("SSH 端口默认为 22，如有自定义，请填写自定义 SSH 端口<br/>请确认已经设置好密钥登陆，否则会引起脚本无法运行等错误！<br/>PVE 安装 sensors 命令自行百度<br/>密钥登陆例（自行修改地址与端口号）：<br/>opkg update #更新列表<br/>opkg install openssh-client openssh-keygen #安装openssh客户端<br/>ssh-keygen -t rsa # 生成密钥文件（自行设定密码等信息）<br/>ssh root@10.0.0.2 -p 22 \"tee -a ~/.ssh/id_rsa.pub\" < ~/.ssh/id_rsa.pub # 传送公钥到 PVE<br/>ssh root@10.0.0.2 -p 22 \"cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys\" # 写入公钥到 PVE<br/>ssh -i /root/.ssh/id_rsa root@10.0.0.2 -p 22 sensors # 使用私钥连接 PVE 测试温度命令")
+a.description = translate("SSH 端口默认为 22，如有自定义，请填写自定义 SSH 端口<br/>请确认已经设置好密钥登陆，否则会引起脚本无法运行等错误！<br/>PVE 安装 sensors 命令自行百度<br/>密钥登陆例（自行修改地址与端口号）：<br/>opkg update #更新列表<br/>opkg install openssh-client openssh-keygen #安装openssh客户端<br/>echo -e \"\\n\" | ssh-keygen -t rsa # 生成密钥文件（空密码）<br/>pve_host=`uci get serverchan.serverchan.server_host` || pve_host=\"10.0.0.3\" # 读取配置文件中的 pve 主机地址，如果不存在请自行填写 <br/>pve_port=`uci get serverchan.serverchan.server_port` || pve_host=\"22\"       # 读取配置文件中的 pve 主机 ssh 端口号，，如果不存在请自行填写 <br/>ssh root@${pve_host} -p ${pve_port} \"tee -a ~/.ssh/id_rsa.pub\" < ~/.ssh/id_rsa.pub # 传送公钥到 PVE<br/>ssh root@${pve_host} -p ${pve_port} \"cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys\" # 写入公钥到 PVE<br/>ssh -i /root/.ssh/id_rsa root@${pve_host} -p ${pve_port} sensors # 使用私钥连接 PVE 测试温度命令<br/>刷机党自行将 /root/.ssh/ 加入备份列表，避免重复操作")
 a:depends({soc_code="pve"})
 
 a=s:option(Button,"soc",translate("测试温度命令"))
@@ -70,7 +70,7 @@ a.description = translate("请确认脚本可以正常运行，否则可能造�
 a=s:option(Flag,"err_sheep_enable",translate("仅在免打扰时段重拨"))
 a.default=0
 a.rmempty=true
-a.description = translate("避免白天重拨 ddns 域名等待解析，此功能不影响断网检测<br/>因夜间跑流量问题，该功能可能不稳定")
+a.description = translate("避免白天重拨 DDNS 域名等待解析，此功能不影响断网检测<br/>因夜间跑流量问题，该功能可能不稳定")
 a:depends({err_enable="1"})
 
 a= s:option(DynamicList, "err_device_aliases", translate("关注列表"))
@@ -109,11 +109,11 @@ a.datatype="uinteger"
 a:depends({system_time_event="2"})
 a.description = translate("单位为小时")
 
-a=s:option(Flag,"public_ip_event",translate("重拨尝试获取公网 ip"))
+a=s:option(Flag,"public_ip_event",translate("重拨尝试获取公网 IP"))
 a.default=0
 a.rmempty=true
 a:depends({err_enable="1"})
-a.description = translate("重拨时不会推送 ip 变动通知，并会导致你的域名无法及时更新 ip 地址<br/>请确认你可以通过重拨获取公网 ip，否则这不仅徒劳无功还会引起频繁断网<br/>移动等大内网你就别挣扎了！！")
+a.description = translate("重拨时不会推送 IP 变动通知，并会导致你的域名无法及时更新 IP 地址<br/>请确认你可以通过重拨获取公网 IP，否则这不仅徒劳无功还会引起频繁断网<br/>移动等大内网你就别挣扎了！！")
 
 a= s:option(Value, "public_ip_retry_count", "当天最大重试次数")
 a.rmempty = true 

@@ -6,8 +6,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-passwall
-PKG_VERSION:=4.52
-PKG_RELEASE:=3
+PKG_VERSION:=4.53
+PKG_RELEASE:=10
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_Transparent_Proxy \
@@ -69,11 +69,12 @@ config PACKAGE_$(PKG_NAME)_Transparent_Proxy
 	select PACKAGE_ipt2socks
 	select PACKAGE_iptables
 	select PACKAGE_iptables-legacy
+	select PACKAGE_iptables-mod-conntrack-extra
 	select PACKAGE_iptables-mod-iprange
 	select PACKAGE_iptables-mod-socket
 	select PACKAGE_iptables-mod-tproxy
 	select PACKAGE_kmod-ipt-nat
-	default y
+	default PACKAGE_$(PKG_NAME)
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_Brook
 	bool "Include Brook"
