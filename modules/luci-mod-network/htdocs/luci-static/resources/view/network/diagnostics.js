@@ -36,7 +36,7 @@ return view.extend({
 	handleTraceroute: function(ev, cmd) {
 		var exec = cmd || 'traceroute',
 		    addr = ev.currentTarget.parentNode.previousSibling.value,
-		    args = (exec == 'traceroute') ? [ '-4', '-q', '1', '-w', '1', '-n', addr ] : [ '-q', '1', '-w', '2', '-n', addr ];
+		    args = (exec == 'traceroute') ? [ '-4', '-q', '1', '-w', '1', '-n', '-m', String(L.env.rpctimeout || 20), addr ] : [ '-q', '1', '-w', '2', '-n', addr ];
 
 		return this.handleCommand(exec, args);
 	},
