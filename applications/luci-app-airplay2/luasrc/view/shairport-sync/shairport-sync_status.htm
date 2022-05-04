@@ -1,5 +1,5 @@
 <script type="text/javascript">//<![CDATA[
-XHR.poll(3, '<%=url([[admin]], [[services]], [[shairport-sync]], [[run]])%>', null,
+XHR.poll(3, '<%=url([[admin]], [[services]], [[shairport-sync]], [[status]])%>', null,
 	function(x, data) {
 		var tb = document.getElementById('shairport-sync_status');
 		if (data && tb) {
