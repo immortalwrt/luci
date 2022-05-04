@@ -76,7 +76,8 @@
 	background: inherit;
 }
 
-.td[width="33%"] {
+.td[width="33%"], 
+.td[width="33%"]~.td {
 	padding: 1.1em;
 }
 
@@ -199,6 +200,7 @@ input,
 	background-color: transparent;
 	background-image: none;
 	box-shadow: none;
+	align-items: center;
 }
 
 select,
@@ -582,8 +584,7 @@ header > .fill > .container > .status > * {
 }
 
 .main > .main-left > .nav > .slide > .menu,
-.main > .main-left > .nav > li > [data-title="Logout"],
-.main > .main-left > .nav > li > [data-title="Dashboard"] {
+.main > .main-left > .nav > li > [data-title] {
 	font-size: 1.15rem;
 	font-weight: 500;
 	display: flex;
@@ -1650,7 +1651,6 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 
 .cbi-progressbar::after {
 	font-family: monospace;
-	font-size: 1.3em;
 	font-weight: bold;
 	font-size-adjust: .38;
 	line-height: normal;
@@ -2341,6 +2341,12 @@ input[name="nslookup"] {
 	margin-bottom: .2rem;
 }
 
+.control-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px;
+}
+
 [data-page="admin-system-opkg"] div.btn {
 	line-height: 3;
 	display: inline;
@@ -2650,7 +2656,7 @@ input[name="nslookup"] {
 	.main > .main-left > .nav > li,
 	.main > .main-left > .nav > li a,
 	.main > .main-left > .nav > .slide > .menu,
-	.main > .main-left > .nav > li > [data-title="Logout"] {
+	.main > .main-left > .nav > li > [data-title] {
 		font-size: .9rem;
 	}
 
@@ -2929,7 +2935,7 @@ input[name="nslookup"] {
 	}
 
 	.main > .main-left > .nav > .slide > .menu,
-	.main > .main-left > .nav > li > [data-title="Logout"] {
+	.main > .main-left > .nav > li > [data-title] {
 		font-size: 1.2rem;
 	}
 
