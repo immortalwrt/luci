@@ -9,22 +9,20 @@ Copyright 2017 KyleRicardo[W.B.L.E. TeAm] <shaoyz714@126.com>
 require("luci.sys")
 require("luci.tools.webadmin")
 
-local IsOnAir = (luci.sys.call("pidof mentohust > /dev/null") == 0)  
-if IsOnAir then      
-    state_msg = "<b><font color=\"green\">" .. translate("Running") .. "</font></b>"  
-else  
-    state_msg = "<b><font color=\"red\">" .. translate("Not Running") .. "</font></b>"  
-end  
+m = Map("airwhu", translate("AirWHU"))
+m.description = translate("Configure Ruijie 802.1X client with IPv6 NAT based on Masquerade.")
 
-m = Map("airwhu", translate("AirWHU"), translate("Configure Ruijie 802.1X client with IPv6 NAT based on Masquerade.") .. "<br /><br />" .. translate("Status") .. " : " .. state_msg)
+m:section(SimpleSection).template  = "airwhu/airwhu_status"
 
 s = m:section(TypedSection, "switch", translate("Global Switch"), translate("Configure global 802.1X Authentication and IPv6-NAT on-off."))
 s.addremove = false
 s.anonymous = true
 
 s:option(Flag, "enableauth", translate("Enable 802.1X Auth"), translate("Enable or disable Ruijie 802.1X authentication."))
+
 tmp = s:option(Flag, "startwithboot", translate("Start with boot"), translate("Start Ruijie 802.1X Authentication based on MentoHUST when the router is booting."))
 tmp:depends("enableauth","1")
+
 s:option(Flag, "enableipv6", translate("Enable IPv6 NAT"), translate("Enable IPv6 NAT pass-through based on ip6tables MASQUERADE."))
 
 s = m:section(TypedSection, "auth", translate("Config Authentication"), translate("The options below are all of MentoHUST's arguments."))
@@ -40,6 +38,7 @@ pw.rmempty = false
 
 wan_dev = luci.sys.exec("uci get network.wan.ifname")
 wan_dev = string.sub(wan_dev,1,string.len(wan_dev)-1)
+
 ifname = s:option(ListValue, "ifname", translate("Interfaces"))
 ifname:value(wan_dev)
 
