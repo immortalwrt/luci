@@ -10,7 +10,7 @@ XHR.poll(3, '<%=url([[admin]], [[nas]], [[baidupcs-web]], [[status]])%>', null,
 
 		if (data && tb) {
 			if (data.running) {
-				var links = '<em><b><font color=green>BaiduPCS-Web <%:RUNNING%></font></b></em><input class="cbi-button mar-10" type="button" value="<%:打开管理页面%>" onclick="openwebui();" />';
+				var links = '<em><b><font color=green>BaiduPCS-Web <%:RUNNING%></font></b></em><input class="cbi-button mar-10" type="button" value="<%:Open Web Interface%>" onclick="openwebui();" />';
 				tb.innerHTML = links;
 			} else {
 				tb.innerHTML = '<em><b><font color=red>BaiduPCS-Web <%:NOT RUNNING%></font></b></em>';
