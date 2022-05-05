@@ -4,23 +4,15 @@
 
 local fs = require "nixio.fs"
 
-local state_msg = ""
-local ss_redir_on = (luci.sys.call("pidof cifsd > /dev/null") == 0)
-if ss_redir_on then	
-	state_msg = "<b><font color=\"green\">" .. translate("Running") .. "</font></b>"
-else
-	state_msg = "<b><font color=\"red\">" .. translate("Not running") .. "</font></b>"
-end
+m = Map("cifs", translate("Mounting NAT drives"))
+m.description = translate("Allows you mounting Nat drives")
 
-m = Map("cifs", translate("Mounting NAT drives"),
-	translate("Allows you mounting Nat drives") .. " - " .. state_msg)
+m:section(SimpleSection).template  = "cifs/cifs_status"
 
 s = m:section(TypedSection, "cifs", "Cifs")
 s.anonymous = true
 
-
-
-s:tab("general",  translate("General Settings"))
+s:tab("general", translate("General Settings"))
 
 switch = s:taboption("general", Flag, "enabled", translate("Enable"))
 switch.rmempty = false
@@ -28,13 +20,13 @@ switch.rmempty = false
 workgroup = s:taboption("general", Value, "workgroup", translate("Workgroup"))
 workgroup.default = "WORKGROUP"
 
-mountarea = s:taboption("general", Value, "mountarea", translate("Mount Area")
-	, translate("All the Mounted NAT Drives will be centralized into this folder."))
+mountarea = s:taboption("general", Value, "mountarea", translate("Mount Area"))
+mountarea.description = translate("All the Mounted NAT Drives will be centralized into this folder.")
 mountarea.default = "/tmp/mnt"
 mountarea.rmempty = false
 
-delay = s:taboption("general", Value, "delay", translate("Delay")
-	,translate("Delay command runing for wait till your drivers online.\n Only work in start mode(/etc/init.d/cifs start) "))
+delay = s:taboption("general", Value, "delay", translate("Delay"))
+delay.description = translate("Delay command runing for wait till your drivers online.\n Only work in start mode(/etc/init.d/cifs start) ")
 delay:value("0")
 delay:value("3")
 delay:value("5")
@@ -42,25 +34,22 @@ delay:value("7")
 delay:value("10")
 delay.default = "5"
 
-
-iocharset = s:taboption("general", Value, "iocharset", translate("Iocharset")
-        , translate("Character Encoding"))
+iocharset = s:taboption("general", Value, "iocharset", translate("Iocharset"))
+iocharset.description = translate("Character Encoding")
 iocharset.default = "utf8"
-
-
 
 s = m:section(TypedSection, "natshare", translate("NAT Drivers"))
 s.anonymous = true
 s.addremove = true
 s.template = "cbi/tblsection"
 
-server = s:option(Value, "server", translate("Server")
-        , translate("Server Name/IP"))
+server = s:option(Value, "server", translate("Server"))
+server.description = translate("Server Name/IP")
 server.size = 6
 server.rmempty = false
 
-name = s:option(Value, "name", translate("Name")
-        , translate("Mouting Folder Name"))
+name = s:option(Value, "name", translate("Name"))
+name.description = translate("Mouting Folder Name")
 name.size = 6
 name.rmempty = false
 
@@ -104,6 +93,5 @@ local apply = luci.http.formvalue("cbi.apply")
 if apply then
 	io.popen("/etc/init.d/cifs restart")
 end
-
 
 return m
