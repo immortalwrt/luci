@@ -1,4 +1,3 @@
-
 module("luci.controller.cifs", package.seeall)
 
 function index()
@@ -6,9 +5,7 @@ function index()
 		return
 	end
 
-	local page
-
-	page = entry({"admin", "nas", "cifs"}, cbi("cifs"), _("Mount SMB NetShare"))
+	local page = entry({"admin", "nas", "cifs"}, cbi("cifs"), _("Mount SMB NetShare"))
 	page.dependent = true
 	page.acl_depends = { "luci-app-cifs-mount" }
 end
