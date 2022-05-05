@@ -9,10 +9,12 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=LuCI for Dnsforwarder
 LUCI_DEPENDS:=+dnsforwarder
 LUCI_PKGARCH:=all
+
 PKG_VERSION:=3.0.0
 PKG_RELEASE:=1
-PKG_MAINTAINER:=Dennis <openwrt@tossp.com>
+
 PKG_LICENSE:=GPL-3.0
+PKG_MAINTAINER:=Dennis <openwrt@tossp.com>
 
 include ../../luci.mk
 
