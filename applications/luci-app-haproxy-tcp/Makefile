@@ -8,9 +8,11 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=luci for haproxy and shadowsocks
 LUCI_DEPENDS:=+haproxy
 LUCI_PKGARCH:=all
+
 PKG_NAME:=luci-app-haproxy-tcp
 PKG_VERSION=1.4
 PKG_RELEASE:=2
+
 PKG_MAINTAINER:=Alex Zhuo <1886090@gmail.com>
 
 include ../../luci.mk
