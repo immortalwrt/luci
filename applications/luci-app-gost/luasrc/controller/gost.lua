@@ -9,16 +9,16 @@ function index()
 		return
 	end
 
-	local page
-	page = entry({"admin", "services", "gost"}, cbi("gost"), _("Gost"), 100)
+	local page = entry({"admin", "services", "gost"}, cbi("gost"), _("Gost"), 100)
 	page.dependent = true
 	page.acl_depends = { "luci-app-gost" }
-	entry({"admin", "services", "gost", "status"},call("act_status")).leaf=true
+
+	entry({"admin", "services", "gost", "status"}, call("act_status")).leaf = true
 end
 
 function act_status()
-	local e={}
-	e.running=luci.sys.call("pgrep gost >/dev/null")==0
+	local e = {}
+	e.running=luci.sys.call("pgrep gost >/dev/null") == 0
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
 end
