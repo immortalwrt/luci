@@ -12,5 +12,3 @@ LUCI_DEPENDS:=+luci-lib-fs
 include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
-
-
