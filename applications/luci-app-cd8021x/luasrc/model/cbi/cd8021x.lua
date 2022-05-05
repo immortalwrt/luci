@@ -9,10 +9,10 @@ local eap_list = {
 	"MSCHAPV2",
 }
 
-m = Map("cd8021x", translate("802.1x Client"), 
-    translate("Configure IEEE 802.1x wired authentication, you may need to edit your WAN interface protocol as <i>DHCP</i> client <a href=\"network\">here</a>"))
+m = Map("cd8021x", translate("802.1x Client"))
+m.description = translate("Configure IEEE 802.1x wired authentication, you may need to edit your WAN interface protocol as <i>DHCP</i> client <a href=\"network\">here</a>")
 
-s = m:section(TypedSection, "login", "")
+s = m:section(TypedSection, "login")
 s.addremove = false
 s.anonymous = true
 
@@ -23,19 +23,19 @@ pass.password = true
 
 ifname = s:option(ListValue, "ifname", translate("Interfaces"))
 for k, v in ipairs(luci.sys.net.devices()) do
-    if v ~= "lo" then
-        ifname:value(v)
-    end
+	if v ~= "lo" then
+		ifname:value(v)
+	end
 end
 
 eap = s:option(ListValue, "eap", translate("EAP"))
 for k, v in ipairs(eap_list) do
-    eap:value(v)
+	eap:value(v)
 end
 
 local apply = luci.http.formvalue("cbi.apply")
 if apply then
-    io.popen("/etc/init.d/cd8021x restart")
+	io.popen("/etc/init.d/cd8021x restart")
 end
 
 return m
