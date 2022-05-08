@@ -80,10 +80,5 @@ else
 end
 end
 luci.http.prepare_content("application/json")
-<<<<<<< HEAD
-luci.http.write_json({ ret=retstring ,retcount=icount})
-end
-=======
 luci.http.write_json({ ret = retstring ,retcount = icount})
 end
->>>>>>> 94e7ad66f4... luci-app-adbyby-plus: code alignment
