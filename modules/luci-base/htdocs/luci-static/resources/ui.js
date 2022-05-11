@@ -4399,10 +4399,16 @@ var UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 							'class': 'btn',
 							'click': UI.prototype.hideModal
 						}, [ _('Close') ]), ' ',
-						E('button', {
-							'class': 'cbi-button cbi-button-positive important',
-							'click': L.bind(this.apply, this, true)
-						}, [ _('Save & Apply') ]), ' ',
+						new UIComboButton('0', {
+							0: [ _('Save & Apply') ],
+							1: [ _('Apply unchecked') ]
+						}, {
+							classes: {
+								0: 'btn cbi-button cbi-button-positive important',
+								1: 'btn cbi-button cbi-button-negative important'
+							},
+							click: L.bind(function(ev, mode) { this.apply(mode == '0') }, this)
+						}).render(), ' ',
 						E('button', {
 							'class': 'cbi-button cbi-button-reset',
 							'click': L.bind(this.revert, this)
@@ -4508,7 +4514,7 @@ var UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 							method: 'post',
 							timeout: L.env.apply_timeout * 1000,
 							query: { sid: L.env.sessionid, token: L.env.token }
-						}).then(call);
+						}).then(call, call.bind(null, { status: 0 }, null, 0));
 					}, delay);
 				};
 
