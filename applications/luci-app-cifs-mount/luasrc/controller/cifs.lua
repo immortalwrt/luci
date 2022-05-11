@@ -1,4 +1,3 @@
-
 module("luci.controller.cifs", package.seeall)
 
 function index()
@@ -6,8 +5,5 @@ function index()
 		return
 	end
 
-	local page
-
-	page = entry({"admin", "nas", "cifs"}, cbi("cifs"), _("Mount SMB NetShare"))
-	page.dependent = true
+	entry({"admin", "nas", "cifs"}, cbi("cifs"), _("Mount SMB NetShare")).dependent = true
 end

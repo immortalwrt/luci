@@ -42,28 +42,28 @@ o.write = function()
 	HTTP.redirect(DISP.build_url("admin", "services", "adbyby"))
 end
 
-t=m:section(TypedSection,"acl_rule",translate("<strong>Client Filter Mode Settings</strong>"),
-translate("Filter mode settings can be set to specific LAN clients ( <font color=blue> No filter , Global filter </font> ) . Does not need to be set by default."))
-t.template="cbi/tblsection"
-t.sortable=true
-t.anonymous=true
-t.addremove=true
+t = m:section(TypedSection, "acl_rule", translate("<strong>Client Filter Mode Settings</strong>"))
+t.description = translate("Filter mode settings can be set to specific LAN clients ( <font color=blue> No filter , Global filter </font> ) . Does not need to be set by default.")
+t.template = "cbi/tblsection"
+t.sortable = true
+t.anonymous = true
+t.addremove = true
 
-e=t:option(Value,"ipaddr",translate("IP Address"))
-e.width="40%"
-e.datatype="ip4addr"
-e.placeholder="0.0.0.0/0"
+e = t:option(Value, "ipaddr", translate("IP Address"))
+e.width = "40%"
+e.datatype = "ip4addr"
+e.placeholder = "0.0.0.0/0"
 luci.ip.neighbors({ family = 4 }, function(entry)
 	if entry.reachable then
 		e:value(entry.dest:string())
 	end
 end)
 
-e=t:option(ListValue,"filter_mode",translate("Filter Mode"))
-e.width="40%"
-e.default="disable"
-e.rmempty=false
-e:value("disable",translate("No filter"))
-e:value("global",translate("Global filter"))
+e = t:option(ListValue, "filter_mode", translate("Filter Mode"))
+e.width = "40%"
+e.default = "disable"
+e.rmempty = false
+e:value("disable", translate("No filter"))
+e:value("global", translate("Global filter"))
 
 return m
