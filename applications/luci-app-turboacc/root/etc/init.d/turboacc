@@ -13,9 +13,6 @@ inital_conf(){
 	config_load "turboacc"
 	config_get "sw_flow" "config" "sw_flow" "0"
 	config_get "hw_flow" "config" "hw_flow" "0"
-	config_get "sfe_flow" "config" "sfe_flow" "0"
-	config_get "sfe_bridge" "config" "sfe_bridge" "0"
-	config_get "sfe_ipv6" "config" "sfe_ipv6" "0"
 	config_get "bbr_cca" "config" "bbr_cca" "0"
 	config_get "fullcone_nat" "config" "fullcone_nat" "0"
 	config_get "dns_caching" "config" "dns_caching" "0"
@@ -23,7 +20,6 @@ inital_conf(){
 	config_get "dns_caching_dns" "config" "dns_caching_dns"
 
 	[ ! -e "/lib/modules/$(uname -r)/nft_flow_offload.ko" ] && { sw_flow="0"; hw_flow="0"; }
-	[ ! -e "/lib/modules/$(uname -r)/fast-classifier.ko" ] && { sfe_flow="0"; sfe_bridge="0"; sfe_ipv6="0"; }
 	[ ! -e "/lib/modules/$(uname -r)/tcp_bbr.ko" ] && bbr_cca="0"
 	[ ! -e "/lib/modules/$(uname -r)/nft_fullcone.ko" ] && fullcone_nat="0"
 }
@@ -236,16 +232,6 @@ start(){
 	uci set firewall.@defaults[0].fullcone="${fullcone_nat}"
 	uci commit firewall
 
-	[ "${sw_flow}" -ne "1" ] && [ "${sfe_flow}" -eq "1" ] && {
-		lsmod | grep -q fast_classifier || modprobe fast_classifier 2>"/dev/null"
-		echo "${sfe_bridge}" > "/sys/fast_classifier/skip_to_bridge_ingress" 2>"/dev/null"
-		if [ "${sfe_ipv6}" -eq "1" ]; then
-			[ -e "/dev/sfe_ipv6" ] || mknod "/dev/sfe_ipv6" "c" "$(cat "/sys/sfe_ipv6/debug_dev")" "0"
-		else
-			rm -f "/dev/sfe_ipv6"
-		fi
-	}
-
 	if [ "${bbr_cca}" -eq "1" ];  then
 		sysctl -w net.ipv4.tcp_congestion_control="bbr"
 	else
@@ -288,12 +274,6 @@ stop(){
 	uci set firewall.@defaults[0].fullcone="${fullcone_nat}"
 	uci commit firewall
 
-	[ "${sfe_flow}" -eq "1" ] || {
-		echo "0" > "/sys/fast_classifier/skip_to_bridge_ingress" 2>"/dev/null"
-		rm -f "/dev/sfe_ipv6"
-		lsmod | grep -q fast_classifier && rmmod "fast_classifier" 2>"/dev/null"
-	}
-
 	stop_dnscache
 	revert_dns
 
@@ -319,18 +299,8 @@ restart(){
 check_status(){
 	case "$1" in
 	"fastpath")
-		if [ "$(cat "/sys/module/nft_flow_offload/refcnt" 2>"/dev/null" || echo 0)" -ne "0" ]; then
-			echo -n "Flow Offloading"
-			exit 0
-		elif lsmod | grep -q "ecm"; then
-			echo -n "QCA-NSS-ECM"
-			exit 0
-		elif lsmod | grep -q "fast_classifier"; then
-			echo -n "Shortcut-FE"
-			exit 0
-		else
-			exit 1
-		fi
+		[ "$(cat "/sys/module/nft_flow_offload/refcnt" 2>"/dev/null" || echo 0)" -ne "0" ] && \
+			exit 0 || exit 1
 		;;
 	"fullconenat")
 		[ "$(cat "/sys/module/nft_fullcone/refcnt" 2>"/dev/null" || echo 0)" -ne "0" ] && \

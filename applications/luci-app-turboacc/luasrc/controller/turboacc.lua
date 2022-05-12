@@ -4,6 +4,7 @@ function index()
 	if not nixio.fs.access("/etc/config/turboacc") then
 		return
 	end
+
 	local page
 	page = entry({"admin", "network", "turboacc"}, cbi("turboacc"), _("Turbo ACC Center"), 101)
 	page.i18n = "turboacc"
