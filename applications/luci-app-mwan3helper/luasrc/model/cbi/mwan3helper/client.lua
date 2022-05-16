@@ -1,5 +1,3 @@
-
-
 m = Map("mwan3helper")
 m.title	= translate("MWAN3 Helper")
 m.description = translate("MWAN3 Helper generate IPSets")
@@ -11,8 +9,8 @@ s.addremove = false
 s.anonymous = true
 
 o = s:option(Flag, "enabled", translate("Enable GFW IPSet"))
+o.description = translate("Enable DNS anti-pollution and turn on GFW IPSet (cannot be turned on at the same time as SSR's GFW list mode)")
 o.rmempty = false
-o.description = translate("启用 DNS 防污染并打开GFW IPSet（与SSR的GFW列表模式不能同时开启）")
 
 o = s:option(ListValue, "dns", translate("Anti-pollution DNS Server"))
 o:value("208.67.222.222:443", translate("OpenDNS (208.67.222.222)"))
