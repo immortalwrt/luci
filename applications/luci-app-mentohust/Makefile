@@ -1,7 +1,6 @@
 include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=MentoHUST 802.1X Client for LuCI
-LUCI_DESCRIPTION:=This package contains LuCI configuration pages for 8021xclient.
 LUCI_DEPENDS:=+mentohust
 LUCI_PKGARCH:=all
 
@@ -12,4 +11,3 @@ PKG_RELEASE:=4
 include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
-
