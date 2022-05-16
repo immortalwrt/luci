@@ -20,8 +20,6 @@ define Package/$(PKG_NAME)/conffiles
 /etc/config/kcptun
 endef
 
-include ../../luci.mk
-
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
@@ -33,5 +31,7 @@ ln -sf "../init.d/kcptun" \
 	"$${IPKG_INSTROOT}/etc/rc.d/S99kcptun" >/dev/null 2>&1
 exit 0
 endef
+
+include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
