@@ -12,16 +12,20 @@ You may obtain a copy of the License at
 
 require("luci.sys")
 
-m = Map("njitclient", translate("NJIT Client"), translate("Configure NJIT 802.11x client."))
+m = Map("njitclient", translate("NJIT Client"))
+m.description = translate("Configure NJIT 802.11x client.")
 
-s = m:section(TypedSection, "login", "")
+s = m:section(TypedSection, "login")
 s.addremove = false
 s.anonymous = true
 
 enable = s:option(Flag, "enable", translate("Enable"))
+
 name = s:option(Value, "username", translate("Username"))
+
 pass = s:option(Value, "password", translate("Password"))
 pass.password = true
+
 domain = s:option(Value, "domain", translate("Domain"))
 
 ifname = s:option(ListValue, "ifname", translate("Interfaces"))
