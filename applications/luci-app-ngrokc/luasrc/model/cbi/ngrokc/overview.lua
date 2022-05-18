@@ -1,7 +1,7 @@
 -- Mantainer : maz-1 < ohmygod19993 at gmail dot com >
 
 
-m = Map("ngrokc", translate("Ngrok"),translate("Secure tunnels to localhost."))
+m = Map("ngrokc", translate("Ngrok"), translate("Secure tunnels to localhost."))
 
 local apply = luci.http.formvalue("cbi.apply")               
 if apply then                                                
@@ -13,24 +13,24 @@ local CTRL = require "luci.controller.ngrokc"
 local HTTP = require "luci.http"
 local UCI  = (require "luci.model.uci").cursor()
 
-servers=m:section(TypedSection, "servers", translate("Servers"))
+servers = m:section(TypedSection, "servers", translate("Servers"))
 servers.template = "cbi/tblsection"
 servers.anonymous = false
 servers.addremove = true
 
 
-nhost=servers:option(Value, "host", translate("Ngrok Host"))
+nhost = servers:option(Value, "host", translate("Ngrok Host"))
 nhost.rmempty = false
 nhost.datatype = "host"
 
-hport=servers:option(Value, "port", translate("Ngrok Port"))
+hport = servers:option(Value, "port", translate("Ngrok Port"))
 hport.rmempty = false
 hport.datatype = "port"
 
 servers:option(Value, "atoken", translate("Auth Token")).rmempty = true
 
 
-tunnel=m:section(TypedSection, "tunnel", translate("Tunnels"))
+tunnel = m:section(TypedSection, "tunnel", translate("Tunnels"))
 tunnel.template = "cbi/tblsection"
 tunnel.anonymous = false
 tunnel.addremove = true
@@ -41,11 +41,11 @@ function tunnel.create(self, name)
 	HTTP.redirect( self.extedit:format(name) )
 end
 
-ena=tunnel:option(Flag, "enabled", translate("Enabled"))
+ena = tunnel:option(Flag, "enabled", translate("Enabled"))
 ena.template = "ngrokc/overview_enabled"
 ena.rmempty = false
 
-lport=tunnel:option(DummyValue, "_lport", translate("Local Port"))
+lport = tunnel:option(DummyValue, "_lport", translate("Local Port"))
 lport.template = "ngrokc/overview_value"
 lport.rmempty = false
 function lport.set_one(self, section)
@@ -58,7 +58,7 @@ function lport.set_one(self, section)
 end
 
 
-server=tunnel:option(DummyValue, "_server", translate("Server"))
+server = tunnel:option(DummyValue, "_server", translate("Server"))
 server.template = "ngrokc/overview_value"
 server.rmempty = false
 function server.set_one(self, section)
@@ -72,7 +72,7 @@ function server.set_one(self, section)
 	end
 end
 
-type=tunnel:option(DummyValue, "_type", translate("Type"))
+type = tunnel:option(DummyValue, "_type", translate("Type"))
 type.template = "ngrokc/overview_value"
 type.rmempty = false
 function type.set_one(self, section)
@@ -84,7 +84,7 @@ function type.set_one(self, section)
 	end
 end
 
-url=tunnel:option(DummyValue, "_url", translate("URL"))
+url = tunnel:option(DummyValue, "_url", translate("URL"))
 url.template = "ngrokc/overview_value"
 url.rmempty = false
 function url.set_one(self, section)
