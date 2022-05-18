@@ -1,0 +1,11 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@netdata[-1]
+	add ucitrack netdata
+	set ucitrack.@netdata[-1].init=netdata
+	commit ucitrack
+EOF
+
+rm -f /tmp/luci-indexcache
+exit 0
