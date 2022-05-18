@@ -9,16 +9,16 @@ function index()
 		return
 	end
 
-	local page
-	page = entry({"admin", "services", "naiveproxy"}, cbi("naiveproxy"), _("NaiveProxy"), 100)
+	local page = entry({"admin", "services", "naiveproxy"}, cbi("naiveproxy"), _("NaiveProxy"), 100)
 	page.dependent = true
 	page.acl_depends = { "luci-app-naiveproxy" }
-	entry({"admin", "services", "naiveproxy", "status"},call("act_status")).leaf=true
+
+	entry({"admin", "services", "naiveproxy", "status"}, call("act_status")).leaf = true
 end
 
 function act_status()
-	local e={}
-	e.running=luci.sys.call("pgrep naive >/dev/null")==0
+	local e = {}
+	e.running = luci.sys.call("pgrep naive >/dev/null") == 0
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
 end

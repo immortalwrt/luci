@@ -1,7 +1,7 @@
 <script type="text/javascript">//<![CDATA[
 XHR.poll(3, '<%=url([[admin]], [[services]], [[naiveproxy]], [[status]])%>', null,
 	function(x, data) {
-		var tb = document.getElementById('gost_status');
+		var tb = document.getElementById('naiveproxy_status');
 		if (data && tb) {
 			if (data.running) {
 				var links = '<em><b><font color=green>NaiveProxy <%:RUNNING%></font></b></em>';
@@ -16,7 +16,7 @@ XHR.poll(3, '<%=url([[admin]], [[services]], [[naiveproxy]], [[status]])%>', nul
 </script>
 <style>.mar-10 {margin-left: 50px; margin-right: 10px;}</style>
 <fieldset class="cbi-section">
-	<p id="gost_status">
+	<p id="naiveproxy_status">
 		<em><%:Collecting data...%></em>
 	</p>
 </fieldset>
