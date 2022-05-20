@@ -1,27 +1,22 @@
 <script type="text/javascript">//<![CDATA[
-XHR.poll(1, '<%=url([[admin]], [[nas]], [[syncthing]], [[status]])%>', null,
-	function(x, data) {
-		var tb = document.getElementById('syncthing_status');
-		if (data && tb) {
-			if (data.running) {
-				var links = '<font color=green>Syncthing <%:RUNNING%></font><input class="cbi-button mar-10" type="button" value="<%:Open Web Interface%>" onclick="openClient();" />';
-				tb.innerHTML = links;
-			} else {
-				tb.innerHTML = '<font color=red>Syncthing <%:NOT RUNNING%></font>';
+	XHR.poll(1, '<%=url([[admin]], [[nas]], [[syncthing]], [[status]])%>', null,
+		function (x, data) {
+			var tb = document.getElementById('syncthing_status');
+			if (data && tb) {
+				if (data.running) {
+					var links = '<em><b><font color="green">Syncthing <%:RUNNING%></font></b></em><input class="btn cbi-button mar-10" type="button" value="<%:Open Syncthing page%>" onclick="openwebui();" />';
+					tb.innerHTML = links;
+				} else {
+					tb.innerHTML = '<em><b><font color="red">Syncthing <%:NOT RUNNING%></font></b></em>';
+				}
 			}
 		}
-	}
-);
+	);
 
-function openClient() {
-	var curWwwPath = window.document.location.href;
-	var pathName = window.document.location.pathname;
-	var pos = curWwwPath.indexOf(pathName);
-	var localhostPath = curWwwPath.substring(0, pos);
-	var clientPort = window.document.getElementById("cbid.syncthing.config.port").value
-	var url = localhostPath + ":" + clientPort;
-	window.open(url)
-};
+function openwebui(){
+	var url = window.location.host+":<%=luci.sys.exec("uci -q get syncthing.syncthing.gui_address"):match(":[0-9]+"):gsub(":", "")%>";
+	window.open('http://'+url,'target','');
+}
 //]]>
 </script>
 <style>.mar-10 {margin-left: 50px; margin-right: 10px;}</style>
