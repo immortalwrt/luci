@@ -9,7 +9,7 @@ extra_command "check_status" "Check running status of utils"
 
 restart_utils="true"
 
-inital_conf(){
+initial_conf(){
 	config_load "turboacc"
 	config_get "sw_flow" "config" "sw_flow" "0"
 	config_get "hw_flow" "config" "hw_flow" "0"
@@ -229,7 +229,7 @@ revert_dns() {
 }
 
 start(){
-	inital_conf
+	initial_conf
 
 	uci set firewall.@defaults[0].flow_offloading="${sw_flow}"
 	uci set firewall.@defaults[0].flow_offloading_hw="${hw_flow}"
@@ -281,7 +281,7 @@ start(){
 }
 
 stop(){
-	inital_conf
+	initial_conf
 
 	uci set firewall.@defaults[0].flow_offloading="${sw_flow}"
 	uci set firewall.@defaults[0].flow_offloading_hw="${hw_flow}"
