@@ -8,14 +8,18 @@ PKG_NAME:=luci-app-rclone
 PKG_VERSION:=1.4.1
 PKG_RELEASE:=2
 
+PKG_LICENSE:=GPL-3.0-or-later
+PKG_MAINTAINER:=ElonH <elonhhuang@gmail.com>
+
+PKG_CONFIG_DEPENDS:= \
+	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_rclone-webui \
+	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_rclone-ng
+
 LUCI_TITLE:=LuCI support for Rclone
 LUCI_DEPENDS:=+rclone-config \
               +PACKAGE_$(PKG_NAME)_INCLUDE_rclone-webui:rclone-webui-react \
               +PACKAGE_$(PKG_NAME)_INCLUDE_rclone-ng:rclone-ng
 LUCI_PKGARCH:=all
-
-PKG_LICENSE:=GPL-3.0-or-later
-PKG_MAINTAINER:=ElonH <elonhhuang@gmail.com>
 
 define Package/luci-app-rclone/config
 config PACKAGE_$(PKG_NAME)_INCLUDE_rclone-webui
