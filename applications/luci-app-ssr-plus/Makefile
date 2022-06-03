@@ -1,10 +1,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-ssr-plus
-PKG_VERSION:=184
-PKG_RELEASE:=10
+PKG_VERSION:=185
+PKG_RELEASE:=4
 
 PKG_CONFIG_DEPENDS:= \
+	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_DNS2TCP \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_IPT2Socks \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_NaiveProxy \
@@ -24,9 +25,10 @@ LUCI_TITLE:=SS/SSR/V2Ray/XRay/Trojan/NaiveProxy/Socks5/Tun LuCI interface
 LUCI_PKGARCH:=all
 LUCI_DEPENDS:= \
 	@(PACKAGE_libustream-mbedtls||PACKAGE_libustream-openssl||PACKAGE_libustream-wolfssl) \
-	+coreutils +coreutils-base64 +dns2socks +dnsmasq-full +ipset \
-	+ip-full +iptables-mod-tproxy +lua +libuci-lua +microsocks +pdnsd-alt \
+	+coreutils +coreutils-base64 +dns2socks +dnsmasq-full +ipset +ip-full \
+	+iptables +iptables-mod-tproxy +lua +libuci-lua +microsocks +pdnsd-alt \
 	+tcping +resolveip +shadowsocksr-libev-ssr-check +uclient-fetch \
+	+PACKAGE_$(PKG_NAME)_INCLUDE_DNS2TCP:dns2tcp \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun:kcptun-client \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_IPT2Socks:ipt2socks \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_NaiveProxy:naiveproxy \
@@ -46,6 +48,10 @@ LUCI_DEPENDS:= \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Xray:xray-core
 
 define Package/$(PKG_NAME)/config
+config PACKAGE_$(PKG_NAME)_INCLUDE_DNS2TCP
+	bool "Include DNS2TCP"
+	default n
+
 config PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun
 	bool "Include Kcptun"
 	default n
