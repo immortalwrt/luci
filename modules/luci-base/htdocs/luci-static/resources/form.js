@@ -287,9 +287,13 @@ var CBIAbstractElement = baseclass.extend(/** @lends LuCI.form.AbstractElement.p
 		if (typeof(s) == 'string' && !s.match(/[<>]/))
 			return s;
 
-		var x = dom.parse('<div>' + s + '</div>');
+		var x = dom.elem(s) ? s : dom.parse('<div>' + s + '</div>');
 
-		return x.textContent || x.innerText || '';
+		x.querySelectorAll('br').forEach(function(br) {
+			x.replaceChild(document.createTextNode('\n'), br);
+		});
+
+		return (x.textContent || x.innerText || '').replace(/([ \t]*\n)+/g, '\n');
 	},
 
 	/**
@@ -2273,10 +2277,7 @@ var CBITypedSection = CBIAbstractSection.extend(/** @lends LuCI.form.TypedSectio
 
 	/** @private */
 	renderSectionPlaceholder: function() {
-		return E([
-			E('em', _('This section contains no values yet')),
-			E('br'), E('br')
-		]);
+		return E('em', _('This section contains no values yet'));
 	},
 
 	/** @private */
@@ -2583,8 +2584,7 @@ var CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection.p
 
 		if (nodes.length == 0)
 			tableEl.appendChild(E('tr', { 'class': 'tr cbi-section-table-row placeholder' },
-				E('td', { 'class': 'td' },
-					E('em', {}, _('This section contains no values yet')))));
+				E('td', { 'class': 'td' }, this.renderSectionPlaceholder())));
 
 		sectionEl.appendChild(tableEl);
 
@@ -2995,10 +2995,20 @@ var CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection.p
 
 	/** @private */
 	handleModalCancel: function(modalMap, ev) {
-		var prevNode = this.getPreviousModalMap();
+		var prevNode = this.getPreviousModalMap(),
+		    resetTasks = Promise.resolve();
 
 		if (prevNode) {
-			var heading = prevNode.parentNode.querySelector('h4');
+			var heading = prevNode.parentNode.querySelector('h4'),
+			    prevMap = dom.findClassInstance(prevNode);
+
+			while (prevMap) {
+				resetTasks = resetTasks
+					.then(L.bind(prevMap.load, prevMap))
+					.then(L.bind(prevMap.reset, prevMap));
+
+				prevMap = prevMap.parent;
+			}
 
 			prevNode.classList.add('flash');
 			prevNode.classList.remove('hidden');
@@ -3015,7 +3025,7 @@ var CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection.p
 			ui.hideModal();
 		}
 
-		return Promise.resolve();
+		return resetTasks;
 	},
 
 	/** @private */
@@ -3141,34 +3151,38 @@ var CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection.p
 	},
 
 	/** @private */
-	renderMoreOptionsModal: function(section_id, ev) {
-		var parent = this.map,
-		    title = parent.title,
-		    name = null,
-		    m = new CBIMap(this.map.config, null, null),
-		    s = m.section(CBINamedSection, section_id, this.sectiontype);
+	cloneOptions: function(src_section, dest_section) {
+		for (var i = 0; i < src_section.children.length; i++) {
+			var o1 = src_section.children[i];
 
-		m.parent = parent;
-		m.section = section_id;
-		m.readonly = parent.readonly;
-
-		s.tabs = this.tabs;
-		s.tab_names = this.tab_names;
-
-		if ((name = this.titleFn('modaltitle', section_id)) != null)
-			title = name;
-		else if ((name = this.titleFn('sectiontitle', section_id)) != null)
-			title = '%s - %s'.format(parent.title, name);
-		else if (!this.anonymous)
-			title = '%s - %s'.format(parent.title, section_id);
-
-		for (var i = 0; i < this.children.length; i++) {
-			var o1 = this.children[i];
-
-			if (o1.modalonly === false)
+			if (o1.modalonly === false && src_section === this)
 				continue;
 
-			var o2 = s.option(o1.constructor, o1.option, o1.title, o1.description);
+			var o2;
+
+			if (o1.subsection) {
+				o2 = dest_section.option(o1.constructor, o1.option, o1.subsection.constructor, o1.subsection.sectiontype, o1.subsection.title, o1.subsection.description);
+
+				for (var k in o1.subsection) {
+					if (!o1.subsection.hasOwnProperty(k))
+						continue;
+
+					switch (k) {
+					case 'map':
+					case 'children':
+					case 'parentoption':
+						continue;
+
+					default:
+						o2.subsection[k] = o1.subsection[k];
+					}
+				}
+
+				this.cloneOptions(o1.subsection, o2.subsection);
+			}
+			else {
+				o2 = dest_section.option(o1.constructor, o1.option, o1.title, o1.description);
+			}
 
 			for (var k in o1) {
 				if (!o1.hasOwnProperty(k))
@@ -3180,6 +3194,7 @@ var CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection.p
 				case 'option':
 				case 'title':
 				case 'description':
+				case 'subsection':
 					continue;
 
 				default:
@@ -3187,43 +3202,75 @@ var CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection.p
 				}
 			}
 		}
+	},
 
-		return Promise.resolve(this.addModalOptions(s, section_id, ev)).then(L.bind(m.render, m)).then(L.bind(function(nodes) {
-			var mapNode = this.getActiveModalMap(),
-			    activeMap = mapNode ? dom.findClassInstance(mapNode) : null;
+	/** @private */
+	renderMoreOptionsModal: function(section_id, ev) {
+		var parent = this.map,
+		    sref = parent.data.get(parent.config, section_id),
+		    mapNode = this.getActiveModalMap(),
+		    activeMap = mapNode ? dom.findClassInstance(mapNode) : null,
+		    stackedMap = activeMap && (activeMap.parent !== parent || activeMap.section !== section_id);
 
-			if (activeMap && (activeMap.parent !== parent || activeMap.section !== section_id)) {
-				mapNode.parentNode
-					.querySelector('h4')
-					.appendChild(E('span', title ? ' » ' + title : ''));
+		return (stackedMap ? activeMap.save(null, true) : Promise.resolve()).then(L.bind(function() {
+			section_id = sref['.name'];
 
-				mapNode.parentNode
-					.querySelector('div.right > button')
-					.firstChild.data = _('Back');
+			var m = new CBIMap(parent.config, null, null),
+			    s = m.section(CBINamedSection, section_id, this.sectiontype);
 
-				mapNode.classList.add('hidden');
-				mapNode.parentNode.insertBefore(nodes, mapNode.nextElementSibling);
+			m.parent = parent;
+			m.section = section_id;
+			m.readonly = parent.readonly;
 
-				return activeMap.save(null, true).then(function() {
+			s.tabs = this.tabs;
+			s.tab_names = this.tab_names;
+
+			this.cloneOptions(this, s);
+
+			return Promise.resolve(this.addModalOptions(s, section_id, ev)).then(function() {
+				return m.render();
+			}).then(L.bind(function(nodes) {
+				var title = parent.title,
+				    name = null;
+
+				if ((name = this.titleFn('modaltitle', section_id)) != null)
+					title = name;
+				else if ((name = this.titleFn('sectiontitle', section_id)) != null)
+					title = '%s - %s'.format(parent.title, name);
+				else if (!this.anonymous)
+					title = '%s - %s'.format(parent.title, section_id);
+
+				if (stackedMap) {
+					mapNode.parentNode
+						.querySelector('h4')
+						.appendChild(E('span', title ? ' » ' + title : ''));
+
+					mapNode.parentNode
+						.querySelector('div.right > button')
+						.firstChild.data = _('Back');
+
+					mapNode.classList.add('hidden');
+					mapNode.parentNode.insertBefore(nodes, mapNode.nextElementSibling);
+
 					nodes.classList.add('flash');
-				}, function() {});
-			}
-			else {
-				ui.showModal(title, [
-					nodes,
-					E('div', { 'class': 'right' }, [
-						E('button', {
-							'class': 'cbi-button',
-							'click': ui.createHandlerFn(this, 'handleModalCancel', m)
-						}, [ _('Dismiss') ]), ' ',
-						E('button', {
-							'class': 'cbi-button cbi-button-positive important',
-							'click': ui.createHandlerFn(this, 'handleModalSave', m),
-							'disabled': m.readonly || null
-						}, [ _('Save') ])
-					])
-				], 'cbi-modal');
-			}
+				}
+				else {
+					ui.showModal(title, [
+						nodes,
+						E('div', { 'class': 'right' }, [
+							E('button', {
+								'class': 'cbi-button',
+								'click': ui.createHandlerFn(this, 'handleModalCancel', m)
+							}, [ _('Dismiss') ]), ' ',
+							E('button', {
+								'class': 'cbi-button cbi-button-positive important',
+								'click': ui.createHandlerFn(this, 'handleModalSave', m),
+								'disabled': m.readonly || null
+							}, [ _('Save') ])
+						])
+					], 'cbi-modal');
+				}
+			}, this));
 		}, this)).catch(L.error);
 	}
 });
@@ -3369,7 +3416,7 @@ var CBIGridSection = CBITableSection.extend(/** @lends LuCI.form.GridSection.pro
 			'data-title': (title != '') ? title : null,
 			'data-description': (descr != '') ? descr : null,
 			'data-name': opt.option,
-			'data-widget': opt.typename || opt.__name__
+			'data-widget': 'CBI.DummyValue'
 		}, (value != null) ? value : E('em', _('none')));
 	},
 
@@ -3711,7 +3758,7 @@ var CBIValue = CBIAbstractValue.extend(/** @lends LuCI.form.Value.prototype */ {
 
 		if (!in_table && typeof(this.description) === 'string' && this.description !== '')
 			dom.append(optionEl.lastChild || optionEl,
-				E('div', { 'class': 'cbi-value-description' }, this.description));
+				E('div', { 'class': 'cbi-value-description' }, this.description.trim()));
 
 		if (depend_list && depend_list.length)
 			optionEl.classList.add('hidden');
