@@ -10,8 +10,8 @@ LUCI_TITLE:=Infinity Freedom Theme
 LUCI_DEPENDS:=+libc
 
 PKG_NAME:=luci-theme-infinityfreedom
-PKG_VERSION:=1.4.20200613
-PKG_RELEASE:=1
+PKG_VERSION:=1.5.20220504
+PKG_RELEASE:=$(AUTORELEASE)
 
 include ../../luci.mk
 
