@@ -185,6 +185,10 @@ local function db_foward_port()
 	return uci:get("openclash", "config", "dashboard_forward_port")
 end
 
+local function db_foward_ssl()
+	return uci:get("openclash", "config", "dashboard_forward_ssl") or 0
+end
+
 local function check_lastversion()
 	luci.sys.exec("sh /usr/share/openclash/openclash_version.sh 2>/dev/null")
 	return luci.sys.exec("sed -n '/^https:/,$p' /tmp/openclash_last_version 2>/dev/null")
@@ -568,7 +572,7 @@ function action_switch_config()
 end
 
 function sub_info_get()
-	local filename, sub_url, sub_info, info, upload, download, total, expire, http_code, len
+	local filename, sub_url, sub_info, info, upload, download, total, expire, http_code, len, percent, day_left, day_expire
 	filename = luci.http.formvalue("filename")
 	sub_info = ""
 	if filename and not is_start() then
@@ -577,28 +581,45 @@ function sub_info_get()
 				if s.name == filename and s.address and string.find(s.address, "http") then
 					_, len = string.gsub(s.address, '[^\n]+', "")
 					if len and len > 1 then return end
-			  	sub_url = s.address
-			  	info = luci.sys.exec(string.format("curl -sLI -m 10 -w 'http_code='%%{http_code} -H 'User-Agent: Clash' '%s'", sub_url))
-			  	if not info or tonumber(string.sub(string.match(info, "http_code=%d+"), 11, -1)) ~= 200 then
-			  		info = luci.sys.exec(string.format("curl -sLI -m 10 -w 'http_code='%%{http_code} -H 'User-Agent: Quantumultx' '%s'", sub_url))
-			  	end
-			  	if info then
-			  		http_code=string.sub(string.match(info, "http_code=%d+"), 11, -1)
-			  		if tonumber(http_code) == 200 then
-			  			info = string.lower(info)
-			  			if string.find(info, "subscription%-userinfo") then
-			  				info = luci.sys.exec("echo '%s' |grep 'subscription-userinfo'" %info)
-			  				upload = string.sub(string.match(info, "upload=%d+"), 8, -1) or nil
-			  				download = string.sub(string.match(info, "download=%d+"), 10, -1) or nil
-			  				total = fs.filesize(string.sub(string.match(info, "total=%d+"), 7, -1)) or nil
-			  				expire = os.date("%Y-%m-%d %H:%M:%S", string.sub(string.match(info, "expire=%d+"), 8, -1)) or nil
-			  				used = fs.filesize(upload + download) or nil
-			  				sub_info = "Successful"
-			  			else
-			  				sub_info = "No Sub Info Found"
-			  			end
-			  		end
-			  	end
+					sub_url = s.address
+					info = luci.sys.exec(string.format("curl -sLI -m 10 -w 'http_code='%%{http_code} -H 'User-Agent: Clash' '%s'", sub_url))
+					if not info or tonumber(string.sub(string.match(info, "http_code=%d+"), 11, -1)) ~= 200 then
+						info = luci.sys.exec(string.format("curl -sLI -m 10 -w 'http_code='%%{http_code} -H 'User-Agent: Quantumultx' '%s'", sub_url))
+					end
+					if info then
+						http_code=string.sub(string.match(info, "http_code=%d+"), 11, -1)
+						if tonumber(http_code) == 200 then
+							info = string.lower(info)
+							if string.find(info, "subscription%-userinfo") then
+								info = luci.sys.exec("echo '%s' |grep 'subscription-userinfo'" %info)
+								upload = string.sub(string.match(info, "upload=%d+"), 8, -1) or nil
+								download = string.sub(string.match(info, "download=%d+"), 10, -1) or nil
+								total = tonumber(string.format("%.1f",string.sub(string.match(info, "total=%d+"), 7, -1))) or nil
+								used = tonumber(string.format("%.1f",(upload + download))) or nil
+								day_expire = tonumber(string.sub(string.match(info, "expire=%d+"), 8, -1)) or nil
+								expire = os.date("%Y-%m-%d", day_expire) or "null"
+								if day_expire and os.time() <= day_expire then
+									day_left = math.ceil((day_expire - os.time()) / (3600*24))
+								elseif day_expire == nil then
+									day_left = "null"
+								else
+									day_left = 0
+								end
+								if used and total and used <= total then
+									percent = string.format("%.1f",(used/total)*100) or nil
+								elseif used == nil or total == nil or total == 0 then
+									percent = 0
+								else
+									percent = 100
+								end
+								total = fs.filesize(total) or "null"
+								used = fs.filesize(used) or "null"
+								sub_info = "Successful"
+							else
+								sub_info = "No Sub Info Found"
+							end
+						end
+					end
 				end
 			end
 		)
@@ -612,6 +633,8 @@ function sub_info_get()
 		sub_info = sub_info,
 		used = used,
 		total = total,
+		percent = percent,
+		day_left = day_left,
 		expire = expire;
 	})
 end
@@ -756,8 +779,8 @@ function action_toolbar_show_sys()
 		mem = tonumber(luci.sys.exec(string.format("cat /proc/%s/status 2>/dev/null |grep -w VmRSS |awk '{print $2}'", pid)))
 		cpu = luci.sys.exec(string.format("top -b -n1 |grep -E '%s' 2>/dev/null |grep -v grep |awk '{for (i=1;i<=NF;i++) {if ($i ~ /clash/) break; else cpu=i}}; {print $cpu}' 2>/dev/null", pid))
 		if mem and cpu then
-			mem = fs.filesize(mem*1024)
-			cpu = string.match(cpu, "%d+")
+			mem = fs.filesize(mem*1024) or "0 KB"
+			cpu = string.match(cpu, "%d+") or "0"
 		else
 			mem = "0 KB"
 			cpu = "0"
@@ -798,8 +821,8 @@ function action_toolbar_show()
 		mem = tonumber(luci.sys.exec(string.format("cat /proc/%s/status 2>/dev/null |grep -w VmRSS |awk '{print $2}'", pid)))
 		cpu = luci.sys.exec(string.format("top -b -n1 |grep -E '%s' 2>/dev/null |grep -v grep |awk '{for (i=1;i<=NF;i++) {if ($i ~ /clash/) break; else cpu=i}}; {print $cpu}' 2>/dev/null", pid))
 		if mem and cpu then
-			mem = fs.filesize(mem*1024)
-			cpu = string.match(cpu, "%d+")
+			mem = fs.filesize(mem*1024) or "0 KB"
+			cpu = string.match(cpu, "%d+") or  "0"
 		else
 			mem = "0 KB"
 			cpu = "0"
@@ -911,6 +934,7 @@ function action_status()
 		dase = dase(),
 		db_foward_port = db_foward_port(),
 		db_foward_domain = db_foward_domain(),
+		db_forward_ssl = db_foward_ssl(),
 		web = is_web(),
 		cn_port = cn_port(),
 		restricted_mode = restricted_mode();
@@ -995,7 +1019,7 @@ function action_close_all_connection()
 end
 
 function action_reload_firewall()
-	return luci.sys.call("/etc/init.d/openclash reload")
+	return luci.sys.call("/etc/init.d/openclash reload 'firewall'")
 end
 
 function action_update_subscribe()
