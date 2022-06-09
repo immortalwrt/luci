@@ -177,7 +177,7 @@ function get_v2ray_version()
     if get_v2ray_file_path() and get_v2ray_file_path() ~= "" then
         if fs.access(get_v2ray_file_path() .. "/v2ray") then
             return luci.sys.exec("echo -n `" .. get_v2ray_file_path() ..
-                                     "/v2ray -version | awk '{print $2}' | sed -n 1P" ..
+                                     "/v2ray version | awk '{print $2}' | sed -n 1P" ..
                                      "`")
         end
     end
