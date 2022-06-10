@@ -33,7 +33,7 @@ s.anonymous = true
 
 s:tab("op_mode", translate("Operation Mode"))
 s:tab("settings", translate("General Settings"))
-s:tab("dns", translate("DNS Setting"))
+s:tab("dns", "DNS "..translate("Settings"))
 s:tab("meta", translate("Meta Settings"))
 s:tab("stream_enhance", translate("Streaming Enhance"))
 s:tab("lan_ac", translate("Access Control"))
@@ -90,7 +90,7 @@ o:value("script", translate("Script Proxy Mode (Tun Core Only)"))
 o.default = "rule"
 
 o = s:taboption("op_mode", Flag, "router_self_proxy", font_red..bold_on..translate("Router-Self Proxy")..bold_off..font_off)
-o.description = font_red..bold_on..translate("Only Supported for Rule Mode, ALL Functions In Stream Enhance Tag Will Not Work After Disable")..bold_off..font_off
+o.description = translate("Only Supported for Rule Mode")..", "..font_red..bold_on..translate("ALL Functions In Stream Enhance Tag Will Not Work After Disable")..bold_off..font_off
 o.default = 1
 o:depends("proxy_mode", "rule")
 
@@ -163,6 +163,8 @@ o.default = "0"
 o = s:taboption("settings", Value, "github_address_mod", font_red..bold_on..translate("Github Address Modify")..bold_off..font_off)
 o.description = translate("Modify The Github Address In The Config And OpenClash With Proxy(CDN) To Prevent File Download Faild. Format Reference:").." ".."<a href='javascript:void(0)' onclick='javascript:return winOpen(\"https://ghproxy.com/\")'>https://ghproxy.com/</a>"
 o:value("0", translate("Disable"))
+o:value("https://fastly.jsdelivr.net/")
+o:value("https://raw.fastgit.org/")
 o:value("https://cdn.jsdelivr.net/")
 o.default = "0"
 
@@ -239,6 +241,7 @@ if op_mode == "redir-host" then
 o = s:taboption("dns", Flag, "dns_remote", font_red..bold_on..translate("DNS Remote")..bold_off..font_off)
 o.description = font_red..bold_on..translate("Add DNS Remote Support For Redir-Host")..bold_off..font_off
 o.default = 1
+o:depends("enable_meta_core", 0)
 end
 
 o = s:taboption("dns", Flag, "append_wan_dns", font_red..bold_on..translate("Append Upstream DNS")..bold_off..font_off)
@@ -290,17 +293,6 @@ o.description = translate("DNS Advanced Settings")..font_red..bold_on..translate
 o.default = 0
 
 if op_mode == "fake-ip" then
-o = s:taboption("dns", Button, translate("Fake-IP-Filter List Update")) 
-o.title = translate("Fake-IP-Filter List Update")
-o:depends("dns_advanced_setting", "1")
-o.inputtitle = translate("Check And Update")
-o.inputstyle = "reload"
-o.write = function()
-  m.uci:set("openclash", "config", "enable", 1)
-  m.uci:commit("openclash")
-  SYS.call("rm -rf /tmp/openclash_fake_filter.list >/dev/null 2>&1 && /etc/init.d/openclash restart >/dev/null 2>&1 &")
-  HTTP.redirect(DISP.build_url("admin", "services", "openclash"))
-end
 
 custom_fake_black = s:taboption("dns", Value, "custom_fake_filter")
 custom_fake_black.template = "cbi/tvalue"
@@ -487,9 +479,9 @@ o = s:taboption("meta", Value, "geoip_custom_url")
 o.title = translate("Custom GeoIP Dat URL")
 o.rmempty = true
 o.description = translate("Custom GeoIP Dat URL, Click Button Below To Refresh After Edit")
-o:value("https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat", translate("Loyalsoldier-Version")..translate("(Default)"))
+o:value("https://fastly.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat", translate("Loyalsoldier-Version")..translate("(Default)"))
 o:value("https://mirrors.tuna.tsinghua.edu.cn/osdn/storage/g/v/v2/v2raya/dists/v2ray-rules-dat/geoip.dat", translate("Tuna-Version")..translate("(Default)"))
-o.default = "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat"
+o.default = "https://fastly.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat"
 o:depends("geoip_auto_update", "1")
 
 o = s:taboption("meta", Button, translate("GEOIP Dat Update")) 
@@ -531,9 +523,9 @@ o = s:taboption("meta", Value, "geosite_custom_url")
 o.title = translate("Custom GeoSite URL")
 o.rmempty = true
 o.description = translate("Custom GeoSite Data URL, Click Button Below To Refresh After Edit")
-o:value("https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat", translate("Loyalsoldier-Version")..translate("(Default)"))
+o:value("https://fastly.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat", translate("Loyalsoldier-Version")..translate("(Default)"))
 o:value("https://mirrors.tuna.tsinghua.edu.cn/osdn/storage/g/v/v2/v2raya/dists/v2ray-rules-dat/geosite.dat", translate("Tuna-Version")..translate("(Default)"))
-o.default = "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat"
+o.default = "https://fastly.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat"
 o:depends("geosite_auto_update", "1")
 
 o = s:taboption("meta", Button, translate("GEOSITE Update")) 
@@ -598,6 +590,48 @@ o = s:taboption("lan_ac", DynamicList, "wan_ac_black_ips", translate("WAN Bypass
 o.datatype = "ipaddr"
 o.description = translate("In The Fake-IP Mode, Only Pure IP Requests Are Supported")
 
+o = s:taboption("lan_ac", DynamicList, "lan_ac_black_ports", translate("Lan Bypassed Port List"))
+o.datatype = "port"
+o.description = translate("The Traffic From The Local Specified Port Will Not Pass The Core, Try To Set When The Bypass Gateway Forwarding Fails")
+
+o = s:taboption("lan_ac", Value, "local_network_pass", translate("Local IPv4 Network Bypassed List"))
+o.template = "cbi/tvalue"
+o.description = translate("The Traffic of The Destination For The Specified Address Will Not Pass The Core")
+o.rows = 20
+o.wrap = "off"
+
+function o.cfgvalue(self, section)
+	return NXFS.readfile("/etc/openclash/custom/openclash_custom_localnetwork_ipv4.list") or ""
+end
+function o.write(self, section, value)
+	if value then
+		value = value:gsub("\r\n?", "\n")
+		local old_value = NXFS.readfile("/etc/openclash/custom/openclash_custom_localnetwork_ipv4.list")
+	  if value ~= old_value then
+			NXFS.writefile("/etc/openclash/custom/openclash_custom_localnetwork_ipv4.list", value)
+		end
+	end
+end
+
+o = s:taboption("lan_ac", Value, "local_network6_pass", translate("Local IPv6 Network Bypassed List"))
+o.template = "cbi/tvalue"
+o.description = translate("The Traffic of The Destination For The Specified Address Will Not Pass The Core")
+o.rows = 20
+o.wrap = "off"
+
+function o.cfgvalue(self, section)
+	return NXFS.readfile("/etc/openclash/custom/openclash_custom_localnetwork_ipv6.list") or ""
+end
+function o.write(self, section, value)
+	if value then
+		value = value:gsub("\r\n?", "\n")
+		local old_value = NXFS.readfile("/etc/openclash/custom/openclash_custom_localnetwork_ipv6.list")
+	  if value ~= old_value then
+			NXFS.writefile("/etc/openclash/custom/openclash_custom_localnetwork_ipv6.list", value)
+		end
+	end
+end
+
 ---- Rules Settings
 o = s:taboption("rules", Flag, "rule_source", translate("Enable Other Rules"))
 o.description = translate("Use Other Rules")
@@ -655,6 +689,10 @@ end
 o = s:taboption("stream_enhance", Flag, "stream_domains_prefetch", font_red..bold_on..translate("Prefetch Netflix, Disney Plus Domains")..bold_off..font_off)
 o.description = translate("Prevent Some Devices From Directly Using IP Access To Cause Unlocking Failure, Recommend Use meta Sniffer Function")
 o.default = 0
+o:depends({router_self_proxy = "1", proxy_mode = "rule"})
+o:depends("proxy_mode", "global")
+o:depends("proxy_mode", "direct")
+o:depends("proxy_mode", "script")
 
 o = s:taboption("stream_enhance", Value, "stream_domains_prefetch_interval", translate("Domains Prefetch Interval(min)"))
 o.default = "1440"
@@ -669,6 +707,10 @@ o.template = "openclash/download_stream_domains"
 o = s:taboption("stream_enhance", Flag, "stream_auto_select", font_red..bold_on..translate("Auto Select Unlock Proxy")..bold_off..font_off)
 o.description = translate("Auto Select Proxy For Streaming Unlock, Support Netflix, Disney Plus, HBO And YouTube Premium, etc")
 o.default = 0
+o:depends({router_self_proxy = "1", proxy_mode = "rule"})
+o:depends("proxy_mode", "global")
+o:depends("proxy_mode", "direct")
+o:depends("proxy_mode", "script")
 
 o = s:taboption("stream_enhance", Value, "stream_auto_select_interval", translate("Auto Select Interval(min)"))
 o.default = "30"
@@ -1019,6 +1061,7 @@ end
 o = s:taboption("geo_update", Flag, "geo_auto_update", translate("Auto Update"))
 o.description = translate("Auto Update GEOIP Database")
 o.default = 0
+o:depends("enable_geoip_dat", 0)
 
 o = s:taboption("geo_update", ListValue, "geo_update_week_time", translate("Update Time (Every Week)"))
 o:value("*", translate("Every Day"))
@@ -1030,22 +1073,25 @@ o:value("5", translate("Every Friday"))
 o:value("6", translate("Every Saturday"))
 o:value("0", translate("Every Sunday"))
 o.default = "1"
+o:depends("enable_geoip_dat", 0)
 
 o = s:taboption("geo_update", ListValue, "geo_update_day_time", translate("Update time (every day)"))
 for t = 0,23 do
 o:value(t, t..":00")
 end
 o.default = "0"
+o:depends("enable_geoip_dat", 0)
 
 o = s:taboption("geo_update", Value, "geo_custom_url")
 o.title = translate("Custom GEOIP URL")
-o.rmempty = false
+o.rmempty = true
 o.description = translate("Custom GEOIP Data URL, Click Button Below To Refresh After Edit")
-o:value("https://cdn.jsdelivr.net/gh/alecthw/mmdb_china_ip_list@release/lite/Country.mmdb", translate("Alecthw-lite-Version")..translate("(Default mmdb)"))
-o:value("https://cdn.jsdelivr.net/gh/alecthw/mmdb_china_ip_list@release/Country.mmdb", translate("Alecthw-Version")..translate("(All Info mmdb)"))
-o:value("https://cdn.jsdelivr.net/gh/Hackl0us/GeoIP2-CN@release/Country.mmdb", translate("Hackl0us-Version")..translate("(Only CN)"))
+o:value("https://fastly.jsdelivr.net/gh/alecthw/mmdb_china_ip_list@release/lite/Country.mmdb", translate("Alecthw-lite-Version")..translate("(Default mmdb)"))
+o:value("https://fastly.jsdelivr.net/gh/alecthw/mmdb_china_ip_list@release/Country.mmdb", translate("Alecthw-Version")..translate("(All Info mmdb)"))
+o:value("https://fastly.jsdelivr.net/gh/Hackl0us/GeoIP2-CN@release/Country.mmdb", translate("Hackl0us-Version")..translate("(Only CN)"))
 o:value("https://geolite.clash.dev/Country.mmdb", translate("Geolite.clash.dev"))
 o.default = "http://www.ideame.top/mmdb/Country.mmdb"
+o:depends("enable_geoip_dat", 0)
 
 o = s:taboption("geo_update", Button, translate("GEOIP Update")) 
 o.title = translate("Update GEOIP Database")
@@ -1057,6 +1103,7 @@ o.write = function()
   SYS.call("/usr/share/openclash/openclash_ipdb.sh >/dev/null 2>&1 &")
   HTTP.redirect(DISP.build_url("admin", "services", "openclash"))
 end
+o:depends("enable_geoip_dat", 0)
 
 o = s:taboption("chnr_update", Flag, "chnr_auto_update", translate("Auto Update"))
 o.description = translate("Auto Update Chnroute Lists")
@@ -1085,7 +1132,7 @@ o.rmempty = false
 o.description = translate("Custom Chnroute Lists URL, Click Button Below To Refresh After Edit")
 o:value("https://ispip.clang.cn/all_cn.txt", translate("Clang-CN")..translate("(Default)"))
 o:value("https://ispip.clang.cn/all_cn_cidr.txt", translate("Clang-CN-CIDR"))
-o:value("https://cdn.jsdelivr.net/gh/Hackl0us/GeoIP2-CN@release/CN-ip-cidr.txt", translate("Hackl0us-CN-CIDR")..translate("(Large Size)"))
+o:value("https://fastly.jsdelivr.net/gh/Hackl0us/GeoIP2-CN@release/CN-ip-cidr.txt", translate("Hackl0us-CN-CIDR")..translate("(Large Size)"))
 o.default = "https://ispip.clang.cn/all_cn.txt"
 
 o = s:taboption("chnr_update", Value, "chnr6_custom_url")
@@ -1134,7 +1181,7 @@ o.title = translate("Dashboard Port")
 o.default = "9090"
 o.datatype = "port"
 o.rmempty = false
-o.description = translate("Dashboard Address Example:").." "..font_green..bold_on..lan_ip.."/luci-static/openclash、"..lan_ip..':'..cn_port..'/ui'..bold_off..font_off
+o.description = translate("Dashboard Address Example:").." "..font_green..bold_on..lan_ip..':'..cn_port..'/ui/yacd'..'、'..lan_ip..':'..cn_port..'/ui/dashboard'..bold_off..font_off
 
 o = s:taboption("dashboard", Value, "dashboard_password")
 o.title = translate("Dashboard Secret")
@@ -1153,6 +1200,11 @@ o.title = translate("Public Dashboard Port")
 o.datatype = "port"
 o.rmempty = true
 o.description = translate("Port For Dashboard Login From Public Network")
+
+o = s:taboption("dashboard", Flag, "dashboard_forward_ssl")
+o.title = translate("Public Dashboard SSL enabled")
+o.default = 0
+o.description = translate("Is SSL enabled For Dashboard Login From Public Network")
 
 ---- version update
 core_update = s:taboption("version_update", DummyValue, "", nil)
@@ -1210,7 +1262,7 @@ else
 	o.value = font_red..bold_on..translate("Account not logged in")..bold_off..font_off
 end
 
--- [[ Edit Server ]] --
+-- [[ Edit Custom DNS ]] --
 s = m:section(TypedSection, "dns_servers", translate("Add Custom DNS Servers")..translate("(Take Effect After Choose Above)"))
 s.anonymous = true
 s.addremove = true
@@ -1224,6 +1276,14 @@ o.rmempty     = false
 o.default     = o.enabled
 o.cfgvalue    = function(...)
     return Flag.cfgvalue(...) or "1"
+end
+
+---- enable flag
+o = s:option(Flag, "node_resolve", translate("Node Resolve"), font_red..bold_on..translate("(Only Meta Core)")..bold_off..font_off)
+o.rmempty     = false
+o.default     = o.disbled
+o.cfgvalue    = function(...)
+    return Flag.cfgvalue(...) or "0"
 end
 
 ---- group
@@ -1257,6 +1317,31 @@ o:value("https", translate("HTTPS"))
 o:value("quic", translate("QUIC ")..translate("(Only Meta Core)"))
 o.default     = "udp"
 o.rempty      = false
+
+---- interface
+o = s:option(Value, "interface", translate("Specific Interface"))
+o.description = font_red..bold_on..translate("(Only TUN Core)")..bold_off..font_off
+for interface in string.gmatch(interfaces, "%S+") do
+	o:value(interface)
+end
+o:value("Disable", translate("Disable"))
+o.default = "Disable"
+o.rempty = false
+
+---- Proxy group
+o = s:option(Value, "specific_group", translate("Specific Group"))
+o.description = font_red..bold_on..translate("(Only Meta Core)")..bold_off..font_off
+uci:foreach("openclash", "groups",
+		function(s)
+		  if s.name ~= "" and s.name ~= nil then
+			   o:value(s.name)
+			end
+		end)
+o:value("DIRECT")
+o:value("REJECT")
+o:value("Disable", translate("Disable"))
+o.default = "Disable"
+o.rempty = false
 
 -- [[ Other Rules Manage ]]--
 ss = m:section(TypedSection, "other_rules", translate("Other Rules Edit")..translate("(Take Effect After Choose Above)"))
