@@ -26,10 +26,10 @@ local ip6_ipset_pattern = ":-[%x]+%:+[%x]-[%/][%d]+$"
 local domain_pattern = "([%w%-%_]+%.[%w%.%-%_]+)[%/%*]*"
 local excluded_domain = {"apple.com","sina.cn","sina.com.cn","baidu.com","byr.cn","jlike.com","weibo.com","zhongsou.com","youdao.com","sogou.com","so.com","soso.com","aliyun.com","taobao.com","jd.com","qq.com","bing.com"}
 
-local gfwlist_url = ucic:get(name, "@global_rules[0]", "gfwlist_url") or {"https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/gfw.txt"}
+local gfwlist_url = ucic:get(name, "@global_rules[0]", "gfwlist_url") or {"https://fastly.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/gfw.txt"}
 local chnroute_url = ucic:get(name, "@global_rules[0]", "chnroute_url") or {"https://ispip.clang.cn/all_cn.txt"}
 local chnroute6_url =  ucic:get(name, "@global_rules[0]", "chnroute6_url") or {"https://ispip.clang.cn/all_cn_ipv6.txt"}
-local chnlist_url = ucic:get(name, "@global_rules[0]", "chnlist_url") or {"https://cdn.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/accelerated-domains.china.conf","https://cdn.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/apple.china.conf","https://cdn.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/google.china.conf"}
+local chnlist_url = ucic:get(name, "@global_rules[0]", "chnlist_url") or {"https://fastly.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/accelerated-domains.china.conf","https://fastly.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/apple.china.conf","https://fastly.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/google.china.conf"}
 local geoip_api =  "https://api.github.com/repos/Loyalsoldier/v2ray-rules-dat/releases/latest"
 local geosite_api =  "https://api.github.com/repos/Loyalsoldier/v2ray-rules-dat/releases/latest"
 local v2ray_asset_location = ucic:get_first(name, 'global_rules', "v2ray_location_asset", "/usr/share/v2ray/")
@@ -87,6 +87,14 @@ local function line_count(file_path)
 	return num;
 end
 
+local function non_file_check(file_path)
+	if nixio.fs.readfile(file_path, 1000) then
+		return nil;
+	else
+		return true;
+	end
+end
+
 --fetch rule
 local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 	local sret = 200
@@ -99,7 +107,10 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 	log(rule_name.. " 开始更新...")
 	for k,v in ipairs(url) do
 		sret_tmp = curl(v, download_file_tmp..k)
-		if sret_tmp == 200 then
+		if sret_tmp == 200 and non_file_check(download_file_tmp..k) then
+			sret = 0
+			log(rule_name.. " 第" ..k.. "条规则:" ..v.. "下载文件读取出错，请检查网络或下载链接后重试！")
+		elseif sret_tmp == 200 then
 			if rule_name == "gfwlist" then
 				local domains = {}
 				local gfwlist = io.open(download_file_tmp..k, "r")
@@ -152,11 +163,11 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 				out:close()
 
 			end
-			os.remove(download_file_tmp..k)				
 		else
 			sret = 0
-			log(rule_name.. " 第" ..k.. "条规则:" ..v.. "下载失败！")
+			log(rule_name.. " 第" ..k.. "条规则:" ..v.. "下载失败，请检查网络或下载链接后重试！")
 		end
+		os.remove(download_file_tmp..k)
 	end
 
 	if sret == 200 then
@@ -169,9 +180,7 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 		end
 		luci.sys.call("cat " ..unsort_file_tmp.. " | sort -u > "..file_tmp)
 		os.remove(unsort_file_tmp)
-	end
 
-	if sret == 200 then
 		local old_md5 = luci.sys.exec("echo -n $(md5sum " .. rule_path .. "/" ..rule_name.. " | awk '{print $1}')")
 		local new_md5 = luci.sys.exec("echo -n $([ -f '" ..file_tmp.. "' ] && md5sum " ..file_tmp.." | awk '{print $1}')")
 		if old_md5 ~= new_md5 then
