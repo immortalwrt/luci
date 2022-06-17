@@ -57,7 +57,7 @@ LUCI_DEPENDS:= \
 define Package/$(PKG_NAME)/config
 choice
 	prompt "V2ray-core Selection"
-	default PACKAGE_$(PKG_NAME)_INCLUDE_SagerNet_Core if aarch64||arm||i386||x86_64
+	default PACKAGE_$(PKG_NAME)_INCLUDE_Xray if aarch64||arm||i386||x86_64
 	default PACKAGE_$(PKG_NAME)_INCLUDE_NONE_V2RAY
 
 	config PACKAGE_$(PKG_NAME)_INCLUDE_NONE_V2RAY
