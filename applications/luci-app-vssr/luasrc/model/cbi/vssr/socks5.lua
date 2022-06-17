@@ -1,11 +1,4 @@
---[[
-Author: your name
-Date: 2019-11-11 09:33:07
-LastEditTime: 2021-01-14 18:50:06
-LastEditors: Please set LastEditors
-Description: In User Settings Edit
-FilePath: \luci-app-vssr\luasrc\model\cbi\vssr\socks5.lua
---]]
+
 local vssr = 'vssr'
 local uci = luci.model.uci.cursor()
 local server_table = {}
@@ -15,7 +8,7 @@ local sys = require 'luci.sys'
 m = Map(vssr)
 
 -- [[ SOCKS5 Proxy ]]--
-if nixio.fs.access('/usr/bin/xray') or nixio.fs.access('/usr/bin/xray/xray') then
+if nixio.fs.access('/usr/bin/xray') then
     s = m:section(TypedSection, 'socks5_proxy', translate('Xray SOCKS5 Proxy'))
     s.anonymous = true
 
@@ -43,7 +36,7 @@ if nixio.fs.access('/usr/bin/xray') or nixio.fs.access('/usr/bin/xray/xray') the
 end
 
 -- [[ Http Proxy ]]--
-if nixio.fs.access('/usr/bin/xray') or nixio.fs.access('/usr/bin/xray/xray') then
+if nixio.fs.access('/usr/bin/xray') then
     s = m:section(TypedSection, 'http_proxy', translate('Xray HTTP Proxy'))
     s.anonymous = true
 
