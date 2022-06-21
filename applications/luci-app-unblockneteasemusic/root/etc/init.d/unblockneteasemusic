@@ -163,8 +163,8 @@ start_service()
 		local netease_music_ips2="$(uclient-fetch -qO- "https://music.httpdns.c.163.com/d" --post-data="music.163.com,interface.music.163.com,interface3.music.163.com,apm.music.163.com,apm3.music.163.com,clientlog.music.163.com,clientlog3.music.163.com" |jsonfilter -e '@.dns.*["ips"].*')"
 		local neteasemusic_addr="$(echo -e "${netease_music_ips}\n${netease_music_ips2}" |sort -u |awk '{print $1}')"
 
-		json_add_string o_acl_http_addr "$acl_http_addr"
-		json_add_string o_acl_https_addr "$acl_https_addr"
+		json_add_string o_acl_http_addr "$(echo -e "${acl_http_addr}" |sort -u |awk '{print $1}')"
+		json_add_string o_acl_https_addr "$(echo -e "${acl_https_addr}" |sort -u |awk '{print $1}')"
 		json_add_string o_neteasemusic_addr "$neteasemusic_addr"
 	elif [ "${hijack_ways}" = "use_hosts" ]; then
 		mkdir -p "/tmp/dnsmasq.d"
@@ -221,8 +221,22 @@ stop_service()
 		echo "${self_issue_cert_key}" >> "${UPGRADE_CONF}"
 	}
 
-	[ ! -e "$RULES_NFT" ] || rm -f "$RULES_NFT"
-	fw4 reload
+	[ ! -e "$RULES_NFT" ] || {
+		rm -f "$RULES_NFT"
+		for chain in "netease_cloud_music_redir" "netease_cloud_music"; do
+			nft --check list chain inet fw4 $chain > /dev/null 2>&1
+			if [ $? -eq "0" ]; then
+				nft flush chain inet fw4 $chain
+			fi
+		done
+		for set in "acl_neteasemusic_http" "acl_neteasemusic_https" "local_addr" "neteasemusic"; do
+			nft --check list set inet fw4 $set > /dev/null 2>&1
+			if [ $? -eq "0" ]; then
+				nft flush set inet fw4 $set
+			fi
+		done
+		fw4 reload
+	}
 
 	rm -f "/tmp/dnsmasq.d/dnsmasq-$NAME.conf"
 	/etc/init.d/dnsmasq reload
