@@ -1,7 +1,6 @@
 --[[
---N2N VPN(V2) configuration page. Made by 981213
---
-]] --
+N2N VPN(V3) configuration page.
+]]--
 local fs = require "nixio.fs"
 
 function get_mask(v)
@@ -22,12 +21,12 @@ function get_mask(v)
     v:value("30", "255.255.255.252(30)")
 end
 
-m = Map("n2n_v2", translate("N2N v2 VPN"), translatef(
+m = Map("n2n_v3", translate("N2N v3 VPN"), translatef(
             "n2n is a layer-two peer-to-peer virtual private network (VPN) which allows users to exploit features typical of P2P applications at network instead of application level."))
 
 -- Basic config
 -- edge
-m:section(SimpleSection).template = "n2n_v2/status"
+m:section(SimpleSection).template = "n2n_v3/status"
 
 s = m:section(TypedSection, "edge", translate("N2N Edge Settings"))
 s.anonymous = true
@@ -94,6 +93,9 @@ switch.rmempty = false
 port = s:option(Value, "port", translate("Port"))
 port.datatype = "port"
 port.optional = false
+
+subnet = s:option(Value, "subnet", translate("DHCP Subnet"))
+subnet.optional = false
 
 -- Static route
 s = m:section(TypedSection, "route", translate("N2N routes"),

@@ -1,22 +1,22 @@
 --[[
-N2N V2 Luci configuration page.Made by 981213
+N2N V3 Luci configuration page.
 ]]--
 
-module("luci.controller.n2n_v2", package.seeall)
+module("luci.controller.n2n_v3", package.seeall)
 
 function index()
 	
-	if not nixio.fs.access("/etc/config/n2n_v2") then
+	if not nixio.fs.access("/etc/config/n2n_v3") then
 		return
 	end
 	
 	entry({"admin", "vpn"}, firstchild(), "VPN", 45).dependent = false
-	entry({"admin", "vpn", "n2n_v2", "status"}, call("n2n_status")).leaf = true
+	entry({"admin", "vpn", "n2n_v3", "status"}, call("n2n_status")).leaf = true
 
 	local page
-	page = entry({"admin", "vpn", "n2n_v2"}, cbi("n2n_v2"), _("N2N v2 VPN"), 45)
+	page = entry({"admin", "vpn", "n2n_v3"}, cbi("n2n_v3"), _("N2N v3 VPN"), 45)
 	page.dependent = true
-	page.acl_depends = { "luci-app-n2n_v2" }
+	page.acl_depends = { "luci-app-n2n_v3" }
 end
 
 function n2n_status()
