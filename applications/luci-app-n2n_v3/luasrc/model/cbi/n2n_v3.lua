@@ -73,8 +73,7 @@ s:option(Value, "key", translate("Encryption key"))
 route = s:option(Flag, "route", translate("Enable packet forwarding"))
 route.rmempty = false
 
-masquerade = s:option(Flag, "masquerade")
-masquerade.title = translate("Enable IP masquerade")
+masquerade = s:option(Flag, "masquerade", translate("Enable IP masquerade"))
 masquerade.description = translate("Make packets from LAN to other edge nodes appear to be sent from the tunnel IP. This can make setting up your firewall easier")
 masquerade.orientation = "horizontal"
 masquerade:depends("route", 1)
