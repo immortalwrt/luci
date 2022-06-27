@@ -1,23 +1,13 @@
---[[
-N2N VPN(V3) configuration page.
-]]--
+-- N2N VPN configuration page. Made by 981213
+
 local fs = require "nixio.fs"
 
-function get_mask(v)
-    v:value("8", "255.0.0.0(8)")
-    v:value("12", "255.240.0.0(12)")
-    v:value("16", "255.255.0.0(16)")
-    v:value("20", "255.255.240.0(20)")
-    v:value("24", "255.255.255.0(24)")
-    v:value("28", "255.255.255.240(28)")
-end
-
-m = Map("n2n_v3", translate("N2N v3 VPN"), translatef(
-            "n2n is a layer-two peer-to-peer virtual private network (VPN) which allows users to exploit features typical of P2P applications at network instead of application level."))
+m = Map("n2n", translate("N2N VPN"))
+m.description = translate("n2n is a layer-two peer-to-peer virtual private network (VPN) which allows users to exploit features typical of P2P applications at network instead of application level.")
 
 -- Basic config
 -- edge
-m:section(SimpleSection).template = "n2n_v3/status"
+m:section(SimpleSection).template = "n2n/status"
 
 s = m:section(TypedSection, "edge", translate("N2N Edge Settings"))
 s.anonymous = true
@@ -38,9 +28,13 @@ ipaddr.optional = false
 ipaddr.datatype = "ip4addr"
 ipaddr:depends("mode", "static")
 
-prefix = s:option(ListValue, "prefix", translate("Interface netmask"))
-get_mask(prefix)
+prefix = s:option(Value, "prefix", translate("Interface netmask"))
+prefix:value("8", "8 (255.0.0.0)")
+prefix:value("16", "16 (255.255.0.0)")
+prefix:value("24", "24 (255.255.255.0)")
+prefix:value("28", "28 (255.255.255.240)")
 prefix.optional = false
+prefix.datatype = "range(0,32)"
 prefix:depends("mode", "static")
 
 mtu = s:option(Value, "mtu", translate("MTU"))
@@ -112,9 +106,13 @@ o.datatype = "ip4addr"
 o.rmempty = false
 
 ---- IP mask
-o = s:option(ListValue, "mask", translate("Mask"))
+o = s:option(Value, "mask", translate("Mask"))
+o:value("8", "8 (255.0.0.0)")
+o:value("16", "16 (255.255.0.0)")
+o:value("24", "24 (255.255.255.0)")
+o:value("28", "28 (255.255.255.240)")
 o.optional = false
-get_mask(o)
+o.datatype = "range(0,32)"
 o.default = "24"
 
 ---- Gateway
