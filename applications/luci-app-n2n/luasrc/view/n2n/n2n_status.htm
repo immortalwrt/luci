@@ -1,5 +1,5 @@
 <script type="text/javascript">//<![CDATA[
-XHR.poll(5, '<%=url([[admin]], [[vpn]], [[n2n]], [[status]])%>', null,
+XHR.poll(3, '<%=url([[admin]], [[vpn]], [[n2n]], [[status]])%>', null,
     function(x, data) {
         var status = document.getElementById('n2n_status');
         if (data && status) {

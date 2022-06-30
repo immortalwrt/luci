@@ -7,7 +7,7 @@ m.description = translate("n2n is a layer-two peer-to-peer virtual private netwo
 
 -- Basic config
 -- edge
-m:section(SimpleSection).template = "n2n/status"
+m:section(SimpleSection).template  = "n2n/n2n_status"
 
 s = m:section(TypedSection, "edge", translate("N2N Edge Settings"))
 s.anonymous = true
@@ -89,8 +89,8 @@ subnet = s:option(Value, "subnet", translate("DHCP Subnet"))
 subnet.optional = false
 
 -- Static route
-s = m:section(TypedSection, "route", translate("N2N routes"),
-              translate("Static route for n2n interface"))
+s = m:section(TypedSection, "route", translate("N2N routes"))
+s.description = translate("Static route for n2n interface")
 s.anonymous = true
 s.addremove = true
 s.template = "cbi/tblsection"
