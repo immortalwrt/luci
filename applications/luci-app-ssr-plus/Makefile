@@ -64,13 +64,13 @@ choice
 	bool "None"
 
 	config PACKAGE_$(PKG_NAME)_INCLUDE_V2ray
-	bool "Include V2ray-core"
+	bool "V2ray-core"
 
 	config PACKAGE_$(PKG_NAME)_INCLUDE_Xray
-	bool "Include Xray-core"
+	bool "Xray-core"
 
 	config PACKAGE_$(PKG_NAME)_INCLUDE_SagerNet_Core
-	bool "Include SagerNet-core (An enhanced edition of v2ray-core)"
+	bool "SagerNet-core (An enhanced edition of v2ray-core)"
 endchoice
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun
