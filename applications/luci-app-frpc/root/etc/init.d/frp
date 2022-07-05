@@ -192,8 +192,6 @@ start_service() {
 	procd_append_param command -c $tmpconf
 	procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-10}
 	procd_close_instance
-
-	[ -n "$(pgrep /usr/bin/frpc)" ] || echo_date "frp服务启动失败，请检查服务端 “TCP多路复用(tcp_mux)”设置，确保与客户端完全一致！"
 }
 
 stop_service() {
