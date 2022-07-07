@@ -69,6 +69,7 @@ function index()
 	entry({"admin", "services", "openclash", "settings"},cbi("openclash/settings"),_("Global Settings"), 30).leaf = true
 	entry({"admin", "services", "openclash", "servers"},cbi("openclash/servers"),_("Servers and Groups"), 40).leaf = true
 	entry({"admin", "services", "openclash", "other-rules-edit"},cbi("openclash/other-rules-edit"), nil).leaf = true
+	entry({"admin", "services", "openclash", "custom-dns-edit"},cbi("openclash/custom-dns-edit"), nil).leaf = true
 	entry({"admin", "services", "openclash", "other-file-edit"},cbi("openclash/other-file-edit"), nil).leaf = true
 	entry({"admin", "services", "openclash", "rule-providers-settings"},cbi("openclash/rule-providers-settings"),_("Rule Providers and Groups"), 50).leaf = true
 	entry({"admin", "services", "openclash", "game-rules-manage"},form("openclash/game-rules-manage"), nil).leaf = true
@@ -582,9 +583,9 @@ function sub_info_get()
 					_, len = string.gsub(s.address, '[^\n]+', "")
 					if len and len > 1 then return end
 					sub_url = s.address
-					info = luci.sys.exec(string.format("curl -sLI -m 10 -w 'http_code='%%{http_code} -H 'User-Agent: Clash' '%s'", sub_url))
+					info = luci.sys.exec(string.format("curl -sLI -X GET -m 10 -w 'http_code='%%{http_code} -H 'User-Agent: Clash' '%s'", sub_url))
 					if not info or tonumber(string.sub(string.match(info, "http_code=%d+"), 11, -1)) ~= 200 then
-						info = luci.sys.exec(string.format("curl -sLI -m 10 -w 'http_code='%%{http_code} -H 'User-Agent: Quantumultx' '%s'", sub_url))
+						info = luci.sys.exec(string.format("curl -sLI -X GET -m 10 -w 'http_code='%%{http_code} -H 'User-Agent: Quantumultx' '%s'", sub_url))
 					end
 					if info then
 						http_code=string.sub(string.match(info, "http_code=%d+"), 11, -1)
@@ -596,7 +597,9 @@ function sub_info_get()
 								download = string.sub(string.match(info, "download=%d+"), 10, -1) or nil
 								total = tonumber(string.format("%.1f",string.sub(string.match(info, "total=%d+"), 7, -1))) or nil
 								used = tonumber(string.format("%.1f",(upload + download))) or nil
-								day_expire = tonumber(string.sub(string.match(info, "expire=%d+"), 8, -1)) or nil
+								if string.match(info, "expire=%d+") then
+									day_expire = tonumber(string.sub(string.match(info, "expire=%d+"), 8, -1)) or nil
+								end
 								expire = os.date("%Y-%m-%d", day_expire) or "null"
 								if day_expire and os.time() <= day_expire then
 									day_left = math.ceil((day_expire - os.time()) / (3600*24))
@@ -605,6 +608,7 @@ function sub_info_get()
 								else
 									day_left = 0
 								end
+								
 								if used and total and used <= total then
 									percent = string.format("%.1f",(used/total)*100) or nil
 								elseif used == nil or total == nil or total == 0 then

@@ -2,9 +2,8 @@
 #Author: monokoo <realstones2012@gmail.com>
 #Thanks to FW867's help
 
+USE_PROCD=1
 START=99
-SERVICE_WRITE_PID=1
-SERVICE_DAEMONIZE=1
 
 LOGFILE="/var/etc/frp/frpc.log"
 
@@ -134,44 +133,9 @@ frp_write_bool() {
 	fi
 }
 
-frp_add_cru(){
-time=$1
-if [ ! -f "/etc/crontabs/root" ] || [ -z "$(cat /etc/crontabs/root | grep frp)" ]; then
-  sed -i '/frp/d' /etc/crontabs/root >/dev/null 2>&1
-  echo "*/$time * * * * /etc/init.d/frp restart" >> /etc/crontabs/root 
-fi
-
-}
-
-frp_del_cru(){
-if [ ! -f "/etc/crontabs/root" ] || [ -n "$(cat /etc/crontabs/root | grep frp)" ]; then
-  sed -i '/frp/d' /etc/crontabs/root >/dev/null 2>&1
-fi
-}
-
-download_binary(){
-	echo_date "开始下载frpc二进制文件..."
-	/usr/bin/wget --no-check-certificate --timeout=10 --tries=1 -o $LOGFILE https://github.com/fatedier/frp/releases/download/v0.13.0/frp_0.13.0_linux_arm.tar.gz -O /tmp/frp_0.13.0_linux_arm.tar.gz
-	[ ! -s "/tmp/frp_0.13.0_linux_arm.tar.gz" ] && /usr/bin/wget -q --no-check-certificate --timeout=10 --tries=1 https://any.mokoo.xyz/app/frp_0.13.0_linux_arm.tar.gz -O /tmp/frp_0.13.0_linux_arm.tar.gz
-	[ -f "/tmp/frp_0.13.0_linux_arm.tar.gz" ] && tar -xf /tmp/frp_0.13.0_linux_arm.tar.gz -C /tmp && \
-		mv /tmp/frp_0.13.0_linux_arm/frpc /usr/bin/frpc
-	rm -rf /tmp/frp_0.13.0_linux_arm*
-	if [ -f "/usr/bin/frpc" ]; then
-		chmod +x /usr/bin/frpc && echo_date "成功下载frpc二进制文件"
-	else
-		echo_date "下载frpc二进制文件失败，请重试！"
-	fi
-}
-
-boot() {
-	sleep 10s
-	start
-}
-
-start() {
-
+start_service() {
 	config_load "frp"
-	local enabled server_addr server_port time privilege_token user tcp_mux enable_cpool tls_enable
+	local enabled server_addr server_port privilege_token user tcp_mux enable_cpool tls_enable
 	local pool_count log_level log_max_days login_fail_exit http_proxy protocol admin_port admin_user admin_pwd
 
 	config_get_bool enabled common enabled 1
@@ -188,18 +152,16 @@ start() {
 	config_get log_max_days common log_max_days
 	config_get http_proxy common http_proxy
 	config_get protocol common protocol
-	config_get time common time
 	config_get admin_port common admin_port
 	config_get admin_user common admin_user
 	config_get admin_pwd common admin_pwd
 
 
 	mkdir -p /var/etc/frp
-	[ ! -f "$LOGFILE" ] && touch $LOGFILE
+	[ -f "$LOGFILE" ] || touch $LOGFILE
 	
-	[ ! -f "/usr/bin/frpc" ] && download_binary
-	[ ! -f "/usr/bin/frpc" ] && logger -t Frp 'Download frpc failed, please retry.' && exit 0
-	
+	[ -e "/usr/bin/frpc" ] || ( logger -t Frp 'frpc not found.'; exit 1; )
+
 	local tmpconf="/var/etc/frp/frpc.conf"
 
 	echo "[common]" >$tmpconf
@@ -217,30 +179,31 @@ start() {
 	[ -n "$admin_user" ] && echo "admin_user=$admin_user" >>$tmpconf
 	[ -n "$admin_pwd" ] && echo "admin_pwd=$admin_pwd" >>$tmpconf
 
-
-	config_load "frp"
 	frp_write_bool tcp_mux common 1
 	frp_write_bool tls_enable common 0
 	frp_write_bool login_fail_exit common 1
 	config_foreach conf_proxy_add proxy "$tmpconf"
 
-	[ "$(cat "$tmpconf" | grep -c "type=")" -gt 0 ] || (echo_date "frp服务启动失败，请首先添加服务列表！" && exit 0)
+	[ "$(cat "$tmpconf" | grep -c "type=")" -gt 0 ] || ( echo_date "frp服务启动失败，请首先添加服务列表！"; exit 0; )
 	logger -t FRPC 'Starting frp service'
-	SERVICE_DAEMONIZE=1 \
-		service_start /usr/bin/frpc -c $tmpconf
 
-	[ "$time" -gt 0 ] && frp_add_cru $time
-	[ -z "$(pgrep /usr/bin/frpc)" ] && echo_date "frp服务启动失败，请检查服务端 “TCP多路复用(tcp_mux)”设置，确保与客户端完全一致！"
-
-	return 0
+	procd_open_instance frp
+	procd_set_param command /usr/bin/frpc
+	procd_append_param command -c $tmpconf
+	procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-10}
+	procd_close_instance
 }
 
-stop() {
-	frp_del_cru
-	if [ -n "`pidof frpc`" ]; then
-		logger -t FRPC 'Shutting down frp service'
-		service_stop /usr/bin/frpc
-		Reduce_Log $LOGFILE
-	fi
-	return 0
+stop_service() {
+	logger -t FRPC 'Shutting down frp service'
+	Reduce_Log $LOGFILE
+}
+
+reload_service() {
+	stop
+	start
+}
+
+service_triggers() {
+	procd_add_reload_trigger "frp"
 }
