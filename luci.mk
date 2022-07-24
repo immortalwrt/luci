@@ -27,7 +27,6 @@ LUCI_LANG.cs=Čeština (Czech)
 LUCI_LANG.da=Dansk (Danish)
 LUCI_LANG.de=Deutsch (German)
 LUCI_LANG.el=Ελληνικά (Greek)
-LUCI_LANG.en=English
 LUCI_LANG.es=Español (Spanish)
 LUCI_LANG.fi=Suomi (Finnish)
 LUCI_LANG.fr=Français (French)
@@ -282,10 +281,10 @@ ifeq ($(PKG_NAME),luci-base)
         bool "Minify CSS files"
         default n
 
-   menu "Translations"$(foreach lang,$(LUCI_LANGUAGES),
+   menu "Translations"$(foreach lang,$(LUCI_LANGUAGES),$(if $(LUCI_LANG.$(lang)),
 
      config LUCI_LANG_$(lang)
-	   tristate "$(shell echo '$(LUCI_LANG.$(lang))' | sed -e 's/^.* (\(.*\))$$/\1/') ($(lang))")
+	   tristate "$(shell echo '$(LUCI_LANG.$(lang))' | sed -e 's/^.* (\(.*\))$$/\1/') ($(lang))"))
 
    endmenu
  endef
@@ -333,5 +332,5 @@ define LuciTranslation
 
 endef
 
-$(foreach lang,$(LUCI_LANGUAGES),$(eval $(call LuciTranslation,$(firstword $(LUCI_LC_ALIAS.$(lang)) $(lang)),$(lang))))
+$(foreach lang,$(LUCI_LANGUAGES),$(if $(LUCI_LANG.$(lang)),$(eval $(call LuciTranslation,$(firstword $(LUCI_LC_ALIAS.$(lang)) $(lang)),$(lang)))))
 $(foreach pkg,$(LUCI_BUILD_PACKAGES),$(eval $(call BuildPackage,$(pkg))))
