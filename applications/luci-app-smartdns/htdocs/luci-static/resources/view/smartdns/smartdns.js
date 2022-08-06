@@ -228,12 +228,17 @@ return view.extend({
 		o.default = 300;
 		o.optional = true;
 
-		// second dns server;
 		// rr-ttl-max;
 		o = s.taboption("settings", form.Value, "rr_ttl_max", _("Domain TTL Max"),
 			_("Maximum TTL for all domain result."));
 		o.rempty = true;
+		
+		// rr-ttl-reply-max;
+		o = s.taboption("settings", form.Value, "rr_ttl_reply_max", _("Domain Reply TTL Max"),
+		_("Maximum Reply TTL for all domain result."));
+		o.rempty = true;
 
+		// second dns server;
 		// Eanble;
 		o = s.taboption("seconddns", form.Flag, "seconddns_enabled", _("Enable"),
 			_("Enable or disable second DNS server."));
