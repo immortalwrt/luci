@@ -235,7 +235,7 @@ return view.extend({
 		
 		// rr-ttl-reply-max;
 		o = s.taboption("settings", form.Value, "rr_ttl_reply_max", _("Domain Reply TTL Max"),
-		_("Maximum Reply TTL for all domain result."));
+			_("Maximum Reply TTL for all domain result."));
 		o.rempty = true;
 
 		// second dns server;
