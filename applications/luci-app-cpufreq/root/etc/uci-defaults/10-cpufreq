@@ -25,11 +25,12 @@ case "$DISTRIB_TARGET" in
 	"ipq60xx/generic")
 		if echo "$CPU_FREQS" | grep -q "1800000"; then
 			# IPQ6010/18/28
-			uci_write_config 0 ondemand 864000 1800000 10 50
+			CPU_MAX_FREQ="1800000"
 		else
 			# IPQ6000
-			uci_write_config 0 ondemand 864000 1200000 10 50
+			CPU_MAX_FREQ="1200000"
 		fi
+		uci_write_config 0 ondemand 864000 $CPU_MAX_FREQ 10 50
 		;;
 	"ipq806x/generic")
 		if echo "$CPU_FREQS" | grep -q "1725000"; then
@@ -65,8 +66,13 @@ case "$DISTRIB_TARGET" in
 			uci_write_config 0 schedutil 600000 1608000
 			uci_write_config 4 schedutil 600000 2016000
 		else
-			# RK3328
-			uci_write_config 0 schedutil 816000 1512000
+			if echo "$CPU_FREQS" | grep -q "1992000"; then
+				# RK3568
+				CPU_MAX_FREQ="1992000"
+				# RK3328
+				CPU_MAX_FREQ="1512000"
+			fi
+			uci_write_config 0 schedutil 816000 $CPU_MAX_FREQ
 		fi
 		;;
 	"sunxi/cortexa53")
