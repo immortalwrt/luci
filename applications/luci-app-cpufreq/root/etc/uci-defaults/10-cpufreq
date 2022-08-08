@@ -69,6 +69,7 @@ case "$DISTRIB_TARGET" in
 			if echo "$CPU_FREQS" | grep -q "1992000"; then
 				# RK3568
 				CPU_MAX_FREQ="1992000"
+			else
 				# RK3328
 				CPU_MAX_FREQ="1512000"
 			fi
