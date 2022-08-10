@@ -5,6 +5,7 @@ PKG_VERSION:=1.25
 PKG_RELEASE:=20220423
 
 PKG_CONFIG_DEPENDS:= \
+	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Hysteria \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Libev_Server \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Trojan \
@@ -17,6 +18,7 @@ LUCI_DEPENDS:= \
 	+bash +coreutils +coreutils-base64 +dnsmasq-full +ip-full +ipset +iptables-mod-tproxy +luci-lib-ipkg \
 	+lua +lua-cjson +lua-maxminddb +luasocket +pdnsd-alt +shadowsocksr-libev-ssr-check +shadowsocksr-libev-ssr-redir \
 	+shadowsocks-libev-ss-local +shadowsocksr-libev-ssr-local +shadowsocks-libev-ss-redir +simple-obfs +wget-ssl \
+	+PACKAGE_$(PKG_NAME)_INCLUDE_Hysteria:hysteria \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun:kcptun-client \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Libev_Server:shadowsocksr-libev-ssr-server \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Trojan:trojan \
@@ -25,6 +27,9 @@ LUCI_DEPENDS:= \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Xray_plugin:xray-plugin
 
 define Package/$(PKG_NAME)/config
+config PACKAGE_$(PKG_NAME)_INCLUDE_Hysteria
+	bool "Include Hysteria"
+	default n
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun
 	bool "Include Kcptun"
