@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-rclone
 PKG_VERSION:=1.4.1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 LUCI_TITLE:=LuCI support for Rclone
 LUCI_DEPENDS:=+luci-lib-ipkg +rclone-config \
