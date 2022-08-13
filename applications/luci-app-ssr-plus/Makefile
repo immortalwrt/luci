@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-ssr-plus
 PKG_VERSION:=186
-PKG_RELEASE:=3
+PKG_RELEASE:=6
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_NONE_V2RAY \
@@ -29,8 +29,8 @@ LUCI_PKGARCH:=all
 LUCI_DEPENDS:= \
 	@(PACKAGE_libustream-mbedtls||PACKAGE_libustream-openssl||PACKAGE_libustream-wolfssl) \
 	+coreutils +coreutils-base64 +dns2socks +dns2tcp +dnsmasq-full +ipset +ip-full \
-	+iptables +iptables-mod-tproxy +lua +libuci-lua +luci-lib-ipkg +microsocks \
-	+tcping +resolveip +shadowsocksr-libev-ssr-check +uclient-fetch \
+	+iptables +iptables-mod-tproxy +lua +lua-neturl +libuci-lua +luci-lib-ipkg \
+	+microsocks +tcping +resolveip +shadowsocksr-libev-ssr-check +uclient-fetch \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_V2ray:curl \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_V2ray:v2ray-core \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Xray:curl \
