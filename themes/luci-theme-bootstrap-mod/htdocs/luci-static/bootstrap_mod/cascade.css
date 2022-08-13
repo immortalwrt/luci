@@ -122,7 +122,6 @@ header {
     box-shadow: 0 2px 2px rgba(0, 0, 0, .1);
     z-index: 100;
     border-bottom: 2px solid #ccc;
-    background-image: linear-gradient(to bottom, #333333, #222222);
 }
 
 .brand {
@@ -927,13 +926,15 @@ input[type=file] {
 
 /* Button */
 
+.btn,
 .cbi-button,
 button {
-    border-radius: 4px;
+    border-radius: 6px !important;
     display: inline-block;
-    background: linear-gradient(#fff, #fff 25%, #e6e6e6) no-repeat;
+    background: #fff;
     border: 1px solid #ccc;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+    border-radius: 2px;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, .05);
     color: #333;
     line-height: 16px;
     padding: 0.5em;
@@ -941,12 +942,16 @@ button {
     margin-left: 0.2em;
 }
 
+.btn:active,
+.btn:focus,
 .cbi-button:active,
-.cbi-button:focus button:active,
+.cbi-button:focus,
+button:active,
 button:focus {
     border-color: #bbb;
 }
 
+/*
 .cbi-button-up,
 .cbi-input-up {
     background-position: center;
@@ -964,11 +969,13 @@ button:focus {
     padding-left: 15px;
     padding-right: 15px;
 }
+*/
 
 .cbi-button-add,
 .cbi-input-add {
-    border-color: #4a4;
-    color: #4a4;
+    background: #404040;
+    border-color: #404040;
+    color: #fff;
 }
 
 .cbi-button-add:active,
@@ -979,8 +986,9 @@ button:focus {
 .cbi-button-remove,
 .cbi-input-remove,
 .cbi-section-remove input {
-    border-color: #c44;
-    color: #c44;
+    border-color: red;
+    background-color: red;
+    color: #fff;
 }
 
 .cbi-button-remove:active,
@@ -992,8 +1000,9 @@ button:focus {
 
 .cbi-button-reload,
 .cbi-input-reload {
+    background: rgb(148, 143, 225);
     border-color: rgb(148, 143, 225);
-    color: rgb(148, 143, 225);
+    color: #fff;
 }
 
 .cbi-button-reload:active,
@@ -1003,8 +1012,9 @@ button:focus {
 
 .cbi-button-reset,
 .cbi-input-reset {
-    border-color: #4a4;
-    color: #4a4;
+    background: #6bde84;
+    border-color: #6bde84;
+    color: #fff;
 }
 
 .cbi-button-reset:active,
@@ -1014,8 +1024,9 @@ button:focus {
 
 .cbi-button-edit,
 .cbi-input-edit {
+    background: #ff7700;
     border-color: #ff7700;
-    color: #ff7700;
+    color: #fff;
 }
 
 .cbi-button-edit:active,
@@ -1025,8 +1036,9 @@ button:focus {
 
 .cbi-button-apply,
 .cbi-input-apply {
-    border-color: #0069d6;
-    color: #0069d6;
+    color: #fff;
+    background: #0069d6;
+    border: 1px solid #0069d6;
 }
 
 .cbi-button-apply:active,
@@ -1036,8 +1048,9 @@ button:focus {
 
 .cbi-button-save,
 .cbi-input-save {
+    background: rgb(148, 143, 225);
     border-color: rgb(148, 143, 225);
-    color: rgb(148, 143, 225);
+    color: #fff;
 }
 
 .cbi-button-save:active,
@@ -1049,13 +1062,7 @@ button:focus {
 input[type="text"]+.cbi-button,
 input[type="password"]+.cbi-button,
 select+.cbi-button {
-    vertical-align: top;
-    padding: 0.4em;
-    border-color: #ccc;
-    margin: 0 0 1px -3px;
-    font-size: 14px;
-    line-height: 18px;
-    border-radius: 5px;
+    padding: 4px 8px;
 }
 
 
@@ -1283,7 +1290,6 @@ body.node-main-login>header .brand {
 
 body.node-main-login .alert-message {
     z-index: 999;
-    display: none;
 }
 
 .node-main-login>.container>form {
@@ -1299,9 +1305,8 @@ body.node-main-login .alert-message {
     background: #fff;
 }
 
-.node-main-login>.container>form .errorbox,
-.node-main-login>.container>form .errorbox>p {
-    color: red !important;
+.node-main-login>.container>form .errorbox {
+    color: red;
 }
 
 .node-main-login>.container>form>.cbi-map>h2 {}
@@ -1394,7 +1399,7 @@ body.modal-overlay-active #modal_overlay>.modal {
     max-width: unset;
     min-height: 32px;
     min-width: 270px;
-    background: linear-gradient(to bottom, #fceec1, #eedc94) repeat-x !important;
+    /* background: linear-gradient(to bottom, #fceec1, #eedc94) repeat-x !important; */
     border-radius: 3px;
     padding: 1em;
     margin: 0;
@@ -1435,14 +1440,14 @@ body.modal-overlay-active #modal_overlay>.modal {
 
 .modal>* {
     flex-basis: 100%;
-    line-height: normal;
+    /* line-height: normal; */
     margin-bottom: .5em;
     max-width: 100%;
 }
 
 #modal_overlay .modal>* {
     flex-basis: 100%;
-    line-height: normal;
+    /* line-height: normal; */
     margin-bottom: .5em;
 }
 
@@ -1478,10 +1483,10 @@ body.modal-overlay-active #modal_overlay>.modal {
     max-width: 400px;
     width: auto;
     background: white;
-    border: 1px solid #ccc;
+    /* border: 1px solid #ccc; */
     border-radius: 5px;
     box-sizing: border-box;
-    padding: 0 0.4em !important;
+    /* padding: 0 0.4em !important; */
 }
 
 .cbi-dynlist>.item {
@@ -1492,7 +1497,7 @@ body.modal-overlay-active #modal_overlay>.modal {
     border-radius: 3px;
     position: relative;
     pointer-events: none;
-    padding: 2px 2em 2px 4px;
+    padding: 2px 2em 2px 10px;
 }
 
 .cbi-dynlist>.item::after {
@@ -1538,8 +1543,9 @@ body.modal-overlay-active #modal_overlay>.modal {
 
 .btn.primary,
 .cbi-button-action.important {
-    border-color: #ff7700;
-    color: #ff7700;
+    color: #fff;
+    background: #0069d6;
+    border: 1px solid #0069d6;
 }
 
 .cbi-dropdown {
@@ -1579,4 +1585,21 @@ body.modal-overlay-active #modal_overlay>.modal {
     white-space: pre;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+header [data-indicator] {
+    padding: 1px 3px 2px;
+    font-size: 9.75px;
+    font-weight: bold;
+    color: #fff !important;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background-color: #bfbfbf;
+    border-radius: 3px;
+    text-shadow: none;
+    margin-left: .4em;
+}
+
+header [data-indicator][data-style="active"] {
+    background-color: #62cffc;
 }
