@@ -97,13 +97,13 @@ stop_service() {
 }
 
 start() {
-	enable=$(uci -q get $CONFIG.@global[0].enable)
+	enable=$(uci -q get socat_luci.@global[0].enable)
 	if [ "$enable" = "0" ];then
 		stop_service
 	else
 		mkdir -p $CONFIG_PATH
 		add_rule
-		config_load $CONFIG
+		config_load socat_luci
 		config_foreach run_service "config"
 		gen_include
 	fi

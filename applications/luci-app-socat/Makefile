@@ -5,11 +5,15 @@
 
 include $(TOPDIR)/rules.mk
 
+PKG_VERSION:=20220816-1
+PKG_RELEASE:=
 LUCI_TITLE:=LuCI support for Socat
 LUCI_DEPENDS:=+socat
 LUCI_PKGARCH:=all
-PKG_RELEASE:=3
-PKG_DATE:=20200824
+
+define Package/luci-app-socat/conffiles
+/etc/config/socat_luci
+endef
 
 include ../../luci.mk
 
