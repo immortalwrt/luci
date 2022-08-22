@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=NIXIO POSIX library
-LUCI_DEPENDS:=+PACKAGE_luci-lib-nixio_openssl:libopenssl +PACKAGE_luci-lib-nixio_cyassl:libcyassl +liblua
+LUCI_DEPENDS:=+liblua
 
 PKG_LICENSE:=Apache-2.0
 
