@@ -20,6 +20,8 @@ uci -q batch <<-EOF >/dev/null
 	commit firewall
 EOF
 
+/etc/init.d/socat_luci enable
+
 uci -q batch <<-EOF >/dev/null
 	delete ucitrack.@socat_luci[-1]
 	add ucitrack socat_luci
