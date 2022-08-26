@@ -32,7 +32,6 @@ if fs.access("/lib/modules/" .. boardinfo.kernel .. "/nft_fullcone.ko") then
 	o.description = translate("Using FullCone NAT can improve gaming performance effectively")
 	o = s:option(Flag, "fullcone_nat6", translate("IPv6 FullCone NAT"))
 	o.default = 0
-	o:depends("fullcone_nat", 1)
 	o.description = translate("Enable extra IPv6 FullCone NAT, most IPv6 traffic do NOT need this")
 end
 
