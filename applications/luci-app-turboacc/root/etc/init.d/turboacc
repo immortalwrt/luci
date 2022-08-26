@@ -15,13 +15,14 @@ inital_conf(){
 	config_get "hw_flow" "config" "hw_flow" "0"
 	config_get "bbr_cca" "config" "bbr_cca" "0"
 	config_get "fullcone_nat" "config" "fullcone_nat" "0"
+	config_get "fullcone_nat6" "config" "fullcone_nat6" "0"
 	config_get "dns_caching" "config" "dns_caching" "0"
 	config_get "dns_caching_mode" "config" "dns_caching_mode" "0"
 	config_get "dns_caching_dns" "config" "dns_caching_dns"
 
 	[ ! -e "/lib/modules/$(uname -r)/nft_flow_offload.ko" ] && { sw_flow="0"; hw_flow="0"; }
 	[ ! -e "/lib/modules/$(uname -r)/tcp_bbr.ko" ] && bbr_cca="0"
-	[ ! -e "/lib/modules/$(uname -r)/nft_fullcone.ko" ] && fullcone_nat="0"
+	[ ! -e "/lib/modules/$(uname -r)/nft_fullcone.ko" ] && { fullcone_nat="0"; fullcone_nat6="0"; }
 }
 
 start_pdnsd() {
@@ -230,6 +231,7 @@ start(){
 	uci set firewall.@defaults[0].flow_offloading="${sw_flow}"
 	uci set firewall.@defaults[0].flow_offloading_hw="${hw_flow}"
 	uci set firewall.@defaults[0].fullcone="${fullcone_nat}"
+	uci set firewall.@defaults[0].fullcone6="${fullcone_nat6}"
 	uci commit firewall
 
 	if [ "${bbr_cca}" -eq "1" ];  then
@@ -272,6 +274,7 @@ stop(){
 	uci set firewall.@defaults[0].flow_offloading="${sw_flow}"
 	uci set firewall.@defaults[0].flow_offloading_hw="${hw_flow}"
 	uci set firewall.@defaults[0].fullcone="${fullcone_nat}"
+	uci set firewall.@defaults[0].fullcone6="${fullcone_nat6}"
 	uci commit firewall
 
 	stop_dnscache

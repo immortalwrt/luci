@@ -27,9 +27,13 @@ if fs.access("/lib/modules/" .. boardinfo.kernel .. "/nft_flow_offload.ko") then
 end
 
 if fs.access("/lib/modules/" .. boardinfo.kernel .. "/nft_fullcone.ko") then
-	o = s:option(Flag, "fullcone_nat", translate("FullCone NAT"))
+	o = s:option(Flag, "fullcone_nat", translate("IPv4 FullCone NAT"))
 	o.default = 0
 	o.description = translate("Using FullCone NAT can improve gaming performance effectively")
+	o = s:option(Flag, "fullcone_nat6", translate("IPv6 FullCone NAT"))
+	o.default = 0
+	o:depends("fullcone_nat", 1)
+	o.description = translate("Enable extra IPv6 FullCone NAT, most IPv6 traffic do NOT need this")
 end
 
 if fs.access("/lib/modules/" .. boardinfo.kernel .. "/tcp_bbr.ko") then
