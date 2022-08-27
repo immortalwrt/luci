@@ -631,6 +631,21 @@ local methods = {
 		end
 	},
 
+	getCPUInfo = {
+		call = function()
+			local sys = require "luci.sys"
+			local cpuinfo = {}
+
+			cpuinfo.cpuinfo = sys.exec("/sbin/cpuinfo")
+
+			if (cpuinfo.cpuinfo == nil) or (cpuinfo.cpuinfo == "") then
+				cpuinfo.cpuinfo = "? x ? (2.33MHz, 2.33°C)"
+			end
+
+			return cpuinfo
+		end
+	},
+
 	getCPUUsage = {
 		call = function()
 			local sys = require "luci.sys"
@@ -638,6 +653,25 @@ local methods = {
 
 			cpuusage.cpuusage = sys.exec("top -n1 | awk '/^CPU/ {printf(\"%d%\", 100 - $8)}'") or "6%"
 			return cpuusage
+		end
+	},
+
+	getETHInfo = {
+		call = function()
+			local sys = require "luci.sys"
+			local rv = json.parse(sys.exec("/sbin/ethinfo")) or {}
+
+			return { ethinfo = rv }
+		end
+	},
+
+	getTempInfo = {
+		call = function()
+			local sys = require "luci.sys"
+			local tempinfo = {}
+
+			tempinfo.tempinfo = sys.exec("/sbin/tempinfo 2>/dev/null")
+			return tempinfo
 		end
 	},
 
