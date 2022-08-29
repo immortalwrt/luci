@@ -22,6 +22,7 @@
 'require uci';
 'require form';
 'require rpc';
+'require view';
 
 var conf = 'smartdns';
 var callServiceList = rpc.declare({
@@ -119,7 +120,7 @@ function smartdnsRenderStatus(res) {
 	return renderHTML;
 }
 
-return L.view.extend({
+return view.extend({
 	load: function () {
 		return Promise.all([
 			uci.load('smartdns'),
