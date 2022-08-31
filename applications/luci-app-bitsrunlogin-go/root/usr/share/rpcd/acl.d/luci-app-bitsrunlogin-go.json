@@ -1,0 +1,17 @@
+{
+	"luci-app-bitsrunlogin-go": {
+		"description": "Grant access to BitSrunLogin-Go configuration",
+		"read": {
+			"file": {
+				"/etc/init.d/bitsrunlogin-go read_log": [ "exec" ]
+			},
+			"ubus": {
+				"service": [ "list" ]
+			},
+			"uci": [ "bitsrunlogin-go" ]
+		},
+		"write": {
+			"uci": [ "bitsrunlogin-go" ]
+		}
+	}
+}
