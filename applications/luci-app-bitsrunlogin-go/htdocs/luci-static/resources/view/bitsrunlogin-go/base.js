@@ -106,6 +106,12 @@ return view.extend({
 		o.default = '5';
 		o.rmempty = false;
 
+		o = s.option(form.Value, 'duration', _('Check interval'),
+			_('Network connectivity check interval.'));
+		o.datatype = 'uinteger';
+		o.default = '3600';
+		o.rmempty = false;
+
 		o = s.option(form.Value, 'interfaces', _('Interface name'),
 			_('Interface name in regex, e.g. "eth0\\.[2-3]".<br/>Multi-interfaces mode will be enabled if not empty.'));
 
