@@ -38,23 +38,24 @@ return view.extend({
 		);
 
 		poll.add(L.bind(function() {
-			return fs.exec('/etc/init.d/bitsrunlogin-go', [ 'read_log' ])
+			return fs.read_direct('/var/run/bitsrunlogin-go/bitsrunlogin-go.log', 'text')
 			.then(function(res) {
-				var log;
-				if (res.code === 0)
-					log = E('pre', { 'wrap': 'pre' }, [
-						res.stdout.trim() || _('Log is clean.')
-					]);
-				else
-					log = E('pre', { 'wrap': 'pre' }, [
-						_('Log file is not found.')
-					])
+				var log = E('pre', { 'wrap': 'pre' }, [
+					res.trim() || _('Log is clean.')
+				]);
 
 				dom.content(log_textarea, log);
 			}).catch(function(err) {
-				var log = E('pre', { 'wrap': 'pre' }, [
-					_('Unknown error: %s').format(err)
-				]);
+				var log;
+
+				if (err.toString().includes('NotFoundError'))
+					log = E('pre', { 'wrap': 'pre' }, [
+						_('Log file does not exist.')
+					]);
+				else
+					log = E('pre', { 'wrap': 'pre' }, [
+						_('Unknown error: %s').format(err)
+					]);
 
 				dom.content(log_textarea, log);
 			});

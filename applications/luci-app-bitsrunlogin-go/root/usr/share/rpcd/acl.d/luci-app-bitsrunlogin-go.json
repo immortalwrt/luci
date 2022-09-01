@@ -3,7 +3,7 @@
 		"description": "Grant access to BitSrunLogin-Go configuration",
 		"read": {
 			"file": {
-				"/etc/init.d/bitsrunlogin-go read_log": [ "exec" ]
+				"/var/run/bitsrunlogin-go/bitsrunlogin-go.log": [ "read" ]
 			},
 			"ubus": {
 				"service": [ "list" ]
