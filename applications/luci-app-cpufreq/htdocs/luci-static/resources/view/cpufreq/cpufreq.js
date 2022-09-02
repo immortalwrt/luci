@@ -57,7 +57,7 @@ return view.extend({
 					o.value(freq);
 				o.validate = function(section_id, value) {
 					if (!section_id)
-						return true
+						return true;
 					else if (value === null || value === '')
 						return _('Expecting: %s').format('non-empty value');
 
