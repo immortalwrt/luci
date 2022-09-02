@@ -1,27 +1,51 @@
 #!/bin/sh /etc/rc.common
+. /usr/share/libubox/jshn.sh
+
 START=15
-
 NAME="cpufreq"
+CPUFREQ_PATH="/sys/devices/system/cpu/cpufreq"
 
-config_get_cpufreq()
-{
+extra_command "get_policies"
+
+config_get_cpufreq() {
 	config_get "$NAME" "$1"
 }
 
-start()
-{
+start() {
 	config_load "$NAME"
 
-	for i in $(find /sys/devices/system/cpu/cpufreq/policy* -maxdepth 0 | grep -Eo '[0-9]+')
+	for i in $(ls -d "$CPUFREQ_PATH"/policy[0-9]* 2>"/dev/null")
 	do
 		[ -z "$(config_get_cpufreq "governor$i")" ] && return
 
-		config_get_cpufreq "governor$i" > "/sys/devices/system/cpu/cpufreq/policy$i/scaling_governor"
-		config_get_cpufreq "minfreq$i" > "/sys/devices/system/cpu/cpufreq/policy$i/scaling_min_freq"
-		config_get_cpufreq "maxfreq$i" > "/sys/devices/system/cpu/cpufreq/policy$i/scaling_max_freq"
+		config_get_cpufreq "governor$i" > "$CPUFREQ_PATH/policy$i/scaling_governor"
+		config_get_cpufreq "minfreq$i" > "$CPUFREQ_PATH/policy$i/scaling_min_freq"
+		config_get_cpufreq "maxfreq$i" > "$CPUFREQ_PATH/policy$i/scaling_max_freq"
 		if [ "$(config_get_cpufreq "governor$i")" = "ondemand" ]; then
-			config_get_cpufreq "sdfactor$i" > "/sys/devices/system/cpu/cpufreq/ondemand/sampling_down_factor"
-			config_get_cpufreq "upthreshold$i" > "/sys/devices/system/cpu/cpufreq/ondemand/up_threshold"
+			config_get_cpufreq "sdfactor$i" > "$CPUFREQ_PATH/ondemand/sampling_down_factor"
+			config_get_cpufreq "upthreshold$i" > "$CPUFREQ_PATH/ondemand/up_threshold"
 		fi
 	done
+}
+
+get_policies() {
+	json_init
+	for policy in $(ls -d "$CPUFREQ_PATH"/policy[0-9]* 2>"/dev/null"); do
+		[ -s "$policy/scaling_available_frequencies" ] || continue
+		json_add_object "$(basename "$policy")"
+		json_add_string "index" "$(basename "$policy" | grep -Eo "[0-9]*")"
+		json_add_string "cpus" "$(cat "$policy/affected_cpus" | sed "s/ /, /g")"
+		json_add_array "freqs"
+		for freq in $(cat "$policy/scaling_available_frequencies"); do
+			json_add_string "" "$freq"
+		done
+		json_close_array
+		json_add_array "governors"
+		for governor in $(cat "$policy/scaling_available_governors"); do
+			json_add_string "" "$governor"
+		done
+		json_close_array
+		json_close_object
+	done
+	json_dump
 }
