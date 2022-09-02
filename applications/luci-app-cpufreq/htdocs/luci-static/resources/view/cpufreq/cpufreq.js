@@ -45,15 +45,22 @@ return view.extend({
 				o = s.taboption(index, form.ListValue, 'governor' + index, _('CPU Scaling Governor'));
 				for (var gov of data[1][i].governors)
 					o.value(gov);
+				o.rmempty = false;
 
 				o = s.taboption(index, form.ListValue, 'minfreq' + index, _('Min Idle CPU Freq'));
 				for (var freq of data[1][i].freqs)
 					o.value(freq);
+				o.rmempty = false;
 
 				o = s.taboption(index, form.ListValue, 'maxfreq' + index, _('Max Turbo Boost CPU Freq'));
 				for (var freq of data[1][i].freqs)
 					o.value(freq);
 				o.validate = function(section_id, value) {
+					if (!section_id)
+						return true
+					else if (value === null || value === '')
+						return _('Expecting: %s').format('non-empty value');
+
 					var minfreq = this.map.lookupOption('minfreq' + index, section_id)[0].formvalue(section_id);
 					if (parseInt(value) < parseInt(minfreq))
 						return _('Max CPU Freq cannot be lower than Min CPU Freq.');
