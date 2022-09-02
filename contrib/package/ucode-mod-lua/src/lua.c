@@ -155,30 +155,46 @@ ucv_to_lua(uc_vm_t *vm, uc_value_t *uv, lua_State *L, struct lh_table *visited)
 
 	case UC_ARRAY:
 	case UC_OBJECT:
-		if (!visited) {
-			freetbl = true;
-			visited = lh_kptr_table_new(16, NULL);
-		}
+		if (ucv_prototype_get(uv)) {
+			ud = lua_newuserdata(L, sizeof(*ud));
 
-		if (visited) {
-			if (lua_table_new_or_ref(L, visited, uv)) {
-				if (ucv_type(uv) == UC_ARRAY) {
-					for (i = 0; i < ucv_array_length(uv); i++) {
-						e = ucv_array_get(uv, i);
-						ucv_to_lua(vm, e, L, visited);
-						lua_rawseti(L, -2, (int)i + 1);
-					}
-				}
-				else {
-					ucv_object_foreach(uv, key, val) {
-						ucv_to_lua(vm, val, L, visited);
-						lua_setfield(L, -2, key);
-					}
-				}
+			if (ud) {
+				ud->vm = vm;
+				ud->uv = ucv_get(uv);
+
+				luaL_getmetatable(L, "ucode.value");
+				lua_setmetatable(L, -2);
+			}
+			else {
+				lua_pushnil(L);
 			}
 		}
 		else {
-			lua_pushnil(L);
+			if (!visited) {
+				freetbl = true;
+				visited = lh_kptr_table_new(16, NULL);
+			}
+
+			if (visited) {
+				if (lua_table_new_or_ref(L, visited, uv)) {
+					if (ucv_type(uv) == UC_ARRAY) {
+						for (i = 0; i < ucv_array_length(uv); i++) {
+							e = ucv_array_get(uv, i);
+							ucv_to_lua(vm, e, L, visited);
+							lua_rawseti(L, -2, (int)i + 1);
+						}
+					}
+					else {
+						ucv_object_foreach(uv, key, val) {
+							ucv_to_lua(vm, val, L, visited);
+							lua_setfield(L, -2, key);
+						}
+					}
+				}
+			}
+			else {
+				lua_pushnil(L);
+			}
 		}
 
 		break;
@@ -401,17 +417,28 @@ lua_uv_call(lua_State *L)
 	ucv_userdata_t *ud = luaL_checkudata(L, 1, "ucode.value");
 	int nargs = lua_gettop(L), i;
 	uc_value_t *rv;
+	lua_Debug ar;
+	bool mcall;
 
 	if (!ucv_is_callable(ud->uv))
 		return luaL_error(L, "%s: Invoked value is not a function",
 			uc_exception_type_name(EXCEPTION_TYPE));
 
+	if (!lua_getstack(L, 0, &ar) || !lua_getinfo(L, "n", &ar))
+		return luaL_error(L, "%s: Unable to obtain stackframe information",
+			uc_exception_type_name(EXCEPTION_RUNTIME));
+
+	mcall = !strcmp(ar.namewhat, "method");
+
+	if (mcall)
+		uc_vm_stack_push(ud->vm, lua_to_ucv(L, 2, ud->vm, NULL));
+
 	uc_vm_stack_push(ud->vm, ucv_get(ud->uv));
 
-	for (i = 2; i <= nargs; i++)
+	for (i = 2 + mcall; i <= nargs; i++)
 		uc_vm_stack_push(ud->vm, lua_to_ucv(L, i, ud->vm, NULL));
 
-	if (uc_vm_call(ud->vm, false, nargs - 1)) {
+	if (uc_vm_call(ud->vm, mcall, nargs - 1 - mcall)) {
 		rv = ucv_object_get(ucv_array_get(ud->vm->exception.stacktrace, 0), "context", NULL);
 
 		return luaL_error(L, "%s: %s%s%s",
@@ -424,6 +451,29 @@ lua_uv_call(lua_State *L)
 
 	ucv_to_lua(ud->vm, rv, L, NULL);
 	ucv_put(rv);
+
+	return 1;
+}
+
+static int
+lua_uv_index(lua_State *L)
+{
+	ucv_userdata_t *ud = luaL_checkudata(L, 1, "ucode.value");
+	const char *key = luaL_checkstring(L, 2);
+	long long idx;
+	char *e;
+
+	if (ucv_type(ud->uv) == UC_ARRAY) {
+		idx = strtoll(key, &e, 10);
+
+		if (e != key && *e == 0 && idx >= 1 && idx <= (long long)ucv_array_length(ud->uv)) {
+			ucv_to_lua(ud->vm, ucv_array_get(ud->uv, (size_t)(idx - 1)), L, NULL);
+
+			return 1;
+		}
+	}
+
+	ucv_to_lua(ud->vm, ucv_property_get(ud->uv, key), L, NULL);
 
 	return 1;
 }
@@ -443,6 +493,7 @@ lua_uv_tostring(lua_State *L)
 static const luaL_reg ucode_ud_methods[] = {
 	{ "__gc",			lua_uv_gc         },
 	{ "__call",			lua_uv_call       },
+	{ "__index",		lua_uv_index      },
 	{ "__tostring",		lua_uv_tostring   },
 
 	{ }
@@ -639,13 +690,22 @@ uc_lua_vm_get(uc_vm_t *vm, size_t nargs)
 	uc_value_t *key = uc_fn_arg(0);
 	lua_resource_t *lv;
 	size_t i;
+	int top;
 
 	if (!L || !*L || ucv_type(key) != UC_STRING)
 		return NULL;
 
+	top = lua_gettop(*L);
+
 	lua_getglobal(*L, ucv_string_get(key));
 
 	for (i = 1; i < nargs; i++) {
+		if (lua_type(*L, -1) != LUA_TTABLE) {
+			lua_settop(*L, top);
+
+			return NULL;
+		}
+
 		ucv_to_lua(vm, uc_fn_arg(i), *L, NULL);
 		lua_gettable(*L, -2);
 	}
@@ -654,8 +714,7 @@ uc_lua_vm_get(uc_vm_t *vm, size_t nargs)
 	lv->ref = luaL_ref(*L, LUA_REGISTRYINDEX);
 	lv->uvL = ucv_this_to_uvL(vm);
 
-	if (nargs > 1)
-		lua_pop(*L, nargs - 1);
+	lua_settop(*L, top);
 
 	return uc_resource_new(lv_type, lv);
 }
@@ -740,14 +799,23 @@ uc_lua_lv_get_common(uc_vm_t *vm, size_t nargs, bool raw)
 	lua_State *L = uc_lua_lv_to_L(lv);
 	uc_value_t *key;
 	size_t i;
+	int top;
 
 	if (!L)
 		return NULL;
+
+	top = lua_gettop(L);
 
 	lua_rawgeti(L, LUA_REGISTRYINDEX, (*lv)->ref);
 
 	for (i = 0; i < nargs; i++) {
 		key = uc_fn_arg(i);
+
+		if (lua_type(L, -1) != LUA_TTABLE) {
+			lua_settop(L, top);
+
+			return NULL;
+		}
 
 		if (raw) {
 			if (ucv_type(key) == UC_INTEGER) {
@@ -768,7 +836,7 @@ uc_lua_lv_get_common(uc_vm_t *vm, size_t nargs, bool raw)
 	ref->ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	ref->uvL = ucv_this_to_uvL(vm);
 
-	lua_pop(L, nargs);
+	lua_settop(L, top);
 
 	return uc_resource_new(lv_type, ref);
 }
@@ -899,8 +967,6 @@ uc_lua_create(uc_vm_t *vm, size_t nargs)
 
 	luaL_newmetatable(L, "ucode.value");
 	luaL_register(L, NULL, ucode_ud_methods);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
 	lua_pop(L, 1);
 
 	return uc_resource_new(vm_type, L);
