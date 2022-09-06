@@ -5,7 +5,7 @@ START=15
 NAME="cpufreq"
 CPUFREQ_PATH="/sys/devices/system/cpu/cpufreq"
 
-extra_command "get_policies"
+extra_command "get_policies" "Get CPU scaling governors and frequencies"
 
 write_cpufreq_config() {
 	local value
@@ -36,7 +36,7 @@ get_policies() {
 		[ -s "$policy/scaling_available_frequencies" ] || continue
 		json_add_object "$(basename "$policy")"
 		json_add_string "index" "$(basename "$policy" | grep -Eo "[0-9]*$")"
-		json_add_string "cpus" "$(cat "$policy/affected_cpus" | sed "s/ /, /g")"
+		json_add_string "cpus" "$(cat "$policy/affected_cpus")"
 		json_add_array "freqs"
 		for freq in $(cat "$policy/scaling_available_frequencies"); do
 			json_add_string "" "$freq"
