@@ -49,14 +49,14 @@ function uploadCertificate(type, filename, ev) {
 
 	return ui.uploadFile('/etc/v2raya/' + filename, ev.target)
 	.then(L.bind(function(btn, res) {
-		btn.firstChild.data = _('Checking %s...').format(_(type));
+		btn.firstChild.data = _('Checking %s...').format(type);
 
 		if (res.size <= 0) {
-			ui.addNotification(null, E('p', _('The uploaded %s is empty.').format(_(type))));
+			ui.addNotification(null, E('p', _('The uploaded %s is empty.').format(type)));
 			return fs.remove('/etc/v2raya/' + filename);
 		}
 
-		ui.addNotification(null, E('p', _('Your %s was successfully uploaded. Size: %sB.').format(_(type), res.size)));
+		ui.addNotification(null, E('p', _('Your %s was successfully uploaded. Size: %sB.').format(type, res.size)));
 	}, this, ev.target))
 	.catch(function(e) { ui.addNotification(null, E('p', e.message)) })
 	.finally(L.bind(function(btn, input) {
@@ -73,7 +73,7 @@ return view.extend({
 
 	render: function(data) {
 		var m, s, o;
-		var webport = (uci.get(data[0], 'config', 'address') || '0.0.0.0:2017').split(':').splice(-1);
+		var webport = (uci.get(data[0], 'config', 'address') || '0.0.0.0:2017').split(':').slice(-1)[0];
 
 		m = new form.Map('v2raya', _('v2rayA'),
 			_('v2rayA is a V2Ray Linux client supporting global transparent proxy, compatible with SS, SSR, Trojan(trojan-go), PingTunnel protocols.'));
@@ -111,14 +111,14 @@ return view.extend({
 			    port = validation.parseInteger(value.split(':').slice(-1)[0]);
 
 			if (!addr || !port || port < 0 || port > 65535)
-				return _('Expecting: %s').format('valid address:port pair');
+				return _('Expecting: %s').format(_('valid address:port value'));
 			else if (!validation.parseIPv4(addr)) {
 				if (validation.parseIPv6(addr))
 					return _('IPv6 address should be used with [].')
 				else if (addr.match(/\[(.+)\]/) && validation.parseIPv6(RegExp.$1))
 					return true;
 				else
-					return _('Expecting: %s').format('valid address:port pair');
+					return _('Expecting: %s').format(_('valid address:port value'));
 			}
 
 			return true;
@@ -183,13 +183,13 @@ return view.extend({
 		o = s.option(form.Button, '_upload_cert', _('Upload certificate'));
 		o.inputstyle = 'action';
 		o.inputtitle = _('Upload...');
-		o.onclick = L.bind(uploadCertificate, this, 'certificate', 'grpc_certificate.crt');
+		o.onclick = L.bind(uploadCertificate, this, _('certificate'), 'grpc_certificate.crt');
 		o.depends('vless_grpc_inbound_cert_key', '/etc/v2raya/grpc_certificate.crt,/etc/v2raya/grpc_private.key');
 
 		o = s.option(form.Button, '_upload_key', _('Upload privateKey'));
 		o.inputstyle = 'action';
 		o.inputtitle = _('Upload...');
-		o.onclick = L.bind(uploadCertificate, this, 'private key', 'grpc_private.key');
+		o.onclick = L.bind(uploadCertificate, this, _('private key'), 'grpc_private.key');
 		o.depends('vless_grpc_inbound_cert_key', '/etc/v2raya/grpc_certificate.crt,/etc/v2raya/grpc_private.key');
 
 		return m.render();
