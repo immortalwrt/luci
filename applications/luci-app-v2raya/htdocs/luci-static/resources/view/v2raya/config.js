@@ -100,27 +100,9 @@ return view.extend({
 		o.rmempty = false;
 
 		o = s.option(form.Value, 'address', _('Listening address'));
+		o.datatype = 'ipaddrport(1)';
 		o.default = '0.0.0.0:2017';
-		o.validate = function(section_id, value) {
-			if (!section_id)
-				return true;
-			else if (!value)
-				return _('Expecting: %s').format('non-empty value');
-
-			var addr = value.split(':').slice(0, -1).join(':'),
-			    port = validation.parseInteger(value.split(':').slice(-1)[0]);
-
-			if (!addr || !port || port < 0 || port > 65535)
-				return _('Expecting: %s').format(_('valid address:port value'));
-			else if (!validation.parseIPv4(addr)) {
-				if (validation.parseIPv6(addr))
-					return _('IPv6 address should be used with [].')
-				else if (!addr.match(/\[(.+)\]/) || !validation.parseIPv6(RegExp.$1))
-					return _('Expecting: %s').format(_('valid address:port value'));
-			}
-
-			return true;
-		}
+		o.rmempty = false;
 
 		o = s.option(form.Value, 'config', _('Configuration directory'));
 		o.datatype = 'path';
