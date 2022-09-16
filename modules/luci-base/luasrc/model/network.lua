@@ -130,7 +130,7 @@ function _wifi_iface(x)
 			return true
 		end
 	end
-	return false
+	return (nfs.access("/sys/class/net/%s/phy80211" % x) == true)
 end
 
 function _wifi_state(key, val, field)
@@ -1283,6 +1283,7 @@ function interface.ports(self)
 		for _, iface in ipairs(members) do
 			ifaces[#ifaces+1] = interface(iface)
 		end
+		return ifaces
 	end
 end
 
