@@ -43,9 +43,7 @@ append_param_env() {
 append_filter_client() {
 	local cfg="$1"
 
-	local enabled
-	config_get_bool enabled "$cfg" "enable"
-	[ "$enabled" = "1" ] || return 1
+	is_enabled "$cfg" "enable" || return 1
 
 	local ip_addr filter_mode
 	config_get ip_addr "$cfg" "ip_addr"
@@ -122,8 +120,10 @@ start_service() {
 	append_param_env "config" "self_issue_cert_crt" "SIGN_CERT" "/usr/share/$NAME/core/server.crt"
 	append_param_env "config" "self_issue_cert_key" "SIGN_KEY" "/usr/share/$NAME/core/server.key"
 
+	is_enabled "config" "follow_source_order" && procd_append_param env FOLLOW_SOURCE_ORDER="true"
 	is_enabled "config" "enable_flac" && procd_append_param env ENABLE_FLAC="true"
 	is_enabled "config" "local_vip" && procd_append_param env ENABLE_LOCAL_VIP="true"
+	is_enabled "config" "disable_upgrade_check" && procd_append_param env DISABLE_UPGRADE_CHECK="true"
 	case "$(config_get "config" "replace_music_source")" in
 		"lower_than_192kbps") procd_append_param env MIN_BR="192000" ;;
 		"lower_than_320kbps") procd_append_param env MIN_BR="320000" ;;
