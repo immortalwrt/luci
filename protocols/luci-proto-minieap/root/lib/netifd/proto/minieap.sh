@@ -91,6 +91,7 @@ proto_minieap_setup() {
 	append_setting ${heartbeat:+heartbeat=$heartbeat}
 	append_setting ${eap_bcast_addr:+eap-bcast-addr=$eap_bcast_addr}
 	append_setting ${dhcp_type:+dhcp-type=$dhcp_type}
+	append_setting ${dhcp_script:+dhcp-script="$dhcp_script"}
 	json_for_each_item append_setting_list rj_option 'rj-option'
 	append_setting ${service:+service="$service"}
 	append_setting ${version_str:+version-str="$version_str"}
