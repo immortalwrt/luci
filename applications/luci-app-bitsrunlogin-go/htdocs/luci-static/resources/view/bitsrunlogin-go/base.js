@@ -82,13 +82,18 @@ return view.extend({
 		o.value('cmcc', _('China Mobile (cmcc)'));
 		o.value('ctcc', _('China Telecom (ctcc)'));
 		o.value('cucc', _('China Unicom (cucc)'));
-		o.rmempty = false;
 
 		o = s.option(form.Value, 'username', _('Username'));
 		o.rmempty = false;
 
 		o = s.option(form.Value, 'password', _('Password'));
 		o.password = true;
+		o.rmempty = false;
+
+		o = s.option(form.Value, 'acid', 'AC_ID',
+			_('Please refer to you school to modify this value, incorrect ac_id may cause login error.'));
+		o.datatype = 'uinteger';
+		o.default = '5';
 		o.rmempty = false;
 
 		o = s.option(form.Flag, 'enable_https', _('Enable HTTPS'),
