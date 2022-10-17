@@ -91,6 +91,11 @@ return view.extend({
 		o.password = true;
 		o.rmempty = false;
 
+		o = s.option(form.Value, 'acid', 'AC_ID');
+		o.datatype = 'uinteger';
+		o.default = '1';
+		o.rmempty = false;
+
 		o = s.option(form.Flag, 'enable_https', _('Enable HTTPS'),
 			_('Use HTTPS to login.'));
 		o.default = o.disabled;
