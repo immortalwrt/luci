@@ -79,10 +79,10 @@ return view.extend({
 
 		o = s.option(form.Value, 'usertype', _('ISP type'),
 			_('See <a href="https://github.com/Mmx233/BitSrunLoginGo" target="_blank">Mmx233/BitSrunLoginGo</a> for details.'));
+		o.value('', _('Leave Empty'));
 		o.value('cmcc', _('China Mobile (cmcc)'));
 		o.value('ctcc', _('China Telecom (ctcc)'));
 		o.value('cucc', _('China Unicom (cucc)'));
-		o.rmempty = false;
 
 		o = s.option(form.Value, 'username', _('Username'));
 		o.rmempty = false;
