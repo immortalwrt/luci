@@ -378,6 +378,12 @@ return view.extend({
 			_('Filter IPv6(AAAA) DNS Query Name Resolve'));
 		o.optional = true;
 
+		o = s.taboption('advanced', form.Flag, 'filter_a',
+			_('Disable IPv4 DNS forwards'),
+			_('Filter IPv4(A) DNS Query Name Resolve'));
+		o.optional = true;
+		o.depends('filter_aaaa', '0');
+
 		o = s.taboption('advanced', form.Flag, 'quietdhcp',
 			_('Suppress logging'),
 			_('Suppress logging of the routine operation for the DHCP protocol.'));
