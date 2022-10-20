@@ -443,9 +443,6 @@ msgstr "活跃"
 msgid "Active Connections"
 msgstr "活动连接"
 
-msgid "Online Users"
-msgstr "在线用户数"
-
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:35
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:182
 msgid "Active DHCP Leases"
@@ -571,24 +568,6 @@ msgstr "额外的 HOSTS 文件"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:417
 msgid "Additional servers file"
 msgstr "额外的 SERVERS 文件"
-
-msgid "Disable IPv6 DNS forwards"
-msgstr "禁止解析 IPv6 DNS 记录"
-
-msgid "Filter IPv6(AAAA) DNS Query Name Resolve"
-msgstr "过滤掉 IPv6(AAAA) ，只返回 IPv4 DNS 域名记录"
-
-msgid "Disable IPv4 DNS forwards"
-msgstr "禁止解析 IPv4 DNS 记录"
-
-msgid "Filter IPv4(A) DNS Query Name Resolve"
-msgstr "过滤掉 IPv4(A) ，只返回 IPv6 DNS 域名记录"
-
-msgid "Minimum TTL to send to clients"
-msgstr "客户端缓存的最小 DNS TTL"
-
-msgid "Modify DNS entries minimum TTL (max is 86400, 0 is no modify)"
-msgstr "修改发送到客户端的域名记录的 TTL 时间 (最大 86400, 0 表示不修改)"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:34
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:35
@@ -2333,12 +2312,6 @@ msgstr "是否要替换当前的 PSK？"
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:100
 msgid "Do you want to replace the current keys?"
 msgstr "是否要替换当前密钥？"
-
-msgid "DNS Redirect"
-msgstr "DNS 重定向"
-
-msgid "Redirect client DNS to dnsmasq"
-msgstr "重定向客户端DNS到dnsmasq"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:593
 msgid "Domain"
@@ -10288,6 +10261,66 @@ msgstr "是"
 msgid "« Back"
 msgstr "« 后退"
 
+msgid "Online Users"
+msgstr "在线用户数"
+
+msgid "DNS Redirect"
+msgstr "DNS 重定向"
+
+msgid "Redirect client DNS to dnsmasq"
+msgstr "重定向客户端DNS到dnsmasq"
+
+msgid "Disable IPv6 DNS forwards"
+msgstr "禁止解析 IPv6 DNS 记录"
+
+msgid "Filter IPv6(AAAA) DNS Query Name Resolve"
+msgstr "过滤掉 IPv6(AAAA) ，只返回 IPv4 DNS 域名记录"
+
+msgid "Disable IPv4 DNS forwards"
+msgstr "禁止解析 IPv4 DNS 记录"
+
+msgid "Filter IPv4(A) DNS Query Name Resolve"
+msgstr "过滤掉 IPv4(A) ，只返回 IPv6 DNS 域名记录"
+
+msgid "Minimum TTL to send to clients"
+msgstr "客户端缓存的最小 DNS TTL"
+
+msgid "Modify DNS entries minimum TTL (max is 86400, 0 is no modify)"
+msgstr "修改发送到客户端的域名记录的 TTL 时间 (最大 86400, 0 表示不修改)"
+
+msgid "Enables The 802.11k standard provides information to discover the best available access point"
+msgstr "启用 802.11k 自动寻找发现最佳可用接入点的信息"
+
+msgid "Enable neighbor report via radio measurements"
+msgstr "启用无线电测量邻居报告"
+
+msgid "Enable beacon report via radio measurements"
+msgstr "启用无线电测量信标报告"
+
+msgid "Enables 802.11v allows client devices to exchange information about the network topology,tating overall improvement of the wireless network."
+msgstr "启用 802.11v 将允许客户端设备交换有关网络拓扑的信息，从而全面改善无线网络漫游"
+
+msgid "extended sleep mode for stations"
+msgstr "扩展无线休眠节能模式"
+
+msgid "BSS Transition Management"
+msgstr "BSS 传输管理"
+
+msgid "Time advertisement"
+msgstr "广播同步时间"
+
+msgid "time zone"
+msgstr "时区"
+
+msgid "Local time zone as specified in 8.3 of IEEE Std 1003.1-2004"
+msgstr "本地时区采用 IEEE Std 1003.1-2004 的 8.3 格式（例如 UTC8）"
+
+msgid "Enable 256-QAM"
+msgstr "启用 256-QAM"
+
+msgid "802.11n 2.4Ghz Only"
+msgstr "只适合 802.11n 2.4Ghz"
+
 #~ msgid "Do not forward queries that cannot be answered by public resolvers."
 #~ msgstr "不转发公共域名服务器无法回应的请求。"
 
@@ -10369,42 +10402,6 @@ msgstr "« 后退"
 
 #~ msgid "The value is overridden by configuration. Original: %s"
 #~ msgstr "该值被配置覆盖。 原始：%s"
-
-msgid "Enables The 802.11k standard provides information to discover the best available access point"
-msgstr "启用 802.11k 自动寻找发现最佳可用接入点的信息"
-
-msgid "Enable neighbor report via radio measurements"
-msgstr "启用无线电测量邻居报告"
-
-msgid "Enable beacon report via radio measurements"
-msgstr "启用无线电测量信标报告"
-
-msgid "Enables 802.11v allows client devices to exchange information about the network topology,tating overall improvement of the wireless network."
-msgstr "启用 802.11v 将允许客户端设备交换有关网络拓扑的信息，从而全面改善无线网络漫游"
-
-msgid "extended sleep mode for stations"
-msgstr "扩展无线休眠节能模式"
-
-msgid "BSS Transition Management"
-msgstr "BSS 传输管理"
-
-msgid "Time advertisement"
-msgstr "广播同步时间"
-
-msgid "time zone"
-msgstr "时区"
-
-msgid "Local time zone as specified in 8.3 of IEEE Std 1003.1-2004"
-msgstr "本地时区采用 IEEE Std 1003.1-2004 的 8.3 格式（例如 UTC8）"
-
-msgid "Enable 256-QAM"
-msgstr "启用 256-QAM"
-
-msgid "802.11n 2.4Ghz Only"
-msgstr "只适合 802.11n 2.4Ghz"
-
-#~ msgid "Firewall"
-#~ msgstr "防火墙"
 
 #~ msgctxt "nft meta oif"
 #~ msgid "Engress device id"
