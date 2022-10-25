@@ -617,66 +617,61 @@ local methods = {
 
 	getCPUBench = {
 		call = function()
-			local sys = require "luci.sys"
-			local cpubench = {}
-
-			cpubench.cpubench = sys.exec("cat /etc/bench.log 2>/dev/null")
-			return cpubench
+			local cpubench = readfile("/etc/bench.log") or ""
+			return { cpubench = cpubench }
 		end
 	},
 
 	getCPUInfo = {
 		call = function()
-			local sys = require "luci.sys"
-			local cpuinfo = {}
-
-			cpuinfo.cpuinfo = sys.exec("/sbin/cpuinfo")
-
-			if (cpuinfo.cpuinfo == nil) or (cpuinfo.cpuinfo == "") then
-				cpuinfo.cpuinfo = "? x ? (2.33MHz, 2.33°C)"
+			if not fs.access("/sbin/cpuinfo") then
+				return {}
 			end
 
-			return cpuinfo
+			local sys = require "luci.sys"
+			local cpuinfo = sys.exec("/sbin/cpuinfo")
+			if (cpuinfo == nil) or (cpuinfo == "") then
+				cpuinfo = "?"
+			end
+
+			return { cpuinfo = cpuinfo }
 		end
 	},
 
 	getCPUUsage = {
 		call = function()
 			local sys = require "luci.sys"
-			local cpuusage = {}
-
-			cpuusage.cpuusage = sys.exec("top -n1 | awk '/^CPU/ {printf(\"%d%%\", 100 - $8)}'") or "6%"
-			return cpuusage
+			local cpuusage = sys.exec("top -n1 | awk '/^CPU/ {printf(\"%d%\", 100 - $8)}'") or "?"
+			return { cpuusage = cpuusage }
 		end
 	},
 
 	getETHInfo = {
 		call = function()
 			local sys = require "luci.sys"
-			local rv = json.parse(sys.exec("/sbin/ethinfo")) or {}
-
-			return { ethinfo = rv }
+			local ethinfo = json.parse(sys.exec("/sbin/ethinfo")) or {}
+			return { ethinfo = ethinfo }
 		end
 	},
 
 	getOnlineUsers = {
 		call = function()
 			local sys = require "luci.sys"
-			local onlineusers = {}
-
-			onlineusers.onlineusers = sys.exec("cat /proc/net/arp | grep 'br-lan' | grep '0x2' | wc -l")
-			return onlineusers
+			local onlineusers = sys.exec("cat /proc/net/arp | grep 'br-lan' | grep '0x2' | wc -l")
+			return { onlineusers = onlineusers }
 
 		end
 	},
 
 	getTempInfo = {
 		call = function()
-			local sys = require "luci.sys"
-			local tempinfo = {}
+			if not fs.access("/sbin/tempinfo") then
+				return {}
+			end
 
-			tempinfo.tempinfo = sys.exec("/sbin/tempinfo 2>/dev/null")
-			return tempinfo
+			local sys = require "luci.sys"
+			local tempinfo = sys.exec("/sbin/tempinfo")
+			return { tempinfo = tempinfo }
 		end
 	}
 }
