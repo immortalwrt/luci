@@ -166,7 +166,7 @@ ln_start_bin() {
 
 start_dns() {
 	local ssrplus_dns="$(uci_get_by_type global pdnsd_enable 0)"
-	local dnsserver="$(uci_get_by_type global tunnel_forward 8.8.4.4:53)"
+	local dnsserver="$(uci_get_by_type global tunnel_forward)"
 	local run_mode="$(uci_get_by_type global run_mode)"
 
 	if [ "$ssrplus_dns" != "0" ]; then
