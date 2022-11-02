@@ -511,7 +511,7 @@ const methods = {
 
 	getCPUBench: {
 		call: function() {
-			return { cpubench: readfile('/etc/bench.log' || '') };
+			return { cpubench: readfile('/etc/bench.log') || '' };
 		}
 	},
 
