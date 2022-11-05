@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-openclash
-PKG_VERSION:=0.45.51
+PKG_VERSION:=0.45.69
 PKG_RELEASE:=beta
 PKG_MAINTAINER:=vernesong <https://github.com/vernesong/OpenClash>
 
@@ -12,6 +12,18 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)/config
 	config PACKAGE_kmod-inet-diag
 	default y if PACKAGE_$(PKG_NAME)
+
+	config PACKAGE_kmod-nft-tproxy
+	default y if PACKAGE_firewall4
+
+	config PACKAGE_kmod-ipt-nat
+	default y if ! PACKAGE_firewall4
+
+	config PACKAGE_iptables-mod-tproxy
+	default y if ! PACKAGE_firewall4
+
+	config PACKAGE_iptables-mod-extra
+	default y if ! PACKAGE_firewall4
 endef
 
 define Package/$(PKG_NAME)
@@ -19,8 +31,8 @@ define Package/$(PKG_NAME)
 	SUBMENU:=3. Applications
 	TITLE:=LuCI support for clash
 	PKGARCH:=all
-	DEPENDS:=+iptables +dnsmasq-full +coreutils +coreutils-nohup +bash +curl +ca-certificates +ipset +ip-full \
-	+iptables-mod-tproxy +iptables-mod-extra +libcap +libcap-bin +ruby +ruby-yaml +kmod-tun +unzip
+	DEPENDS:=+dnsmasq-full +coreutils +coreutils-nohup +bash +curl +ca-certificates +ipset +ip-full \
+	+libcap +libcap-bin +ruby +ruby-yaml +kmod-tun +unzip
 	MAINTAINER:=vernesong
 endef
 
@@ -111,6 +123,7 @@ define Package/$(PKG_NAME)/postrm
 	rm -rf /tmp/dnsmasq.d/dnsmasq_openclash_custom_domain.conf >/dev/null 2>&1
 	rm -rf /tmp/dnsmasq.d/dnsmasq_openclash_chnroute_pass.conf >/dev/null 2>&1
 	rm -rf /tmp/dnsmasq.d/dnsmasq_openclash_chnroute6_pass.conf >/dev/null 2>&1
+	rm -rf /tmp/dnsmasq.d/dnsmasq_accelerated-domains.china.conf >/dev/null 2>&1
 	rm -rf /tmp/dler* >/dev/null 2>&1
 	rm -rf /tmp/etc/openclash >/dev/null 2>&1
 	rm -rf /tmp/openclash_edit_file_name >/dev/null 2>&1
