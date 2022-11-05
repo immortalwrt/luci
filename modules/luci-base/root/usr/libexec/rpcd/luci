@@ -641,7 +641,7 @@ local methods = {
 	getCPUUsage = {
 		call = function()
 			local sys = require "luci.sys"
-			local cpuusage = sys.exec("top -n1 | awk '/^CPU/ {printf(\"%d%\", 100 - $8)}'") or "?"
+			local cpuusage = sys.exec("top -n1 | awk '/^CPU/ {printf(\"%d%%\", 100 - $8)}'") or "?"
 			return { cpuusage = cpuusage }
 		end
 	},
