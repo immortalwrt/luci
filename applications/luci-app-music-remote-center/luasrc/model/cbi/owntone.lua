@@ -1,12 +1,12 @@
 -- Copyright 2020 Lean <coolsnowwolf@gmail.com>
 -- Licensed to the public under the Apache License 2.0.
 
-m = Map("forked-daapd", translate("Music Remote Center"))
+m = Map("owntone", translate("Music Remote Center"))
 m.description = translate("Music Remote Center is a DAAP (iTunes Remote), MPD (Music Player Daemon) and RSP (Roku) media server.")
 
-m:section(SimpleSection).template  = "forked-daapd/forked-daapd_status"
+m:section(SimpleSection).template  = "owntone/owntone_status"
 
-s = m:section(TypedSection, "forked-daapd")
+s = m:section(TypedSection, "owntone")
 s.addremove = false
 s.anonymous = true
 
@@ -19,7 +19,7 @@ o.rmempty = false
 o.datatype = "port"
 
 o = s:option(Value, "db_path", translate("Database File Path"))
-o.default = "/opt/forked-daapd-songs3.db"
+o.default = "/opt/owntone-songs3.db"
 o.rmempty = false
 
 o = s:option(Value, "directories", translate("Music Directorie Path"))
