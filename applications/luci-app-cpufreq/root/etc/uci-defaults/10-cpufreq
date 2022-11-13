@@ -6,7 +6,6 @@ uci_write_config() {
 	uci -q set "cpufreq.cpufreq.maxfreq$1"="$4"
 	[ -n "$5" ] && uci -q set "cpufreq.cpufreq.sdfactor$1"="$5"
 	[ -n "$6" ] && uci -q set "cpufreq.cpufreq.upthreshold$1"="$6"
-	uci -q set cpufreq.global.set=1
 	uci -q commit cpufreq
 }
 
