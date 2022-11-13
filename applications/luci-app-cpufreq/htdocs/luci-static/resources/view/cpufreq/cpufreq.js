@@ -18,7 +18,6 @@ return view.extend({
 	},
 
 	render: function(data) {
-		var _this = this;
 		var m, s, o;
 
 		m = new form.Map('cpufreq', _('CPU Freq Settings'),
@@ -27,10 +26,10 @@ return view.extend({
 		s = m.section(form.NamedSection, 'cpufreq', 'settings');
 
 		if (Object.keys(data[1]).length === 0) {
-			s.render = function() {
-				_this.handleSaveApply = null;
-				_this.handleSave = null;
-				_this.handleReset = null;
+			s.render = () => {
+				this.handleSaveApply = null;
+				this.handleSave = null;
+				this.handleReset = null;
 
 				return E('div', { 'class': 'cbi-section warning' }, [
 					E('h3', {}, _('Unsupported device!')),
@@ -38,6 +37,13 @@ return view.extend({
 				]);
 			}
 		} else {
+			/* Mark user edited */
+			var ss = m.section(form.NamedSection, 'global', 'settings');
+			var so = ss.option(form.HiddenValue, 'set');
+			so.load = (/* ... */) => { return 1 };
+			so.readonly = true;
+			so.rmempty = false;
+
 			for (var i in data[1]) {
 				var index = data[1][i].index;
 				s.tab(index, i, _('<h4>Apply for CPU %s.</h4>').format(data[1][i].cpus));
