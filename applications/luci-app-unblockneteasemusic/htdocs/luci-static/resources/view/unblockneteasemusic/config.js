@@ -234,7 +234,7 @@ return view.extend({
 		o = s.option(form.ListValue, 'hijack_ways', _('劫持方法'),
 			_('如果使用 Hosts 劫持，程序监听的 HTTP/HTTPS 端口将被锁定为 80/443。'));
 		o.value('dont_hijack', _('不开启劫持'));
-		o.value('use_ipset', _('使用 IPSet 劫持'));
+		o.value('use_ipset', _('使用 NFTSet 劫持'));
 		o.value('use_hosts', _('使用 Hosts 劫持'));
 		o.default = 'dont_hijack';
 		o.rmempty = false;

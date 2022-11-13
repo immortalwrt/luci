@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=LuCI support for UnblockNeteaseMusic (JavaScript)
-LUCI_DEPENDS:=+busybox +dnsmasq-full +ipset +jsonfilter +node +uclient-fetch +ucode \
+LUCI_DEPENDS:=+dnsmasq-full +node \
 	@(PACKAGE_libustream-mbedtls||PACKAGE_libustream-openssl||PACKAGE_libustream-wolfssl)
 LUCI_PKGARCH:=all
 
