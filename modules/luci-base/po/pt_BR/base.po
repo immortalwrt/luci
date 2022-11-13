@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-10 03:41+0200\n"
-"PO-Revision-Date: 2022-10-25 10:20+0000\n"
+"PO-Revision-Date: 2022-11-08 01:55+0000\n"
 "Last-Translator: Wellington Terumi Uemura <wellingtonuemura@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "openwrt/luci/pt_BR/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.14.2-dev\n"
+"X-Generator: Weblate 4.14.2\n"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:643
 msgctxt "Yet unknown nftables table family (\"family\" table \"name\")"
@@ -988,7 +988,7 @@ msgstr "Aplicando as alterações na configuração... %ds"
 msgid "Architecture"
 msgstr "Arquitetura"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:155
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:152
 msgid "Arp-scan"
 msgstr "Varredura arp"
 
@@ -1308,6 +1308,8 @@ msgstr "Política do vínculo"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:402
 msgid "Both Listen addr and Relay To must be specified."
 msgstr ""
+"É necessário definir tanto o endereço de escuta quanto o endereço de "
+"distribuição."
 
 #: modules/luci-base/htdocs/luci-static/resources/network.js:2995
 #: modules/luci-compat/luasrc/model/network.lua:1421
@@ -2259,6 +2261,7 @@ msgstr ""
 msgid "Devices"
 msgstr "Dispositivos"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:159
 #: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:76
 msgid "Diagnostics"
 msgstr "Diagnóstico"
@@ -2968,6 +2971,14 @@ msgstr "A cada segundo (rápido, 1)"
 msgid "Exclude interfaces"
 msgstr "Excluir interfaces"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:160
+msgid ""
+"Execution of various network commands to check the connection and name "
+"resolution to other systems."
+msgstr ""
+"A execução de vários comandos de rede para verificar a conexão e a resolução "
+"dos nomes com os outros sistemas."
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:315
 msgid ""
 "Exempt <code>127.0.0.0/8</code> and <code>::1</code> from rebinding checks, "
@@ -2986,7 +2997,7 @@ msgstr "Expandir arquivos de equipamentos conhecidos (hosts)"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:397
 msgid "Expected port number."
-msgstr ""
+msgstr "Era esperado o número da porta."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:994
 msgid "Expecting a hexadecimal assignment hint"
@@ -3783,7 +3794,7 @@ msgstr "Tipo ICMPv6"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:364
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:53
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:48
@@ -3856,8 +3867,8 @@ msgstr "Substitua por um domínio NX falso"
 msgid "IPsec XFRM"
 msgstr "IPsec XFRM"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:90
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:113
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:87
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:110
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:86
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:87
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:88
@@ -3950,8 +3961,8 @@ msgstr "IPv4/IPv6 (ambos - padrão é IPv4)"
 msgid "IPv4/IPv6 traffic table \"%h\""
 msgstr "Tabela de tráfego IPv4/IPv6 \"%h\""
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:91
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:114
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:88
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:111
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:91
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:92
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:93
@@ -4848,11 +4859,11 @@ msgstr "Porta de escuta"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:373
 msgid "Listen address"
-msgstr ""
+msgstr "Endereço de escuta"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:408
 msgid "Listen and Relay To IP family must be homogeneous."
-msgstr ""
+msgstr "A escuta e a distribuição para a família do IP precisa ser homogêneo."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:340
 msgid "Listen interfaces"
@@ -5587,10 +5598,6 @@ msgstr "Modo de rede"
 msgid "Network SSID"
 msgstr "Rede SSID"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:79
-msgid "Network Utilities"
-msgstr "Utilitários de Rede"
-
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:56
 msgid "Network address"
 msgstr "Endereço de rede"
@@ -5898,6 +5905,9 @@ msgid ""
 "Note: you may also need a DHCP Proxy (currently unavailable) when specifying "
 "a non-standard Relay To port(<code>addr#port</code>)."
 msgstr ""
+"Observação: você também pode precisar de um proxy DHCP (atualmente "
+"indisponível) ao definir uma porta de distribuição não padrão "
+"(<code>addr#port</code>)."
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:142
 msgid "Notes"
@@ -5907,7 +5917,7 @@ msgstr "Anotações"
 msgid "Notice"
 msgstr "Aviso"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:138
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:135
 msgid "Nslookup"
 msgstr "Nslookup"
 
@@ -6644,9 +6654,9 @@ msgstr "Taxa física:"
 msgid "Physical Settings"
 msgstr "Configurações Físicas"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:90
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:91
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:101
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:87
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:88
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:98
 msgid "Ping"
 msgstr "Ping"
 
@@ -7109,10 +7119,12 @@ msgid ""
 "Relay DHCP requests elsewhere. OK: v4<->v4, v6<->v6. Not OK: v4<->v6, v6<-"
 ">v4."
 msgstr ""
+"Redistribuir as solicitações do DHCP em outro lugar. OK: v4<->v4, v6<->v6. "
+"Não está ok: v4<->v6, v6<->v4."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:385
 msgid "Relay To address"
-msgstr ""
+msgstr "Distribua para o endereço"
 
 #: protocols/luci-proto-relay/htdocs/luci-static/resources/protocol/relay.js:154
 msgid "Relay between networks"
@@ -9376,9 +9388,9 @@ msgstr "Tom"
 msgid "Total Available"
 msgstr "Total disponível"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:113
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:114
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:124
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:110
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:111
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:121
 msgid "Traceroute"
 msgstr "Traceroute"
 
@@ -10338,7 +10350,7 @@ msgstr "Você pode adicionar vários registros para o mesmo domínio."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:354
 msgid "You may add multiple unique Relay To on the same Listen addr."
-msgstr ""
+msgstr "Você pode adicionar distribuições únicas no mesmo endereço de escuta."
 
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/header.ut:78
 #: themes/luci-theme-material/ucode/template/themes/material/header.ut:92
@@ -10934,6 +10946,9 @@ msgstr "sim"
 #: modules/luci-compat/luasrc/view/cbi/delegator.htm:20
 msgid "« Back"
 msgstr "« Voltar"
+
+#~ msgid "Network Utilities"
+#~ msgstr "Utilitários de Rede"
 
 #~ msgid "Back to configuration"
 #~ msgstr "Voltar para configuração"

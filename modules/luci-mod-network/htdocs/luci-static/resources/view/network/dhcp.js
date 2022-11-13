@@ -441,17 +441,6 @@ return view.extend({
 		o.optional = true;
 		o.placeholder = '/etc/dnsmasq.hosts';
 
-		o = s.taboption('advanced', form.Flag, 'filter_aaaa',
-			_('Disable IPv6 DNS forwards'),
-			_('Filter IPv6(AAAA) DNS Query Name Resolve'));
-		o.optional = true;
-
-		o = s.taboption('advanced', form.Flag, 'filter_a',
-			_('Disable IPv4 DNS forwards'),
-			_('Filter IPv4(A) DNS Query Name Resolve'));
-		o.optional = true;
-		o.depends('filter_aaaa', '0');
-
 		o = s.taboption('advanced', form.Flag, 'quietdhcp',
 			_('Suppress logging'),
 			_('Suppress logging of the routine operation for the DHCP protocol.'));
@@ -471,6 +460,17 @@ return view.extend({
 			_('Filter useless'),
 			_('Avoid uselessly triggering dial-on-demand links (filters SRV/SOA records and names with underscores).') + '<br />' +
 			_('May prevent VoIP or other services from working.'));
+
+		o = s.taboption('advanced', form.Flag, 'filter_aaaa',
+			_('Filter IPv6 AAAA records'),
+			_('Remove IPv6 addresses from the results and only return IPv4 addresses.') + '<br />' +
+			_('Can be useful if ISP has IPv6 nameservers but does not provide IPv6 routing.'));
+		o.optional = true;
+
+		o = s.taboption('advanced', form.Flag, 'filter_a',
+			_('Filter IPv4 A records'),
+			_('Remove IPv4 addresses from the results and only return IPv6 addresses.'));
+		o.optional = true;
 
 		s.taboption('advanced', form.Flag, 'localise_queries',
 			_('Localise queries'),
