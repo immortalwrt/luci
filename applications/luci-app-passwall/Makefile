@@ -66,13 +66,14 @@ config PACKAGE_$(PKG_NAME)_Iptables_Transparent_Proxy
 	select PACKAGE_ipset
 	select PACKAGE_ipt2socks
 	select PACKAGE_iptables
-	select PACKAGE_iptables-legacy
+	select PACKAGE_iptables-zz-legacy
 	select PACKAGE_iptables-mod-conntrack-extra
 	select PACKAGE_iptables-mod-iprange
 	select PACKAGE_iptables-mod-socket
 	select PACKAGE_iptables-mod-tproxy
 	select PACKAGE_kmod-ipt-nat
-	default y if PACKAGE_$(PKG_NAME) && !PACKAGE_firewall4
+	depends on PACKAGE_$(PKG_NAME)
+	default y if !PACKAGE_firewall4
 
 config PACKAGE_$(PKG_NAME)_Nftables_Transparent_Proxy
 	bool "Nftables Transparent Proxy"
@@ -81,7 +82,8 @@ config PACKAGE_$(PKG_NAME)_Nftables_Transparent_Proxy
 	select PACKAGE_kmod-nft-socket
 	select PACKAGE_kmod-nft-tproxy
 	select PACKAGE_kmod-nft-nat
-	default y if PACKAGE_$(PKG_NAME) && PACKAGE_firewall4
+	depends on PACKAGE_$(PKG_NAME)
+	default y if PACKAGE_firewall4
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_Brook
 	bool "Include Brook"
