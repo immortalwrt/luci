@@ -12,8 +12,6 @@ context = setmetatable({}, {
 			return _G.L.ctx.request_path
 		elseif k == "requestargs" then
 			return _G.L.ctx.request_args
-		elseif k == "requested" or k == "dispatched" then
-			return _G.L.node
 		else
 			return _G.L.ctx[k]
 		end
@@ -354,6 +352,12 @@ function invoke_form_action(model, ...)
 		res:render()
 	end
 	_G.L.include("footer")
+end
+
+function render_lua_template(path)
+	local tpl = require "luci.template"
+
+	tpl.render(path, getfenv(1))
 end
 
 
