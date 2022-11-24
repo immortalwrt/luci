@@ -27,7 +27,7 @@ LUCI_PKGARCH:=all
 
 define Package/luci-app-turboacc/config
   choice
-    prompt "FastPath implementation"
+    prompt "FastPath Engine"
     default PACKAGE_TURBOACC_INCLUDE_FLOW_OFFLOADING
 
     config PACKAGE_TURBOACC_INCLUDE_NO_FASTPATH
@@ -40,7 +40,7 @@ define Package/luci-app-turboacc/config
     bool "Use fast classifier"
 
     config PACKAGE_TURBOACC_INCLUDE_SHORTCUT_FE_CM
-    bool "Use Shortcut-FE connection manager"
+    bool "Use SFE connection manager"
   endchoice
 
   config PACKAGE_TURBOACC_INCLUDE_BBR_CCA
