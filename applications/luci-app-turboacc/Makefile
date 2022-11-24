@@ -40,7 +40,7 @@ define Package/luci-app-turboacc/config
     bool "Use fast classifier"
 
     config PACKAGE_TURBOACC_INCLUDE_SHORTCUT_FE_CM
-    bool "Use SFE connection manager"
+    bool "Use shortcut-fe connection manager"
   endchoice
 
   config PACKAGE_TURBOACC_INCLUDE_BBR_CCA

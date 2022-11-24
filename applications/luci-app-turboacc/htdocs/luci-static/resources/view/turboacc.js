@@ -123,7 +123,7 @@ return view.extend({
 		if (features.hasSHORTCUTFECM)
 			o.value('shortcut_fe_cm', _('SFE connection manager'));
 		if (features.hasMEDIATEKHNAT)
-			o.value('mediatek_hnat', _('Mediatek HNAT'));
+			o.value('mediatek_hnat', _('MediaTek HNAT'));
 		o.default = 'disabled';
 		o.rmempty = false;
 		if (features.hasMEDIATEKHNAT)
@@ -137,7 +137,7 @@ return view.extend({
 			else if (value === 'shortcut_fe_cm')
 				desc.innerHTML = _('Simple connection manager for the shortcut forwarding engine.');
 			else if (value === 'mediatek_hnat')
-				desc.innerHTML = _('Mediatek\'s open source hardware flow offloading engine.');
+				desc.innerHTML = _('MediaTek\'s open source hardware flow offloading engine.');
 			else
 				desc.innerHTML = _('Offload engine for routing/NAT.');
 		}
