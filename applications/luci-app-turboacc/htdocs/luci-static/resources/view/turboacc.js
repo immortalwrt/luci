@@ -1,10 +1,5 @@
 /* Copyright (C) 2022 ImmortalWrt.org */
 
-/* SPDX-License-Identifier: GPL-3.0-only
- *
- * Copyright (C) 2022 ImmortalWrt.org
- */
-
 'use strict';
 'require form';
 'require fs';
@@ -93,7 +88,7 @@ return view.extend({
 						E('td', { 'id': 'fastpath_state' }, E('em', {}, _('Collecting data...')))
 					]),
 					E('tr', {}, [
-						E('td', { 'width': '33%' }, _('FullCone NAT')),
+						E('td', { 'width': '33%' }, _('Full Cone NAT')),
 						E('td', { 'id': 'fullcone_state' }, E('em', {}, _('Collecting data...')))
 					]),
 					E('tr', {}, [
@@ -137,7 +132,7 @@ return view.extend({
 			else if (value === 'shortcut_fe_cm')
 				desc.innerHTML = _('Simple connection manager for the shortcut forwarding engine.');
 			else if (value === 'mediatek_hnat')
-				desc.innerHTML = _('MediaTek\'s open source hardware flow offloading engine.');
+				desc.innerHTML = _('MediaTek\'s open source hardware offloading engine.');
 			else
 				desc.innerHTML = _('Offload engine for routing/NAT.');
 		}
@@ -162,21 +157,20 @@ return view.extend({
 			o.depends('fastpath', 'fast_classifier');
 		}
 
-		o = s.option(form.ListValue, 'fullcone', _('Fullcone NAT'),
-			_('Fullcone NAT (NAT1) can improve gaming performance effectively.'));
+		o = s.option(form.ListValue, 'fullcone', _('Full cone NAT'),
+			_('Full cone NAT (NAT1) can improve gaming performance effectively.'));
 		o.value('0', _('Disable'))
 		if (features.hasXTFULLCONENAT)
 			o.value('1', _('xt_FULLCONENAT'));
-		if (features.hasMEDIATEKHNAT)
-			o.value('2', _('Boardcom fullcone'));
+		o.value('2', _('Boardcom fullcone'));
 		o.default = '0';
 		o.rmempty = false;
 
 		o = s.option(form.ListValue, 'tcpcca', _('TCP CCA'),
 			_('TCP congestion control algorithm.'));
-		o.value('cubic', _('cubic'))
+		o.value('cubic', _('CUBIC'))
 		if (features.hasTCPBBR)
-			o.value('bbr', _('bbr'));
+			o.value('bbr', _('BBR'));
 		o.default = 'cubic';
 		o.rmempty = false;
 
