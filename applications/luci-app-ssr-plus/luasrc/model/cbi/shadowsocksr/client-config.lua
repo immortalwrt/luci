@@ -193,6 +193,8 @@ o:value("trojan", translate("Trojan"))
 o:value("shadowsocks", translate("Shadowsocks"))
 if is_installed("sagernet-core") then
 	o:value("shadowsocksr", translate("ShadowsocksR"))
+end
+if is_finded("xray") then
 	o:value("wireguard", translate("WireGuard"))
 end
 o:value("socks", translate("Socks"))
@@ -437,16 +439,20 @@ o:depends("transport", "ws")
 o.rmempty = true
 
 if is_finded("v2ray") then
+	-- 启用WS前置数据
+	o = s:option(Flag, "ws_ed_enable", translate("Enable early data"))
+	o:depends("transport", "ws")
+
 	-- WS前置数据
 	o = s:option(Value, "ws_ed", translate("Max Early Data"))
-	o:depends("transport", "ws")
+	o:depends("ws_ed_enable", true)
 	o.datatype = "uinteger"
 	o.default = 2048
 	o.rmempty = true
 
 	-- WS前置数据标头
 	o = s:option(Value, "ws_ed_header", translate("Early Data Header Name"))
-	o:depends("transport", "ws")
+	o:depends("ws_ed_enable", true)
 	o.default = "Sec-WebSocket-Protocol"
 	o.rmempty = true
 end
@@ -600,6 +606,7 @@ o.rmempty = true
 
 -- [[ WireGuard 部分 ]]--
 o = s:option(DynamicList, "local_addresses", translate("Local addresses"))
+o.datatype = "cidr"
 o:depends({type = "v2ray", v2ray_protocol = "wireguard"})
 o.rmempty = true
 
