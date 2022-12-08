@@ -44,10 +44,17 @@ function renderStatus(stats) {
 	var spanTemp = '<em><span style="color:%s"><strong>%s</strong></span></em>';
 	var renderHTML = [];
 	for (var stat of stats)
-		if (stat.type)
-			renderHTML.push(spanTemp.format('green', stat.type));
-		else
-			renderHTML.push(spanTemp.format('red', _('DISABLED')));
+		if (stat.type) {
+			if (stat.type.includes(' / ')) {
+				var types = stat.type.split(' / ');
+				var inner = spanTemp.format('green', types[0]);
+				for (var i of types.slice(1))
+					inner += spanTemp.format('none', ' / ') + spanTemp.format('red', i);
+				renderHTML.push(inner);
+			} else
+				renderHTML.push(spanTemp.format('green', stat.type));
+		} else
+			renderHTML.push(spanTemp.format('red', _('Disabled')));
 	return renderHTML;
 }
 
@@ -109,9 +116,9 @@ return view.extend({
 		s = m.section(form.NamedSection, 'config', 'turboacc');
 
 		o = s.option(form.ListValue, 'fastpath', _('Fastpath engine'),
-			_('Offload engine for routing/NAT.'));
+			_('The offloading engine for routing/NAT.'));
 		o.value('disabled', _('Disable'));
-		if (features.hasFLOWOFFLOADING && !features.hasMEDIATEKHNAT)
+		if (features.hasFLOWOFFLOADING)
 			o.value('flow_offloading', _('Flow offloading'));
 		if (features.hasFASTCLASSIFIER)
 			o.value('fast_classifier', _('Fast classifier'));
@@ -121,8 +128,10 @@ return view.extend({
 			o.value('mediatek_hnat', _('MediaTek HNAT'));
 		o.default = 'disabled';
 		o.rmempty = false;
-		if (features.hasMEDIATEKHNAT)
+		if (features.hasMEDIATEKHNAT) {
 			o.readonly = true;
+			o.load = function(/* ... */) { return 'mediatek_hnat' };
+		}
 		o.onchange = function(ev, section_id, value) {
 			var desc = ev.target.nextElementSibling;
 			if (value === 'flow_offloading')
@@ -134,7 +143,7 @@ return view.extend({
 			else if (value === 'mediatek_hnat')
 				desc.innerHTML = _('MediaTek\'s open source hardware offloading engine.');
 			else
-				desc.innerHTML = _('Offload engine for routing/NAT.');
+				desc.innerHTML = _('The offloading engine for routing/NAT.');
 		}
 
 		o = s.option(form.Flag, 'fastpath_fo_hw', _('Hardware flow offloading'),
@@ -157,6 +166,21 @@ return view.extend({
 			o.depends('fastpath', 'fast_classifier');
 		}
 
+		o = s.option(form.Flag, 'fastpath_mh_eth_hnat', _('Enable ethernet HNAT'),
+			_('Enable hardware offloading for wired connections.'));
+		o.default = o.enabled;
+		o.rmempty = false;
+		o.depends('fastpath', 'mediatek_hnat');
+
+		o = s.option(form.Button, '_fastpath_mh_wireless_hnat', _('Enable wireless HNAT'),
+			_('Enable hardware offloading for wireless connections.'));
+		o.inputtitle = _('Redirect to wireless settings');
+		o.inputstyle = 'reload';
+		o.onclick = function() {
+			window.location.href = L.url('admin/network/wifi');
+		};
+		o.depends('fastpath', 'mediatek_hnat');
+
 		o = s.option(form.ListValue, 'fullcone', _('Full cone NAT'),
 			_('Full cone NAT (NAT1) can improve gaming performance effectively.'));
 		o.value('0', _('Disable'))
@@ -168,9 +192,8 @@ return view.extend({
 
 		o = s.option(form.ListValue, 'tcpcca', _('TCP CCA'),
 			_('TCP congestion control algorithm.'));
-		o.value('cubic', _('CUBIC'))
-		if (features.hasTCPBBR)
-			o.value('bbr', _('BBR'));
+		for (var i of features.hasTCPCCA.split(' ').sort())
+			o.value(i);
 		o.default = 'cubic';
 		o.rmempty = false;
 

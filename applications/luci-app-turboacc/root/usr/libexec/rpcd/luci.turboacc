@@ -6,6 +6,8 @@ local fs   = require "nixio.fs"
 local util = require "luci.util"
 local sys  = require "luci.sys"
 
+string.trim = util.trim
+
 local function readfile(path)
 	local s = fs.readfile(path)
 	return s and (s:gsub("^%s+", ""):gsub("%s+$", ""))
@@ -22,7 +24,7 @@ local methods = {
 				hasSHORTCUTFECM   = fs.access("/lib/modules/" .. boardinfo.kernel .. "/shortcut-fe-cm.ko"),
 				hasMEDIATEKHNAT   = fs.access("/lib/modules/" .. boardinfo.kernel .. "/mtkhnat.ko"),
 				hasXTFULLCONENAT  = fs.access("/lib/modules/" .. boardinfo.kernel .. "/xt_FULLCONENAT.ko"),
-				hasTCPBBR         = fs.access("/lib/modules/" .. boardinfo.kernel .. "/tcp_bbr.ko")
+				hasTCPCCA         = readfile("/proc/sys/net/ipv4/tcp_available_congestion_control")
 			}
 			print(json.stringify(features))
 		end
@@ -38,7 +40,14 @@ local methods = {
 			elseif fs.stat("/sys/module/shortcut_fe_cm", "type") == "dir" then
 				fptype = "Shortcut-FE CM"
 			elseif fs.stat("/sys/kernel/debug/hnat", "type") == "dir" then
-				fptype = "MediaTek HNAT"
+				fs.readfile("/sys/kernel/debug/hnat/hook_toggle")
+				local ethernet_hnat = sys.exec("dmesg | grep -Eo -e 'value=[0-9], hook is (enabled|disabled) now' -e '[0-9]' | tail -n1"):trim()
+				ethernet_hnat = (ethernet_hnat ~= "1") and " / Ethernet HNAT Disabled" or ""
+
+				local wireless_hnat = (sys.call("grep -q 'WHNAT=1' '/etc/wireless/mediatek/'*_card*.dat") ~= 0) and " / Wireless HNAT Disabled" or ""
+				if (ethernet_hnat == "") or (wireless_hnat == "") then
+					fptype = "MediaTek HNAT" .. ethernet_hnat .. wireless_hnat
+				end
 			end
 			print(json.stringify({ type = fptype }))
 		end
@@ -50,7 +59,7 @@ local methods = {
 			(readfile("/sys/module/xt_FULLCONENAT/refcnt") or "0") ~= "0" then
 				fctype = "xt_FULLCONENAT"
 			elseif sys.call("iptables -t nat -L zone_wan_postrouting | grep -q fullcone") == 0 then
-				fctype = "Boardcom FullCone"
+				fctype = "Boardcom Fullcone"
 			end
 			print(json.stringify({ type = fctype }))
 		end
@@ -58,6 +67,7 @@ local methods = {
 	getTCPCCAStat = {
 		call = function()
 			local ccatype = readfile("/proc/sys/net/ipv4/tcp_congestion_control")
+			ccatype = ccatype and ccatype:upper() or nil
 			print(json.stringify({ type = ccatype }))
 		end
 	}
