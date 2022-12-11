@@ -742,7 +742,8 @@ return view.extend({
 	load: function() {
 		return Promise.all([
 			uci.changes(),
-			uci.load('wireless')
+			uci.load('wireless'),
+			uci.load('system')
 		]);
 	},
 
@@ -1079,6 +1080,41 @@ return view.extend({
 					    bssid = ss.children[5],
 					    encr;
 
+					/* 802.11v settings start */
+					// Probe 802.11v support (needs full hostapd/wpad) via EAP support (full hostapd has EAP)
+					if (L.hasSystemFeature('hostapd', 'eap'))
+					{
+						o = ss.taboption('advanced', form.ListValue, 'time_advertisement', _('Time advertisement'), _('802.11v: Time Advertisement in management frames.'));
+						o.value('0', _('Disabled'));
+						o.value('2', _('Enabled'));
+						o.write = function (section_id, value) {
+							return this.super('write', [section_id, (value == 2) ? value: null]);
+						}
+
+						//Pull current System TZ setting
+						var tz = uci.get('system', '@system[0]', 'timezone');
+						o = ss.taboption('advanced', form.Value, 'time_zone', _('Time zone'), _('802.11v: Local Time Zone Advertisement in management frames.'));
+						o.value(tz);
+						o.rmempty = true;
+
+						o = ss.taboption('advanced', form.Flag, 'wnm_sleep_mode', _('WNM Sleep Mode'), _('802.11v: Wireless Network Management (WNM) Sleep Mode (extended sleep mode for stations).'));
+						o.rmempty = true;
+
+						/* wnm_sleep_mode_no_keys: https://git.openwrt.org/?p=openwrt/openwrt.git;a=commitdiff;h=bf98faaac8ed24cf7d3d93dd4fcd7304d109363b */
+						o = ss.taboption('advanced', form.Flag, 'wnm_sleep_mode_no_keys', _('WNM Sleep Mode Fixes'), _('802.11v: Wireless Network Management (WNM) Sleep Mode Fixes: Prevents reinstallation attacks.'));
+						o.rmempty = true;
+
+						o = ss.taboption('advanced', form.Flag, 'bss_transition', _('BSS Transition'), _('802.11v: Basic Service Set (BSS) transition management.'));
+						o.rmempty = true;
+
+						/* in master, but not 21.02.1: proxy_arp */
+						o = ss.taboption('advanced', form.Flag, 'proxy_arp', _('ProxyARP'), _('802.11v: Proxy ARP enables non-AP STA to remain in power-save for longer.'));
+						o.rmempty = true;
+
+						/* TODO: na_mcast_to_ucast is missing: needs adding to hostapd.sh - nice to have */
+					}
+					/* 802.11v settings end */
+
 					mode.value('mesh', '802.11s');
 					mode.value('ahdemo', _('Pseudo Ad-Hoc (ahdemo)'));
 					mode.value('monitor', _('Monitor'));
@@ -1157,6 +1193,24 @@ return view.extend({
 					o = ss.taboption('advanced', form.Flag, 'multicast_to_unicast', _('Multi To Unicast'), _('ARP, IPv4 and IPv6 (even 802.1Q) with multicast destination MACs are unicast to the STA MAC address. Note: This is not Directed Multicast Service (DMS) in 802.11v. Note: might break receiver STA multicast expectations.'));
 					o.rmempty = true;
 
+					/* 802.11k settings start */
+					// Probe 802.11k support via EAP support (full hostapd has EAP)
+					if (L.hasSystemFeature('hostapd', 'eap')) {
+						o = ss.taboption('advanced', form.Flag, 'ieee80211k', _('802.11k RRM'), _('Radio Resource Measurement - Sends beacons to assist roaming. Not all clients support this.'));
+						// add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['psk', 'psk2', 'psk-mixed', 'sae', 'sae-mixed'] });
+						o.depends('mode', 'ap');
+						o.depends('mode', 'ap-wds');
+
+						o = ss.taboption('advanced', form.Flag, 'rrm_neighbor_report', _('Neighbour Report'), _('802.11k: Enable neighbor report via radio measurements.'));
+						o.depends({ ieee80211k: '1' });
+						o.default = o.enabled;
+
+						o = ss.taboption('advanced', form.Flag, 'rrm_beacon_report', _('Beacon Report'), _('802.11k: Enable beacon report via radio measurements.'));
+						o.depends({ ieee80211k: '1' });
+						o.default = o.enabled;
+					}
+					/* 802.11k settings end */
+
 					o = ss.taboption('advanced', form.Flag, 'isolate', _('Isolate Clients'), _('Prevents client-to-client communication'));
 					o.depends('mode', 'ap');
 					o.depends('mode', 'ap-wds');
@@ -1189,7 +1243,7 @@ return view.extend({
 					o.optional    = true;
 					o.datatype    = 'uinteger';
 
-					o = ss.taboption('advanced', form.Value, 'max_inactivity', _('Station inactivity limit'), _('sec'));
+					o = ss.taboption('advanced', form.Value, 'max_inactivity', _('Station inactivity limit'), _('802.11v: BSS Max Idle. Units: seconds.'));
 					o.optional    = true;
 					o.placeholder = 300;
 					o.datatype    = 'uinteger';
@@ -1522,75 +1576,6 @@ return view.extend({
 
 
 				if (hwtype == 'mac80211') {
-
-					// Probe 802.11k support
-					o = ss.taboption('encryption', form.Flag, 'ieee80211k', _('802.11k'), _('Enables The 802.11k standard provides information to discover the best available access point'));
-					o.depends({ mode: 'ap', encryption: 'wpa' });
-					o.depends({ mode: 'ap', encryption: 'wpa2' });
-					o.depends({ mode: 'ap-wds', encryption: 'wpa' });
-					o.depends({ mode: 'ap-wds', encryption: 'wpa2' });
-					o.depends({ mode: 'ap', encryption: 'psk' });
-					o.depends({ mode: 'ap', encryption: 'psk2' });
-					o.depends({ mode: 'ap', encryption: 'psk-mixed' });
-					o.depends({ mode: 'ap-wds', encryption: 'psk' });
-					o.depends({ mode: 'ap-wds', encryption: 'psk2' });
-					o.depends({ mode: 'ap-wds', encryption: 'psk-mixed' });
-					o.depends({ mode: 'ap', encryption: 'sae' });
-					o.depends({ mode: 'ap', encryption: 'sae-mixed' });
-					o.depends({ mode: 'ap-wds', encryption: 'sae' });
-					o.depends({ mode: 'ap-wds', encryption: 'sae-mixed' });
-					o.rmempty = true;
-
-					o = ss.taboption('encryption', form.Flag, 'rrm_neighbor_report', _('Enable neighbor report via radio measurements'));
-					o.default = o.enabled;
-					o.depends({ ieee80211k: '1' });
-					o.rmempty = true;
-
-					o = ss.taboption('encryption', form.Flag, 'rrm_beacon_report', _('Enable beacon report via radio measurements'));
-					o.default = o.enabled;
-					o.depends({ ieee80211k: '1' });
-					o.rmempty = true;
-					// End of 802.11k options
-
-					// Probe 802.11v support
-					o = ss.taboption('encryption', form.Flag, 'ieee80211v', _('802.11v'), _('Enables 802.11v allows client devices to exchange information about the network topology,tating overall improvement of the wireless network.'));
-					o.depends({ mode: 'ap', encryption: 'wpa' });
-					o.depends({ mode: 'ap', encryption: 'wpa2' });
-					o.depends({ mode: 'ap-wds', encryption: 'wpa' });
-					o.depends({ mode: 'ap-wds', encryption: 'wpa2' });
-					o.depends({ mode: 'ap', encryption: 'psk' });
-					o.depends({ mode: 'ap', encryption: 'psk2' });
-					o.depends({ mode: 'ap', encryption: 'psk-mixed' });
-					o.depends({ mode: 'ap-wds', encryption: 'psk' });
-					o.depends({ mode: 'ap-wds', encryption: 'psk2' });
-					o.depends({ mode: 'ap-wds', encryption: 'psk-mixed' });
-					o.depends({ mode: 'ap', encryption: 'sae' });
-					o.depends({ mode: 'ap', encryption: 'sae-mixed' });
-					o.depends({ mode: 'ap-wds', encryption: 'sae' });
-					o.depends({ mode: 'ap-wds', encryption: 'sae-mixed' });
-					o.rmempty = true;
-
-					o = ss.taboption('encryption', form.Flag, 'wnm_sleep_mode', _('extended sleep mode for stations'));
-					o.default = o.enabled;
-					o.depends({ ieee80211v: '1' });
-					o.rmempty = true;
-
-					o = ss.taboption('encryption', form.Flag, 'bss_transition', _('BSS Transition Management'));
-					o.default = o.enabled;
-					o.depends({ ieee80211v: '1' });
-					o.rmempty = true;
-
-					o = ss.taboption('encryption', form.ListValue, 'time_advertisement', _('Time advertisement"'));
-					o.depends({ ieee80211v: '1' });
-					o.value('0', _('disabled'));
-					o.value('2', _('UTC time at which the TSF timer is 0'));
-					o.rmempty = true;
-
-					o = ss.taboption('encryption', form.Value, 'time_zone', _('Local time zone as specified in 8.3 of IEEE Std 1003.1-2004'));
-					o.depends({ time_advertisement: '2' });
-					o.placeholder = 'UTC8';
-					o.rmempty = true;
-					// End of 802.11v options
 
 					// Probe 802.11r support (and EAP support as a proxy for Openwrt)
 					var has_80211r = L.hasSystemFeature('hostapd', '11r') || L.hasSystemFeature('hostapd', 'eap');
