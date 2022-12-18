@@ -32,9 +32,9 @@ start_service() {
 	[ "${bind_addr}" == "lan" ] && bind_address="${lan_addr}" || bind_address="0.0.0.0"
 
 	if [ -n "${username}" ] && [ -n "${password}" ]; then
-		rm -f /etc/config/ssocksd-authorization
-		echo "${username}:${password}" > /etc/config/ssocksd-authorization
-		auth_arg="--auth /etc/config/ssocksd-authorization"
+		rm -f /etc/config/ssocks-authorization
+		echo "${username}:${password}" > /etc/config/ssocks-authorization
+		auth_arg="--auth /etc/config/ssocks-authorization"
 	fi
 
 	procd_open_instance "$CONF"
@@ -46,7 +46,7 @@ start_service() {
 	procd_close_instance
 
 	iptables -I INPUT -p tcp --dport "${listen_port}" -j ACCEPT
-	cat <<-EOF > "/var/etc/ssocksd.include"
+	cat <<-EOF > "/var/etc/ssocks.include"
 iptables -I INPUT -p tcp --dport "${listen_port}" -j ACCEPT
 	EOF
 }
@@ -63,5 +63,5 @@ reload_service() {
 stop_service() {
 	killall -3 ssocksd >/dev/null 2>&1
 	rm -f "/etc/config/ssocksd-authorization"
-	rm -f "/var/etc/ssocksd.include"
+	rm -f "/var/etc/ssocks.include"
 }
