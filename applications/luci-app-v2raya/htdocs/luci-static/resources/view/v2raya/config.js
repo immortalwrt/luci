@@ -31,7 +31,7 @@ function getServiceStatus() {
 }
 
 function renderStatus(isRunning, port) {
-	var spanTemp = '<span style="color:%s"><strong>%s %s</strong></span>';
+	var spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
 	var renderHTML;
 	if (isRunning) {
 		var button = String.format('&#160;<a class="btn cbi-button" href="%s:%s" target="_blank" rel="noreferrer noopener">%s</a>',
@@ -78,12 +78,12 @@ return view.extend({
 		m = new form.Map('v2raya', _('v2rayA'),
 			_('v2rayA is a V2Ray Linux client supporting global transparent proxy, compatible with SS, SSR, Trojan(trojan-go), PingTunnel protocols.'));
 
-		s = m.section(form.TypedSection);
+		s = m.section(form.NamedSection, '_status');
 		s.anonymous = true;
 		s.render = function () {
-			poll.add(function () {
-				return L.resolveDefault(getServiceStatus()).then(function (res) {
-					var view = document.getElementById('service_status');
+			Poll.add(function () {
+				return L.resolveDefault(getServiceStatus()).then(function(res) {
+					var view = document.getElementById("service_status");
 					view.innerHTML = renderStatus(res, webport);
 				});
 			});
