@@ -27,6 +27,7 @@ return view.extend({
 
 		o = s.option(widgets.DeviceSelect, 'interface', _('Source interface'),
 			_('For multicast receive.'));
+		o.noaliases = true;
 		o.nocreate = true;
 		o.optional = true;
 
