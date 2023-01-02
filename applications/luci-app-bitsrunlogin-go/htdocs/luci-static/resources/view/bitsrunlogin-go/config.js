@@ -120,6 +120,11 @@ return view.extend({
 		o = s.option(form.Value, 'interfaces', _('Interface name'),
 			_('Interface name in regex, e.g. "eth0\\.[2-3]".<br/>Multi-interfaces mode will be enabled if not empty.'));
 
+		o = s.option(form.Flag, 'use_dhcp_ip', _('Use interface IP'),
+			_('Use interface IP for authentication in multi-interfaces mode.'));
+		o.default = o.disabled;
+		o.depends({'interfaces': '', '!reverse': true});
+
 		o = s.option(form.Flag, 'debug', _('Debug mode'),
 			_('More granular information will be given in log.'));
 		o.default = o.disabled;
