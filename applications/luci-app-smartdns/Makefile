@@ -6,20 +6,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_MAINTAINER:=Nick Peng <pymumu@gmail.com>
-PKG_VERSION:=1.2022.38
-PKG_RELEASE:=2
+PKG_VERSION:=2023.01.02
 
 LUCI_TITLE:=LuCI for smartdns
 LUCI_DESCRIPTION:=Provides Luci for smartdns
 LUCI_DEPENDS:=+smartdns
 LUCI_PKGARCH:=all
-
-define Package/$(PKG_NAME)/config
-# shown in make menuconfig <Help>
-help
-	$(LUCI_TITLE)
-	Version: $(PKG_VERSION)-$(PKG_RELEASE)
-endef
 
 include ../../luci.mk
 
