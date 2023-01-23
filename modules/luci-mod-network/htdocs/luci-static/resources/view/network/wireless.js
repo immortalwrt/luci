@@ -1165,6 +1165,7 @@ return view.extend({
 
 					o = ss.taboption('advanced', form.Value, 'ifname', _('Interface name'), _('Override default interface name'));
 					o.optional = true;
+					o.datatype = 'maxlength(15)';
 					o.placeholder = radioNet.getIfname();
 					if (/^radio\d+\.network/.test(o.placeholder))
 						o.placeholder = '';
