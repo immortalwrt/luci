@@ -10,17 +10,11 @@ LUCI_TYPE:=col
 LUCI_BASENAME:=luci
 
 LUCI_TITLE:=LuCI interface with Uhttpd as Webserver (default)
-LUCI_DESCRIPTION:=Standard OpenWrt set including full admin with ppp support and the default Bootstrap theme
+LUCI_DESCRIPTION:=Standard OpenWrt set including package management and attended sysupgrades support
 LUCI_DEPENDS:= \
-	+IPV6:luci-proto-ipv6 \
-	+luci-app-firewall \
-	+luci-app-opkg \
-	+luci-mod-admin-full \
-	+luci-proto-ppp \
-	+luci-theme-bootstrap \
-	+rpcd-mod-rrdns \
-	+uhttpd \
-	+uhttpd-mod-ubus
+	+luci-light \
+	+luci-app-attendedsysupgrade \
+	+luci-app-opkg
 
 PKG_LICENSE:=Apache-2.0
 
