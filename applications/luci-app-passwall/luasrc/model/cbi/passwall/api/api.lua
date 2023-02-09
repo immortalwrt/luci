@@ -8,14 +8,31 @@ jsonc = require "luci.jsonc"
 i18n = require "luci.i18n"
 
 appname = "passwall"
-curl = "/usr/bin/curl"
-curl_args = {"-skfL", "--connect-timeout 3", "--retry 3", "-m 60"}
+curl_args = { "-skfL", "--connect-timeout 3", "--retry 3", "-m 60" }
 command_timeout = 300
 LEDE_BOARD = nil
 DISTRIB_TARGET = nil
 
 LOG_FILE = "/tmp/log/" .. appname .. ".log"
 CACHE_PATH = "/tmp/etc/" .. appname .. "_tmp"
+
+function exec_call(cmd)
+    local process = io.popen(cmd .. '; echo -e "\n$?"')
+    local lines = {}
+    local result = ""
+    local return_code
+    for line in process:lines() do
+        lines[#lines + 1] = line
+    end
+    process:close()
+    if #lines > 0 then
+        return_code = lines[#lines]
+        for i = 1, #lines - 1 do
+            result = result .. lines[i] .. ((i == #lines - 1) and "" or "\n")
+        end
+    end
+    return tonumber(return_code), trim(result)
+end
 
 function base64Decode(text)
 	local raw = text
@@ -32,6 +49,35 @@ function base64Decode(text)
 	else
 		return raw
 	end
+end
+
+function curl_base(url, file, args)
+    if not args then args = {} end
+    if file then
+        args[#args + 1] = "-o " .. file
+    end
+	local cmd = string.format('curl %s "%s"', table_join(args), url)
+    return exec_call(cmd)
+end
+
+function curl_proxy(url, file, args)
+    --使用代理
+    local socks_server = luci.sys.exec("[ -f /tmp/etc/passwall/TCP_SOCKS_server ] && echo -n $(cat /tmp/etc/passwall/TCP_SOCKS_server) || echo -n ''")
+    if socks_server ~= "" then
+        if not args then args = {} end
+        local tmp_args = clone(args)
+        tmp_args[#tmp_args + 1] = "-x socks5h://" .. socks_server
+        return curl_base(url, file, tmp_args)
+    end
+    return nil, nil
+end
+
+function curl_logic(url, file, args)
+    local return_code, result = curl_proxy(url, file, args)
+    if not return_code or return_code ~= 0 then
+        return_code, result = curl_base(url, file, args)
+    end
+    return return_code, result
 end
 
 function url(...)
@@ -455,6 +501,17 @@ function _unpack(t, i)
     if t[i] ~= nil then return t[i], _unpack(t, i + 1) end
 end
 
+function table_join(t, s)
+    if not s then
+        s = " "
+    end
+    local str = ""
+    for index, value in ipairs(t) do
+        str = str .. t[index] .. (index == #t and "" or s)
+    end
+    return str
+end
+
 function exec(cmd, args, writer, timeout)
     local os = require "os"
     local nixio = require "nixio"
@@ -585,9 +642,9 @@ end
 
 function get_api_json(url)
     local jsonc = require "luci.jsonc"
-    local json_content = luci.sys.exec(curl .. " " .. _unpack(curl_args) .. " " .. url)
-    if json_content == "" then return {} end
-    return jsonc.parse(json_content) or {}
+    local return_code, content = curl_logic(url, nil, curl_args)
+    if return_code ~= 0 or content == "" then return {} end
+    return jsonc.parse(content) or {}
 end
 
 function common_to_check(api_url, local_version, match_file_name)
