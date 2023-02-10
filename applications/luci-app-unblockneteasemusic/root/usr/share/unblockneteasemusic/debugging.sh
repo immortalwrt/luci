@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2021-2022 Tianling Shen <cnsztl@immortalwrt.org>
+# Copyright (C) 2021-2023 Tianling Shen <cnsztl@immortalwrt.org>
 
 . /lib/functions.sh
 
@@ -91,4 +91,4 @@ echo -e "\n"
 	echo -e ""
 }
 
-cat "/tmp/$NAME.log" 2>"/dev/null" || echo -e "Log is not avaiable."
+cat "/var/run/$NAME/run.log" 2>"/dev/null" || echo -e "Log is not avaiable."
