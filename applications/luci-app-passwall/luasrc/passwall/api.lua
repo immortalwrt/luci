@@ -1,4 +1,4 @@
-module("luci.model.cbi.passwall.api.api", package.seeall)
+module("luci.passwall.api", package.seeall)
 fs = require "nixio.fs"
 sys = require "luci.sys"
 uci = require"luci.model.uci".cursor()
@@ -143,6 +143,18 @@ function get_args(arg)
                 end
             end
         end
+    end
+    return var
+end
+
+function get_function_args(arg)
+    local var = nil
+    if arg and #arg > 1 then
+        local param = {}
+        for i = 2, #arg do
+            param[#param + 1] = arg[i]
+        end
+        var = get_args(param)
     end
     return var
 end
