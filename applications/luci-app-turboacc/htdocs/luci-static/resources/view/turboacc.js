@@ -128,10 +128,6 @@ return view.extend({
 			o.value('mediatek_hnat', _('MediaTek HNAT'));
 		o.default = 'disabled';
 		o.rmempty = false;
-		if (features.hasMEDIATEKHNAT) {
-			o.readonly = true;
-			o.load = function(/* ... */) { return 'mediatek_hnat' };
-		}
 		o.onchange = function(ev, section_id, value) {
 			var desc = ev.target.nextElementSibling;
 			if (value === 'flow_offloading')
