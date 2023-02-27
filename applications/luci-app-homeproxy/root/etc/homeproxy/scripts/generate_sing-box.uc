@@ -46,7 +46,7 @@ else
 const dns_port = uci.get(uciconfig, uciinfra, 'dns_port') || '5333';
 
 let main_node, main_udp_node, dedicated_udp_node, default_outbound, sniff_override = '1',
-    dns_server, dns_strategy, dns_default_server, dns_disable_cache, dns_disable_cache_expire,
+    dns_server, dns_default_strategy, dns_default_server, dns_disable_cache, dns_disable_cache_expire,
     lan_proxy_ips, wan_proxy_ips, proxy_domain_list, direct_domain_list;
 
 if (routing_mode !== 'custom') {
@@ -84,7 +84,7 @@ if (routing_mode !== 'custom') {
 		direct_domain_list = split(direct_domain_list, /[\r\n]/);
 } else {
 	/* DNS settings */
-	dns_strategy = uci.get(uciconfig, ucidnssetting, 'dns_strategy');
+	dns_default_strategy = uci.get(uciconfig, ucidnssetting, 'default_strategy');
 	dns_default_server = uci.get(uciconfig, ucidnssetting, 'default_server');
 	dns_disable_cache = uci.get(uciconfig, ucidnssetting, 'disable_cache');
 	dns_disable_cache_expire = uci.get(uciconfig, ucidnssetting, 'disable_cache_expire');
@@ -158,6 +158,7 @@ function generate_outbound(node) {
 		version: (node.type === 'shadowtls') ? strToInt(node.shadowtls_version) : ((node.type === 'socks') ? node.socks_version : null),
 		/* VLESS / VMess */
 		uuid: node.uuid,
+		flow: node.vless_flow,
 		alter_id: strToInt(node.vmess_alterid),
 		security: node.vmess_encrypt,
 		global_padding: node.vmess_global_padding ? (node.vmess_global_padding === '1') : null,
@@ -175,9 +176,9 @@ function generate_outbound(node) {
 		multiplex: (node.multiplex === '1') ? {
 			enabled: true,
 			protocol: node.multiplex_protocol,
-			max_connections: node.multiplex_max_connections,
-			min_streams: node.multiplex_min_streams,
-			max_streams: node.multiplex_max_streams
+			max_connections: strToInt(node.multiplex_max_connections),
+			min_streams: strToInt(node.multiplex_min_streams),
+			max_streams: strToInt(node.multiplex_max_streams)
 		} : null,
 		tls: (node.tls === '1') ? {
 			enabled: true,
@@ -197,14 +198,22 @@ function generate_outbound(node) {
 			utls: !isEmpty(node.tls_utls) ? {
 				enabled: true,
 				fingerprint: node.tls_utls
+			} : null,
+			reality: (node.tls_reality === '1') ? {
+				enabled: true,
+				public_key: node.tls_reality_public_key,
+				short_id: node.tls_reality_short_id
 			} : null
 		} : null,
 		transport: !isEmpty(node.transport) ? {
 			type: node.transport,
-			host: node.http_host || node.ws_host,
+			host: node.http_host,
 			path: node.http_path || node.ws_path,
+			headers: node.ws_host ? {
+				Host: node.ws_host
+			} : null,
 			method: node.http_method,
-			max_early_data: node.websocket_early_data,
+			max_early_data: strToInt(node.websocket_early_data),
 			early_data_header_name: node.websocket_early_data_header,
 			service_name: node.grpc_servicename
 		} : null,
@@ -279,7 +288,7 @@ config.dns = {
 		}
 	],
 	rules: [],
-	strategy: dns_strategy,
+	strategy: dns_default_strategy,
 	disable_cache: (dns_disable_cache === '1'),
 	disable_expire: (dns_disable_cache_expire === '1')
 };
@@ -425,7 +434,6 @@ if (!isEmpty(main_node) || !isEmpty(default_outbound)) {
 			stack: tcpip_stack,
 			sniff: true,
 			sniff_override_destination: (sniff_override === '1'),
-			domain_strategy: dns_strategy
 		});
 }
 
@@ -462,7 +470,7 @@ if (server_enabled === '1')
 			method: (cfg.type === 'shadowsocks') ? cfg.shadowsocks_encrypt_method : null,
 			password: (cfg.type in ['shadowsocks', 'shadowtls']) ? cfg.password : null,
 
-			/* HTTP / Hysteria / Socks / Trojan / VMess */
+			/* HTTP / Hysteria / Socks / Trojan / VLESS / VMess */
 			users: (cfg.type !== 'shadowsocks') ? [
 				{
 					name: !(cfg.type in ['http', 'socks']) ? 'cfg-' + cfg['.name'] + '-server' : null,
@@ -513,7 +521,7 @@ if (server_enabled === '1')
 					Host: cfg.ws_host
 				} : null,
 				method: cfg.http_method,
-				max_early_data: cfg.websocket_early_data,
+				max_early_data: strToInt(cfg.websocket_early_data),
 				early_data_header_name: cfg.websocket_early_data_header,
 				service_name: cfg.grpc_servicename
 			} : null
@@ -593,11 +601,27 @@ if (!isEmpty(main_node) || !isEmpty(default_outbound))
 
 if (!isEmpty(main_node)) {
 	/* Routing rules */
+	/* LAN ACL */
+	if (length(lan_proxy_ips)) {
+		push(config.route.rules, {
+			source_ip_cidr: lan_proxy_ips,
+			network: dedicated_udp_node ? 'tcp' : null,
+			outbound: 'main-out'
+		});
+
+		if (dedicated_udp_node) {
+			push(config.route.rules, {
+				source_ip_cidr: lan_proxy_ips,
+				network: 'udp',
+				outbound: 'main-udp-out'
+			});
+		}
+	}
+
 	/* Proxy list */
-	if (length(proxy_domain_list) || length(lan_proxy_ips) || length(wan_proxy_ips)) {
+	if (length(proxy_domain_list) || length(wan_proxy_ips)) {
 		push(config.route.rules, {
 			domain_keyword: proxy_domain_list,
-			source_ip_cidr: lan_proxy_ips,
 			ip_cidr: wan_proxy_ips,
 			network: dedicated_udp_node ? 'tcp' : null,
 			outbound: 'main-out'
@@ -606,7 +630,6 @@ if (!isEmpty(main_node)) {
 		if (dedicated_udp_node) {
 			push(config.route.rules, {
 				domain_keyword: proxy_domain_list,
-				source_ip_cidr: lan_proxy_ips,
 				ip_cidr: wan_proxy_ips,
 				network: 'udp',
 				outbound: 'main-udp-out'
