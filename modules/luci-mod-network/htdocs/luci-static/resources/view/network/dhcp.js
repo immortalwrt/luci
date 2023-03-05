@@ -560,7 +560,7 @@ return view.extend({
 			_('Number of cached DNS entries, 10000 is maximum, 0 is no caching.'));
 		o.optional = true;
 		o.datatype = 'range(0,10000)';
-		o.placeholder = 150;
+		o.placeholder = 1000;
 
 		o = s.taboption('advanced', form.Value, 'mini_ttl',
 			_('Minimum TTL to send to clients'),
