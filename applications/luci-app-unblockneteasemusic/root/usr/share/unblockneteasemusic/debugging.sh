@@ -71,8 +71,6 @@ echo -e "\n"
 
 [ -n "$is_stopped" ] || {
 	echo -e "Firewall info:"
-	[ -e "/etc/nftables.d/90-$NAME-rules.nft" ] || echo -e "netease_cloud_music nft rule file not found."
-	echo -e ""
 	nft list set inet fw4 "acl_neteasemusic_http" 2>&1
 	echo -e ""
 	nft list set inet fw4 "acl_neteasemusic_https" 2>&1
