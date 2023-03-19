@@ -1,6 +1,6 @@
 /*************************************************************************
  *
- * Copyright (C) 2018-2020 Ruilin Peng (Nick) <pymumu@gmail.com>.
+ * Copyright (C) 2018-2023 Ruilin Peng (Nick) <pymumu@gmail.com>.
  *
  * smartdns is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,11 +38,11 @@ var pollAdded = false;
 function getServiceStatus() {
 	return L.resolveDefault(callServiceList(conf), {})
 		.then(function (res) {
-			var isrunning = false;
+			var is_running = false;
 			try {
-				isrunning = res[conf]['instances']['smartdns']['running'];
+				is_running = res[conf]['instances']['smartdns']['running'];
 			} catch (e) { }
-			return isrunning;
+			return is_running;
 		});
 }
 
@@ -73,7 +73,7 @@ function smartdnsRenderStatus(res) {
 		uci.unload('dhcp');
 		uci.load('dhcp');
 		if (dnsmasqServer == undefined || dnsmasqServer.indexOf(matchLine) < 0) {
-			renderHTML += "<br /><span style=\"color:red;font-weight:bold\">" + _("Dnsmasq Forwared To Smartdns Failure") + "</span>";
+			renderHTML += "<br /><span style=\"color:red;font-weight:bold\">" + _("Dnsmasq Forwarded To Smartdns Failure") + "</span>";
 		}
 	}
 
@@ -90,7 +90,7 @@ return view.extend({
 	render: function (stats) {
 		var m, s, o;
 		var ss, so;
-		var servers, downlfiles;
+		var servers, download_files;
 
 		m = new form.Map('smartdns', _('SmartDNS'));
 		m.title = _("SmartDNS Server");
@@ -131,7 +131,9 @@ return view.extend({
 		s.tab("settings", _("General Settings"));
 		s.tab("advanced", _('Advanced Settings'));
 		s.tab("seconddns", _("Second Server Settings"));
+		s.tab("dns64", _("DNS64 Server Settings"));
 		s.tab("files", _("Download Files Setting"), _("Download domain list files for domain-rule and include config files, please refresh the page after download to take effect."));
+		s.tab("proxy", _("Proxy Server Settings"));
 		s.tab("custom", _("Custom Settings"));
 
 		///////////////////////////////////////
@@ -154,6 +156,11 @@ return view.extend({
 		o.default = 53;
 		o.datatype = "port";
 		o.rempty = false;
+		
+		// auto-conf-dnsmasq;
+		o = s.taboption("settings", form.Flag, "auto_set_dnsmasq", _("Automatically Set Dnsmasq"), _("Automatically set as upstream of dnsmasq when port changes."));
+		o.rmempty = false;
+		o.default = o.enabled;
 
 		///////////////////////////////////////
 		// advanced settings;
@@ -198,6 +205,16 @@ return view.extend({
 			return true;
 		}
 
+		// response mode;
+		o = s.taboption("advanced", form.ListValue, "response_mode", _("Response Mode"),
+			_("Smartdns response mode, First Ping: return the first ping IP, Fastest IP: return the fastest IP, Fastest Response: return the fastest DNS response."));
+		o.rmempty = true;
+		o.placeholder = "default";
+		o.value("", _("default"));
+		o.value("first-ping", _("First Ping"));
+		o.value("fastest-ip", _("Fastest IP"));
+		o.value("fastest-response", _("Fastest Response"));
+
 		// Enable TCP server;
 		o = s.taboption("advanced", form.Flag, "tcp_server", _("TCP Server"), _("Enable TCP DNS Server"));
 		o.rmempty = false;
@@ -207,6 +224,17 @@ return view.extend({
 		o = s.taboption("advanced", form.Flag, "ipv6_server", _("IPV6 Server"), _("Enable IPV6 DNS Server"));
 		o.rmempty = false;
 		o.default = o.enabled;
+
+		// bind to device;
+		o = s.taboption("advanced", form.Flag, "bind_device", _("Bind Device"), _("Listen only on the specified interfaces."));
+		o.rmempty = false;
+		o.default = o.enabled;
+
+		// bind device name;
+		o = s.taboption("advanced", form.Value, "bind_device_name", _("Bind Device Name"), _("Name of device name listen on."));
+		o.placeholder = "default";
+		o.rempty = true;
+		o.datatype = "string";
 
 		// Support DualStack ip selection;
 		o = s.taboption("advanced", form.Flag, "dualstack_ip_selection", _("Dual-stack IP Selection"),
@@ -230,13 +258,13 @@ return view.extend({
 		o = s.taboption("advanced", form.Value, "cache_size", _("Cache Size"), _("DNS domain result cache size"));
 		o.rempty = true;
 
-		// cache-size;
-		o = s.taboption("advanced", form.Flag, "resolve_local_hostnames", _("Resolve Local Hostnames"), _("Resolve local hostnames by reading Dnsmasq lease file."));
+		// cache-persist;
+		o = s.taboption("advanced", form.Flag, "cache_persist", _("Cache Persist"), _("Write cache to disk on exit and load on startup."));
 		o.rmempty = false;
 		o.default = o.enabled;
 
-		// auto-conf-dnsmasq;
-		o = s.taboption("advanced", form.Flag, "auto_set_dnsmasq", _("Automatically Set Dnsmasq"), _("Automatically set as upstream of dnsmasq when port changes."));
+		// cache-size;
+		o = s.taboption("advanced", form.Flag, "resolve_local_hostnames", _("Resolve Local Hostnames"), _("Resolve local hostnames by reading Dnsmasq lease file."));
 		o.rmempty = false;
 		o.default = o.enabled;
 
@@ -249,6 +277,48 @@ return view.extend({
 		o = s.taboption("advanced", form.Flag, "force_https_soa", _("Force HTTPS SOA"), _("Force HTTPS SOA."));
 		o.rmempty = false;
 		o.default = o.enabled;
+
+		// Ipset no speed.
+		o = s.taboption("advanced", form.Value, "ipset_no_speed", _("No Speed IPset Name"), 
+			_("Ipset name, Add domain result to ipset when speed check fails."));
+		o.rmempty = true;
+		o.datatype = "string";
+		o.rempty = true;
+		o.validate = function (section_id, value) {
+			if (value == "") {
+				return true;
+			}
+
+			var ipset = value.split(",")
+			for (var i = 0; i < ipset.length; i++) {
+				if (!ipset[i].match(/^(#[4|6]:)?[a-zA-Z0-9\-_]+$/)) {
+					return _("ipset name format error, format: [#[4|6]:]ipsetname");
+				}
+			}
+
+			return true;
+		}
+
+		// NFTset no speed.
+		o = s.taboption("advanced", form.Value, "nftset_no_speed", _("No Speed NFTset Name"), 
+			_("Nftset name, Add domain result to nftset when speed check fails, format: [#[4|6]:[family#table#set]]"));
+		o.rmempty = true;
+		o.datatype = "string";
+		o.rempty = true;
+		o.validate = function (section_id, value) {
+			if (value == "") {
+				return true;
+			}
+
+			var nftset = value.split(",")
+			for (var i = 0; i < nftset.length; i++) {
+				if (!nftset[i].match(/^#[4|6]:[a-zA-Z0-9\-_]+#[a-zA-Z0-9\-_]+#[a-zA-Z0-9\-_]+$/)) {
+					return _("NFTset name format error, format: [#[4|6]:[family#table#set]]");
+				}
+			}
+
+			return true;
+		}
 
 		// rr-ttl;
 		o = s.taboption("advanced", form.Value, "rr_ttl", _("Domain TTL"), _("TTL for all domain result."));
@@ -273,25 +343,25 @@ return view.extend({
 		o.rempty = true;
 
 		// include config
-		downlfiles = uci.sections('smartdns', 'download-file');
+		download_files = uci.sections('smartdns', 'download-file');
 		o = s.taboption("advanced", form.DynamicList, "conf_files", _("Include Config Files<br>/etc/smartdns/conf.d"),
 			_("Include other config files from /etc/smartdns/conf.d or custom path, can be downloaded from the download page."));
-		for (var i = 0; i < downlfiles.length; i++) {
-			if (downlfiles[i].type == undefined) {
+		for (var i = 0; i < download_files.length; i++) {
+			if (download_files[i].type == undefined) {
 				continue;
 			}
 
-			if (downlfiles[i].type != 'config') {
+			if (download_files[i].type != 'config') {
 				continue
 			}
 
-			o.value(downlfiles[i].name);
+			o.value(download_files[i].name);
 		}
 
 		///////////////////////////////////////
 		// second dns server;
 		///////////////////////////////////////
-		// Eanble;
+		// Enable;
 		o = s.taboption("seconddns", form.Flag, "seconddns_enabled", _("Enable"),
 			_("Enable or disable second DNS server."));
 		o.default = o.disabled;
@@ -360,6 +430,14 @@ return view.extend({
 		o = s.taboption("seconddns", form.Flag, "seconddns_force_aaaa_soa", _("Force AAAA SOA"), _("Force AAAA SOA."));
 		o.rmempty = false;
 		o.default = o.disabled;
+
+		///////////////////////////////////////
+		// DNS64 Settings
+		///////////////////////////////////////
+		o = s.taboption("dns64", form.Value, "dns64", _("DNS64"));
+		o.placeholder = "64:ff9b::/96";
+		o.datatype = "ip6addr";
+		o.rempty = true;
 
 		///////////////////////////////////////
 		// download Files Settings
@@ -432,6 +510,23 @@ return view.extend({
 		so = ss.option(form.Value, 'desc', _('Description'), _('Description'));
 		so.rmempty = true;
 		so.datatype = 'string';
+
+		///////////////////////////////////////
+		// Proxy server settings;
+		///////////////////////////////////////
+		o = s.taboption("proxy", form.Value, "proxy_server", _("Proxy Server"), _("Proxy Server URL, format: [socks5|http]://user:pass@ip:port."));
+		o.datatype = 'string';
+		o.validate = function (section_id, value) {
+			if (value == "") {
+				return true;
+			}
+
+			if (!value.match(/^(socks5|http):\/\//)) {
+				return _("Proxy server URL format error, format: [socks5|http]://user:pass@ip:port.");
+			}
+
+			return true;
+		}
 
 		///////////////////////////////////////
 		// custom settings;
@@ -591,7 +686,33 @@ return view.extend({
 		o.rempty = true
 		o.datatype = "uinteger"
 		o.modalonly = true;
-		
+
+		// use proxy
+		o = s.taboption("advanced", form.Flag, "use_proxy", _("Use Proxy"),
+			_("Use proxy to connect to upstream DNS server."))
+		o.default = o.disabled
+		o.modalonly = true;
+		o.optional = true;
+		o.rempty = true;
+		o.validate = function (section_id, value) {
+			var flag = this.formvalue(section_id);
+			if (flag == "0") {
+				return true;
+			}
+
+			var proxy_server = uci.sections("smartdns", "smartdns")[0].proxy_server;
+			var server_type = this.section.formvalue(section_id, "type");
+			if (proxy_server == "" || proxy_server == undefined) {
+				return _("Please set proxy server first.");
+			}
+
+			if (server_type == "udp" && !proxy_server.match(/^(socks5):\/\//)) {
+				return _("Only socks5 proxy support udp server.");
+			}
+
+			return true;
+		}
+
 		// other args
 		o = s.taboption("advanced", form.Value, "addition_arg", _("Additional Server Args"),
 			_("Additional Args for upstream dns servers"))
@@ -650,8 +771,22 @@ return view.extend({
 
 		o = s.taboption("forwarding", form.Value, "ipset_name", _("IPset Name"), _("IPset name."));
 		o.rmempty = true;
-		o.datatype = "hostname";
+		o.datatype = "string";
 		o.rempty = true;
+		o.validate = function (section_id, value) {
+			if (value == "") {
+				return true;
+			}
+
+			var ipset = value.split(",")
+			for (var i = 0; i < ipset.length; i++) {
+				if (!ipset[i].match(/^(#[4|6]:)?[a-zA-Z0-9\-_]+$/)) {
+					return _("ipset name format error, format: [#[4|6]:]ipsetname");
+				}
+			}
+
+			return true;
+		}
 
 		o = s.taboption("forwarding", form.Value, "nftset_name", _("NFTset Name"), _("NFTset name, format: [#[4|6]:[family#table#set]]"));
 		o.rmempty = true;
@@ -664,7 +799,7 @@ return view.extend({
 
 			var nftset = value.split(",")
 			for (var i = 0; i < nftset.length; i++) {
-				if (!nftset[i].match(/#[4|6]:[a-zA-Z0-9\-_]+#[a-zA-Z0-9\-_]+#[a-zA-Z0-9\-_]+$/)) {
+				if (!nftset[i].match(/^#[4|6]:[a-zA-Z0-9\-_]+#[a-zA-Z0-9\-_]+#[a-zA-Z0-9\-_]+$/)) {
 					return _("NFTset name format error, format: [#[4|6]:[family#table#set]]");
 				}
 			}
