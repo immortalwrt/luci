@@ -9,7 +9,6 @@ START=99
 STOP=10
 
 NAME="unblockneteasemusic"
-UPGRADE_CONF="/lib/upgrade/keep.d/$NAME"
 UNM_DIR="/usr/share/$NAME"
 RUN_DIR="/var/run/$NAME"
 
@@ -164,7 +163,6 @@ start_service() {
 
 		local netease_music_ips="$(uclient-fetch -qO- "http://httpdns.n.netease.com/httpdns/v2/d?domain=music.163.com,interface.music.163.com,interface3.music.163.com,apm.music.163.com,apm3.music.163.com,clientlog.music.163.com,clientlog3.music.163.com" |jsonfilter -e '@.data.*.ip.*')"
 		local netease_music_ips2="$(uclient-fetch -qO- "https://music.httpdns.c.163.com/d" --post-data="music.163.com,interface.music.163.com,interface3.music.163.com,apm.music.163.com,apm3.music.163.com,clientlog.music.163.com,clientlog3.music.163.com" |jsonfilter -e '@.dns.*["ips"].*')"
-
 		echo -e "${netease_music_ips}\n${netease_music_ips2}" | sort -u | awk '{print "ipset add neteasemusic "$1}' | sh
 
 		$IPT_N -N "netease_cloud_music"
@@ -210,21 +208,7 @@ stop_service() {
 	sed -i "/$NAME/d" "/etc/crontabs/root"
 	/etc/init.d/cron restart
 
-	rm -f "${UPGRADE_CONF}"
-	is_enabled "config" "keep_core_when_upgrade" && {
-		echo "$UNM_DIR/core/" >> "${UPGRADE_CONF}"
-		echo "$UNM_DIR/local_ver" >> "${UPGRADE_CONF}"
-	}
-
-	local self_issue_cert_crt self_issue_cert_key
-	config_get "self_issue_cert_crt" "config" "self_issue_cert_crt"
-	config_get "self_issue_cert_key" "config" "self_issue_cert_key"
-	if [ -f "${self_issue_cert_crt}" ] && [ -f "${self_issue_cert_key}" ]; then
-		echo "${self_issue_cert_crt}" >> "${UPGRADE_CONF}"
-		echo "${self_issue_cert_key}" >> "${UPGRADE_CONF}"
-	fi
-
-	local chain settable
+	local settable
 	iptables -t filter -D INPUT -j "$IPT_RULE_NAME" 2>"/dev/null"
 	iptables -F "$IPT_RULE_NAME" 2>"/dev/null"
 	iptables -X "$IPT_RULE_NAME" 2>"/dev/null"
