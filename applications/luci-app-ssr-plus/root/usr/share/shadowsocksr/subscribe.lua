@@ -223,7 +223,7 @@ local function processData(szType, content)
 		end
 		if info.tls == "tls" or info.tls == "1" then
 			result.tls = "1"
-			if info.sni then
+			if info.sni and info.sni ~= "" then
 				result.tls_host = info.sni
 			elseif info.host then
 				result.tls_host = info.host
