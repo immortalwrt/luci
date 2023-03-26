@@ -25,6 +25,21 @@ function parseShareLink(uri, features) {
 	uri = uri.split('://');
 	if (uri[0] && uri[1]) {
 		switch (uri[0]) {
+		case 'http':
+		case 'https':
+			var url = new URL('http://' + uri[1]);
+
+			config = {
+				label: url.hash ? decodeURIComponent(url.hash.slice(1)) : null,
+				type: 'http',
+				address: url.hostname,
+				port: url.port || '80',
+				username: url.username ? decodeURIComponent(url.username) : null,
+				password: url.password ? decodeURIComponent(url.password) : null,
+				tls: (uri[0] === 'https') ? '1' : '0'
+			};
+
+			break;
 		case 'hysteria':
 			/* https://github.com/HyNetwork/hysteria/wiki/URI-Scheme */
 			var url = new URL('http://' + uri[1]);
@@ -49,7 +64,25 @@ function parseShareLink(uri, features) {
 				tls_sni: params.get('peer'),
 				tls_alpn: params.get('alpn'),
 				tls_insecure: params.get('insecure') ? '1' : '0'
-			}
+			};
+
+			break;
+		case 'socks':
+		case 'socks4':
+		case 'socks4a':
+		case 'socsk5':
+		case 'socks5h':
+			var url = new URL('http://' + uri[1]);
+
+			config = {
+				label: url.hash ? decodeURIComponent(url.hash.slice(1)) : null,
+				type: 'socks',
+				address: url.hostname,
+				port: url.port || '80',
+				username: url.username ? decodeURIComponent(url.username) : null,
+				password: url.password ? decodeURIComponent(url.password) : null,
+				socks_version: (uri[0].includes('4')) ? '4' : '5'
+			};
 
 			break;
 		case 'ss':
@@ -181,10 +214,14 @@ function parseShareLink(uri, features) {
 				port: url.port || '80',
 				uuid: url.username,
 				transport: params.get('type') !== 'tcp' ? params.get('type') : null,
-				tls: params.get('security') ? '1' : '0',
+				tls: ['tls', 'xtls', 'reality'].includes(params.get('security')) ? '1' : '0',
 				tls_sni: params.get('sni'),
 				tls_alpn: params.get('alpn') ? decodeURIComponent(params.get('alpn')).split(',') : null,
-				tls_utls: features.with_utls ? params.get('fp') : null
+				tls_reality: (params.get('security') === 'reality') ? '1' : '0',
+				tls_reality_public_key: params.get('pbk') ? decodeURIComponent(params.get('pbk')) : null,
+				tls_reality_short_id: params.get('sid'),
+				tls_utls: features.with_utls ? params.get('fp') : null,
+				vless_flow: ['tls', 'reality'].includes(params.get('security')) ? params.get('flow') : null
 			};
 			switch (params.get('type')) {
 			case 'grpc':
@@ -305,6 +342,7 @@ return view.extend({
 		o = s.taboption('node', form.SectionValue, '_node', form.GridSection, 'node');
 		ss = o.subsection;
 		ss.addremove = true;
+		ss.rowcolors = true;
 		ss.sortable = true;
 		ss.nodescriptions = true;
 		ss.modaltitle = L.bind(hp.loadModalTitle, this, _('Node'), _('Add a node'), data[0]);
@@ -1044,9 +1082,13 @@ return view.extend({
 			so.depends({'tls': '1', 'type': /^((?!hysteria$).)+$/});
 			so.validate = function(section_id, value) {
 				if (section_id) {
-					let tls_reality = this.map.lookupOption('tls_reality', section_id)[0].formvalue(section_id);
+					let tls_reality = this.map.findElement('id', 'cbid.homeproxy.%s.tls_reality'.format(section_id)).firstElementChild;
 					if (tls_reality.checked && !value)
 						return _('Expecting: %s').format(_('non-empty value'));
+
+					let vless_flow = this.map.lookupOption('vless_flow', section_id)[0].formvalue(section_id);
+					if ((tls_reality.checked || vless_flow) && ['360', 'android'].includes(value))
+						return _('Unsupported fingerprint!');
 				}
 
 				return true;
@@ -1055,7 +1097,7 @@ return view.extend({
 
 			so = ss.option(form.Flag, 'tls_reality', _('REALITY'));
 			so.default = so.disabled;
-			so.depends('tls', '1');
+			so.depends({'tls': '1', 'type': 'vless'});
 			so.modalonly = true;
 
 			so = ss.option(form.Value, 'tls_reality_public_key', _('REALITY public key'));
