@@ -3,16 +3,16 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-10 03:40+0200\n"
-"PO-Revision-Date: 2022-07-03 10:25+0000\n"
-"Last-Translator: Hannu Nyman <hannu.nyman@iki.fi>\n"
-"Language-Team: English <https://hosted.weblate.org/projects/openwrt/luci/en/"
-">\n"
+"PO-Revision-Date: 2023-03-23 14:42+0000\n"
+"Last-Translator: David Rapaň <david@rapan.cz>\n"
+"Language-Team: English <https://hosted.weblate.org/projects/openwrt/luci/en/>"
+"\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.16.2-dev\n"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:649
 msgctxt "Yet unknown nftables table family (\"family\" table \"name\")"
@@ -641,7 +641,7 @@ msgstr ""
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:42
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:43
 msgid "Address"
-msgstr ""
+msgstr "Address"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:21
 msgctxt "nft meta nfproto"
@@ -1349,6 +1349,10 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:650
 msgid "CNAME or fqdn"
+msgstr ""
+
+#: protocols/luci-proto-cni/htdocs/luci-static/resources/protocol/cni.js:6
+msgid "CNI (Externally managed interface)"
 msgstr ""
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/processes.js:72
@@ -5814,7 +5818,7 @@ msgstr ""
 msgid "One of hostname or MAC address must be specified!"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:481
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:490
 msgid "One of the following: %s"
 msgstr ""
 
@@ -6503,7 +6507,7 @@ msgstr ""
 msgid "Port status:"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:507
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:516
 msgid "Potential negation of: %s"
 msgstr ""
 
@@ -7495,7 +7499,7 @@ msgstr ""
 
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv.js:89
 msgid "Server"
-msgstr ""
+msgstr "Server"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:600
 msgid "Server address"
@@ -10058,7 +10062,7 @@ msgstr ""
 msgid "half-duplex"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:584
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:593
 msgid "hexadecimal encoded value"
 msgstr ""
 
@@ -10241,7 +10245,7 @@ msgid ""
 "access."
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:574
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:583
 msgid "unique value"
 msgstr ""
 
@@ -10363,8 +10367,8 @@ msgstr ""
 msgid "valid address:port"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:548
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:552
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:557
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:561
 msgid "valid date (YYYY-MM-DD)"
 msgstr ""
 
@@ -10404,11 +10408,15 @@ msgstr ""
 msgid "valid multicast MAC address"
 msgstr ""
 
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:433
+msgid "valid network device name, not \".\" or \"..\""
+msgstr ""
+
 #: modules/luci-base/htdocs/luci-static/resources/validation.js:323
 msgid "valid network in address/netmask notation"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:523
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:532
 msgid "valid phone digit (0-9, \"*\", \"#\", \"!\" or \".\")"
 msgstr ""
 
@@ -10422,35 +10430,35 @@ msgstr ""
 msgid "valid port value"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:528
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:537
 msgid "valid time (HH:MM:SS)"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:450
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:459
 msgid "value between %d and %d characters"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:431
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:440
 msgid "value between %f and %f"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:435
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:444
 msgid "value greater or equal to %f"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:439
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:448
 msgid "value smaller or equal to %f"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:444
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:453
 msgid "value with %d characters"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:455
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:464
 msgid "value with at least %d characters"
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:460
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:469
 msgid "value with at most %d characters"
 msgstr ""
 

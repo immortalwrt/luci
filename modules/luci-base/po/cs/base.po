@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"PO-Revision-Date: 2023-01-10 22:06+0000\n"
-"Last-Translator: Jirka_1277 <j.pinkava@centrum.cz>\n"
+"PO-Revision-Date: 2023-03-23 17:49+0000\n"
+"Last-Translator: David Rapaň <david@rapan.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/openwrt/luci/cs/>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.15.1-dev\n"
+"X-Generator: Weblate 4.16.2-dev\n"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:649
 msgctxt "Yet unknown nftables table family (\"family\" table \"name\")"
@@ -1375,6 +1375,10 @@ msgstr "Nastavení CLAT se nezdařilo"
 msgid "CNAME or fqdn"
 msgstr ""
 
+#: protocols/luci-proto-cni/htdocs/luci-static/resources/protocol/cni.js:6
+msgid "CNI (Externally managed interface)"
+msgstr ""
+
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/processes.js:72
 msgid "CPU usage (%)"
 msgstr "Vytížení procesoru (%)"
@@ -2281,7 +2285,7 @@ msgstr "Zakázáno"
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:541
 msgctxt "Label indicating that WireGuard peer is disabled"
 msgid "Disabled"
-msgstr ""
+msgstr "Zakázáno"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1192
 msgid "Disassociate On Low Acknowledgement"
@@ -2290,7 +2294,8 @@ msgstr "Zrušit spojení při nízkém počtu ACK potvrzení"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:312
 msgid ""
 "Discard upstream responses containing <a href=\"%s\">RFC1918</a> addresses."
-msgstr "Vyřadit upstream RFC1918 odpovědi."
+msgstr ""
+"Vyřadit upstream odpovědi, které obsahují <a href=\"%s\">RFC1918</a> adresy."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:198
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:716
@@ -3115,9 +3120,9 @@ msgid ""
 "File listing upstream resolvers, optionally domain-specific, e.g. "
 "<code>server=1.2.3.4</code>, <code>server=/domain/1.2.3.4</code>."
 msgstr ""
-"Tento soubor může obsahovat řádky jako<code> 'server=/domain/1.2.3.4'</code> "
-"nebo <code>'server=1.2.3.4'</code> pro konkrétní doménové nebo plně "
-"nadřazené <abbr title=\"Domain Name System\">DNS</abbr> servery."
+"Seznam souborů s názvy serverů poskytovatelů služeb, volitelně specifických "
+"pro určité domény, např. <code>server=1.2.3.4</code> nebo <code>server=/"
+"domain/1.2.3.4</code>."
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2678
 msgid "File not accessible"
@@ -4556,7 +4561,7 @@ msgstr "Přeskočit na pravidlo"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:228
 msgid "Keep settings and retain the current configuration"
-msgstr "Zachovat nastavení a ponechat aktuální konfiguraci"
+msgstr "Uchovat nastavení a současnou konfiguraci"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/view/wireguard/status.js:60
 msgid "Keep-Alive"
@@ -5046,7 +5051,6 @@ msgid "MAC"
 msgstr "MAC"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1464
-#, fuzzy
 msgid "MAC Address"
 msgstr "MAC adresa"
 
@@ -5969,7 +5973,7 @@ msgstr "Link-local trasa"
 msgid "One of hostname or MAC address must be specified!"
 msgstr "Jedno jméno nebo mac adresa, musí být zadáno!"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:481
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:490
 msgid "One of the following: %s"
 msgstr "Jeden z následujících: %s"
 
@@ -6637,7 +6641,7 @@ msgstr "Ping"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:138
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:64
 msgid "Pkts."
-msgstr "paketů"
+msgstr "Paketů"
 
 #: modules/luci-base/ucode/template/sysauth.ut:19
 msgid "Please enter your username and password."
@@ -6675,7 +6679,7 @@ msgstr ""
 msgid "Port status:"
 msgstr "Stav portu:"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:507
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:516
 msgid "Potential negation of: %s"
 msgstr "Potenciální negace: %s"
 
@@ -6987,9 +6991,7 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:415
 msgid "Read <code>/etc/ethers</code> to configure the DHCP server."
-msgstr ""
-"Přečtěte si <code>/etc/ethers</code> ke konfiguraci <abbr title=\"Dynamic "
-"Host Configuration Protocol\">DHCP</abbr> serveru."
+msgstr "Načíst soubor <code>/etc/ethers</code> pro konfiguraci DHCP serveru."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:575
 msgid "Really switch protocol?"
@@ -7688,7 +7690,7 @@ msgstr ""
 
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv.js:89
 msgid "Server"
-msgstr ""
+msgstr "Server"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:600
 msgid "Server address"
@@ -10372,7 +10374,7 @@ msgstr "plný-duplex"
 msgid "half-duplex"
 msgstr "poloviční-duplex"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:584
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:593
 msgid "hexadecimal encoded value"
 msgstr "hexadecimální hodnota"
 
@@ -10555,7 +10557,7 @@ msgid ""
 "access."
 msgstr ""
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:574
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:583
 msgid "unique value"
 msgstr "jedinečná hodnota"
 
@@ -10677,8 +10679,8 @@ msgstr "platný identifikátor UCI, název hostitele nebo IP adresa"
 msgid "valid address:port"
 msgstr "platná adresa:port"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:548
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:552
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:557
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:561
 msgid "valid date (YYYY-MM-DD)"
 msgstr "platné datum (RRRR-MM-DD)"
 
@@ -10718,11 +10720,15 @@ msgstr "platná celočíselná hodnota"
 msgid "valid multicast MAC address"
 msgstr ""
 
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:433
+msgid "valid network device name, not \".\" or \"..\""
+msgstr ""
+
 #: modules/luci-base/htdocs/luci-static/resources/validation.js:323
 msgid "valid network in address/netmask notation"
 msgstr "platná síť v notaci adresa/maska sítě"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:523
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:532
 msgid "valid phone digit (0-9, \"*\", \"#\", \"!\" or \".\")"
 msgstr "platná telefonní číslice (0-9, \"*\", \"#\", \"!\" or \".\")"
 
@@ -10736,35 +10742,35 @@ msgstr "platný port nebo rozsah portů (port1-port2)"
 msgid "valid port value"
 msgstr "platná hodnota portu"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:528
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:537
 msgid "valid time (HH:MM:SS)"
 msgstr "platný čas (HH:MM:SS)"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:450
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:459
 msgid "value between %d and %d characters"
 msgstr "hodnota mezi %d a %d znaky"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:431
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:440
 msgid "value between %f and %f"
 msgstr "hodnota mezi %f a %f"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:435
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:444
 msgid "value greater or equal to %f"
 msgstr "hodnota větší nebo rovna %f"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:439
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:448
 msgid "value smaller or equal to %f"
 msgstr "hodnota menší nebo rovna %f"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:444
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:453
 msgid "value with %d characters"
 msgstr "hodnota s %d znaky"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:455
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:464
 msgid "value with at least %d characters"
 msgstr "hodnota s alespoň %d znaky"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:460
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:469
 msgid "value with at most %d characters"
 msgstr "hodnota s nejvýše %d znaky"
 
