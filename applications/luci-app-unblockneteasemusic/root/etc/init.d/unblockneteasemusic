@@ -147,7 +147,7 @@ start_service() {
 			nftset=/clientlog.music.163.com/inet#fw4#neteasemusic,6#inet#fw4#neteasemusic6
 			nftset=/clientlog3.music.163.com/inet#fw4#neteasemusic,6#inet#fw4#neteasemusic6
 		EOF
-		/etc/init.d/dnsmasq reload 2>"/dev/null"
+		/etc/init.d/dnsmasq restart 2>"/dev/null"
 
 		config_foreach append_filter_client "acl_rule"
 
@@ -197,7 +197,7 @@ start_service() {
 			address=/clientlog3.music.163.com/${lan_addr}
 			address=/music.httpdns.c.163.com/0.0.0.0
 		EOF
-		/etc/init.d/dnsmasq reload 2>"/dev/null"
+		/etc/init.d/dnsmasq restart 2>"/dev/null"
 	fi
 
 	procd_close_instance
@@ -232,7 +232,7 @@ stop_service() {
 	echo > "$RUN_DIR/fw4.nft"
 
 	rm -f "/tmp/dnsmasq.d/dnsmasq-$NAME.conf"
-	/etc/init.d/dnsmasq reload 2>"/dev/null"
+	/etc/init.d/dnsmasq restart 2>"/dev/null"
 
 	rm -f "$RUN_DIR/run.log"
 }
