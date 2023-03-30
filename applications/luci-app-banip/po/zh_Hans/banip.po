@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-03-11 13:39+0000\n"
+"PO-Revision-Date: 2023-03-28 09:41+0000\n"
 "Last-Translator: Eric <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "openwrt/luciapplicationsbanip/zh_Hans/>\n"
@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.16.2-dev\n"
+"X-Generator: Weblate 4.17-dev\n"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:75
 msgid "-- Set Selection --"
@@ -167,6 +167,12 @@ msgstr "链优先级"
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:229
 msgid "Chain/Set Settings"
 msgstr "IP 链路/集合设置"
+
+#: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:332
+#: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:393
+#: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:459
+msgid "Changes on this tab needs a banIP service restart to take effect."
+msgstr ""
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:29
 msgid ""
@@ -376,6 +382,10 @@ msgstr "在状态和报告中列出集合元素，禁用此功能可减少 CPU �
 msgid "List of available network interfaces to trigger the banIP start."
 msgstr "触发 banIP 启动的可用网络接口列表。"
 
+#: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:524
+msgid "List of supported and fully pre-configured banIP feeds."
+msgstr ""
+
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:82
 msgid "List the elements of a specific banIP-related Set."
 msgstr "列出与某一特定 banIP 有关的集合的元素。"
@@ -491,7 +501,7 @@ msgstr "“msmtp”所用的 banIP 电子邮件通知配置。"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:499
 msgid "Receive E-Mail notifications with every banIP run."
-msgstr ""
+msgstr "接收每次 banIP 运行的电子邮件通知。"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:502
 msgid ""
@@ -699,13 +709,19 @@ msgstr "此标签页显示最后生成的集合报告，按下“刷新“按钮
 msgid "Timestamp"
 msgstr "时间戳"
 
+#: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:497
+msgid ""
+"To enable email notifications, set up the 'msmtp' package and specify a "
+"vaild E-Mail receiver address."
+msgstr ""
+
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:510
 msgid "Topic for banIP notification E-Mails."
 msgstr "banIP 通知邮件的主题。"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:305
 msgid "Trigger Action"
-msgstr ""
+msgstr "触发动作"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:300
 msgid "Trigger Delay"
@@ -713,7 +729,7 @@ msgstr "触发延时"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:305
 msgid "Trigger action on ifup interface events."
-msgstr ""
+msgstr "ifup 接口事件的触发动作。"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/allowlist.js:20
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/blocklist.js:20
@@ -788,13 +804,13 @@ msgstr "信息项"
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:425
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:435
 msgid "local allowlist"
-msgstr ""
+msgstr "本地白名单"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:416
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:426
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:436
 msgid "local blocklist"
-msgstr ""
+msgstr "本地黑名单"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:396
 msgid "memory (default)"
@@ -810,15 +826,15 @@ msgstr "性能"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:307
 msgid "reload"
-msgstr ""
+msgstr "重新加载"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:308
 msgid "restart"
-msgstr ""
+msgstr "重启"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:306
 msgid "start (default)"
-msgstr ""
+msgstr "启动（默认）"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:466
 msgid "warn (default)"

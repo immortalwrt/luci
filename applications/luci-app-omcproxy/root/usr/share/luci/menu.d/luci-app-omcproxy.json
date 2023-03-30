@@ -7,7 +7,7 @@
 		},
 		"depends": {
 			"acl": [ "luci-app-omcproxy" ],
-			"uci": { "omcproxy": true }
+			"fs": { "/etc/config/omcproxy": "file" }
 		}
 	}
 }
