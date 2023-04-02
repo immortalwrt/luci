@@ -17,6 +17,15 @@ DISTRIB_ARCH = nil
 LOG_FILE = "/tmp/log/" .. appname .. ".log"
 CACHE_PATH = "/tmp/etc/" .. appname .. "_tmp"
 
+function log(...)
+    local result = os.date("%Y-%m-%d %H:%M:%S: ") .. table.concat({...}, " ")
+    local f, err = io.open(LOG_FILE, "a")
+    if f and err == nil then
+        f:write(result .. "\n")
+        f:close()
+    end
+end
+
 function exec_call(cmd)
 	local process = io.popen(cmd .. '; echo -e "\n$?"')
 	local lines = {}
@@ -374,7 +383,7 @@ function get_customed_path(e)
 end
 
 function is_finded(e)
-	return luci.sys.exec('type -t -p "/bin/%s" -p "%s" "%s"' % {e, get_customed_path(e), e}) ~= "" and true or false
+	return luci.sys.exec('type -t -p "/bin/%s" -p "/usr/bin/%s" -p "%s" "%s"' % {e, e, get_customed_path(e), e}) ~= "" and true or false
 end
 
 function clone(org)
@@ -867,6 +876,6 @@ function to_check_self()
 		has_update = true,
 		local_version = local_version,
 		remote_version = remote_version,
-		error = remote_version
+		error = i18n.translatef("The latest version: %s, currently does not support automatic update, if you need to update, please compile or download the ipk and then manually install.", remote_version)
 	}
 end
