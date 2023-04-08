@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LuCI: base\n"
 "POT-Creation-Date: 2010-05-09 01:01+0300\n"
-"PO-Revision-Date: 2023-03-29 02:27+0000\n"
-"Last-Translator: st7105 <st7105@gmail.com>\n"
+"PO-Revision-Date: 2023-04-04 14:42+0000\n"
+"Last-Translator: AHOHNMYC <lqwh2h2cwa@protonmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/openwrt/luci/ru/>"
 "\n"
 "Language: ru\n"
@@ -1732,7 +1732,7 @@ msgstr "Успешное выполнение"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:33
 msgid "Command failed"
-msgstr "Ошибка команды"
+msgstr "Команда выполнена НЕ успешно"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:73
 msgid "Comment"
@@ -2950,7 +2950,7 @@ msgstr "Включить юникаст-флудинг (unicast flooding)"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:353
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:66
 msgid "Enabled"
-msgstr "Включено"
+msgstr "Включен"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:592
 msgid "Enables IGMP snooping on this bridge"
@@ -3625,13 +3625,14 @@ msgid "Global network options"
 msgstr "Основные настройки сети"
 
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/header.ut:70
-#: themes/luci-theme-material/ucode/template/themes/material/header.ut:84
+#: themes/luci-theme-material/ucode/template/themes/material/header.ut:90
 #: themes/luci-theme-openwrt-2020/ucode/template/themes/openwrt2020/header.ut:67
 #: themes/luci-theme-openwrt/luasrc/view/themes/openwrt.org/header.htm:92
 msgid "Go to firmware upgrade..."
 msgstr "Перейти к обновлению прошивки..."
 
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/header.ut:60
+#: themes/luci-theme-material/ucode/template/themes/material/header.ut:80
 #: themes/luci-theme-openwrt-2020/ucode/template/themes/openwrt2020/header.ut:57
 #: themes/luci-theme-openwrt/luasrc/view/themes/openwrt.org/header.htm:82
 msgid "Go to password configuration..."
@@ -3841,7 +3842,7 @@ msgstr "Содержимое Host-Uniq тега"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/40_dhcp.js:87
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:135
 msgid "Hostname"
-msgstr "Имя"
+msgstr "Имя хоста"
 
 #: modules/luci-base/htdocs/luci-static/resources/protocol/dhcp.js:22
 msgid "Hostname to send when requesting DHCP"
@@ -3924,7 +3925,7 @@ msgstr "IP-протокол"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:265
 msgid "IP Sets"
-msgstr "Списки IP"
+msgstr "Наборы IP-адресов"
 
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:126
 msgid "IP Type"
@@ -4697,7 +4698,7 @@ msgstr ""
 "не помещается в чип флэш-памяти, проверьте ваш файл прошивки!"
 
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/header.ut:77
-#: themes/luci-theme-material/ucode/template/themes/material/header.ut:91
+#: themes/luci-theme-material/ucode/template/themes/material/header.ut:97
 #: themes/luci-theme-openwrt/luasrc/view/themes/openwrt.org/header.htm:72
 msgid "JavaScript required!"
 msgstr "Требуется JavaScript!"
@@ -4918,11 +4919,11 @@ msgstr "Режим линии"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/50_dsl.js:24
 msgid "Line State"
-msgstr "Состояние Линии"
+msgstr "Состояние линии"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/50_dsl.js:26
 msgid "Line Uptime"
-msgstr "Время бесперебойной работы линии"
+msgstr "Время подключения к линии"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:125
 msgid "Link Aggregation (Channel Bonding)"
@@ -5003,7 +5004,7 @@ msgstr "Порт для входящих соединений"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:375
 msgid "Listen address"
-msgstr "Адрес прослушивания"
+msgstr "Адрес сервера"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:410
 msgid "Listen and Relay To IP family must be homogeneous."
@@ -5860,7 +5861,7 @@ msgid "No WireGuard interfaces configured."
 msgstr "Интерфейсы WireGuard не настроены."
 
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/header.ut:68
-#: themes/luci-theme-material/ucode/template/themes/material/header.ut:82
+#: themes/luci-theme-material/ucode/template/themes/material/header.ut:88
 #: themes/luci-theme-openwrt-2020/ucode/template/themes/openwrt2020/header.ut:65
 #: themes/luci-theme-openwrt/luasrc/view/themes/openwrt.org/header.htm:90
 msgid ""
@@ -5952,6 +5953,7 @@ msgid "No nftables ruleset loaded."
 msgstr "Не загружен набор правил nftables."
 
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/header.ut:57
+#: themes/luci-theme-material/ucode/template/themes/material/header.ut:77
 #: themes/luci-theme-openwrt-2020/ucode/template/themes/openwrt2020/header.ut:54
 #: themes/luci-theme-openwrt/luasrc/view/themes/openwrt.org/header.htm:79
 msgid "No password set!"
@@ -6118,7 +6120,7 @@ msgstr "Получение IPv6-адреса"
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv.js:87
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:352
 msgid "Off"
-msgstr "Выключено"
+msgstr "Выключена"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/timer.js:18
 msgid "Off-State Delay"
@@ -6134,7 +6136,7 @@ msgstr ""
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/none.js:19
 msgid "On"
-msgstr "Включено"
+msgstr "Включена"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/timer.js:12
 msgid "On-State Delay"
@@ -6355,7 +6357,7 @@ msgstr ""
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:72
 msgid "Options"
-msgstr "Опции"
+msgstr "Настройки"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:607
 msgid ""
@@ -8787,7 +8789,7 @@ msgid "System log buffer size"
 msgstr "Размер системного журнала"
 
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/header.ut:67
-#: themes/luci-theme-material/ucode/template/themes/material/header.ut:81
+#: themes/luci-theme-material/ucode/template/themes/material/header.ut:87
 #: themes/luci-theme-openwrt-2020/ucode/template/themes/openwrt2020/header.ut:64
 #: themes/luci-theme-openwrt/luasrc/view/themes/openwrt.org/header.htm:89
 msgid "System running in recovery (initramfs) mode."
@@ -8853,7 +8855,7 @@ msgstr "Тегирован"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:187
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:213
 msgid "Target"
-msgstr "Назначение"
+msgstr "Приоритет"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js:58
 msgid "Target Platform"
@@ -9407,6 +9409,7 @@ msgid "There are no changes to apply"
 msgstr "Нет изменений для применения"
 
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/header.ut:58
+#: themes/luci-theme-material/ucode/template/themes/material/header.ut:78
 #: themes/luci-theme-openwrt-2020/ucode/template/themes/openwrt2020/header.ut:55
 #: themes/luci-theme-openwrt/luasrc/view/themes/openwrt.org/header.htm:80
 msgid ""
@@ -9526,7 +9529,7 @@ msgstr ""
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:172
 #: modules/luci-compat/luasrc/view/cbi/tsection.htm:32
 msgid "This section contains no values yet"
-msgstr "Этот раздел не содержит данных"
+msgstr "Здесь пока что пусто"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:124
 msgid "Time Synchronization"
@@ -10613,7 +10616,7 @@ msgstr ""
 "же адреса прослушивания."
 
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/header.ut:78
-#: themes/luci-theme-material/ucode/template/themes/material/header.ut:92
+#: themes/luci-theme-material/ucode/template/themes/material/header.ut:98
 #: themes/luci-theme-openwrt/luasrc/view/themes/openwrt.org/header.htm:73
 msgid ""
 "You must enable JavaScript in your browser or LuCI will not work properly."
@@ -10912,7 +10915,7 @@ msgstr "не существует"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:959
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:963
 msgid "off"
-msgstr "выключено"
+msgstr "выкл"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:794
 msgid "on available prefix"
