@@ -175,7 +175,7 @@ probeInterval.description = translate("The interval between initiating probes. E
 if #nodes_table > 0 then
 	o = s:option(Flag, "preproxy_enabled", translate("Preproxy"))
 	o:depends("protocol", "_shunt")
-	o = s:option(ListValue, "main_node", string.format('<a style="color:red">%s</a>', translate("Preproxy Node")), translate("Set the node to be used as a pre-proxy. Each rule (including <code>Default</code>) has a separate switch that controls whether this rule uses the pre-proxy or not."))
+	o = s:option(Value, "main_node", string.format('<a style="color:red">%s</a>', translate("Preproxy Node")), translate("Set the node to be used as a pre-proxy. Each rule (including <code>Default</code>) has a separate switch that controls whether this rule uses the pre-proxy or not."))
 	o:depends("preproxy_enabled", "1")
 	for k, v in pairs(balancers_table) do
 		o:value(v.id, v.remarks)
@@ -187,7 +187,7 @@ if #nodes_table > 0 then
 end
 uci:foreach(appname, "shunt_rules", function(e)
 	if e[".name"] and e.remarks then
-		o = s:option(ListValue, e[".name"], string.format('* <a href="%s" target="_blank">%s</a>', api.url("shunt_rules", e[".name"]), e.remarks))
+		o = s:option(Value, e[".name"], string.format('* <a href="%s" target="_blank">%s</a>', api.url("shunt_rules", e[".name"]), e.remarks))
 		o:value("nil", translate("Close"))
 		o:value("_default", translate("Default"))
 		o:value("_direct", translate("Direct Connection"))
@@ -217,7 +217,7 @@ shunt_tips.cfgvalue = function(t, n)
 end
 shunt_tips:depends("protocol", "_shunt")
 
-local default_node = s:option(ListValue, "default_node", string.format('* <a style="color:red">%s</a>', translate("Default")))
+local default_node = s:option(Value, "default_node", string.format('* <a style="color:red">%s</a>', translate("Default")))
 default_node:depends("protocol", "_shunt")
 default_node:value("_direct", translate("Direct Connection"))
 default_node:value("_blackhole", translate("Blackhole"))
@@ -749,7 +749,7 @@ wireguard_mtu.default = "1420"
 wireguard_mtu:depends({ type = "Xray", protocol = "wireguard" })
 
 if api.compare_versions(api.get_app_version("xray"), ">=", "1.8.0") then
-	wireguard_reserved = s:option(Value, "wireguard_reserved", translate("Reserved"))
+	wireguard_reserved = s:option(Value, "wireguard_reserved", translate("Reserved"), translate("Decimal numbers separated by \",\" or Base64-encoded strings."))
 	wireguard_reserved:depends({ type = "Xray", protocol = "wireguard" })
 end
 
@@ -933,10 +933,20 @@ mux:depends({ type = "Xray", protocol = "socks" })
 mux:depends({ type = "Xray", protocol = "shadowsocks" })
 mux:depends({ type = "Xray", protocol = "trojan" })
 
+-- [[ XUDP Mux ]]--
+xmux = s:option(Flag, "xmux", translate("Mux"))
+xmux.default = 1
+xmux:depends({ type = "Xray", protocol = "vless", tlsflow = "xtls-rprx-vision" })
+xmux:depends({ type = "Xray", protocol = "vless", tlsflow = "xtls-rprx-vision-udp443" })
+
 mux_concurrency = s:option(Value, "mux_concurrency", translate("Mux concurrency"))
 mux_concurrency.default = 8
 mux_concurrency:depends("mux", true)
 mux_concurrency:depends("smux", true)
+
+xudp_concurrency = s:option(Value, "xudp_concurrency", translate("XUDP Mux concurrency"))
+xudp_concurrency.default = 8
+xudp_concurrency:depends("xmux", true)
 
 smux_idle_timeout = s:option(Value, "smux_idle_timeout", translate("Mux idle timeout"))
 smux_idle_timeout.default = 60
