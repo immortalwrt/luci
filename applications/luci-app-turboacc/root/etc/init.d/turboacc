@@ -51,12 +51,13 @@ start() {
 		lsmod |grep -q "shortcut_fe_cm" || modprobe "shortcut_fe_cm" 2>"/dev/null"
 		;;
 	"mediatek_hnat")
-		local fastpath_mh_eth_hnat
+		local fastpath_mh_eth_hnat fastpath_mh_eth_hnat_v6
 		config_get_bool fastpath_mh_eth_hnat "config" "fastpath_mh_eth_hnat" "1"
+		config_get_bool fastpath_mh_eth_hnat_v6 "config" "fastpath_mh_eth_hnat_v6" "1"
 
-		cat "/sys/kernel/debug/hnat/hook_toggle"
-		local ethernet_hnat="$(dmesg | grep -Eo -e "value=[0-9], hook is (enabled|disabled) now" -e "[0-9]" | tail -n1)"
-		[ "$ethernet_hnat" = "$fastpath_mh_eth_hnat" ] || echo "$fastpath_mh_eth_hnat" > "/sys/kernel/debug/hnat/hook_toggle"
+		local hnat_path="/sys/kernel/debug/hnat"
+		echo "$fastpath_mh_eth_hnat" > "$hnat_path/hook_toggle"
+		echo "8 $fastpath_mh_eth_hnat_v6" > "$hnat_path/hnat_setting"
 		;;
 	esac
 

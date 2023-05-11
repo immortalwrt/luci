@@ -168,6 +168,12 @@ return view.extend({
 		o.rmempty = false;
 		o.depends('fastpath', 'mediatek_hnat');
 
+		o = s.option(form.Flag, 'fastpath_mh_eth_hnat_v6', _('Enable ethernet IPv6 HNAT'),
+			_('Enable hardware offloading for wired IPv6 connections.'));
+		o.default = o.enabled;
+		o.rmempty = false;
+		o.depends('fastpath_mh_eth_hnat', '1');
+
 		o = s.option(form.Button, '_fastpath_mh_wireless_hnat', _('Enable wireless HNAT'),
 			_('Enable hardware offloading for wireless connections.'));
 		o.inputtitle = _('Redirect to wireless settings');
