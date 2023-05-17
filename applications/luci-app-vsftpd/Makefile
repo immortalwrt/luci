@@ -8,7 +8,6 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=LuCI support for VSFTPD
 LUCI_DEPENDS:=+vsftpd
 LUCI_PKGARCH:=all
-PKG_RELEASE:=$(COMMITCOUNT)
 
 include ../../luci.mk
 
