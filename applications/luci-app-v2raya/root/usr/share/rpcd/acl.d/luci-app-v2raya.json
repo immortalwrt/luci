@@ -3,8 +3,11 @@
 		"description": "Grant access to v2rayA configuration",
 		"read": {
 			"file": {
+				"/etc/init.d/v2raya": [ "exec" ],
 				"/bin/mkdir -p /etc/v2raya/": [ "exec" ],
-				"/var/log/v2raya/v2raya.log": [ "read" ]
+				"/var/log/v2raya/v2raya.log": [ "read" ],
+				"/usr/bin/v2raya": [ "exec" ],
+				"/usr/libexec/v2raya-call": [ "exec" ]
 			},
 			"ubus": {
 				"service": [ "list" ]
