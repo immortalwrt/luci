@@ -1,0 +1,8 @@
+#!/bin/sh
+
+logfile="$(uci -q get v2raya.config.log_file)" || "/var/log/v2raya/v2raya.log"
+
+if [ "$1" == "clear_log" ]; then
+	# 清空 v2raya.log 文件
+	> $logfile
+fi
