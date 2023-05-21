@@ -5,12 +5,11 @@
 'require uci';
 'require rpc';
 'require form';
-
 'require tools.widgets as widgets';
 'require tools.firewall as fwtool';
 
 return view.extend({
-	render: function(serverchan) {
+	render: function (serverchan) {
 		var m, s, o;
 		var programPath = '/usr/share/serverchan/serverchan';
 
@@ -37,6 +36,11 @@ return view.extend({
 		o.datatype = "uinteger"
 		o.description = ("若无二级路由设备，信号强度良好，可以减少以上数值<br/>因夜间 wifi 休眠较为玄学，遇到设备频繁推送断开，烦请自行调整参数<br/>..╮(╯_╰）╭..")
 
+		o = s.option(form.Flag, "passive_option", ("关闭主动探测"))
+		o.default = 0
+		o.rmempty = true
+		o.description = ("关闭客户端在线状态的主动探测，启用此功能后设备上下线将不再提示<br/>适用于对在线设备不敏感，但需要其他功能的用户")
+
 		o = s.option(form.Value, "thread_num", ('最大并发进程数'))
 		o.default = "3"
 		o.datatype = "uinteger"
@@ -46,7 +50,7 @@ return view.extend({
 		o.rmempty = true
 		o.value("", ("默认"))
 		o.value("pve", ("PVE 虚拟机"))
-		o.description = ("自定义命令如需使用特殊符号，如引号、$、!等，则需要自行转义，并在保存后查看 /etc/config/serverchan 文件 soc_code 设置项是否保存正确<br/>可以使用 eval `echo $(uci get serverchan.serverchan.soc_code)` 命令查看命令输出及错误信息<br/>执行结果需为纯数字（可带小数），用于温度对比")
+		o.description = ("自定义命令如需使用特殊符号，如引号、$、!等，则需要自行转义<br/>可以使用 eval `echo $(uci get serverchan.serverchan.soc_code)` 命令查看命令输出及错误信息<br/>执行结果需为纯数字（可带小数），用于温度对比<br/>一个无需转义的例子：<br/>cat /sys/class/thermal/thermal_zone0/temp|sort -nr|head -n1|cut -c-2")
 
 		o = s.option(form.Value, "server_host", ("宿主机地址"))
 		o.rmempty = true
@@ -62,15 +66,15 @@ return view.extend({
 
 		o = s.option(form.Button, '_soc', _('测试温度命令'), _('你可能需要先保存配置再进行发送，待修改'));
 		o.inputstyle = 'action';
-		o.onclick = function() {
+		o.onclick = function () {
 			var _this = this;
-			 return fs.exec(programPath, [ 'soc' ]).then(function (res) {
+			return fs.exec(programPath, ['soc']).then(function (res) {
 				if (!res.stdout) {
 					throw new Error(_('返回的温度值为空'));
 				}
 				_this.description = res.stdout.trim();
 				return _this.map.reset();
-			 }).catch(function (err) {
+			}).catch(function (err) {
 				_this.description = _('失败：') + err.message;
 				return _this.map.reset();
 			});
@@ -119,10 +123,21 @@ return view.extend({
 		o.description = ("使用普通账号即可，不需要超密")
 		o.depends('gateway_info_enable', '1');
 
+		o = s.option(form.Value, 'gateway_sleeptime', _('抓取光猫信息时间间隔'));
+		o.rmempty = false;
+		o.placeholder = '600';
+		o.datatype = 'and(uinteger,min(60))'
+		o.description = ("一般不需要频繁抓取，酌情设置")
+		o.depends('gateway_info_enable', '1');
+
 		o = s.option(form.Flag, "err_enable", ("无人值守任务"))
 		o.default = 0
 		o.rmempty = true
 		o.description = ("请确认脚本可以正常运行，否则可能造成频繁重启等错误！")
+
+		o = s.option(form.Flag, 'zerotier_helper', _('IP 变化后重启 zerotier'));
+		o.description = _('zerotier 的陈年老问题<br/>断网后不能重新打洞，我也不知道修了没有 emmm');
+		o.depends('err_enable', '1');
 
 		o = s.option(form.Flag, "err_sheep_enable", ("仅在免打扰时段重拨"))
 		o.default = 0
@@ -133,7 +148,7 @@ return view.extend({
 		o = s.option(form.DynamicList, "err_device_aliases", ("关注列表"))
 		o.rmempty = true
 		o.description = ("只会在列表中设备都不在线时才会执行<br/>免打扰时段一小时后，关注设备五分钟低流量（约100kb/m）将视为离线")
-//nt.mac_hints(function(mac, name) o :value(mac, "%s (%s)" %{ mac, name }) end)
+		//nt.mac_hints(function(mac, name) o :value(mac, "%s (%s)" %{ mac, name }) end)
 		o.depends('err_enable', '1');
 
 		o = s.option(form.ListValue, "network_err_event", ("网络断开时"))
