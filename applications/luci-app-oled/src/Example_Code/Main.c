@@ -7,7 +7,7 @@
  *  Website     : www.deeplyembedded.org
  */
 
-/* Lib Includes */ 
+/* Lib Includes */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -32,14 +32,13 @@ void ALARMhandler(int sig)
 void BreakDeal(int sig)
 {
     clearDisplay();
-    usleep(1000000);    
+    usleep(1000000);
     Display();
     exit(0);
 }
 
-
 int main(int argc, char* argv[])
-{	
+{
     int date=atoi(argv[1]);
     int lanip=atoi(argv[2]);
     int cputemp=atoi(argv[3]);
@@ -58,19 +57,23 @@ int main(int argc, char* argv[])
     int displayinvertnormal=atoi(argv[16]);
     int drawbitmapeg=atoi(argv[17]);
     int scroll=atoi(argv[18]);
-    char *text=argv[19];   
-    char *eth = argv[20];
-    int needinit=atoi(argv[21]);
+    char *text=argv[19];
+    char *eth=argv[20];
+    char *path=argv[21];
+    int rotate=atoi(argv[22]);
+    int needinit=atoi(argv[23]);
 
+    if(path == NULL)
+        path = I2C_DEV0_PATH;
 
     /* Initialize I2C bus and connect to the I2C Device */
-    if(init_i2c_dev(I2C_DEV0_PATH, SSD1306_OLED_ADDR) == 0)
+    if(init_i2c_dev(path, SSD1306_OLED_ADDR) == 0)
     {
-        printf("(Main)i2c-2: Bus Connected to SSD1306\r\n");
+        printf("I2C: Bus Connected to SSD1306\r\n");
     }
     else
     {
-        printf("(Main)i2c-2: OOPS! Something Went Wrong\r\n");
+        printf("I2C: OOPS! Something Went Wrong\r\n");
         exit(1);
     }
 
@@ -78,8 +81,15 @@ int main(int argc, char* argv[])
     signal(SIGALRM, ALARMhandler);
     signal(SIGINT, BreakDeal);
     //signal(SIGTERM, BreakDeal);
-/* Run SDD1306 Initialization Sequence */
-    if (needinit==1) {display_Init_seq();}
+
+    /* Run SDD1306 Initialization Sequence */
+    if (needinit==1)
+        display_Init_seq();
+
+    if (rotate==1)
+        display_rotate();
+    else
+        display_normal();
 
     /* Clear display */
     clearDisplay();
@@ -92,19 +102,17 @@ int main(int argc, char* argv[])
 
     // draw many lines
     while(1){
-
-	if(scroll){
-	    testscrolltext(text);
-	    usleep(1000000);
-	    clearDisplay();
-	}	
+        if(scroll){
+            testscrolltext(text);
+            usleep(1000000);
+            clearDisplay();
+        }
 
         if(drawline){
             testdrawline();
             usleep(1000000);
             clearDisplay();
         }
-
 
         // draw rectangles
         if(drawrect){
@@ -127,14 +135,12 @@ int main(int argc, char* argv[])
             clearDisplay();
         }
 
-
         // draw a white circle, 10 pixel radius
         if(drawroundcircle){
             testdrawroundrect();
             usleep(1000000);
             clearDisplay();
         }
-
 
         // Fill the round rectangle
         if(fillroundcircle){
@@ -162,71 +168,71 @@ int main(int argc, char* argv[])
             Display();
             usleep(1000000);
         };
+
         // Display Inverted image and normalize it back
         if(displayinvertnormal){
             display_invert_normal();
             clearDisplay();
             usleep(1000000);
             Display();
-		
         }
 
         // Generate Signal after 20 Seconds
 
         // draw a bitmap icon and 'animate' movement
         if(drawbitmapeg){
-	    alarm(10);
-	    flag=0;
+            alarm(10);
+            flag=0;
             testdrawbitmap_eg();
             clearDisplay();
             usleep(1000000);
             Display();
         }
 
-        
-        //setCursor(0,0);   
-	setTextColor(WHITE); 
-        // info display
-	int sum = date+lanip+cpufreq+cputemp+netspeed;
-	if (sum == 0) {clearDisplay(); return 0;}
-	 for(int i = 1; i < time; i++){	
-	   if (sum == 1){//only one item for display
-	   	if (date) testdate(CENTER, 8);
-	   	if (lanip) testlanip(CENTER, 8);
-	   	if (cpufreq) testcpufreq(CENTER, 8);
-	   	if (cputemp) testcputemp(CENTER, 8);
-	   	if (netspeed) testnetspeed(SPLIT,0);
-		Display();
-        	usleep(1000000);
-        	clearDisplay();
-	   }else if (sum == 2){//two items for display
-		if(date) {testdate(CENTER, 16*(date-1));}
-            	if(lanip) {testlanip(CENTER, 16*(date+lanip-1));}
-            	if(cpufreq) {testcpufreq(CENTER, 16*(date+lanip+cpufreq-1));}
-            	if(cputemp) {testcputemp(CENTER, 16*(date+lanip+cpufreq+cputemp-1));}
-            	if(netspeed) {testnetspeed(MERGE, 16*(date+lanip+cpufreq+cputemp+netspeed-1));}
-		Display();
-        	usleep(1000000);
-        	clearDisplay();
-	   }
-	   else{//more than two items for display
-            	if(date) {testdate(FULL, 8*(date-1));}
-            	if(lanip) {testlanip(FULL, 8*(date+lanip-1));}
-		if(cpufreq && cputemp) {
-			testcpu(8*(date+lanip));
-			if(netspeed) {testnetspeed(FULL, 8*(date+lanip+1+netspeed-1));}
-		}
-		else{
-            		if(cpufreq) {testcpufreq(FULL, 8*(date+lanip+cpufreq-1));}
-            		if(cputemp) {testcputemp(FULL, 8*(date+lanip+cpufreq+cputemp-1));}
-			if(netspeed) {testnetspeed(FULL, 8*(date+lanip+cpufreq+cputemp+netspeed-1));}
-		}
-            	
-        	Display();
-        	usleep(1000000);
-        	clearDisplay();
-        }
-	   }
-    }
+        //setCursor(0,0);
+        setTextColor(WHITE);
 
+        // info display
+        int sum = date+lanip+cpufreq+cputemp+netspeed;
+        if (sum == 0) {
+            clearDisplay();
+            return 0;
+        }
+
+        for(int i = 1; i < time; i++){
+            if (sum == 1){//only one item for display
+                if (date) testdate(CENTER, 8);
+                if (lanip) testlanip(CENTER, 8);
+                if (cpufreq) testcpufreq(CENTER, 8);
+                if (cputemp) testcputemp(CENTER, 8);
+                if (netspeed) testnetspeed(SPLIT,0);
+                Display();
+                usleep(1000000);
+                clearDisplay();
+            }else if (sum == 2){//two items for display
+                if(date) {testdate(CENTER, 16*(date-1));}
+                    if(lanip) {testlanip(CENTER, 16*(date+lanip-1));}
+                    if(cpufreq) {testcpufreq(CENTER, 16*(date+lanip+cpufreq-1));}
+                    if(cputemp) {testcputemp(CENTER, 16*(date+lanip+cpufreq+cputemp-1));}
+                    if(netspeed) {testnetspeed(MERGE, 16*(date+lanip+cpufreq+cputemp+netspeed-1));}
+                Display();
+                usleep(1000000);
+                clearDisplay();
+            }else{//more than two items for display
+                if(date) {testdate(FULL, 8*(date-1));}
+                if(lanip) {testlanip(FULL, 8*(date+lanip-1));}
+                if(cpufreq && cputemp) {
+                    testcpu(8*(date+lanip));
+                    if(netspeed) {testnetspeed(FULL, 8*(date+lanip+1+netspeed-1));}
+                }else{
+                    if(cpufreq) {testcpufreq(FULL, 8*(date+lanip+cpufreq-1));}
+                    if(cputemp) {testcputemp(FULL, 8*(date+lanip+cpufreq+cputemp-1));}
+                    if(netspeed) {testnetspeed(FULL, 8*(date+lanip+cpufreq+cputemp+netspeed-1));}
+                }
+                Display();
+                usleep(1000000);
+                clearDisplay();
+            }
+        }
+    }
 }

@@ -14,6 +14,10 @@ s:tab("screensaver", translate("screensaver"))
 
 o = s:taboption("info", Flag, "enable", translate("Enable"))
 o.default=0
+o = s:taboption("info", Value, "path", translate("I2C PATH"))
+o.default='/dev/i2c-0'
+o = s:taboption("info", Flag, "rotate", translate("180 degree rotation"))
+o.default=0
 o = s:taboption("info", Flag, "autoswitch", translate("Enable Auto switch"))
 o.default=0
 from = s:taboption("info", ListValue, "from", translate("From"))
@@ -42,20 +46,18 @@ o = s:taboption("info", Flag, "cpufreq", translate("CPU frequency"))
 o.default=0
 o = s:taboption("info", Flag, "netspeed", translate("Network speed"), translate("1Mbps(m/s)=1,000Kbps(k/s)=1,000,000bps(b/s)"))
 o.default=0
-o = s:taboption("info", ListValue, "netsource", translate("which eth to monitor"))                       
-o:value("eth0","eth0")                                                                                   
-o:value("eth1","eth1")                                                                                   
+o = s:taboption("info", Value, "netsource", translate("which eth to monitor"))
 o:depends("netspeed",'1')
 o.default='eth0'
 o = s:taboption("info", Value, "time", translate("Display interval(s)"), translate('Screensaver will activate in set seconds'))
 o.default=0
 
 --screensaver options--
-o = s:taboption("screensaver", Flag, "scroll", translate("Scroll Text"))                                 
-o.default=1                                                                                              
-o = s:taboption("screensaver", Value, "text", translate("Text you want to scroll"))                      
-o:depends("scroll",'1')                                                                                 
-o.default='OPENWRT' 
+o = s:taboption("screensaver", Flag, "scroll", translate("Scroll Text"))
+o.default=1
+o = s:taboption("screensaver", Value, "text", translate("Text you want to scroll"))
+o:depends("scroll",'1')
+o.default='OPENWRT'
 o = s:taboption("screensaver", Flag, "drawline", translate("Draw Many Lines"))
 o.default=0
 o = s:taboption("screensaver", Flag, "drawrect", translate("Draw Rectangles"))
@@ -80,21 +82,3 @@ o = s:taboption("screensaver", Flag, "drawbitmapeg", translate("Draw a bitmap an
 o.default=0
 
 return m
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
----

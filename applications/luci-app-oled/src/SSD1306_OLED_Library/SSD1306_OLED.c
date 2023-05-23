@@ -537,36 +537,6 @@ void display_Init_seq()
         exit(1);
     }
 
-    /* Set display SEG_REMAP */
-    if(i2c_write_register(I2C_DEV_2.fd_i2c, SSD1306_CNTRL_CMD, SSD1306_SEG_REMAP) == I2C_TWO_BYTES)
-    {
-#ifdef SSD1306_DBG
-        printf("Display SEG_REMAP Command Passed\r\n");
-#endif
-    }
-    else
-    {
-#ifdef SSD1306_DBG
-        printf("Display SEG_REMAP Command Failed\r\n");
-#endif
-        exit(1);
-    }
-
-    /* Set display DIR */
-    if(i2c_write_register(I2C_DEV_2.fd_i2c, SSD1306_CNTRL_CMD, SSD1306_SET_COMSCANDEC) == I2C_TWO_BYTES)
-    {
-#ifdef SSD1306_DBG
-        printf("Display DIR Command Passed\r\n");
-#endif
-    }
-    else
-    {
-#ifdef SSD1306_DBG
-        printf("Display DIR Command Failed\r\n");
-#endif
-        exit(1);
-    }
-
     /* Set display COM */
     if(i2c_write_register(I2C_DEV_2.fd_i2c, SSD1306_CNTRL_CMD, SSD1306_SET_COMPINS) == I2C_TWO_BYTES)
     {
@@ -743,6 +713,84 @@ void display_Init_seq()
     {
 #ifdef SSD1306_DBG
         printf("Display TURN-ON Command Failed\r\n");
+#endif
+        exit(1);
+    }
+}
+
+/****************************************************************
+ * Function Name : display_normal
+ * Description   : Normal display
+ * Returns       : NONE.
+ * Params        : NONE.
+ ****************************************************************/
+void display_normal()
+{
+    /* Set display SEG_REMAP */
+    if(i2c_write_register(I2C_DEV_2.fd_i2c, SSD1306_CNTRL_CMD, SSD1306_SEG_REMAP) == I2C_TWO_BYTES)
+    {
+#ifdef SSD1306_DBG
+        printf("Display SEG_REMAP Command Passed\r\n");
+#endif
+    }
+    else
+    {
+#ifdef SSD1306_DBG
+        printf("Display SEG_REMAP Command Failed\r\n");
+#endif
+        exit(1);
+    }
+
+    /* Set display COMSCANDEC */
+    if(i2c_write_register(I2C_DEV_2.fd_i2c, SSD1306_CNTRL_CMD, SSD1306_SET_COMSCANDEC) == I2C_TWO_BYTES)
+    {
+#ifdef SSD1306_DBG
+        printf("Display DIR Command Passed\r\n");
+#endif
+    }
+    else
+    {
+#ifdef SSD1306_DBG
+        printf("Display DIR Command Failed\r\n");
+#endif
+        exit(1);
+    }
+}
+
+/****************************************************************
+ * Function Name : display_rotate
+ * Description   : 180 degree rotation
+ * Returns       : NONE.
+ * Params        : NONE.
+ ****************************************************************/
+void display_rotate()
+{
+    /* Set display SEG_REMAP1 */
+    if(i2c_write_register(I2C_DEV_2.fd_i2c, SSD1306_CNTRL_CMD, SSD1306_SEG_REMAP1) == I2C_TWO_BYTES)
+    {
+#ifdef SSD1306_DBG
+        printf("Display SEG_REMAP Command Passed\r\n");
+#endif
+    }
+    else
+    {
+#ifdef SSD1306_DBG
+        printf("Display SEG_REMAP Command Failed\r\n");
+#endif
+        exit(1);
+    }
+
+    /* Set display COMSCANDEC1 */
+    if(i2c_write_register(I2C_DEV_2.fd_i2c, SSD1306_CNTRL_CMD, SSD1306_SET_COMSCANDEC1) == I2C_TWO_BYTES)
+    {
+#ifdef SSD1306_DBG
+        printf("Display DIR Command Passed\r\n");
+#endif
+    }
+    else
+    {
+#ifdef SSD1306_DBG
+        printf("Display DIR Command Failed\r\n");
 #endif
         exit(1);
     }
@@ -1684,7 +1732,7 @@ void writeFastHLine(short x, short y, short w, short color)
  *                 @r: Corner radius
  *                 @color: Pixel color
  ****************************************************************/
-void drawCircleHelper( short x0, short y0, short r, unsigned char cornername, short color) 
+void drawCircleHelper( short x0, short y0, short r, unsigned char cornername, short color)
 {
     short f     = 1 - r;
     short ddF_x = 1;
@@ -2128,7 +2176,7 @@ void drawBitmap(short x, short y, const unsigned char bitmap[], short w, short h
  * Params        : @x - X-Cordinate
  *                 @y - Y-Cordinate
  ****************************************************************/
-void setCursor(short x, short y) 
+void setCursor(short x, short y)
 {
     cursor_x = x;
     cursor_y = y;
@@ -2139,7 +2187,7 @@ void setCursor(short x, short y)
  * Description   : Get cursor at X- Cordinate
  * Returns       : x cordinate value.
  ****************************************************************/
-short getCursorX() 
+short getCursorX()
 {
     return cursor_x;
 }
@@ -2149,7 +2197,7 @@ short getCursorX()
  * Description   : Get cursor at Y- Cordinate
  * Returns       : y cordinate value.
  ****************************************************************/
-short getCursorY() 
+short getCursorY()
 {
     return cursor_y;
 }
@@ -2159,7 +2207,7 @@ short getCursorY()
  * Description   : Set text size
  * Returns       : @s - font size
  ****************************************************************/
-void setTextSize(unsigned char s) 
+void setTextSize(unsigned char s)
 {
     textsize = (s > 0) ? s : 1;
 }
@@ -2169,7 +2217,7 @@ void setTextSize(unsigned char s)
  * Description   : Set text color
  * Returns       : @c - Color
  ****************************************************************/
-void setTextColor(short c) 
+void setTextColor(short c)
 {
     // For 'transparent' background, we'll set the bg
     // to the same as fg instead of using a flag
@@ -2181,7 +2229,7 @@ void setTextColor(short c)
  * Description   : Wraps the text
  * Returns       : @w - enable or disbale wrap
  ****************************************************************/
-void setTextWrap(bool w) 
+void setTextWrap(bool w)
 {
     wrap = w;
 }
