@@ -86,11 +86,13 @@ SOFTWARE.
 #define SSD1306_SET_DISP_CLK                                       0xD5
 #define SSD1306_SET_MULTIPLEX                                      0xA8
 #define SSD1306_SET_DISP_OFFSET                                    0xD3
-#define SSD1306_SET_DISP_START_LINE                                0x40// | 0x00)
+#define SSD1306_SET_DISP_START_LINE                                0x40
 #define SSD1306_CONFIG_CHARGE_PUMP                                 0x8D
 #define SSD1306_SET_MEM_ADDR_MODE                                  0x20
-#define SSD1306_SEG_REMAP                                          (0xA0 | 0x01)               //Rotate 180 Degrees
+#define SSD1306_SEG_REMAP                                          (0xA0 | 0x01)
+#define SSD1306_SEG_REMAP1                                         0xA0
 #define SSD1306_SET_COMSCANDEC                                     0xC8
+#define SSD1306_SET_COMSCANDEC1                                    0xC0
 #define SSD1306_SET_COMPINS                                        0xDA
 #define SSD1306_SET_CONTRAST                                       0x81
 #define SSD1306_SET_PRECHARGE                                      0xD9
