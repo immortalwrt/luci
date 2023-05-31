@@ -6,10 +6,9 @@ include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=Open App Filter Module
 LUCI_PKGARCH:=all
-LUCI_DEPENDS:=+appfilter
+LUCI_DEPENDS:=+appfilter +luci-compat
 
-PKG_NAME:=luci-app-appfilter
-PKG_VERSION:=5.0.1
+PKG_VERSION:=5.0.2
 
 include ../../luci.mk
 
