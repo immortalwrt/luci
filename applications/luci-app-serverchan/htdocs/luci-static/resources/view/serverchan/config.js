@@ -39,6 +39,40 @@ function renderStatus(isRunning) {
 
 	return renderHTML;
 }
+
+var cbiRichListValue = form.ListValue.extend({
+	renderWidget: function(section_id, option_index, cfgvalue) {
+		var choices = this.transformChoices();
+		var widget = new ui.Dropdown((cfgvalue != null) ? cfgvalue : this.default, choices, {
+			id: this.cbid(section_id),
+			sort: this.keylist,
+			optional: true,
+			select_placeholder: this.select_placeholder || this.placeholder,
+			custom_placeholder: this.custom_placeholder || this.placeholder,
+			validate: L.bind(this.validate, this, section_id),
+			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
+		});
+
+		return widget.render();
+	},
+
+	value: function(value, title, description) {
+		if (description) {
+			form.ListValue.prototype.value.call(this, value, E([], [
+				E('span', { 'class': 'hide-open' }, [ title ]),
+				E('div', { 'class': 'hide-close', 'style': 'min-width:25vw' }, [
+					E('strong', [ title ]),
+					E('br'),
+					E('span', { 'style': 'white-space:normal' }, description)
+				])
+			]));
+		}
+		else {
+			form.ListValue.prototype.value.call(this, value, title);
+		}
+	}
+});
+
 return view.extend({
 	callHostHints: rpc.declare({
 		object: 'luci-rpc',
@@ -64,7 +98,7 @@ return view.extend({
 			m, s, o,
 			programPath = '/usr/share/serverchan/serverchan';
 
-		m = new form.Map('serverchan', _('ServerChan'), _('「Server酱」，英文名「ServerChan」，是一款从服务器推送报警信息和日志到微信的工具。<br /><br />如果你在使用中遇到问题，请到这里提交：') + '<a href="https://github.com/tty228/luci-app-serverchan" target="_blank">' + _('GitHub 项目地址') + '</a>');
+		m = new form.Map('serverchan', _('ServerChan'), _('「Server酱」，英文名「ServerChan」，是一款从服务器推送报警信息和日志到微信的工具。<br /><br />如果你在使用中遇到问题，请到这里提交：') + '<a href="https://github.com/tty228/luci-app-serverchan/tree/JavaScript" target="_blank">' + _('GitHub 项目地址') + '</a>');
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
@@ -97,21 +131,21 @@ return view.extend({
 		// 基本设置
 		o = s.taboption('basic', form.Flag, 'serverchan_enable', _('启用'));
 
-		o = s.taboption('basic', form.MultiValue, 'lite_enable', _('精简模式'));
-		o.value('device', _('精简当前设备列表'));
-		o.value('nowtime', _('精简当前时间'));
-		o.value('content', _('只推送标题'));
-		o.modalonly = true;
-
-		o = s.taboption('basic', form.ListValue, 'jsonpath', _('推送模式'));
-		o.default = '/usr/share/serverchan/api/serverchan.json';
-		o.value('/usr/share/serverchan/api/serverchan.json', _('微信 Server酱'));
-		o.value('/usr/share/serverchan/api/qywx_mpnews.json', _('企业微信 图文消息'));
-		o.value('/usr/share/serverchan/api/qywx_markdown.json', _('企业微信 markdown版（不支持公众号）'));
-		o.value('/usr/share/serverchan/api/wxpusher.json', _('wxpusher'));
-		o.value('/usr/share/serverchan/api/pushplus.json', _('pushplus'));
-		o.value('/usr/share/serverchan/api/telegram.json', _('Telegram'));
-		o.value('/usr/share/serverchan/api/diy.json', _('自定义推送'));
+		o = s.taboption('basic', cbiRichListValue, 'jsonpath', _('推送模式'));
+		o.value('/usr/share/serverchan/api/serverchan.json', _('微信 Server酱'),
+			_('使用 Server酱 接口，配置较简单，支持多项推送方式'));
+		o.value('/usr/share/serverchan/api/qywx_mpnews.json', _('企业微信 图文消息'),
+			_('使用 企业微信应用消息，配置较为麻烦，且 2022 年 6 月 20 日之后新创建的应用，需要额外配置可信IP，可信IP不可公用，不再推荐此通道'));
+		o.value('/usr/share/serverchan/api/qywx_markdown.json', _('企业微信 markdown版'),
+			_('企业微信应用消息 纯文字版，无需点击标题查看内容，其他同上'));
+		o.value('/usr/share/serverchan/api/wxpusher.json', _('wxpusher'),
+			_('微信推送的另一个通道，配置较简单，只支持公众号'));
+		o.value('/usr/share/serverchan/api/pushplus.json', _('pushplus'),
+			_('微信推送的另一个通道，配置较简单，支持多项推送方式'));
+		o.value('/usr/share/serverchan/api/telegram.json', _('Telegram'),
+			_('Telegram bot 推送，若无梯子，请勿使用'));
+		o.value('/usr/share/serverchan/api/diy.json', _('自定义推送'),
+			_('通过修改 json 文件，使用自定义接口'));
 
 		o = s.taboption('basic', form.Value, 'sckey', _('微信推送/新旧共用'));
 		o.description = _('Server酱 sendkey') + ' <a href="https://sct.ftqq.com/" target="_blank">' + _('点击这里') + '</a>';
@@ -171,7 +205,7 @@ return view.extend({
 		o.depends('jsonpath', '/usr/share/serverchan/api/telegram.json');
 
 		o = s.taboption('basic', form.Value, 'chat_id', _('TG_chatid'));
-		o.description = _('获取 chat_id') + ' <a href="https://t.me/getuserIDbot" target="_blank">' + _('点击这里') + '</a>';
+		o.description = _('获取 chat_id') + ' <a href="https://t.me/getuserIDbot" target="_blank">' + _('点击这里') + '</a>' + ('<br />如需通过 群组/频道 推送，请创建一个非中文的群组或频道（便于查找 chatid，后续再更名）<br />将机器人添加至群组，发送信息后通过 https://api.telegram.org/bot *token* /getUpdates 获取');
 		o.rmempty = false;
 		o.depends('jsonpath', '/usr/share/serverchan/api/telegram.json');
 
@@ -189,7 +223,9 @@ return view.extend({
 				return fs.write('/usr/share/serverchan/api/diy.json', formvalue.trim().replace(/\r\n/g, '\n') + '\n');
 			});
 		};
+		o.description = _('请参照注释和其他接口文件修改，精力有限，不再支持更多接口，自行调试<br />请参考类似网站检查 json 文件格式：https://www.baidu.com/s?wd=json在线解析<br/>文本框请使用 "保存" 按钮');
 		o.depends('jsonpath', '/usr/share/serverchan/api/diy.json');
+
 
 		o = s.taboption('basic', form.Button, '_test', _('发送测试'), _('你可能需要先保存配置再进行发送'));
 		o.inputstyle = 'add';
@@ -218,13 +254,15 @@ return view.extend({
 		o.datatype = 'and(uinteger,min(10))';
 		o.description = _('越短的时间响应越及时，但会占用更多的系统资源');
 
-		o = s.taboption('basic', form.ListValue, 'oui_data', _('MAC 设备数据库'));
-		o.default = '';
-		o.value('', _('关闭'));
-		o.value('1', _('简化版'));
-		o.value('2', _('完整版'));
-		o.value('3', _('网络查询'));
-		o.description = _('需下载 4.36 MB 原始数据，处理后完整版约 1.2 MB，简化版约 250 kB <br/>若无梯子，请勿使用网络查询');
+		o = s.taboption('basic', cbiRichListValue, 'oui_data', _('MAC 设备数据库'));
+		o.value('', _('关闭'),
+			_('不使用 MAC 设备数据库'));
+		o.value('1', _('简化版'),
+			_('仅包含常见设备厂商，约占用 200Kb 空间'));
+		o.value('2', _('完整版'),
+			_('下载完整数据，处理后约占用 1.3Mb 空间'));
+		o.value('3', _('网络查询'),
+			_('网络查询，若无梯子，请勿使用'));
 
 		o = s.taboption('basic', form.Button, '_update_oui', _('更新 MAC 设备数据库'));
 		o.inputstyle = 'add';
@@ -236,7 +274,8 @@ return view.extend({
 				}
 				return _this.map.reset();
 			}).catch(function (err) {
-				ui.addNotification(null, E('p', [_('浏览器超时强制退出或未知错误，若日志显示已建立更新进程，请忽略此错误：%s。').format(err)]));
+				ui.addNotification(null, E('p', [_('未知错误：%s。').format(err)]));
+				_this.description = _('浏览器超时强制退出或未知错误，若日志显示已建立更新进程，请忽略此错误：%s。');
 				return _this.map.reset();
 			});
 		};
@@ -247,15 +286,30 @@ return view.extend({
 
 		o = s.taboption('basic', form.Flag, 'debuglevel', _('开启日志'));
 
-		o = s.taboption('basic', form.DynamicList, 'device_aliases', _('设备别名'));
-		o.description = _('<br/> 请输入设备 MAC 和设备别名，用“-”隔开，如：<br/> XX:XX:XX:XX:XX:XX-我的手机');
+		o = s.taboption('basic', form.TextValue, '_device_aliases', _('设备别名'));
+		o.rows = 20;
+		o.wrap = 'oft';
+		o.cfgvalue = function (section_id) {
+			return fs.trimmed('/usr/share/serverchan/api/device_aliases.list');
+		};
+		o.write = function (section_id, formvalue) {
+			return this.cfgvalue(section_id).then(function (value) {
+				if (value == formvalue) {
+					return
+				}
+				return fs.write('/usr/share/serverchan/api/device_aliases.list', formvalue.trim().replace(/\r\n/g, '\n') + '\n');
+			});
+		};
+		o.description = _('请输入设备 MAC 和设备别名，用 " " 隔开，如：<br/> XX:XX:XX:XX:XX:XX 我的手机<br/>192.168.1.2 我的电脑');
 
 		// 推送内容
-		o = s.taboption('content', form.ListValue, 'serverchan_ipv4', _('IPv4 变动通知'));
-		o.default = '';
-		o.value('', _('关闭'));
-		o.value('1', _('通过接口获取'));
-		o.value('2', _('通过URL获取'));
+		o = s.taboption('content', cbiRichListValue, 'serverchan_ipv4', _('IPv4 变动通知'));
+		o.value('', _('关闭'),
+			_(' '));
+		o.value('1', _('通过接口获取'),
+			_(' '));
+		o.value('2', _('通过 URL 获取'),
+			_('会因服务器稳定性、连接频繁等原因导致获取失败<br/>如接口可以正常获取 IP，不推荐使用'));
 
 		o = s.taboption('content', widgets.DeviceSelect, 'ipv4_interface', _("接口名称"));
 		o.description = _('一般应为 WAN 或 br-lan 接口，多拨环境请自行选择');
@@ -265,7 +319,6 @@ return view.extend({
 		o.depends('serverchan_ipv4', '1');
 
 		o = s.taboption('content', form.TextValue, 'ipv4_list', _('IPv4 API列表'));
-		o.description = _('会因服务器稳定性、连接频繁等原因导致获取失败<br/>如接口可以正常获取 IP，不推荐使用<br/>从以上列表中随机地址访问');
 		o.depends('serverchan_ipv4', '2');
 		o.optional = false;
 		o.rows = 8;
@@ -281,6 +334,7 @@ return view.extend({
 				return fs.write('/usr/share/serverchan/api/ipv4.list', formvalue.trim().replace(/\r\n/g, '\n') + '\n');
 			});
 		};
+		o.description = _('从以上列表中随机地址访问<br/>文本框请使用 "保存" 按钮');
 
 		o = s.taboption('content', form.Button, '_update_ipv4_list', _('更新 ipv4_list'));
 		o.inputstyle = 'add';
@@ -291,8 +345,6 @@ return view.extend({
 					_this.description = _('更新成功');
 				else if (res.code === 1)
 					_this.description = _('更新失败');
-				else if (res.code === 2)
-					_this.description = _('已是最新，跳过更新');
 				return _this.map.reset();
 			}).catch(function (err) {
 				ui.addNotification(null, E('p', [_('未知错误：%s。').format(err)]));
@@ -302,11 +354,13 @@ return view.extend({
 		}
 		o.depends('serverchan_ipv4', '2');
 
-		o = s.taboption('content', form.ListValue, 'serverchan_ipv6', _('IPv6 变动通知'));
-		o.default = 'disable';
-		o.value('0', _('关闭'));
-		o.value('1', _('通过接口获取'));
-		o.value('2', _('通过URL获取'));
+		o = s.taboption('content', cbiRichListValue, 'serverchan_ipv6', _('IPv6 变动通知'));
+		o.value('', _('关闭'),
+			_(' '));
+		o.value('1', _('通过接口获取'),
+			_(' '));
+		o.value('2', _('通过 URL 获取'),
+			_('会因服务器稳定性、连接频繁等原因导致获取失败<br/>如接口可以正常获取 IP，不推荐使用'));
 
 		o = s.taboption('content', widgets.DeviceSelect, 'ipv6_interface', _("接口名称"));
 		o.description = _('一般应为 WAN 或 br-lan 接口，多拨环境请自行选择');
@@ -316,8 +370,8 @@ return view.extend({
 		o.depends('serverchan_ipv6', '1');
 
 		o = s.taboption('content', form.TextValue, 'ipv6_list', _('IPv6 API列表'));
-		o.description = _('会因服务器稳定性、连接频繁等原因导致获取失败<br/>如接口可以正常获取 IP，不推荐使用<br/>从以上列表中随机地址访问');
 		o.depends('serverchan_ipv6', '2')
+		o.optional = false;
 		o.rows = 8;
 		o.wrap = 'oft';
 		o.cfgvalue = function (section_id) {
@@ -331,6 +385,7 @@ return view.extend({
 				return fs.write('/usr/share/serverchan/api/ipv6.list', formvalue.trim().replace(/\r\n/g, '\n') + '\n');
 			});
 		};
+		o.description = _('从以上列表中随机地址访问<br/>文本框请使用 "保存" 按钮');
 
 		o = s.taboption('content', form.Button, '_update_ipv6_list', _('更新 ipv6_list'));
 		o.inputstyle = 'add';
@@ -341,8 +396,6 @@ return view.extend({
 					_this.description = _('更新成功');
 				else if (res.code === 1)
 					_this.description = _('更新失败');
-				else if (res.code === 2)
-					_this.description = _('已是最新，跳过更新');
 				return _this.map.reset();
 			}).catch(function (err) {
 				ui.addNotification(null, E('p', [_('未知错误：%s。').format(err)]));
@@ -357,16 +410,21 @@ return view.extend({
 		o.depends('serverchan_ipv4', '2');
 		o.depends('serverchan_ipv6', '2');
 
-		o = s.taboption('content', form.Flag, 'serverchan_up', _('设备上线通知'));
+		o = s.taboption('content', form.MultiValue, 'device_notification', _('设备上下线通知'));
+		o.value('online', _('上线通知'));
+		o.value('offline', _('下线通知'));
+		o.modalonly = true;
 
-		o = s.taboption('content', form.Flag, 'serverchan_down', _('设备下线通知'));
-
-		o = s.taboption('content', form.Flag, 'cpuload_enable', _('CPU 负载报警'));
+		o = s.taboption('content', form.MultiValue, 'cpu_notification', _('CPU 报警'));
+		o.value('load', _('负载报警'));
+		o.value('temp', _('温度报警'));
+		o.modalonly = true;
+		o.description = _('设备报警只会在连续五分钟超过设定值时才会推送<br/>而且一个小时内不会再提醒第二次');
 
 		o = s.taboption('content', form.Value, 'cpuload', '负载报警阈值');
 		o.rmempty = false;
 		o.placeholder = '2';
-		o.depends('cpuload_enable', '1');
+		o.depends({ cpu_notification: "load", '!contains': true });
 		o.validate = function (section_id, value) {
 			var floatValue = parseFloat(value);
 			if (!isNaN(floatValue) && floatValue.toString() === value) {
@@ -375,16 +433,27 @@ return view.extend({
 			return '请输入纯数字';
 		};
 
-		o = s.taboption('content', form.Flag, 'temperature_enable', _('CPU 温度报警'));
-		o.default = '1';
-		o.description = _('请确认设备可以获取温度，如需修改命令，请移步高级设置');
-
 		o = s.taboption('content', form.Value, 'temperature', '温度报警阈值');
 		o.rmempty = false;
 		o.placeholder = '80';
 		o.datatype = 'and(uinteger,min(1))';
-		o.depends('temperature_enable', '1');
-		o.description = _('设备报警只会在连续五分钟超过设定值时才会推送<br/>而且一个小时内不会再提醒第二次');
+		o.depends({ cpu_notification: "temp", '!contains': true });
+		o.description = _('请确认设备可以获取温度，如需修改命令，请移步高级设置');
+
+		o = s.taboption('content', form.MultiValue, 'login_notification', _('登录提醒'));
+		o.value('web_logged', _('Web 登录'));
+		o.value('ssh_logged', _('SSH 登录'));
+		o.value('web_login_failed', _('Web 频繁错误登录'));
+		o.value('ssh_login_failed', _('SSH 频繁错误登录'));
+		o.modalonly = true;
+
+		o = s.taboption('content', form.Value, 'login_max_num', '登录失败次数');
+		o.default = '3';
+		o.rmempty = false;
+		o.datatype = 'and(uinteger,min(1))';
+		o.depends({ login_notification: "web_login_failed", '!contains': true });
+		o.depends({ login_notification: "ssh_login_failed", '!contains': true });
+		o.description = _('超过次数后推送提醒，并可选自动拉黑');
 
 		o = s.taboption('content', form.Flag, 'client_usage', _('设备异常流量'));
 		o.default = '0';
@@ -405,31 +474,11 @@ return view.extend({
 		o.datatype = 'list(neg(macaddr))';
 		o.depends('client_usage_disturb', '1');
 
-		o = s.taboption('content', form.Flag, 'web_logged', _('web 登录提醒'));
-		o.default = '0';
-
-		o = s.taboption('content', form.Flag, 'ssh_logged', _('ssh 登录提醒'));
-		o.default = '0';
-
-		o = s.taboption('content', form.Flag, 'web_login_failed', _('web 错误尝试提醒'));
-		o.default = '0';
-
-		o = s.taboption('content', form.Flag, 'ssh_login_failed', _('ssh 错误尝试提醒'));
-		o.default = '0';
-
-		o = s.taboption('content', form.Value, 'login_max_num', '错误尝试次数');
-		o.default = '3';
-		o.rmempty = false;
-		o.datatype = 'and(uinteger,min(1))';
-		o.depends('web_login_failed', '1');
-		o.depends('ssh_login_failed', '1');
-		o.description = _('超过次数后推送提醒，并可选自动拉黑');
-
 		// 自动封禁
 		o = s.taboption('ipset', form.Flag, 'web_login_black', _('自动拉黑非法登录设备'));
 		o.default = '0';
-		o.depends('web_login_failed', '1');
-		o.depends('ssh_login_failed', '1');
+		o.depends({ login_notification: "web_login_failed", '!contains': true });
+		o.depends({ login_notification: "ssh_login_failed", '!contains': true });
 
 		o = s.taboption('ipset', form.Value, 'ip_black_timeout', '拉黑时间(秒)');
 		o.default = '86400';
@@ -438,20 +487,12 @@ return view.extend({
 		o.depends('web_login_black', '1');
 		o.description = _('0 为永久拉黑，慎用<br>如不幸误操作，请更改设备 IP 进入 LUCI 界面清空规则');
 
-		o = fwtool.addIPOption(s, 'ipset', 'ip_white_list', _('白名单 IP 列表'), null, 'ipv4', hosts, true);
-		o.datatype = 'ipaddr';
-		o.depends('web_logged', '1');
-		o.depends('ssh_logged', '1');
-		o.depends('web_login_failed', '1');
-		o.depends('ssh_login_failed', '1');
-		o.description = _('忽略推送，仅在日志中记录，并忽略拉黑操作，暂不支持掩码位表示');
-
 		o = s.taboption('ipset', form.Flag, 'port_knocking', _('端口敲门'));
 		o.default = '0';
 		o.description = _('登录成功后开放端口');
 		o.description = _('如在 防火墙 - 区域设置 中禁用了 LAN 口入站和转发，将不起作用<br/>写起来太鸡儿麻烦了，告辞');
-		o.depends('web_login_failed', '1');
-		o.depends('ssh_login_failed', '1');
+		o.depends({ login_notification: "web_login_failed", '!contains': true });
+		o.depends({ login_notification: "ssh_login_failed", '!contains': true });
 
 		o = s.taboption('ipset', form.Value, 'ip_port_white', '端口');
 		o.default = '';
@@ -470,7 +511,6 @@ return view.extend({
 		o.depends('port_knocking', '1');
 
 		o = s.taboption('ipset', form.TextValue, 'ip_black_list', _('IP 黑名单列表'));
-		o.optional = false;
 		o.rows = 8;
 		o.wrap = 'soft';
 		o.cfgvalue = function (section_id) {
@@ -485,46 +525,28 @@ return view.extend({
 			});
 		};
 		o.depends('web_login_black', '1');
-		o.description = _('可在此处添加或删除，timeout 后的数字为剩余时间(秒)，添加时只需要输入 IP');
+		o.description = _('可在此处添加或删除，后面的数字为剩余时间，添加时只需要输入 IP<br/>清空时请保留一个回车，不然无法保存 ╮(╯_╰)╭<br/>文本框请使用 "保存" 按钮');
 
 		// 定时推送
-		o = s.taboption('crontab', form.ListValue, 'crontab', _('定时任务设定'));
-		o.default = '';
-		o.value('', _('关闭'));
-		o.value('1', _('定时发送'));
-		o.value('2', _('间隔发送'));
-		o = s.taboption("crontab", form.ListValue, "regular_time", _("发送时间"));
+		o = s.taboption('crontab', cbiRichListValue, 'crontab', _('定时任务设定'));
+		o.value('', _('关闭'),
+			_(' '));
+		o.value('1', _('定时发送'),
+			_('每天固定时间发送'));
+		o.value('2', _('间隔发送'),
+			_('从 00:00 开始，每 * 小时发送一次'));
 
-		o.value('', _('关闭'));
+		o = s.taboption('crontab', form.MultiValue, 'regular_time', _('发送时间'));
 		for (var t = 0; t <= 23; t++) {
 			o.value(t, _("每天") + t + _("点"));
 		}
-		o.default = 8;
-		o.datatype = "uinteger";
+		o.modalonly = true;
 		o.depends("crontab", "1");
-
-		o = s.taboption('crontab', form.ListValue, 'regular_time_2', _('发送时间'));
-		o.value('', _('关闭'));
-		for (var t = 0; t <= 23; t++) {
-			o.value(t, _("每天") + t + _("点"));
-		}
-		o.default = '';
-		o.datatype = "uinteger";
-		o.depends('crontab', '1');
-
-		o = s.taboption('crontab', form.ListValue, 'regular_time_3', _('发送时间'));
-		o.value('', _('关闭'));
-		for (var t = 0; t <= 23; t++) {
-			o.value(t, _("每天") + t + _("点"));
-		}
-		o.default = '';
-		o.datatype = "uinteger";
-		o.depends('crontab', '1');
 
 		o = s.taboption('crontab', form.ListValue, 'interval_time', _('发送间隔'));
 		o.default = "6"
-		for (var t = 0; t <= 23; t++) {
-			o.value(t, _("每天") + t + _("点"));
+		for (var t = 0; t <= 12; t++) {
+			o.value(t, _("") + t + _(" 小时"));
 		}
 		o.default = '';
 		o.datatype = "uinteger";
@@ -537,23 +559,12 @@ return view.extend({
 		o.placeholder = 'OpenWrt 路由状态：';
 		o.description = _('使用特殊符号可能会造成发送失败');
 
-		o = s.taboption('crontab', form.Flag, 'router_status', _('系统运行情况'));
-		o.default = '0';
-		o.depends('crontab', '1');
-		o.depends('crontab', '2');
-
-		o = s.taboption('crontab', form.Flag, 'router_temp', _('设备温度'));
-		o.default = '0';
-		o.depends('crontab', '1');
-		o.depends('crontab', '2');
-
-		o = s.taboption('crontab', form.Flag, 'router_wan', _('WAN信息'));
-		o.default = '0';
-		o.depends('crontab', '1');
-		o.depends('crontab', '2');
-
-		o = s.taboption('crontab', form.Flag, 'client_list', _('客户端列表'));
-		o.default = '0';
+		o = s.taboption('crontab', form.MultiValue, 'send_notification', _('推送内容'));
+		o.value('router_status', _('系统运行情况'));
+		o.value('router_temp', _('设备温度'));
+		o.value('wan_info', _('WAN 信息'));
+		o.value('client_list', _('客户端列表'));
+		o.modalonly = true;
 		o.depends('crontab', '1');
 		o.depends('crontab', '2');
 
@@ -576,11 +587,18 @@ return view.extend({
 		}
 
 		// 免打扰
-		o = s.taboption('disturb', form.ListValue, 'serverchan_sheep', _('免打扰时段设置'), _('在指定整点时间段内，暂停推送消息<br/>免打扰时间中，定时推送也会被阻止。'));
-		o.value('', _('关闭'));
-		o.value('1', _('模式一：脚本挂起'));
-		o.value('2', _('模式二：静默模式'));
-		o.description = _('模式一停止一切检测，包括无人值守。');
+		o = s.taboption('disturb', form.MultiValue, 'lite_enable', _('精简模式'));
+		o.value('device', _('精简当前设备列表'));
+		o.value('nowtime', _('精简当前时间'));
+		o.value('content', _('只推送标题'));
+
+		o = s.taboption('disturb', cbiRichListValue, 'serverchan_sheep', _('免打扰时段设置'));
+		o.value('', _('关闭'),
+			_(' '));
+		o.value('1', _('模式一：脚本挂起'),
+			_('暂停脚本任何动作，包括无人值守，直到时段结束'));
+		o.value('2', _('模式二：静默模式'),
+			_('停止信息推送，但正常记录日志'));
 
 		o = s.taboption('disturb', form.ListValue, 'starttime', _('免打扰开始时间'));
 		for (var t = 0; t <= 23; t++) {
@@ -600,11 +618,15 @@ return view.extend({
 		o.depends('serverchan_sheep', '1');
 		o.depends('serverchan_sheep', '2');
 
-		o = s.taboption('disturb', form.ListValue, 'macmechanism', _('MAC过滤'));
-		o.value('', _('disable'));
-		o.value('allow', _('忽略列表内设备'));
-		o.value('block', _('仅通知列表内设备'));
-		o.value('interface', _('仅通知此接口设备'));
+		o = s.taboption('disturb', cbiRichListValue, 'macmechanism', _('MAC 过滤'));
+		o.value('', _('关闭'),
+			_(' '));
+		o.value('allow', _('忽略列表内设备'),
+			_('被忽略设备不做推送和日志记录'));
+		o.value('block', _('仅通知列表内设备'),
+			_('被忽略设备不做推送和日志记录'));
+		o.value('interface', _('仅通知此接口设备'),
+			_('暂不支持多选'));
 
 		o = fwtool.addMACOption(s, 'disturb', 'serverchan_whitelist', _('忽略列表'),
 			_('请输入设备 MAC'), hosts);
@@ -624,10 +646,13 @@ return view.extend({
 		o.multiple = false;
 		o.depends('macmechanism', 'interface');
 
-		o = s.taboption('disturb', form.ListValue, 'macmechanism2', _('MAC过滤2'));
-		o.value('', _('关闭'));
-		o.value('MAC_online', _('列表内任意设备在线时免打扰'));
-		o.value('MAC_offline', _('列表内设备都离线后免打扰'));
+		o = s.taboption('disturb', cbiRichListValue, 'macmechanism2', _('MAC 过滤2'));
+		o.value('', _('关闭'),
+			_(' '));
+		o.value('MAC_online', _('设备在线时免打扰'),
+			_('当列表内任意设备在线时，不推送信息'));
+		o.value('MAC_offline', _('设备离线后免打扰'),
+			_('当列表内所有设备都离线后，不推送信息'));
 
 		o = fwtool.addMACOption(s, 'disturb', 'MAC_online_list', _('在线免打扰列表'),
 			_('请输入设备 MAC'), hosts);
@@ -639,10 +664,13 @@ return view.extend({
 		o.datatype = 'list(neg(macaddr))';
 		o.depends('macmechanism2', 'MAC_offline');
 
-		o = s.taboption('disturb', form.ListValue, 'login_disturb', _('登录提醒免打扰'));
-		o.value('', _('关闭'));
-		o.value('1', _('仅记录到日志'));
-		o.value('2', _('仅在首次登录时推送通知'));
+		o = s.taboption('disturb', cbiRichListValue, 'login_disturb', _('登录提醒免打扰'));
+		o.value('', _('关闭'),
+			_(' '));
+		o.value('1', _('仅记录到日志'),
+			_('忽略所有登录提醒，仅记录到日志'));
+		o.value('2', _('仅在首次登录时推送通知'),
+			_('在设定时间间隔内，仅首次发送推送通知'));
 
 		o = s.taboption('disturb', form.Value, 'login_notification_delay', _('登录提醒免打扰时间（s）'));
 		o.rmempty = false;
@@ -650,6 +678,14 @@ return view.extend({
 		o.datatype = 'and(uinteger,min(10))';
 		o.description = _('首次登录后推送通知，在设定时间内不再重复提醒<br/>偷懒一下，单位是秒并且上一次登录时间从日志中读取');
 		o.depends('login_disturb', '2');
+
+		o = fwtool.addIPOption(s, 'disturb', 'ip_white_list', _('登录提醒白名单'), null, 'ipv4', hosts, true);
+		o.datatype = 'ipaddr';
+		o.depends({ login_notification: "web_logged", '!contains': true });
+		o.depends({ login_notification: "ssh_logged", '!contains': true });
+		o.depends({ login_notification: "web_login_failed", '!contains': true });
+		o.depends({ login_notification: "ssh_login_failed", '!contains': true });
+		o.description = _('不对列表内 IP 登录事件推送，并忽略拉黑操作，仅在日志中记录，暂不支持掩码位表示');
 
 		return m.render();
 	}
