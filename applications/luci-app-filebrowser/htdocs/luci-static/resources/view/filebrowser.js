@@ -37,9 +37,13 @@ function renderStatus(isRunning, port) {
 }
 
 return view.extend({
-	render: function() {
+	load: function() {
+		return uci.load('filebrowser');
+	},
+
+	render: function(data) {
 		var m, s, o;
-		var webport = (uci.get(data[0], 'config', 'listen_port') || '8989');
+		var webport = (uci.get(data, 'config', 'listen_port') || '8989');
 
 		m = new form.Map('filebrowser', _('FileBrowser'),
 			_('FileBrowser provides a file managing interface within a specified directory and it can be used to upload, delete, preview, rename and edit your files..'));
@@ -50,7 +54,7 @@ return view.extend({
 			poll.add(function () {
 				return L.resolveDefault(getServiceStatus()).then(function (res) {
 					var view = document.getElementById('service_status');
-					view.innerHTML = renderStatus(res);
+					view.innerHTML = renderStatus(res, webport);
 				});
 			});
 
