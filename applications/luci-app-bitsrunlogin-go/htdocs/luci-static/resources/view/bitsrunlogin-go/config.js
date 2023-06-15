@@ -90,6 +90,11 @@ return view.extend({
 		o.password = true;
 		o.rmempty = false;
 
+		o = s.option(form.Flag, 'auto_acid', _('Auto Detect AC_ID')
+			,_('Automatically obtain correct ac_id from login server, the program will still use the configured ac_id below if it fails.'));
+		o.default = o.enabled;
+		o.rmempty = false;
+
 		o = s.option(form.Value, 'acid', 'AC_ID',
 			_('Please refer to you school to modify this value, incorrect ac_id may cause login error.'));
 		o.datatype = 'uinteger';
