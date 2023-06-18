@@ -49,7 +49,7 @@ case "$DISTRIB_TARGET" in
 		# IPQ8064/5
 		echo "$CPU_POLICYS" | grep -q "1" && uci_write_config 1 performance 600000 1200000
 		;;
-	"ipq807x/generic")
+	"qualcommax/ipq807x")
 		if echo "$CPU_FREQS" | grep -q "2208000"; then
 			# IPQ8072/4/6/8A
 			CPU_MAX_FREQ="2208000"
