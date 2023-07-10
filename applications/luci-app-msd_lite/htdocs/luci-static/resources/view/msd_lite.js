@@ -25,9 +25,8 @@ return view.extend({
 		o.datatype = 'ipaddrport(1)';
 		o.rmempty = false;
 
-		o = s.option(widgets.DeviceSelect, 'interface', _('Source interface'),
+		o = s.option(widgets.NetworkSelect, 'network', _('Source interface'),
 			_('For multicast receive.'));
-		o.noaliases = true;
 		o.nocreate = true;
 		o.optional = true;
 
