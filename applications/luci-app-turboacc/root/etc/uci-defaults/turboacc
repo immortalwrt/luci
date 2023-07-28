@@ -8,6 +8,7 @@ config turboacc 'global'
 	option set '0'
 
 config turboacc 'config'
+	option tcpcca 'cubic'
 
 EOF
 
@@ -42,12 +43,6 @@ if [ -e "/lib/modules/$kernel_ver/xt_FULLCONENAT.ko" ]; then
 	uci -q set "turboacc.config.fullcone"="1"
 else
 	uci -q set "turboacc.config.fullcone"="0"
-fi
-
-if [ -e "/lib/modules/$kernel_ver/tcp_bbr.ko" ]; then
-	uci -q set "turboacc.config.tcpcca"="bbr"
-else
-	uci -q set "turboacc.config.tcpcca"="cubic"
 fi
 
 uci -q commit "turboacc"
