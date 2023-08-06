@@ -307,22 +307,27 @@ local hysteria = {
 }
 local tuic = {
 	relay = {
-		server = server.server,
-		port = tonumber(server.server_port),
-		token = server.password,
-
+		server = server.server .. ":" .. server.server_port,
+		ip = server.tuic_ip,
+		uuid = server.tuic_uuid,
+		password = server.tuic_passwd,
 		certificates = server.certificate and { server.certpath } or nil,
 		udp_relay_mode = server.udp_relay_mode,
-		congestion_controller = server.congestion_controller,
-		heartbeat_interval = tonumber(server.heartbeat_interval),
+		congestion_control = server.congestion_control,
+		heartbeat = server.heartbeat and server.heartbeat .. "s" or nil,
+		timeout = server.timeout and server.timeout .. "s" or nil,
+		gc_interval = server.gc_interval and server.gc_interval .. "s" or nil,
+		gc_lifetime = server.gc_lifetime and server.gc_lifetime .. "s" or nil,
 		alpn = server.tls_alpn,
-		disable_sni = (server.disable_sni == "1"),
-		reduce_rtt = (server.reduce_rtt == "1"),
-		max_udp_relay_packet_size = tonumber(server.max_udp_relay_packet_size)
-	},
+		disable_sni = (server.disable_sni == "1") and true or false,
+		zero_rtt_handshake = (server.zero_rtt_handshake == "1") and true or false,
+		send_window = tonumber(server.send_window),
+		receive_window = tonumber(server.receive_window)
+        },
 	["local"] = {
-		port = tonumber(local_port),
-		ip = "0.0.0.0"
+		server = "0.0.0.0:" .. tonumber(local_port),
+		--dual_stack = (server.tuic_dual_stack == "1") and true or false,
+		max_packet_size = tonumber(server.tuic_max_package_size)
 	}
 }
 local config = {}
