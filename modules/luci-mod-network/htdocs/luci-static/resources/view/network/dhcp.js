@@ -254,15 +254,16 @@ return view.extend({
 		s.addremove = false;
 
 		s.tab('general', _('General Settings'));
-		s.tab('relay', _('Relay'));
-		s.tab('files', _('Resolv and Hosts Files'));
-		s.tab('pxe_tftp', _('PXE/TFTP Settings'));
 		s.tab('advanced', _('Advanced Settings'));
 		s.tab('leases', _('Static Leases'));
+		s.tab('files', _('Resolv and Hosts Files'));
 		s.tab('hosts', _('Hostnames'));
+		s.tab('ipsets', _('IP Sets'));
+		s.tab('relay', _('Relay'));
 		s.tab('srvhosts', _('SRV'));
 		s.tab('mxhosts', _('MX'));
-		s.tab('ipsets', _('IP Sets'));
+		s.tab('cnamehosts', _('CNAME'));
+		s.tab('pxe_tftp', _('PXE/TFTP Settings'));
 
 		s.taboption('general', form.Flag, 'domainneeded',
 			_('Domain required'),
@@ -705,6 +706,27 @@ return view.extend({
 		so.rmempty = true;
 		so.datatype = 'range(0,65535)';
 		so.placeholder = '0';
+
+		o = s.taboption('cnamehosts', form.SectionValue, '__cname__', form.TableSection, 'cname', null, 
+			_('Set an alias for a hostname.'));
+
+		ss = o.subsection;
+
+		ss.addremove = true;
+		ss.anonymous = true;
+		ss.sortable  = true;
+		ss.rowcolors = true;
+		ss.nodescriptions = true;
+
+		so = ss.option(form.Value, 'cname', _('Domain'));
+		so.rmempty = false;
+		so.datatype = 'hostname';
+		so.placeholder = 'www.example.com';
+
+		so = ss.option(form.Value, 'target', _('Target'));
+		so.rmempty = false;
+		so.datatype = 'hostname';
+		so.placeholder = 'example.com';
 
 		o = s.taboption('hosts', form.SectionValue, '__hosts__', form.GridSection, 'domain', null,
 			_('Hostnames are used to bind a domain name to an IP address. This setting is redundant for hostnames already configured with static leases, but it can be useful to rebind an FQDN.'));
