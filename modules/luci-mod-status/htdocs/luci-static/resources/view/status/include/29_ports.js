@@ -13,6 +13,11 @@ var callNetworkStatus = rpc.declare({
 	expect: { '': {} }
 });
 
+var callSystemBoard = rpc.declare({
+	object: 'system',
+	method: 'board'
+});
+
 function isString(v)
 {
 	return typeof(v) === 'string' && v !== '';
@@ -291,6 +296,8 @@ return baseclass.extend({
 
 	load: function() {
 		return Promise.all([
+			L.resolveDefault(fs.read('/etc/board.json'), '{}'),
+			L.resolveDefault(callSystemBoard(), {}),
 			L.resolveDefault(callNetworkStatus(), {}),
 			firewall.getZones(),
 			network.getNetworks(),
@@ -302,18 +309,41 @@ return baseclass.extend({
 		if (L.hasSystemFeature('swconfig'))
 			return null;
 
-		var known_ports = [],
-		    port_map = buildInterfaceMapping(data[1], data[2]);
+		var board = JSON.parse(data[0]),
+		    known_ports = [],
+		    port_map = buildInterfaceMapping(data[3], data[4]);
 
-		Object.keys(data[0]).forEach((k) => {
-			if (['dsa', 'ethernet'].includes(data[0][k].devtype) &&
-				data[0][k]['link-advertising'] && data[0][k]['link-advertising'].length
-			)
-				known_ports.push({
-					device: k,
-					netdev: network.instantiateDevice(k)
-				});
-		});
+		if (data[1].release.target.match(/^(armsr|bcm27xx|mvebu|rockchip|sifiveu|sunxi|x86)/)) {
+			Object.keys(data[2]).forEach((k) => {
+				if (['dsa', 'ethernet'].includes(data[2][k].devtype) &&
+					data[2][k]['link-advertising'] &&
+					data[2][k]['link-advertising'].length
+				)
+					known_ports.push({
+						device: k,
+						netdev: network.instantiateDevice(k)
+					});
+			});
+		} else if (L.isObject(board) && L.isObject(board.network)) {
+			for (var k = 'lan'; k != null; k = (k == 'lan') ? 'wan' : null) {
+				if (!L.isObject(board.network[k]))
+					continue;
+
+				if (Array.isArray(board.network[k].ports))
+					for (let i = 0; i < board.network[k].ports.length; i++)
+						known_ports.push({
+							role: k,
+							device: board.network[k].ports[i],
+							netdev: network.instantiateDevice(board.network[k].ports[i])
+						});
+				else if (typeof(board.network[k].device) == 'string')
+					known_ports.push({
+						role: k,
+						device: board.network[k].device,
+						netdev: network.instantiateDevice(board.network[k].device)
+					});
+			}
+		}
 
 		known_ports.sort(function(a, b) {
 			return L.naturalCompare(a.device, b.device);
