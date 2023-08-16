@@ -42,7 +42,7 @@ function read_config(){
 	"up_timeout" "down_timeout" "timeout_retry_count" "only_timeout_push" "passive_mode" "thread_num" "soc_code" "server_host" "server_port" \
 	"unattended_enable" "zerotier_helper" "unattended_only_on_disturb_time" "unattended_device_aliases" "network_disconnect_event" "unattended_autoreboot_mode" "autoreboot_system_uptime" "autoreboot_network_uptime" \
 	"device_info_helper" "gateway_host_url" "gateway_info_url" "gateway_logout_url" "gateway_username_id" "gateway_password_id" "gateway_username" "gateway_password" "scan_ip_range" "device_info_helper_sleeptime"
-	
+
 	( echo "$device_notification"|grep -q "online" ) && notification_online="true"
 	( echo "$device_notification"|grep -q "offline" ) && notification_offline="true"
 	( echo "$cpu_notification"|grep -q "load" ) && notification_load="true"
@@ -511,10 +511,10 @@ function time_for_humans {
 # 计算字符显示宽度
 function length_str {
 	[ ! "$1" ] && return
-	
+
 	local length_zh=`echo "$1"|awk '{print gensub(/[\u4e00-\u9FA5A-Za-z0-9_]/,"","g",$0)}'|awk -F "" '{print NF}'`
 	local length_en=`echo "$1"|awk '{print gensub(/[^\u4e00-\u9FA5A-Za-z0-9_]/,"","g",$0)}'|awk -F "" '{print NF}'`
-	
+
 	echo $((length_zh / 3 * 2 + length_en))
 }
 
@@ -526,7 +526,7 @@ function cut_str {
 		echo "$1"
 		return
 	fi
-	
+
 	local columns=$(echo "$1" | awk '{print NF}')
 	if [ "$columns" -gt 1 ]; then
 		local max_length=0
@@ -1420,7 +1420,7 @@ function init_ip_black(){
 		ip_version="ip6"
 		nat_table_cmd="family inet6"
 	fi
-	
+
 	if [ -n "$nftables_version" ]; then
 		! nft list set inet fw4 ${ipset_name} >/dev/null 2>&1 && nft add set inet fw4 ${ipset_name} { type ${1}_addr\; flags timeout\; timeout ${login_ip_black_timeout}s\; }
 		! nft list ruleset|grep "$ip_version saddr @${ipset_name} counter .* comment \"\!wechatpush Drop rule\"" >/dev/null 2>&1 && nft insert rule inet fw4 input $ip_version saddr @${ipset_name} counter drop comment \"\!wechatpush Drop rule\" >/dev/null 2>&1
@@ -1451,12 +1451,12 @@ function add_ip_black(){
 function del_ip_black(){
 	[ ! "$1" ] && return
 	sed -i "/^${1}/d" ${ip_blacklist_path}
-	
+
 	# 检查 IP 版本
 	( echo "$1"|grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$' ) && ipset_name="wechatpush_blacklist"
 	( echo "$1"|grep -Eq '^([\da-fA-F0-9]{1,4}(:{1,2})){1,15}[\da-fA-F0-9]{1,4}$' ) && ipset_name="wechatpush_blacklistv6"
 	[ -z "$ipset_name" ] && echo "`date "+%Y-%m-%d %H:%M:%S"` 【!!!】黑名单删除失败，IP 格式错误" >> ${logfile} && return
-	
+
 	[ -n "$nftables_version" ] && nft delete element inet fw4 ${ipset_name} { $1 } >/dev/null 2>&1
 	[ -n "$nftables_version" ] && return
 	ipset list ${ipset_name} >/dev/null 2>&1 && ipset -! del ${ipset_name} ${1}
@@ -1586,7 +1586,7 @@ function send(){
 			send_content="${send_content}${str_linefeed}【${tmp_name}】  ${ip_total}${str_linefeed}${str_tab}${tmp_ip}    在线 ${time_online}"
 		done < "${dir}tmp_sort_file"
 	fi
-	
+
 	[ ! -z "$device_name" ] && send_title="【$device_name】${send_title}"
 	[ -z "$send_content" ] && send_content="${str_splitline}${str_title_start} 我遇到了一个难题${str_title_end}${str_linefeed}${str_tab}定时发送选项错误，你没有选择需要发送的项目，该怎 么办呢${str_splitline}"
 	[ "$send_disturb" -eq "0" ] && diy_send "${send_title}" "${send_content}" "${jsonpath}" "$1" >/dev/null 2>&1
@@ -1666,7 +1666,7 @@ if [ -n "$web_logged" ] || [ -n "$ssh_logged" ] || [ -n "$web_login_failed" ] ||
 			ssh_login_ip=$(echo "$line" | grep -i "Password auth succeeded\|Pubkey auth succeeded" | awk '{print $NF}' | sed -nr 's#^(.*):.[0-9]{1,5}#\1#gp' | sed -e 's/%.*//')
 			[ -n "$ssh_login_ip" ] && process_login "$ssh_login_ip" ssh_login_counts
 		}
-		
+
 		[ -n "$web_login_failed" ] && {
 			web_failed_ip=$(echo "$line" | grep -i "failed login"|awk '{print $NF}')
 			[ -n "$web_failed_ip" ] && process_login "$web_failed_ip" web_failed_counts

@@ -225,7 +225,7 @@ return view.extend({
 		};
 		o.description = _('Please refer to the comments and other interface files for modifications. Limited resources, no longer supporting more interfaces, please debug on your own.<br />You can use a similar website to check the JSON file format: https://www.google.com/search?q=JSON+Parser+Online<br />Please use the 「Save」 button in the text box.');
 		o.depends('jsonpath', '/usr/share/wechatpush/api/diy.json');
-		
+
 
 		o = s.taboption('basic', form.Button, '_test', _('Send Test'), _('You may need to save the configuration before sending.'));
 		o.inputstyle = 'add';
@@ -404,17 +404,17 @@ return view.extend({
 			});
 		}
 		o.depends('get_ipv6_mode', '2');
-		
+
 		o = s.taboption('content', form.Flag, 'auto_update_ip_list', _('Automatically update API list'));
 		o.description = _('When multiple IP retrieval attempts fail, try to automatically update the list file from GitHub');
 		o.depends('get_ipv4_mode', '2');
 		o.depends('get_ipv6_mode', '2');
-		
+
 		o = s.taboption('content', form.MultiValue, 'device_notification', _('Device Online/Offline Notification'));
 		o.value('online', _('Online Notification'));
 		o.value('offline', _('Offline Notification'));
 		o.modalonly = true;
-		
+
 		o = s.taboption('content', form.MultiValue, 'cpu_notification', _('CPU Alert'));
 		o.value('load', _('Load Alert'));
 		o.value('temp', _('Temperature Alert'));
@@ -591,7 +591,7 @@ return view.extend({
 		o.value('device', _('Simplify the current device list'));
 		o.value('nowtime', _('Simplify the current time'));
 		o.value('content', _('Push only the title'));
-		
+
 		o = s.taboption('disturb', cbiRichListValue, 'do_not_disturb_mode', _('Do Not Disturb time setting'));
 		o.value('', _('Close'),
 			_(' '));
