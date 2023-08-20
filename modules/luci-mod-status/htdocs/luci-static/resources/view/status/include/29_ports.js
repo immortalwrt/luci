@@ -313,7 +313,7 @@ return baseclass.extend({
 		    known_ports = [],
 		    port_map = buildInterfaceMapping(data[3], data[4]);
 
-		if (data[1].release.target.match(/^(armsr|bcm27xx|mvebu|rockchip|sifiveu|sunxi|x86)/)) {
+		if (!L.isObject(data[1].release) || data[1].release.target.match(/^(armsr|bcm27xx|mvebu|rockchip|sifiveu|sunxi|x86)/)) {
 			Object.keys(data[2]).forEach((k) => {
 				if (['dsa', 'ethernet'].includes(data[2][k].devtype) &&
 					data[2][k]['link-advertising'] &&
