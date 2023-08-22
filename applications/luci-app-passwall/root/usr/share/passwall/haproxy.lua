@@ -69,7 +69,7 @@ defaults
 	timeout http-keep-alive 10s
 	timeout check           10s
 	maxconn                 3000
-	
+
 resolvers mydns
 	resolve_retries       1
 	timeout resolve       5s
