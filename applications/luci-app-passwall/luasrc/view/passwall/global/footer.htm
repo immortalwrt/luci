@@ -1,6 +1,5 @@
 <%
 local api = require "luci.passwall.api"
-local auto_switch = api.uci_get_type("auto_switch", "enable", 0)
 -%>
 <script type="text/javascript">
 	//<![CDATA[
@@ -64,7 +63,7 @@ local auto_switch = api.uci_get_type("auto_switch", "enable", 0)
 												node_select_value = _node_select_value;
 											}
 										}
-										
+
 										if (node_select.tagName == "INPUT") {
 											node_select = document.getElementById("cbi.combobox." + dom_id);
 										}
