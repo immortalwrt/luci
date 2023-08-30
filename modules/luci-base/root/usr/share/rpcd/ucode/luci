@@ -4,11 +4,12 @@
 'use strict';
 
 import { stdin, access, dirname, basename, open, popen, glob, lsdir, readfile, readlink, error } from 'fs';
+import { connect } from 'ubus';
 import { cursor } from 'uci';
 
 import { init_list, init_index, init_enabled, init_action, conntrack_list, process_list } from 'luci.sys';
 import { revision, branch } from 'luci.version';
-import { statvfs } from 'luci.core';
+import { statvfs, uname } from 'luci.core';
 
 import timezones from 'luci.zoneinfo';
 
@@ -539,6 +540,45 @@ const methods = {
 	getProcessList: {
 		call: function() {
 			return { result: process_list() };
+		}
+	},
+
+	getBuiltinEthernetPorts: {
+		call: function() {
+			const ubus = connect();
+			const sysboard = ubus.call('system', 'board');
+			let ports = [];
+
+			if (
+				(type(sysboard) !== 'object') ||
+				match(sysboard.release.target, /^(armsr|bcm27xx|mvebu|rockchip|sifiveu|sunxi|x86)/)
+			) {
+				const stat = ubus.call('network.device', 'status') || {};
+				map(keys(stat), (ifname) => {
+					if (
+						ifname &&
+						stat[ifname]?.devtype in ['ethernet', 'dsa'] &&
+						length(stat[ifname]['link-advertising'])
+					)
+						push(ports, { role: 'unknown', device: ifname });
+				});
+			} else {
+				const fd = open('/etc/board.json', 'r');
+				const board = fd ? json(fd) : {};
+				for (let k in [ 'lan', 'wan' ]) {
+					if (!board?.network?.[k])
+						continue;
+
+					if (type(board.network[k].ports) == 'array') {
+						for (let ifname in board.network[k].ports)
+							push(ports, { role: k, device: ifname });
+					} else if (type(board.network[k].device) == 'string') {
+						push(ports, { role: k, device: board.network[k].device });
+					}
+				}
+			}
+
+			return { result: ports };
 		}
 	},
 
