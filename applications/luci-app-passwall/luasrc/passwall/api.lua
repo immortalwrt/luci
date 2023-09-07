@@ -298,7 +298,7 @@ function get_valid_nodes()
 				local address = e.address
 				if is_ip(address) or datatypes.hostname(address) then
 					local type = e.type
-					if (type == "V2ray" or type == "Xray") and e.protocol then
+					if (type == "sing-box" or type == "Xray") and e.protocol then
 						local protocol = e.protocol
 						if protocol == "vmess" then
 							protocol = "VMess"
@@ -330,7 +330,7 @@ function get_node_remarks(n)
 			remarks = "%s：[%s] " % {n.type .. " " .. i18n.translatef(n.protocol), n.remarks}
 		else
 			local type2 = n.type
-			if (n.type == "V2ray" or n.type == "Xray") and n.protocol then
+			if (n.type == "sing-box" or n.type == "Xray") and n.protocol then
 				local protocol = n.protocol
 				if protocol == "vmess" then
 					protocol = "VMess"
@@ -397,8 +397,18 @@ function get_customed_path(e)
 	return uci_get_type("global_app", e .. "_file")
 end
 
+function finded_com(e)
+	local bin = get_app_path(e)
+	if not bin then return end
+	local s = luci.sys.exec('echo -n $(type -t -p "%s" | head -n1)' % { bin })
+	if s == "" then
+		s = nil
+	end
+	return s
+end
+
 function finded(e)
-	return luci.sys.exec('echo -n $(type -t -p "/bin/%s" -p "/usr/bin/%s" -p "%s" "%s" | head -n1)' % {e, e, get_customed_path(e), e})
+	return luci.sys.exec('echo -n $(type -t -p "/bin/%s" -p "/usr/bin/%s" "%s" | head -n1)' % {e, e, e})
 end
 
 function is_finded(e)
@@ -441,10 +451,12 @@ local function get_bin_version_cache(file, cmd)
 end
 
 function get_app_path(app_name)
-	local def_path = com[app_name].default_path
-	local path = uci_get_type("global_app", app_name:gsub("%-","_") .. "_file")
-	path = path and (#path>0 and path or def_path) or def_path
-	return path
+	if com[app_name] then
+		local def_path = com[app_name].default_path
+		local path = uci_get_type("global_app", app_name:gsub("%-","_") .. "_file")
+		path = path and (#path>0 and path or def_path) or def_path
+		return path
+	end
 end
 
 function get_app_version(app_name, file)
@@ -806,12 +818,23 @@ function to_extract(app_name, file, subfix)
 		return {code = 1, error = i18n.translate("File path required.")}
 	end
 
-	if sys.exec("echo -n $(opkg list-installed | grep -c unzip)") ~= "1" then
-		exec("/bin/rm", {"-f", file})
-		return {
-			code = 1,
-			error = i18n.translate("Not installed unzip, Can't unzip!")
-		}
+	local tools_name
+	if com[app_name].zipped then
+		if not com[app_name].zipped_suffix or com[app_name].zipped_suffix == "zip" then
+			tools_name = "unzip"
+		end
+		if com[app_name].zipped_suffix and com[app_name].zipped_suffix == "tar.gz" then
+			tools_name = "tar"
+		end
+		if tools_name then
+			if sys.exec("echo -n $(command -v %s)" % { tools_name }) == "" then
+				exec("/bin/rm", {"-f", file})
+				return {
+					code = 1,
+					error = i18n.translate("Not installed %s, Can't unzip!" % { tools_name })
+				}
+			end
+		end
 	end
 
 	sys.call("/bin/rm -rf /tmp/".. app_name .."_extract.*")
@@ -825,8 +848,19 @@ function to_extract(app_name, file, subfix)
 	local tmp_dir = util.trim(util.exec("mktemp -d -t ".. app_name .."_extract.XXXXXX"))
 
 	local output = {}
-	exec("/usr/bin/unzip", {"-o", file, app_name, "-d", tmp_dir},
-			 function(chunk) output[#output + 1] = chunk end)
+
+	if tools_name then
+		if tools_name == "unzip" then
+			local bin = sys.exec("echo -n $(command -v unzip)")
+			exec(bin, {"-o", file, app_name, "-d", tmp_dir}, function(chunk) output[#output + 1] = chunk end)
+		elseif tools_name == "tar" then
+			local bin = sys.exec("echo -n $(command -v tar)")
+			if com[app_name].zipped_suffix == "tar.gz" then
+				exec(bin, {"-zxf", file, "-C", tmp_dir}, function(chunk) output[#output + 1] = chunk end)
+				sys.call("/bin/mv -f " .. tmp_dir .. "/*/" .. com[app_name].name:lower() .. " " .. tmp_dir)
+			end
+		end
+	end
 
 	local files = util.split(table.concat(output))
 
@@ -845,7 +879,7 @@ function to_move(app_name,file)
 	local bin_path = file
 	local cmd_rm_tmp = "/bin/rm -rf /tmp/" .. app_name .. "_download.*"
 	if fs.stat(file, "type") == "dir" then
-		bin_path = file .. "/" .. app_name
+		bin_path = file .. "/" .. com[app_name].name:lower()
 		cmd_rm_tmp = "/bin/rm -rf /tmp/" .. app_name .. "_extract.*"
 	end
 
@@ -934,4 +968,53 @@ function to_check_self()
 		remote_version = remote_version,
 		error = i18n.translatef("The latest version: %s, currently does not support automatic update, if you need to update, please compile or download the ipk and then manually install.", remote_version)
 	}
+end
+
+function luci_types(id, m, s, type_name, option_prefix)
+	for key, value in pairs(s.fields) do
+		if key:find(option_prefix) == 1 then
+			if not s.fields[key].not_rewrite then
+				s.fields[key].cfgvalue = function(self, section)
+					if self.rewrite_option then
+						return m:get(section, self.rewrite_option)
+					else
+						if self.option:find(option_prefix) == 1 then
+							return m:get(section, self.option:sub(1 + #option_prefix))
+						end
+					end
+				end
+				s.fields[key].write = function(self, section, value)
+					if s.fields["type"]:formvalue(id) == type_name then
+						if self.rewrite_option then
+							m:set(section, self.rewrite_option, value)
+						else
+							if self.option:find(option_prefix) == 1 then
+								m:set(section, self.option:sub(1 + #option_prefix), value)
+							end
+						end
+					end
+				end
+				s.fields[key].remove = function(self, section)
+					if s.fields["type"]:formvalue(id) == type_name then
+						if self.rewrite_option then
+							m:del(section, self.rewrite_option)
+						else
+							if self.option:find(option_prefix) == 1 then
+								m:del(section, self.option:sub(1 + #option_prefix))
+							end
+						end
+					end
+				end
+			end
+	
+			local deps = s.fields[key].deps
+			if #deps > 0 then
+				for index, value in ipairs(deps) do
+					deps[index]["type"] = type_name
+				end
+			else
+				s.fields[key]:depends({ type = type_name })
+			end
+		end
+	end
 end
