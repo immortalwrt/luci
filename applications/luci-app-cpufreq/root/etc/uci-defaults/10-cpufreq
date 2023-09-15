@@ -96,8 +96,6 @@ esac
 
 uci -q batch <<-EOF >/dev/null
 	delete ucitrack.@cpufreq[-1]
-	add ucitrack cpufreq
-	set ucitrack.@cpufreq[-1].init=cpufreq
 	commit ucitrack
 EOF
 
