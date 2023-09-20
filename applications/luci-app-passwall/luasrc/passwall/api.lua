@@ -938,7 +938,7 @@ function to_move(app_name,file)
 end
 
 function get_version()
-	return sys.exec("echo -n $(opkg info luci-app-passwall |grep 'Version'|awk '{print $2}')")
+	return sys.exec("echo -n $(opkg list-installed luci-app-passwall |awk '{print $3}')")
 end
 
 function to_check_self()
@@ -1009,7 +1009,7 @@ function luci_types(id, m, s, type_name, option_prefix)
 					end
 				end
 			end
-	
+
 			local deps = s.fields[key].deps
 			if #deps > 0 then
 				for index, value in ipairs(deps) do
