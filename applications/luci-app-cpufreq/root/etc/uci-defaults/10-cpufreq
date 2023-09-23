@@ -12,29 +12,20 @@ uci_write_config() {
 [ "$(uci -q get cpufreq.global.set)" -eq "1" ] && exit 0
 
 CPU_FREQS="$(cat '/sys/devices/system/cpu/cpufreq/policy0/scaling_available_frequencies')"
+CPU_MIN_FREQ="$(cat '/sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq')"
+CPU_MAX_FREQ="$(cat '/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq')"
 CPU_POLICYS="$(find '/sys/devices/system/cpu/cpufreq/policy'* -maxdepth 0 | grep -Eo '[0-9]+')"
+
 source "/etc/openwrt_release"
 case "$DISTRIB_TARGET" in
-	"bcm27xx/bcm2710")
-		uci_write_config 0 ondemand 600000 1200000 10 50
-		;;
+	"bcm27xx/bcm2710"|\
 	"bcm27xx/bcm2711")
-		uci_write_config 0 ondemand 600000 1500000 10 50
+		uci_write_config 0 ondemand 600000 "$CPU_MAX_FREQ" 10 50
 		;;
 	"ipq40xx/generic")
-		uci_write_config 0 ondemand 200000 716000 10 50
+		uci_write_config 0 ondemand 200000 "$CPU_MAX_FREQ" 10 50
 		;;
 	"ipq806x/generic")
-		if echo "$CPU_FREQS" | grep -q "1725000"; then
-			# IPQ8065
-			CPU_MAX_FREQ="1725000"
-		elif echo "$CPU_FREQS" | grep -q "1400000"; then
-			# IPQ8064
-			CPU_MAX_FREQ="1400000"
-		else
-			# IPQ8062
-			CPU_MAX_FREQ="1000000"
-		fi
 		uci_write_config 0 performance 600000 "$CPU_MAX_FREQ"
 		# IPQ8064/5
 		echo "$CPU_POLICYS" | grep -q "1" && uci_write_config 1 performance 600000 1200000
@@ -42,25 +33,9 @@ case "$DISTRIB_TARGET" in
 	"mediatek/mt7622")
 		uci_write_config 0 ondemand 600000 1350000 10 50
 		;;
-	"qualcommax/ipq60xx")
-		if echo "$CPU_FREQS" | grep -q "1800000"; then
-			# IPQ6010/18/28
-			CPU_MAX_FREQ="1800000"
-		else
-			# IPQ6000
-			CPU_MAX_FREQ="1200000"
-		fi
-		uci_write_config 0 ondemand 864000 "$CPU_MAX_FREQ" 10 50
-		;;
+	"qualcommax/ipq60xx"|\
 	"qualcommax/ipq807x")
-		if echo "$CPU_FREQS" | grep -q "2208000"; then
-			# IPQ8072/4/6/8A
-			CPU_MAX_FREQ="2208000"
-		else
-			# IPQ8070/1A
-			CPU_MAX_FREQ="1382400"
-		fi
-		uci_write_config 0 schedutil 1017600 "$CPU_MAX_FREQ"
+		uci_write_config 0 schedutil "$CPU_MIN_FREQ" "$CPU_MAX_FREQ"
 		;;
 	"rockchip/armv8")
 		if echo "$CPU_POLICYS" | grep -q "6"; then
@@ -73,10 +48,7 @@ case "$DISTRIB_TARGET" in
 			uci_write_config 0 schedutil 600000 1608000
 			uci_write_config 4 schedutil 600000 2016000
 		else
-			if echo "$CPU_FREQS" | grep -q "1992000"; then
-				# RK3568
-				CPU_MAX_FREQ="1992000"
-			else
+			if ! echo "$CPU_FREQS" | grep -q "1992000"; then
 				# RK3328
 				CPU_MAX_FREQ="1512000"
 			fi
@@ -86,10 +58,10 @@ case "$DISTRIB_TARGET" in
 	"sunxi/cortexa53")
 		if echo "$CPU_FREQS" | grep -q "1800000"; then
 			# H6
-			uci_write_config 0 schedutil 816000 1800000
+			uci_write_config 0 schedutil "$CPU_MIN_FREQ" "$CPU_MAX_FREQ"
 		else
-			# H5
-			uci_write_config 0 ondemand 648000 1200000 10 50
+			# A64 / H5
+			uci_write_config 0 ondemand "$CPU_MIN_FREQ" "$CPU_MAX_FREQ" 10 50
 		fi
 		;;
 esac
