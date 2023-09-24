@@ -275,7 +275,7 @@ return view.extend({
 
 
 		s.taboption('general', form.Flag, 'dns_redirect',
-			_('DNS Redirect'),
+			_('DNS redirect'),
 			_('Force redirect all local DNS queries to DNSMasq, a.k.a. DNS Hijacking.'));
 
 		s.taboption('general', form.Value, 'local',
