@@ -270,10 +270,14 @@ var status = baseclass.extend({
 						),
 						errorDownloadingList: _("Failed to download %s"),
 						errorParsingConfigUpdate: _("Failed to parse Config Update file"),
-						errorParsingList: _("Failed to parse"),
+						errorParsingList: _("Failed to parse %s"),
 						errorNoSSLSupport: _("No HTTPS/SSL support on device"),
 						errorCreatingDirectory: _(
 							"Failed to create output/cache/gzip file directory"
+						),
+						errorDetectingFileType: _("Failed to detect format %s"),
+						errorNothingToDo: _(
+							"No blocked list URLs nor blocked-domains enabled"
 						),
 					};
 					var errorsTitle = E(
@@ -287,7 +291,7 @@ var status = baseclass.extend({
 							errorTable[element.id].format(element.extra || " ") + "<br />";
 					});
 					text += _("Errors encountered, please check the %sREADME%s!").format(
-						"<a href='" + pkg.URL + '" target="_blank">',
+						'<a href="' + pkg.URL + '" target="_blank">',
 						"</a><br />"
 					);
 					var errorsText = E("div", {}, text);
