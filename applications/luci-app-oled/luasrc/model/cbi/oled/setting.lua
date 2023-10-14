@@ -40,6 +40,9 @@ o = s:taboption("info", Flag, "date", translate("Date"), translate('Format YYYY-
 o.default=0
 o = s:taboption("info", Flag, "lanip", translate("IP"), translate("LAN IP address"))
 o.default=0
+o = s:taboption("info", Value, "ipifname", translate("which eth to monitor"))
+o:depends("lanip",'1')
+o.default='br-lan'
 o = s:taboption("info", Flag, "cputemp", translate("CPU temperature"))
 o.default=0
 o = s:taboption("info", Flag, "cpufreq", translate("CPU frequency"))

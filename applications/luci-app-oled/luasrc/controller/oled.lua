@@ -4,6 +4,13 @@ function index()
 	if not nixio.fs.access("/etc/config/oled") then
 		return
 	end
+
+	local uci = require "luci.model.uci".cursor()
+	local showmenu = uci:get_first("oled", "oled", "showmenu", "0")
+	if showmenu == "0" then
+		return
+	end
+
 	local page = entry({"admin", "services", "oled"}, alias("admin", "services", "oled", "setting"),_("OLED"), 90)
 	page.dependent = true
 	page.acl_depends = { "luci-app-oled" }

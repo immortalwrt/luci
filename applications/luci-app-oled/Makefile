@@ -8,12 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 LUCI_Title:=LuCI support for ssd1306 0.91\' 138x32 display
-LUCI_DEPENDS:=+i2c-tools +coreutils +coreutils-nohup +libuci
-LUCI_PKGARCH:=all
+LUCI_DEPENDS:=+i2c-tools +libconfig
 
 PKG_LICENSE:=GPLv3
 PKG_LINCESE_FILES:=LICENSE
-PKF_MAINTAINER:=natelol <natelol@github.com>
+PKG_MAINTAINER:=natelol <natelol@github.com>
+
+define Package/luci-app-oled/conffiles
+/etc/config/oled
+endef
 
 include ../../luci.mk
 

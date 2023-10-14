@@ -25,17 +25,18 @@ SOFTWARE.
  *
  *  Created on  : September 19, 2017
  *  Author      : Vinay Divakar
- *  Description : This is an I2C Library for the BeagleBone that consists of the API's to support the standard
+ *  Description : This is an I2C Library for the BeagleBone that consists of the
+API's to support the standard
  *                I2C operations.
  *  Website     : www.deeplyembedded.org
  */
 
 /*Libs Includes*/
-#include<stdio.h>
-#include<fcntl.h>
-#include<sys/ioctl.h>
-#include <unistd.h>
+#include <fcntl.h>
 #include <linux/i2c-dev.h>
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 // heuristic to guess what version of i2c-dev.h we have:
 // the one installed with `apt-get install libi2c-dev`
 // would conflict with linux/i2c.h, while the stock
@@ -52,7 +53,6 @@ typedef char i2c_char_t;
 /* Header Files */
 #include "I2C.h"
 
-
 /* Exposed objects for i2c-x */
 I2C_DeviceT I2C_DEV_2;
 
@@ -63,14 +63,12 @@ I2C_DeviceT I2C_DEV_2;
  * Params        @i2c_dev_path: Path to the I2C device
  *               @fd: Variable to store the file handler
  ****************************************************************/
-int Open_device(char *i2c_dev_path, int *fd)
-{
-	if((*fd = open(i2c_dev_path, O_RDWR))<0)
+int Open_device(char *i2c_dev_path, int *fd) {
+	if ((*fd = open(i2c_dev_path, O_RDWR)) < 0)
 		return -1;
 	else
 		return 0;
 }
-
 
 /****************************************************************
  * Function Name : Close_device
@@ -78,14 +76,12 @@ int Open_device(char *i2c_dev_path, int *fd)
  * Returns       : 0 on success, -1 on failure
  * Params        : @fd: file descriptor
  ****************************************************************/
-int Close_device(int fd)
-{
-	if(close(fd) == -1)
+int Close_device(int fd) {
+	if (close(fd) == -1)
 		return -1;
 	else
 		return 0;
 }
-
 
 /****************************************************************
  * Function Name : Set_slave_addr
@@ -95,14 +91,12 @@ int Close_device(int fd)
  *               @slave_addr: Address of the slave device to
  *               talk to.
  ****************************************************************/
-int Set_slave_addr(int fd, unsigned char slave_addr)
-{
-	if(ioctl(fd, I2C_SLAVE, slave_addr) < 0)
+int Set_slave_addr(int fd, unsigned char slave_addr) {
+	if (ioctl(fd, I2C_SLAVE, slave_addr) < 0)
 		return -1;
 	else
 		return 0;
 }
-
 
 /****************************************************************
  * Function Name : i2c_write
@@ -111,16 +105,14 @@ int Set_slave_addr(int fd, unsigned char slave_addr)
  * Params        @fd: File descriptor
  *               @data: data to write on SDA
  ****************************************************************/
-int i2c_write(int fd, unsigned char data)
-{
+int i2c_write(int fd, unsigned char data) {
 	int ret = 0;
 	ret = write(fd, &data, I2C_ONE_BYTE);
-	if((ret == -1) || (ret != 1))
+	if ((ret == -1) || (ret != 1))
 		return -1;
 	else
-		return(ret);
+		return (ret);
 }
-
 
 /****************************************************************
  * Function Name : i2c_read
@@ -130,17 +122,13 @@ int i2c_write(int fd, unsigned char data)
  *               @read_data: Points to the variable  that stores
  *               the read data byte
  ****************************************************************/
-int i2c_read(int fd, unsigned char *read_data)
-{
+int i2c_read(int fd, unsigned char *read_data) {
 	int ret = 0;
 	ret = read(fd, &read_data, I2C_ONE_BYTE);
-	if(ret == -1)
-		perror("I2C: Failed to read |");
-	if(ret == 0)
-		perror("I2C: End of FILE |");
-	return(ret);
+	if (ret == -1) perror("I2C: Failed to read |");
+	if (ret == 0) perror("I2C: End of FILE |");
+	return (ret);
 }
-
 
 /****************************************************************
  * Function Name : i2c_read_register
@@ -151,22 +139,18 @@ int i2c_read(int fd, unsigned char *read_data)
  *               @read_data: Points to the variable  that stores
  *               the read data byte
  ****************************************************************/
-int i2c_read_register(int fd, unsigned char read_addr, unsigned char *read_data)
-{
+int i2c_read_register(int fd, unsigned char read_addr,
+		      unsigned char *read_data) {
 	int ret = 0;
-	if(i2c_write(fd, read_addr) == -1)
-	{
+	if (i2c_write(fd, read_addr) == -1) {
 		perror("I2C: Failed to write |");
 		return -1;
 	}
 	ret = read(fd, &read_data, I2C_ONE_BYTE);
-	if(ret == -1)
-		perror("I2C: Failed to read |");
-	if(ret == 0)
-		perror("I2C: End of FILE |");
-	return(ret);
+	if (ret == -1) perror("I2C: Failed to read |");
+	if (ret == 0) perror("I2C: End of FILE |");
+	return (ret);
 }
-
 
 /****************************************************************
  * Function Name : i2c_read_registers
@@ -179,22 +163,17 @@ int i2c_read_register(int fd, unsigned char read_addr, unsigned char *read_data)
  *               @buff_Ptr: Buffer to store the read bytes
  ****************************************************************/
 int i2c_read_registers(int fd, int num, unsigned char starting_addr,
-		unsigned char *buff_Ptr)
-{
+		       unsigned char *buff_Ptr) {
 	int ret = 0;
-	if(i2c_write(fd, starting_addr) == -1)
-	{
+	if (i2c_write(fd, starting_addr) == -1) {
 		perror("I2C: Failed to write |");
 		return -1;
 	}
 	ret = read(fd, buff_Ptr, num);
-	if(ret == -1)
-		perror("I2C: Failed to read |");
-	if(ret == 0)
-		perror("I2C: End of FILE |");
-	return(ret);
+	if (ret == -1) perror("I2C: Failed to read |");
+	if (ret == 0) perror("I2C: End of FILE |");
+	return (ret);
 }
-
 
 /****************************************************************
  * Function Name : i2c_multiple_writes
@@ -205,16 +184,14 @@ int i2c_read_registers(int fd, int num, unsigned char starting_addr,
  *               @Ptr_buff: Pointer to the buffer containing the
  *               bytes to be written on the SDA
  ****************************************************************/
-int i2c_multiple_writes(int fd, int num, unsigned char *Ptr_buff)
-{
+int i2c_multiple_writes(int fd, int num, unsigned char *Ptr_buff) {
 	int ret = 0;
 	ret = write(fd, Ptr_buff, num);
-	if((ret == -1) || (ret != num))
+	if ((ret == -1) || (ret != num))
 		return -1;
 	else
-		return(ret);
+		return (ret);
 }
-
 
 /****************************************************************
  * Function Name : i2c_write_register
@@ -226,19 +203,18 @@ int i2c_multiple_writes(int fd, int num, unsigned char *Ptr_buff)
  *               @val: Command or value to be written in the
  *               addressed register
  ****************************************************************/
-int i2c_write_register(int fd, unsigned char reg_addr_or_cntrl, unsigned char val)
-{
+int i2c_write_register(int fd, unsigned char reg_addr_or_cntrl,
+		       unsigned char val) {
 	unsigned char buff[2];
 	int ret = 0;
 	buff[0] = reg_addr_or_cntrl;
 	buff[1] = val;
 	ret = write(fd, buff, I2C_TWO_BYTES);
-	if((ret == -1) || (ret != I2C_TWO_BYTES))
+	if ((ret == -1) || (ret != I2C_TWO_BYTES))
 		return -1;
 	else
-		return(ret);
+		return (ret);
 }
-
 
 /****************************************************************
  * Function Name : config_i2c_struct
@@ -248,13 +224,12 @@ int i2c_write_register(int fd, unsigned char reg_addr_or_cntrl, unsigned char va
  *               @slave_addr: Slave device address
  *               @i2c_dev: Pointer to the device structure
  ****************************************************************/
-void config_i2c_struct(char *i2c_dev_path, unsigned char slave_addr, I2C_DevicePtr i2c_dev)
-{
+void config_i2c_struct(char *i2c_dev_path, unsigned char slave_addr,
+		       I2C_DevicePtr i2c_dev) {
 	i2c_dev->i2c_dev_path = i2c_dev_path;
 	i2c_dev->fd_i2c = 0;
 	i2c_dev->i2c_slave_addr = slave_addr;
 }
-
 
 /****************************************************************
  * Function Name : init_i2c_dev
@@ -263,16 +238,13 @@ void config_i2c_struct(char *i2c_dev_path, unsigned char slave_addr, I2C_DeviceP
  * Params        @i2c_path: the path to the device
  *               @slave_addr: Slave device address
  ****************************************************************/
-int init_i2c_dev(const char* i2c_path, unsigned char slave_address)
-{
-	config_i2c_struct((char*)i2c_path, slave_address, &I2C_DEV_2);
-	if(Open_device(I2C_DEV_2.i2c_dev_path, &I2C_DEV_2.fd_i2c) == -1)
-	{
+int init_i2c_dev(const char *i2c_path, unsigned char slave_address) {
+	config_i2c_struct((char *)i2c_path, slave_address, &I2C_DEV_2);
+	if (Open_device(I2C_DEV_2.i2c_dev_path, &I2C_DEV_2.fd_i2c) == -1) {
 		perror("I2C: Failed to open device |");
 		return -1;
 	}
-	if(Set_slave_addr(I2C_DEV_2.fd_i2c, I2C_DEV_2.i2c_slave_addr) == -1)
-	{
+	if (Set_slave_addr(I2C_DEV_2.fd_i2c, I2C_DEV_2.i2c_slave_addr) == -1) {
 		perror("I2C: Failed to connect to slave device |");
 		return -1;
 	}

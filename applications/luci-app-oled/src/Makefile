@@ -1,16 +1,27 @@
+ifndef CC
 CC = gcc
-LD = gcc
+endif
+ifndef LD
+LD = ld
+endif
 
-SOURCES = SSD1306_OLED_Library/SSD1306_OLED.c Example_Code/Main.c Example_Code/example_app.c I2C_Library/I2C.c
+SOURCES = SSD1306_OLED_Library/SSD1306_OLED.c Example_Code/main.c Example_Code/example_app.c I2C_Library/I2C.c
 OBJS := $(SOURCES:.c=.o)
 CPPFLAGS := -I SSD1306_OLED_Library -I I2C_Library
-CFLAGS := -g
+ifndef CFLAGS
+CFLAGS := -O2
+endif
+LDFLAGS := -lpthread -lconfig
 
 oled: $(OBJS)
-	$(CC) $^ -o $@
+	$(CC) $^ -o $@ $(LDFLAGS)
+
+ssd1306: $(OBJS)
+	$(CC) $^ -o $@ $(LDFLAGS) --static
+	strip $@
 
 clean:
-	rm -rf oled $(OBJS)
+	rm -rf oled ssd1306 $(OBJS)
 
 compile: oled
 
