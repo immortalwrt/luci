@@ -23,7 +23,7 @@ case "$DISTRIB_TARGET" in
 		uci_write_config 0 ondemand 600000 "$CPU_MAX_FREQ" 10 50
 		;;
 	"ipq40xx/generic")
-		uci_write_config 0 ondemand 200000 "$CPU_MAX_FREQ" 10 50
+		uci_write_config 0 performance 200000 "$CPU_MAX_FREQ"
 		;;
 	"ipq806x/generic")
 		uci_write_config 0 performance 600000 "$CPU_MAX_FREQ"
