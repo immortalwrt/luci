@@ -1,5 +1,5 @@
 local NXFS = require "nixio.fs"
-local SYS  = require "luci.sys"
+local SYS = require "luci.sys"
 local HTTP = require "luci.http"
 local DISP = require "luci.dispatcher"
 
@@ -13,7 +13,7 @@ m = Map("adbyby")
 m.title	= translate("Adbyby Plus + Settings")
 m.description = translate("Adbyby Plus + can filter all kinds of banners, popups, video ads, and prevent tracking, privacy theft and a variety of malicious websites<br /><font color=\"red\">Plus + version combination mode can operation with Adblock Plus Host,filtering ads without losing bandwidth</font>")
 
-m:section(SimpleSection).template  = "adbyby/adbyby_status"
+m:section(SimpleSection).template = "adbyby/adbyby_status"
 
 s = m:section(TypedSection, "adbyby")
 s.anonymous = true
@@ -35,7 +35,7 @@ o.description = string.format("<strong>"..translate("Last Update Checked")..":</
 o.inputstyle = "reload"
 o.write = function()
 	SYS.call("rm -rf /tmp/adbyby.updated /tmp/adbyby/admd5.json && /usr/share/adbyby/adbybyupdate.sh > /tmp/adupdate.log 2>&1 &")
-  SYS.call("sleep 5")
+	SYS.call("sleep 5")
 	HTTP.redirect(DISP.build_url("admin", "services", "adbyby"))
 end
 

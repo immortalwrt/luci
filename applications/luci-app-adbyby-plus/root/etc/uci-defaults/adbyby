@@ -5,14 +5,12 @@ uci -q batch <<-EOF >/dev/null
 	add ucitrack adbyby
 	set ucitrack.@adbyby[-1].init=adbyby
 	commit ucitrack
-
 	delete firewall.adbyby
 	set firewall.adbyby=include
 	set firewall.adbyby.type=script
 	set firewall.adbyby.path=/var/etc/adbyby.include
 	set firewall.adbyby.reload=1
 	delete firewall.adblock
-
 	add firewall rule
 	rename firewall.@rule[-1]="adblock"
 	set firewall.@rule[-1].name="adblock"
