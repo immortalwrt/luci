@@ -4,7 +4,10 @@ function index()
 	if not nixio.fs.access("/etc/config/adbyby") then
 		return
 	end
-	entry({"admin", "services", "adbyby"}, alias("admin", "services", "adbyby", "base"), _("ADBYBY Plus +"), 9).dependent = true
+	local page = entry({"admin", "services", "adbyby"}, alias("admin", "services", "adbyby", "base"), _("ADBYBY Plus +"), 9)
+	page.dependent = true
+	page.acl_depends = { "luci-app-adbyby-plus" }
+
 	entry({"admin", "services", "adbyby", "base"}, cbi("adbyby/base"), _("Base Setting"), 10).leaf = true
 	entry({"admin", "services", "adbyby", "advanced"}, cbi("adbyby/advanced"), _("Advance Setting"), 20).leaf = true
 	entry({"admin", "services", "adbyby", "help"}, form("adbyby/help"), _("Plus+ Domain List"), 30).leaf = true
