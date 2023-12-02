@@ -862,6 +862,20 @@ return view.extend({
 					so.depends('ra', 'server');
 					so.depends({ ra: 'hybrid', master: '0' });
 
+					so = ss.taboption('ipv6-ra', form.Value, 'max_preferred_lifetime', _('Max preferred lifetime'));
+					so.optional = true;
+					so.datatype = 'range(0, 2700)';
+					so.placeholder = '2700';
+					so.depends('ra', 'server');
+					so.depends({ ra: 'hybrid', master: '0' });
+
+					so = ss.taboption('ipv6-ra', form.Value, 'max_valid_lifetime', _('Max valid lifetime'));
+					so.optional = true;
+					so.datatype = 'range(0, 5400)';
+					so.placeholder = '5400';
+					so.depends('ra', 'server');
+					so.depends({ ra: 'hybrid', master: '0' });
+
 					so = ss.taboption('ipv6-ra', form.Value, 'ra_maxinterval', _('Max <abbr title="Router Advertisement">RA</abbr> interval'), _('Maximum time allowed  between sending unsolicited <abbr title="Router Advertisement, ICMPv6 Type 134">RA</abbr>. Default is 600 seconds.'));
 					so.optional = true;
 					so.datatype = 'uinteger';
