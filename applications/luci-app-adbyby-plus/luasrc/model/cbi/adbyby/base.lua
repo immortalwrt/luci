@@ -1,5 +1,5 @@
 local NXFS = require "nixio.fs"
-local SYS  = require "luci.sys"
+local SYS = require "luci.sys"
 local HTTP = require "luci.http"
 local DISP = require "luci.dispatcher"
 
@@ -13,32 +13,29 @@ m = Map("adbyby")
 m.title	= translate("Adbyby Plus + Settings")
 m.description = translate("Adbyby Plus + can filter all kinds of banners, popups, video ads, and prevent tracking, privacy theft and a variety of malicious websites<br /><font color=\"red\">Plus + version combination mode can operation with Adblock Plus Host,filtering ads without losing bandwidth</font>")
 
-m:section(SimpleSection).template  = "adbyby/adbyby_status"
+m:section(SimpleSection).template = "adbyby/adbyby_status"
 
 s = m:section(TypedSection, "adbyby")
 s.anonymous = true
 
-o = s:option(Flag, "enable")
-o.title = translate("Enable")
+o = s:option(Flag, "enable", translate("Enable"))
 o.default = 0
 o.rmempty = false
 
-o = s:option(ListValue, "wan_mode")
-o.title = translate("Running Mode")
+o = s:option(ListValue, "wan_mode", translate("Running Mode"))
 o:value("0", translate("Global Mode (The slowest and the best effects)"))
 o:value("1", translate("Plus + Mode (Filter domain name list and blacklist website.Recommended)"))
 o:value("2", translate("No filter Mode (Must set in Client Filter Mode Settings manually)"))
 o.default = 1
 o.rmempty = false
 
-o = s:option(Button, "restart")
-o.title = translate("Adbyby and Rule state")
+o = s:option(Button, "restart", translate("Adbyby and Rule state"))
 o.inputtitle = translate("Update Adbyby Rules Manually")
 o.description = string.format("<strong>"..translate("Last Update Checked")..":</strong> %s<br /><strong>"..translate("Lazy Rule")..":</strong>%s <br /><strong>"..translate("Video Rule")..":</strong>%s", UD, DL, DV)
 o.inputstyle = "reload"
 o.write = function()
 	SYS.call("rm -rf /tmp/adbyby.updated /tmp/adbyby/admd5.json && /usr/share/adbyby/adbybyupdate.sh > /tmp/adupdate.log 2>&1 &")
-  SYS.call("sleep 5")
+	SYS.call("sleep 5")
 	HTTP.redirect(DISP.build_url("admin", "services", "adbyby"))
 end
 
