@@ -90,15 +90,19 @@ return view.extend({
 		o.password = true;
 		o.rmempty = false;
 
-		o = s.option(form.Flag, 'auto_acid', _('Auto Detect AC_ID')
-			,_('Automatically obtain correct ac_id from login server, the program will still use the configured ac_id below if it fails.'));
+		o = s.option(form.Flag, 'auto_acid', _('Auto detect AC_ID'),
+			_('Automatically obtain correct ac_id from login server, the program will still use the configured ac_id below if it fails.'));
 		o.default = o.enabled;
 		o.rmempty = false;
 
-		o = s.option(form.Value, 'acid', 'AC_ID',
+		o = s.option(form.Value, 'acid', _('AC_ID'),
 			_('Please refer to you school to modify this value, incorrect ac_id may cause login error.'));
 		o.datatype = 'uinteger';
 		o.default = '5';
+		o.rmempty = false;
+
+		o = s.option(form.Flag, 'dual_stack', _('Enable dual stack'));
+		o.default = o.disabled;
 		o.rmempty = false;
 
 		o = s.option(form.Flag, 'enable_https', _('Enable HTTPS'),
@@ -108,6 +112,7 @@ return view.extend({
 
 		o = s.option(form.Flag, 'skip_cert_verify', _('Skip certificate check'));
 		o.default = o.disabled;
+		o.depends('enable_https', '1');
 		o.rmempty = false;
 
 		o = s.option(form.Value, 'timeout', _('Timeout'),
