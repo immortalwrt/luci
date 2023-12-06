@@ -3,8 +3,6 @@
 uci -q batch <<-EOF >/dev/null
 	delete ucitrack.@eqos[-1]
 	add ucitrack eqos
-	set ucitrack.@eqos[-1].init=eqos
-	commit ucitrack
 EOF
 
 rm -f /tmp/luci-indexcache
