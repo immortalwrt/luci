@@ -12,7 +12,7 @@ parse_device() {
 	[ "$enabled" -eq "1" ] || return 1
 
 	local ip download upload
-	config_get ip "$cfg" ip
+	config_get ip "$cfg" "ip"
 	config_get download "$cfg" "download"
 	config_get upload "$cfg" "upload"
 
