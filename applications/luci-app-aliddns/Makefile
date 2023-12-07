@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018-2023 honwen <https://github.com/honwen/>
+# Copyright (C) 2018-2021 chenhw2 <https://github.com/chenhw2/>
 #
 # See /LICENSE for more information.
 #
@@ -12,7 +12,7 @@ PKG_RELEASE:=1
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
-PKG_MAINTAINER:=honwen <https://github.com/honwen/luci-app-aliddns>
+PKG_MAINTAINER:=chenhw2 <https://github.com/chenhw2/>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 

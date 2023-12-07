@@ -29,7 +29,7 @@ iface = e:option(ListValue, "interface", translate("WAN-IP Source"), translate("
 iface:value("", translate("Select WAN-IP Source"))
 iface:value("internet")
 iface:value("wan")
-iface.rmempty = true
+iface.rmempty = false
 
 iface6 = e:option(ListValue, "interface6", translate("WAN6-IP Source"),translate("Select the WAN6-IP Source for AliDDNS, like wan6/internet"))
 iface6:value("",translate("Select WAN6-IP Source"))
