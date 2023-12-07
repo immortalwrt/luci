@@ -313,12 +313,32 @@ return view.extend({
 		o.placeholder = '/example.org/10.1.2.3';
 		o.validate = validateServerSpec;
 
+		function customi18n(template, values) {
+			return template.replace(/\{(\w+)\}/g, (match, key) => values[key] || match);
+		};
+
 		o = s.taboption('general', form.DynamicList, 'address',
 			_('Addresses'),
 			_('Resolve specified FQDNs to an IP.') + '<br />' +
-			_('Syntax: <code>/fqdn[/fqdn…]/[ipaddr]</code>.') + '<br />' +
-			_('<code>/#/</code> matches any domain. <code>/example.com/</code> returns NXDOMAIN.') + '<br />' +
-			_('<code>/example.com/#</code> returns NULL addresses (<code>0.0.0.0</code> and <code>::</code>) for example.com and its subdomains.'));
+			customi18n(_('Syntax: {code_syntax}.'),
+				{code_syntax: '<code>/fqdn[/fqdn…]/[ipaddr]</code>'}) + '<br />' +
+			customi18n(_('{example_nx} returns {nxdomain}.',
+				'hint: <code>/example.com/</code> returns <code>NXDOMAIN</code>.'),
+				{example_nx: '<code>/example.com/</code>', nxdomain: '<code>NXDOMAIN</code>'}) + '<br />' +
+			customi18n(_('{any_domain} matches any domain (and returns {nxdomain}).',
+				'hint: <code>/#/</code> matches any domain (and returns NXDOMAIN).'),
+				{any_domain:'<code>/#/</code>', nxdomain: '<code>NXDOMAIN</code>'}) + '<br />' +
+			customi18n(
+				_('{example_null} returns {null_addr} addresses ({null_ipv4}, {null_ipv6}) for {example_com} and its subdomains.',
+					'hint: <code>/example.com/#</code> returns NULL addresses (<code>0.0.0.0</code>, <code>::</code>) for example.com and its subdomains.'),
+				{	example_null: '<code>/example.com/#</code>',
+					null_addr: '<code>NULL</code>', 
+					null_ipv4: '<code>0.0.0.0</code>',
+					null_ipv6: '<code>::</code>',
+					example_com: '<code>example.com</code>',
+				}
+			)
+		);
 		o.optional = true;
 		o.placeholder = '/router.local/router.lan/192.168.0.1';
 
@@ -947,9 +967,10 @@ return view.extend({
 
 		so = ss.option(form.DynamicList, 'match_tag',
 			_('Match Tag'),
-			_('When a host matches an entry then the special tag <em>known</em> is set. Use <em>known</em> to match all known hosts.') + '<br /><br />' +
-			_('Ignore requests from unknown machines using <em>!known</em>.') + '<br /><br />' +
-			_('If a host matches an entry which cannot be used because it specifies an address on a different subnet, the tag <em>known-othernet</em> is set.'));
+			_('When a host matches an entry then the special tag %s is set. Use %s to match all known hosts.').format('<code>known</code>', 
+'<code>known</code>') + '<br /><br />' +
+			_('Ignore requests from unknown machines using %s.').format('<code>!known</code>') + '<br /><br />' +
+			_('If a host matches an entry which cannot be used because it specifies an address on a different subnet, the tag %s is set.').format('<code>known-othernet</code>'));
 		so.value('known', _('known'));
 		so.value('!known', _('!known (not known)'));
 		so.value('known-othernet', _('known-othernet (on different subnet)'));

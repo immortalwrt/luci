@@ -319,12 +319,14 @@ msgstr ""
 "<code>/#/</code> 匹配任何域名。<code>/example.com/</code> 返回 NXDOMAIN。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:301
+msgctxt "hint: <code>/example.com/#</code> returns NULL addresses "
+"(<code>0.0.0.0</code>, <code>::</code>) for example.com and its subdomains."
 msgid ""
-"<code>/example.com/#</code> returns NULL addresses (<code>0.0.0.0</code> and "
-"<code>::</code>) for example.com and its subdomains."
+"{example_null} returns {null_addr} addresses ({null_ipv4},"
+"{null_ipv6}) for {example_com} and its subdomains."
 msgstr ""
-"<code>/example.com/#</code> 对 example.com 及其子域名返回无效地址 "
-"(<code>0.0.0.0</code> 和 <code>::</code>) 。"
+"{example_null} 对 {example_com} 及其子域名返回{null_addr}地址 "
+"({null_ipv4} 和 {null_ipv6}) 。"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:87
 msgctxt "nft relational \">\" operator expression"
@@ -4235,10 +4237,10 @@ msgstr "鉴权"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:923
 msgid ""
 "If a host matches an entry which cannot be used because it specifies an "
-"address on a different subnet, the tag <em>known-othernet</em> is set."
+"address on a different subnet, the tag %s is set."
 msgstr ""
 "如果主机匹配一个因为指定了不同子网上的同一个地址而无法使用的条目，那么会设置"
-"标签<em>known-othernet</em>。"
+"标签%s。"
 
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:96
 msgid "If checked, 1DES is enabled"
@@ -4323,8 +4325,8 @@ msgid "Ignore interface"
 msgstr "忽略此接口"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:922
-msgid "Ignore requests from unknown machines using <em>!known</em>."
-msgstr "使用 <em>!known</em>来忽略来自未知机器的请求。"
+msgid "Ignore requests from unknown machines using %s."
+msgstr "使用 %s来忽略来自未知机器的请求。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:427
 msgid "Ignore resolv file"
@@ -8783,8 +8785,8 @@ msgid "Sync with browser"
 msgstr "同步浏览器时间"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:299
-msgid "Syntax: <code>/fqdn[/fqdn…]/[ipaddr]</code>."
-msgstr "语法： <code>/fqdn[/fqdn…]/[ipaddr]</code>."
+msgid "Syntax: {code_syntax}."
+msgstr "语法： {code_syntax}."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:650
 msgid "Syntax: <code>_service._proto.example.com</code>."
@@ -10400,11 +10402,11 @@ msgstr "权重"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:921
 msgid ""
-"When a host matches an entry then the special tag <em>known</em> is set. Use "
-"<em>known</em> to match all known hosts."
+"When a host matches an entry then the special tag %s is set. Use "
+"%s to match all known hosts."
 msgstr ""
-"当一个主机匹配一个条目时，这个主机会被打上特殊标签<em>known</em>。使用"
-"<em>known</em>标签来匹配所有已知的主机。"
+"当一个主机匹配一个条目时，这个主机会被打上特殊标签%s。使用"
+"%s标签来匹配所有已知的主机。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1088
 msgid ""
