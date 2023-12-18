@@ -64,7 +64,8 @@ return view.extend({
 		var webport = uci.get(data[0], 'config', 'listen_http_port') || '5244';
 
 		m = new form.Map('alist', _('AList'),
-			_('A file list/WebDAV program that supports multiple storages, powered by Gin and Solidjs.'));
+			_('A file list/WebDAV program that supports multiple storages, powered by Gin and Solidjs.<br />' +
+				'Default login username is <code>admin</code> and password is <code>password</code>.'));
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
