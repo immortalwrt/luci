@@ -312,7 +312,6 @@ return view.extend({
 			_('Authoritative'),
 			_('This is the only DHCP server in the local network.'));
 
-
 		s.taboption('general', form.Flag, 'dns_redirect',
 			_('DNS redirect'),
 			_('Force redirect all local DNS queries to DNSMasq, a.k.a. DNS Hijacking.'));
