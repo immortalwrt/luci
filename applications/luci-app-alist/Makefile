@@ -6,7 +6,6 @@ include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=LuCI app for AList
 LUCI_DEPENDS:=+alist
-LUCI_PKGARCH:=all
 
 include ../../luci.mk
 
