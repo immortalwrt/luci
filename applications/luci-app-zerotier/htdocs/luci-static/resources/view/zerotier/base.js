@@ -28,12 +28,12 @@ function getServiceStatus() {
 }
 
 function renderStatus(isRunning) {
-	var spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
+	var spanTemp = '<label class="cbi-value-title">Status</label><div class="cbi-value-field"><span style="color:%s">%s</span></div>';
 	var renderHTML;
 	if (isRunning) {
-		renderHTML = String.format(spanTemp, 'green', _('ZeroTier'), _('RUNNING'));
+		renderHTML = String.format(spanTemp, 'green', _('Running'));
 	} else {
-		renderHTML = String.format(spanTemp, 'red', _('ZeroTier'), _('NOT RUNNING'));
+		renderHTML = String.format(spanTemp, 'red', _('Not Running'));
 	}
 
 	return renderHTML;
@@ -52,22 +52,17 @@ return view.extend({
 		m = new form.Map('zerotier', _('ZeroTier'),
 			_('ZeroTier is an open source, cross-platform and easy to use virtual LAN.'));
 
-		s = m.section(form.TypedSection);
-		s.anonymous = true;
-		s.render = function () {
+		s = m.section(form.NamedSection, 'sample_config', 'config');
+
+		o = s.option(form.DummyValue, 'service_status', _('Status'));
+		o.load = function () {
 			poll.add(function () {
 				return L.resolveDefault(getServiceStatus()).then(function (res) {
-					var view = document.getElementById("service_status");
+					var view = document.getElementById("cbi-zerotier-sample_config-service_status");
 					view.innerHTML = renderStatus(res);
 				});
 			});
-
-			return E('div', { class: 'cbi-section', id: 'status_bar' }, [
-					E('p', { id: 'service_status' }, _('Collecting data ...'))
-			]);
 		}
-
-		s = m.section(form.NamedSection, 'sample_config', 'config');
 
 		o = s.option(form.Flag, 'enabled', _('Enable'));
 		o.default = o.disabled;
