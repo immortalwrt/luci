@@ -63,7 +63,7 @@ return view.extend({
 				});
 			});
 		}
-		o.value = _("Collectiong data ...");
+		o.value = _('Collectiong data ...');
 
 		o = s.option(form.Flag, 'enabled', _('Enable'));
 		o.default = o.disabled;
