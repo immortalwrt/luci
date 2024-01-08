@@ -58,7 +58,7 @@ return view.extend({
 		o.load = function () {
 			poll.add(function () {
 				return L.resolveDefault(getServiceStatus()).then(function (res) {
-					var view = document.getElementById("cbi-zerotier-sample_config-service_status");
+					var view = document.getElementById('cbi-zerotier-sample_config-service_status');
 					view.innerHTML = renderStatus(res);
 				});
 			});
@@ -82,7 +82,7 @@ return view.extend({
 		o.inputtitle = _('Open website');
 		o.inputstyle = 'apply';
 		o.onclick = function () {
-			window.open("https://my.zerotier.com/network", '_blank');
+			window.open('https://my.zerotier.com/network', '_blank');
 		}
 
 		return m.render();
