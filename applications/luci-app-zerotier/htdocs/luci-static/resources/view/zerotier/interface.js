@@ -12,7 +12,6 @@ return view.extend({
     handleSaveApply: null,
     handleSave: null,
     handleReset: null,
-    
     load: function() {
         return fs.exec('/sbin/ifconfig').then(function(res) {
             if (res.code !== 0 || !res.stdout || res.stdout.trim() === '') {
