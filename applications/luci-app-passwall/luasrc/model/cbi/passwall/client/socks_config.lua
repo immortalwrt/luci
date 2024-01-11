@@ -78,7 +78,7 @@ o = s:option(Value, "autoswitch_retry_num", translate("Timeout retry num"))
 o.datatype = "min(1)"
 o.default = 1
 o:depends("enable_autoswitch", true)
-
+	
 autoswitch_backup_node = s:option(DynamicList, "autoswitch_backup_node", translate("List of backup nodes"))
 autoswitch_backup_node:depends("enable_autoswitch", true)
 function o.write(self, section, value)
@@ -108,10 +108,8 @@ o.default = "https://www.google.com/generate_204"
 o:depends("enable_autoswitch", true)
 
 for k, v in pairs(nodes_table) do
-	if v.node_type == "normal" then
-		autoswitch_backup_node:value(v.id, v["remark"])
-		socks_node:value(v.id, v["remark"])
-	end
+	autoswitch_backup_node:value(v.id, v["remark"])
+	socks_node:value(v.id, v["remark"])
 end
 
 m:append(Template(appname .. "/socks_auto_switch/footer"))

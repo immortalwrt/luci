@@ -365,7 +365,7 @@ run_singbox() {
 	[ -n "$dns_socks_address" ] && [ -n "$dns_socks_port" ] && _extra_param="${_extra_param} -dns_socks_address ${dns_socks_address} -dns_socks_port ${dns_socks_port}"
 	[ -n "$dns_listen_port" ] && _extra_param="${_extra_param} -dns_listen_port ${dns_listen_port}"
 	[ -n "$dns_cache" ] && _extra_param="${_extra_param} -dns_cache ${dns_cache}"
-
+	
 	local local_dns=$(echo -n $(echo "${LOCAL_DNS}" | sed "s/,/\n/g" | head -n1) | tr " " ",")
 	[ -z "$direct_dns_udp_server" ] && direct_dns_udp_server=$(echo ${local_dns} | awk -F '#' '{print $1}')
 	[ -z "$direct_dns_port" ] && direct_dns_port=$(echo ${local_dns} | awk -F '#' '{print $2}')
@@ -479,7 +479,7 @@ run_dns2socks() {
 run_chinadns_ng() {
 	local _listen_port _dns_china _dns_trust _chnlist _gfwlist _no_ipv6_rules _log_path _no_logic_log
 	eval_set_val $@
-
+	
 	local _LOG_FILE=$LOG_FILE
 	[ -n "$_no_logic_log" ] && LOG_FILE="/dev/null"
 
@@ -500,7 +500,7 @@ run_chinadns_ng() {
 			_extra_param="${_extra_param} -4 ${chnroute4_set} -6 ${chnroute6_set} -m ${_chnlist_file} -M -a"
 		}
 	}
-
+	
 	([ -n "$_chnlist" ] || [ -n "$_gfwlist" ]) && [ -s "${RULES_PATH}/gfwlist" ] && {
 		local _gfwlist_file="${TMP_PATH}/chinadns_gfwlist"
 		cp -a "${RULES_PATH}/gfwlist" "${_gfwlist_file}"
