@@ -242,8 +242,8 @@ return view.extend({
 		o.default = o.disabled;
 
 		o = s.taboption("advanced", form.Value, "doh_server_port", _("DOH Server Port"), _("Smartdns DOH server port."));
-		o.placeholder = 843;
-		o.default = 843;
+		o.placeholder = 443;
+		o.default = 443;
 		o.datatype = "port";
 		o.rempty = false;
 		o.depends('doh_server', '1');
