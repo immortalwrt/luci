@@ -59,8 +59,11 @@ case "$DISTRIB_TARGET" in
 		if echo "$CPU_FREQS" | grep -q "1800000"; then
 			# H6
 			uci_write_config 0 schedutil "$CPU_MIN_FREQ" "$CPU_MAX_FREQ"
+		elif echo "$CPU_FREQS" | grep -q "1296000"; then
+			# H5
+			uci_write_config 0 ondemand "$CPU_MIN_FREQ" "1296000" 10 50
 		else
-			# A64 / H5
+			# A64
 			uci_write_config 0 ondemand "$CPU_MIN_FREQ" "$CPU_MAX_FREQ" 10 50
 		fi
 		;;
