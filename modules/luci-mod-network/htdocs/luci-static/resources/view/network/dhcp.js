@@ -398,7 +398,7 @@ return view.extend({
 		o.value('-', _('stderr'));
 
 		o = s.taboption('forward', form.DynamicList, 'server',
-			_('DNS forwardings'),
+			_('DNS Forwards'),
 			_('Forward specific domain queries to specific upstream servers.'));
 		o.optional = true;
 		o.placeholder = '/*.example.org/10.1.2.3';
@@ -811,7 +811,8 @@ return view.extend({
 		so.optional = true;
 
 		Object.values(L.uci.sections('dhcp', 'dnsmasq')).forEach(function(val, index) {
-			so.value(generateDnsmasqInstanceEntry(val));
+			var name, display_str = generateDnsmasqInstanceEntry(val);
+			so.value(index, display_str);
 		});
 
 		o = s.taboption('srvhosts', form.SectionValue, '__srvhosts__', form.TableSection, 'srvhost', null,
@@ -1089,7 +1090,8 @@ return view.extend({
 		so.optional = true;
 
 		Object.values(L.uci.sections('dhcp', 'dnsmasq')).forEach(function(val, index) {
-			so.value(generateDnsmasqInstanceEntry(val));
+			var name, display_str = generateDnsmasqInstanceEntry(val);
+			so.value(index, display_str);
 		});
 
 
