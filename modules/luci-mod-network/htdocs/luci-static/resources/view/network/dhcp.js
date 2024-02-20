@@ -734,13 +734,6 @@ return view.extend({
 		o.optional = true;
 		o.placeholder = 3600;
 
-		o = s.taboption('limits', form.Value, 'mini_ttl',
-			_('Minimum TTL to send to clients'),
-			_('Modify DNS entries minimum TTL (max is 86400, 0 is no modify)'));
-		o.optional = true;
-		o.datatype = 'range(0,86400)';
-		o.placeholder = 0;
-
 		o = s.taboption('pxe_tftp', form.Flag, 'enable_tftp',
 			_('Enable TFTP server'),
 			_('Enable the built-in single-instance TFTP server.'));
