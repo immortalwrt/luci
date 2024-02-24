@@ -57,7 +57,7 @@ if api.is_finded("ipt2socks") then
 	function o.write(self, section, value)
 		m:set(section, "username", value)
 	end
-
+	
 	o = s:option(Value, "socks_password", translate("Password"))
 	o.password = true
 	o:depends("type", "Socks")

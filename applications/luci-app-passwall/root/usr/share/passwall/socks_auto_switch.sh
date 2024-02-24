@@ -86,7 +86,7 @@ test_auto_switch() {
 			return 1
 		fi
 	}
-
+	
 	[ $flag -le 1 ] && {
 		main_node=$now_node
 	}
@@ -96,7 +96,7 @@ test_auto_switch() {
 		echolog "自动切换检测：无法连接到网络，请检查网络是否正常！"
 		return 2
 	fi
-
+	
 	#检测主节点是否能使用
 	if [ "$restore_switch" == "1" ] && [ "$main_node" != "nil" ] && [ "$now_node" != "$main_node" ]; then
 		test_node ${main_node}
@@ -110,7 +110,7 @@ test_auto_switch() {
 			return 0
 		}
 	fi
-
+	
 	if [ "$status" == 0 ]; then
 		#echolog "自动切换检测：${id}【$(config_n_get $now_node type)：[$(config_n_get $now_node remarks)]】正常。"
 		return 0

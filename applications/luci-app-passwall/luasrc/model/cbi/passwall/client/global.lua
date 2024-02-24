@@ -126,7 +126,7 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 			end
 			type.cfgvalue = get_cfgvalue(v.id, "type")
 			type.write = get_write(v.id, "type")
-
+			
 			-- pre-proxy
 			o = s:taboption("Main", Flag, vid .. "-preproxy_enabled", translate("Preproxy"))
 			o:depends("tcp_node", v.id)

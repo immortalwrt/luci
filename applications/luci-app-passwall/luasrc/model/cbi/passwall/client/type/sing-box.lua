@@ -352,9 +352,8 @@ o = s:option(Flag, option_name("tls"), translate("TLS"))
 o.default = 0
 o:depends({ [option_name("protocol")] = "vmess" })
 o:depends({ [option_name("protocol")] = "vless" })
-o:depends({ [option_name("protocol")] = "socks" })
+o:depends({ [option_name("protocol")] = "http" })
 o:depends({ [option_name("protocol")] = "trojan" })
-o:depends({ [option_name("protocol")] = "shadowsocks" })
 
 o = s:option(ListValue, option_name("alpn"), translate("alpn"))
 o.default = "default"
@@ -425,10 +424,10 @@ if singbox_tags:find("with_utls") then
 	o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("utls")] = true })
 	o:depends({ [option_name("protocol")] = "socks", [option_name("utls")] = true })
 	o:depends({ [option_name("protocol")] = "trojan", [option_name("utls")] = true })
-
+	
 	o = s:option(Value, option_name("reality_publicKey"), translate("Public Key"))
 	o:depends({ [option_name("utls")] = true, [option_name("reality")] = true })
-
+	
 	o = s:option(Value, option_name("reality_shortId"), translate("Short Id"))
 	o:depends({ [option_name("utls")] = true, [option_name("reality")] = true })
 end

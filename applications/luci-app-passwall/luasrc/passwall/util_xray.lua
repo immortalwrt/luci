@@ -1241,7 +1241,7 @@ function gen_config(var)
 				-- }
 			}
 		}
-
+		
 		if xray_settings.fragment == "1" then
 			table.insert(outbounds, {
 				protocol = "freedom",
@@ -1260,9 +1260,9 @@ function gen_config(var)
 						tcpNoDelay = true
 					}
 				}
-			})
+			})		
 		end
-
+		
 		table.insert(outbounds, {
 			protocol = "freedom",
 			tag = "direct",

@@ -346,9 +346,9 @@ local api = require "luci.passwall.api"
 			var params = "";
 			params += opt.query("sni", dom_prefix + "tls_serverName");
 			params += opt.query("insecure", dom_prefix + "tls_allowInsecure");
-
+			
 			var v_password = null;
-
+			
 			if (v_type === "Hysteria2") {
 				v_password = opt.get("hysteria2_auth_password");
 				params += opt.query("pinSHA256", "hysteria2_tls_pinSHA256");
@@ -850,10 +850,10 @@ local api = require "luci.passwall.api"
 					opt.set(dom_prefix + 'tls_pinSHA256', queryParam.pinSHA256);
 				}
 			}
-
+			
 			opt.set(dom_prefix + 'address', m.hostname);
 			opt.set(dom_prefix + 'port', m.port || "443");
-
+			
 			opt.set(dom_prefix + 'tls_serverName', queryParam.sni);
 			if (queryParam.insecure && queryParam.insecure == "1") {
 				opt.set(dom_prefix + 'tls_allowInsecure', true);

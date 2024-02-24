@@ -37,7 +37,7 @@ table td, .table .td {
 <script type="text/javascript">
 	//<![CDATA[
 	let auto_detection_time = "<%=api.uci_get_type("global_other", "auto_detection_time", "0")%>"
-
+	
 	var node_list = {};
 	var node_count = 0;
 
@@ -260,7 +260,7 @@ table td, .table .td {
 			);
 		}
 	}
-
+	
 	function ping_node(cbi_id, dom, type) {
 		var full = get_address_full(cbi_id);
 		if (full != null) {
@@ -289,7 +289,7 @@ table td, .table .td {
 			);
 		}
 	}
-
+	
 	get_now_use_node();
 
 	/* 自动Ping */
