@@ -875,6 +875,53 @@ function gen_config(var)
 			table.insert(inbounds, inbound)
 		end
 
+		local function set_outbound_detour(node, outbound, outbounds_table, shunt_rule_name)
+			if not node or not outbound or not outbounds_table then return nil end
+			local default_outTag = outbound.tag
+
+			if node.shadowtls == "1" then
+				local _node = {
+					type = "sing-box",
+					protocol = "shadowtls",
+					shadowtls_version = node.shadowtls_version,
+					password = (node.shadowtls_version == "2" or node.shadowtls_version == "3") and node.shadowtls_password or nil,
+					address = node.address,
+					port = node.port,
+					tls = "1",
+					tls_serverName = node.shadowtls_serverName,
+					utls = node.shadowtls_utls,
+					fingerprint = node.shadowtls_fingerprint
+				}
+				local shadowtls_outbound = gen_outbound(nil, _node, outbound.tag .. "_shadowtls")
+				if shadowtls_outbound then
+					table.insert(outbounds_table, shadowtls_outbound)
+					outbound.detour = outbound.tag .. "_shadowtls"
+					outbound.server = nil
+					outbound.server_port = nil
+				end
+			end
+
+			if node.to_node then
+				local to_node = uci:get_all(appname, node.to_node)
+				if to_node then
+					local to_outbound = gen_outbound(nil, to_node)
+					if to_outbound then
+						if shunt_rule_name then
+							to_outbound.tag = outbound.tag
+							outbound.tag = node[".name"]
+						else
+							to_outbound.tag = outbound.tag .. " -> " .. to_outbound.tag
+						end
+
+						to_outbound.detour = outbound.tag
+						table.insert(outbounds_table, to_outbound)
+						default_outTag = to_outbound.tag
+					end
+				end
+			end
+			return default_outTag
+		end
+
 		if node.protocol == "_shunt" then
 			local rules = {}
 
@@ -903,34 +950,14 @@ function gen_config(var)
 			elseif preproxy_node and api.is_normal_node(preproxy_node) then
 				local preproxy_outbound = gen_outbound(flag, preproxy_node, preproxy_tag)
 				if preproxy_outbound then
-					if preproxy_node.shadowtls == "1" then
-						local _node = {
-							type = "sing-box",
-							protocol = "shadowtls",
-							shadowtls_version = preproxy_node.shadowtls_version,
-							password = (preproxy_node.shadowtls_version == "2" or preproxy_node.shadowtls_version == "3") and preproxy_node.shadowtls_password or nil,
-							address = preproxy_node.address,
-							port = preproxy_node.port,
-							tls = "1",
-							tls_serverName = preproxy_node.shadowtls_serverName,
-							utls = preproxy_node.shadowtls_utls,
-							fingerprint = preproxy_node.shadowtls_fingerprint
-						}
-						local shadowtls_outbound = gen_outbound(flag, _node, preproxy_tag .. "_shadowtls")
-						if shadowtls_outbound then
-							table.insert(outbounds, shadowtls_outbound)
-							preproxy_outbound.detour = preproxy_outbound.tag .. "_shadowtls"
-							preproxy_outbound.server = nil
-							preproxy_outbound.server_port = nil
-						end
-					end
+					set_outbound_detour(preproxy_node, preproxy_outbound, outbounds, preproxy_tag)
 					table.insert(outbounds, preproxy_outbound)
 				else
 					preproxy_enabled = false
 				end
 			end
 
-			local function gen_shunt_node(rule_name, _node_id, as_proxy)
+			local function gen_shunt_node(rule_name, _node_id)
 				if not rule_name then return nil, nil end
 				if not _node_id then _node_id = node[rule_name] or "nil" end
 				local rule_outboundTag
@@ -1002,27 +1029,7 @@ function gen_config(var)
 							end
 							local _outbound = gen_outbound(flag, _node, rule_name, { proxy = proxy and 1 or 0, tag = proxy and preproxy_tag or nil })
 							if _outbound then
-								if _node.shadowtls == "1" then
-									local shadowtls_node = {
-										type = "sing-box",
-										protocol = "shadowtls",
-										shadowtls_version = _node.shadowtls_version,
-										password = (_node.shadowtls_version == "2" or _node.shadowtls_version == "3") and _node.shadowtls_password or nil,
-										address = _node.address,
-										port = _node.port,
-										tls = "1",
-										tls_serverName = _node.shadowtls_serverName,
-										utls = _node.shadowtls_utls,
-										fingerprint = _node.shadowtls_fingerprint
-									}
-									local shadowtls_outbound = gen_outbound(flag, shadowtls_node, rule_name .. "_shadowtls", { proxy = proxy and 1 or 0, tag = proxy and preproxy_tag or nil })
-									if shadowtls_outbound then
-										table.insert(outbounds, shadowtls_outbound)
-										_outbound.detour = _outbound.tag .. "_shadowtls"
-										_outbound.server = nil
-										_outbound.server_port = nil
-									end
-								end
+								set_outbound_detour(_node, _outbound, outbounds, rule_name)
 								table.insert(outbounds, _outbound)
 								rule_outboundTag = rule_name
 							end
@@ -1082,7 +1089,7 @@ function gen_config(var)
 							end
 						end
 					end
-
+					
 					local rule = {
 						inbound = inboundTag,
 						outbound = outboundTag,
@@ -1201,46 +1208,23 @@ function gen_config(var)
 			for index, value in ipairs(rules) do
 				table.insert(route.rules, rules[index])
 			end
-		else
-			local outbound = nil
-			if node.protocol == "_iface" then
-				if node.iface then
-					outbound = {
-						type = "direct",
-						tag = node_id,
-						bind_interface = node.iface,
-						routing_mark = 255,
-					}
-					sys.call("touch /tmp/etc/passwall/iface/" .. node.iface)
-				end
-			else
-				outbound = gen_outbound(flag, node)
-				if outbound then
-					if node.shadowtls == "1" then
-						local shadowtls_node = {
-							type = "sing-box",
-							protocol = "shadowtls",
-							shadowtls_version = node.shadowtls_version,
-							password = (node.shadowtls_version == "2" or node.shadowtls_version == "3") and node.shadowtls_password or nil,
-							address = node.address,
-							port = node.port,
-							tls = "1",
-							tls_serverName = node.shadowtls_serverName,
-							utls = node.shadowtls_utls,
-							fingerprint = node.shadowtls_fingerprint
-						}
-						local shadowtls_outbound = gen_outbound(flag, shadowtls_node, outbound.tag .. "_shadowtls")
-						if shadowtls_outbound then
-							table.insert(outbounds, shadowtls_outbound)
-							outbound.detour = outbound.tag .. "_shadowtls"
-							outbound.server = nil
-							outbound.server_port = nil
-						end
-					end
-				end
-			end
-			if outbound then
+		elseif node.protocol == "_iface" then
+			if node.iface then
+				local outbound = {
+					type = "direct",
+					tag = node_id,
+					bind_interface = node.iface,
+					routing_mark = 255,
+				}
+				table.insert(outbounds, outbound)
 				default_outTag = outbound.tag
+				route.final = default_outTag
+				sys.call("touch /tmp/etc/passwall/iface/" .. node.iface)
+			end
+		else
+			local outbound = gen_outbound(flag, node)
+			if outbound then
+				default_outTag = set_outbound_detour(node, outbound, outbounds)
 				table.insert(outbounds, outbound)
 				route.final = default_outTag
 			end
@@ -1312,7 +1296,7 @@ function gen_config(var)
 				inet4_range = "198.18.0.0/16",
 				inet6_range = "fc00::/18",
 			}
-
+			
 			table.insert(dns.servers, {
 				tag = fakedns_tag,
 				address = "fakeip",
@@ -1328,7 +1312,7 @@ function gen_config(var)
 				path = "/tmp/singbox_passwall_" .. flag .. ".db"
 			}
 		end
-
+	
 		if direct_dns_udp_server then
 			local domain = {}
 			local nodes_domain_text = sys.exec('uci show passwall | grep ".address=" | cut -d "\'" -f 2 | grep "[a-zA-Z]$" | sort -u')
@@ -1341,16 +1325,16 @@ function gen_config(var)
 					domain = domain
 				})
 			end
-
+	
 			local direct_strategy = "prefer_ipv6"
 			if direct_dns_query_strategy == "UseIPv4" then
 				direct_strategy = "ipv4_only"
 			elseif direct_dns_query_strategy == "UseIPv6" then
 				direct_strategy = "ipv6_only"
 			end
-
+	
 			local port = tonumber(direct_dns_port) or 53
-
+	
 			table.insert(dns.servers, {
 				tag = "direct",
 				address = "udp://" .. direct_dns_udp_server .. ":" .. port,
@@ -1419,7 +1403,7 @@ function gen_config(var)
 				end
 			end
 		end
-
+	
 		table.insert(inbounds, {
 			type = "direct",
 			tag = "dns-in",
@@ -1439,7 +1423,7 @@ function gen_config(var)
 			outbound = "dns-out"
 		})
 	end
-
+	
 	if inbounds or outbounds then
 		local config = {
 			log = {
@@ -1544,7 +1528,7 @@ function gen_proto_config(var)
 		}
 		if outbound then table.insert(outbounds, outbound) end
 	end
-
+	
 	local config = {
 		log = {
 			disabled = true,
