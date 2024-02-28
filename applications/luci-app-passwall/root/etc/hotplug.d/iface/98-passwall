@@ -14,10 +14,10 @@
 			cat /dev/null > ${LOCK_FILE}
 		fi
 		echo $$ > ${LOCK_FILE}
-		
+
 		/etc/init.d/passwall restart
 		echo "passwall: restart when $INTERFACE ifup" > /dev/kmsg
-		
+
 		rm -rf ${LOCK_FILE}
 	}
 }
