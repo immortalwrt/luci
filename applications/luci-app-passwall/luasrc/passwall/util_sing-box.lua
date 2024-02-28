@@ -1089,7 +1089,7 @@ function gen_config(var)
 							end
 						end
 					end
-					
+
 					local rule = {
 						inbound = inboundTag,
 						outbound = outboundTag,
@@ -1296,7 +1296,7 @@ function gen_config(var)
 				inet4_range = "198.18.0.0/16",
 				inet6_range = "fc00::/18",
 			}
-			
+
 			table.insert(dns.servers, {
 				tag = fakedns_tag,
 				address = "fakeip",
@@ -1312,7 +1312,7 @@ function gen_config(var)
 				path = "/tmp/singbox_passwall_" .. flag .. ".db"
 			}
 		end
-	
+
 		if direct_dns_udp_server then
 			local domain = {}
 			local nodes_domain_text = sys.exec('uci show passwall | grep ".address=" | cut -d "\'" -f 2 | grep "[a-zA-Z]$" | sort -u')
@@ -1325,16 +1325,16 @@ function gen_config(var)
 					domain = domain
 				})
 			end
-	
+
 			local direct_strategy = "prefer_ipv6"
 			if direct_dns_query_strategy == "UseIPv4" then
 				direct_strategy = "ipv4_only"
 			elseif direct_dns_query_strategy == "UseIPv6" then
 				direct_strategy = "ipv6_only"
 			end
-	
+
 			local port = tonumber(direct_dns_port) or 53
-	
+
 			table.insert(dns.servers, {
 				tag = "direct",
 				address = "udp://" .. direct_dns_udp_server .. ":" .. port,
@@ -1403,7 +1403,7 @@ function gen_config(var)
 				end
 			end
 		end
-	
+
 		table.insert(inbounds, {
 			type = "direct",
 			tag = "dns-in",
@@ -1423,7 +1423,7 @@ function gen_config(var)
 			outbound = "dns-out"
 		})
 	end
-	
+
 	if inbounds or outbounds then
 		local config = {
 			log = {
@@ -1528,7 +1528,7 @@ function gen_proto_config(var)
 		}
 		if outbound then table.insert(outbounds, outbound) end
 	end
-	
+
 	local config = {
 		log = {
 			disabled = true,
