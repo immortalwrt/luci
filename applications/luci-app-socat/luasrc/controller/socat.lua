@@ -3,7 +3,7 @@ module("luci.controller.socat", package.seeall)
 local http = require "luci.http"
 
 function index()
-    if not nixio.fs.access("/etc/config/socat") then return end
+    if not nixio.fs.access("/etc/config/socat_luci") then return end
 
     entry({"admin", "network", "socat"}, cbi("socat/index"), _("Socat"), 100).acl_depends = { "luci-app-socat" }
     entry({"admin", "network", "socat", "config"}, cbi("socat/config")).leaf = true
