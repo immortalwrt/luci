@@ -222,7 +222,7 @@ var UIElement = baseclass.extend(/** @lends LuCI.ui.AbstractElement.prototype */
 	},
 
 	/**
-	 * Setup listeners for native DOM events that may update the widget value.
+	 * Set up listeners for native DOM events that may update the widget value.
 	 *
 	 * Sets up event handlers on the given target DOM node for the given event
 	 * names which may cause the input value to update, such as `keyup` or
@@ -265,7 +265,7 @@ var UIElement = baseclass.extend(/** @lends LuCI.ui.AbstractElement.prototype */
 	},
 
 	/**
-	 * Setup listeners for native DOM events that may change the widget value.
+	 * Set up listeners for native DOM events that may change the widget value.
 	 *
 	 * Sets up event handlers on the given target DOM node for the given event
 	 * names which may cause the input value to change completely, such as
@@ -292,7 +292,7 @@ var UIElement = baseclass.extend(/** @lends LuCI.ui.AbstractElement.prototype */
 	},
 
 	/**
-	 * Render the widget, setup event listeners and return resulting markup.
+	 * Render the widget, set up event listeners and return resulting markup.
 	 *
 	 * @instance
 	 * @memberof LuCI.ui.AbstractElement
@@ -1187,8 +1187,6 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 			window.addEventListener('touchstart', this.closeAllDropdowns);
 		}
 		else {
-			sb.addEventListener('mouseover', this.handleMouseover.bind(this));
-			sb.addEventListener('mouseout', this.handleMouseout.bind(this));
 			sb.addEventListener('focus', this.handleFocus.bind(this));
 
 			canary.addEventListener('focus', this.handleCanaryFocus.bind(this));
@@ -1340,7 +1338,8 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		sb.insertBefore(pv, ul.nextElementSibling);
 
 		li.forEach(function(l) {
-			l.setAttribute('tabindex', 0);
+			if (!l.hasAttribute('unselectable'))
+				l.setAttribute('tabindex', 0);
 		});
 
 		sb.lastElementChild.setAttribute('tabindex', 0);
@@ -1459,7 +1458,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 			li.setAttribute('display', 0);
 			li.setAttribute('selected', '');
 
-			this.closeDropdown(sb, true);
+			this.closeDropdown(sb);
 		}
 
 		this.saveValues(sb, ul);
@@ -1582,20 +1581,6 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	},
 
 	/** @private */
-	handleMouseout: function(ev) {
-		var sb = ev.currentTarget;
-
-		if (!sb.hasAttribute('open'))
-			return;
-
-		sb.querySelectorAll('.focus').forEach(function(e) {
-			e.classList.remove('focus');
-		});
-
-		sb.querySelector('ul.dropdown').focus();
-	},
-
-	/** @private */
 	createChoiceElement: function(sb, value, label) {
 		var tpl = sb.querySelector(this.options.create_template),
 		    markup = null;
@@ -1619,6 +1604,9 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 
 		if (this.options.multiple)
 			this.transformItem(sb, new_item);
+
+		if (!new_item.hasAttribute('unselectable'))
+			new_item.setAttribute('tabindex', 0);
 
 		return new_item;
 	},
@@ -1826,7 +1814,12 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 
 			case 40:
 				if (active && active.nextElementSibling) {
-					this.setFocus(sb, active.nextElementSibling);
+					var li = active.nextElementSibling;
+					this.setFocus(sb, li);
+					if (this.options.create && li == li.parentNode.lastElementChild) {
+						var input = li.querySelector('input:not([type="hidden"]):not([type="checkbox"]');
+						if (input) input.focus();
+					}
 					ev.preventDefault();
 				}
 				else if (document.activeElement === ul) {
@@ -1858,19 +1851,6 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	},
 
 	/** @private */
-	handleMouseover: function(ev) {
-		var sb = ev.currentTarget;
-
-		if (!sb.hasAttribute('open'))
-			return;
-
-		var li = findParent(ev.target, 'li');
-
-		if (li && li.parentNode.classList.contains('dropdown'))
-			this.setFocus(sb, li);
-	},
-
-	/** @private */
 	handleFocus: function(ev) {
 		var sb = ev.currentTarget;
 
@@ -1888,7 +1868,8 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	/** @private */
 	handleCreateKeydown: function(ev) {
 		var input = ev.currentTarget,
-		    sb = findParent(input, '.cbi-dropdown');
+		    li = findParent(input, 'li'),
+		    sb = findParent(li, '.cbi-dropdown');
 
 		switch (ev.keyCode) {
 		case 13:
@@ -1897,9 +1878,23 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 			if (input.classList.contains('cbi-input-invalid'))
 				return;
 
+			this.handleCreateBlur(ev);
 			this.createItems(sb, input.value);
 			input.value = '';
-			input.blur();
+			break;
+
+		case 27:
+			this.handleCreateBlur(ev);
+			this.closeDropdown(sb);
+			ev.stopPropagation();
+			input.value = '';
+			break;
+
+		case 38:
+			if (li.previousElementSibling) {
+				this.handleCreateBlur(ev);
+				this.setFocus(sb, li.previousElementSibling, true);
+			}
 			break;
 		}
 	},
@@ -1907,13 +1902,15 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	/** @private */
 	handleCreateFocus: function(ev) {
 		var input = ev.currentTarget,
-		    cbox = findParent(input, 'li').querySelector('input[type="checkbox"]'),
+		    li = findParent(input, 'li'),
+		    cbox = li.querySelector('input[type="checkbox"]'),
 		    sb = findParent(input, '.cbi-dropdown');
 
 		if (cbox)
 			cbox.checked = true;
 
 		sb.setAttribute('locked-in', '');
+		this.setFocus(sb, li, true);
 	},
 
 	/** @private */
@@ -3509,7 +3506,7 @@ var UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 		tooltipDiv = document.body.appendChild(
 			dom.create('div', { class: 'cbi-tooltip' }));
 
-		/* setup old aliases */
+		/* set up old aliases */
 		L.showModal = this.showModal;
 		L.hideModal = this.hideModal;
 		L.showTooltip = this.showTooltip;
@@ -3580,7 +3577,7 @@ var UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 	 * behaviour. It has no effect if no modal dialog is currently open.
 	 *
 	 * Note that this function is stand-alone, it does not rely on `this` and
-	 * will not invoke other class functions so it suitable to be used as event
+	 * will not invoke other class functions so it is suitable to be used as event
 	 * handler as-is without the need to bind it first.
 	 */
 	hideModal: function() {
