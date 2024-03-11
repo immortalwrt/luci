@@ -3,14 +3,14 @@
 
 module("luci.controller.passwall", package.seeall)
 local api = require "luci.passwall.api"
-local appname = api.appname
+local appname = "passwall"
 local ucic = luci.model.uci.cursor()
 local http = require "luci.http"
 local util = require "luci.util"
 local i18n = require "luci.i18n"
 
 function index()
-	appname = require "luci.passwall.api".appname
+	appname = "passwall"
 	entry({"admin", "services", appname}).dependent = true
 	entry({"admin", "services", appname, "reset_config"}, call("reset_config")).leaf = true
 	entry({"admin", "services", appname, "show"}, call("show_menu")).leaf = true
@@ -148,12 +148,13 @@ function socks_autoswitch_remove_node()
 end
 
 function get_now_use_node()
+	local path = "/tmp/etc/passwall/acl/default"
 	local e = {}
-	local data, code, msg = nixio.fs.readfile("/tmp/etc/passwall/id/TCP")
+	local data, code, msg = nixio.fs.readfile(path .. "/TCP.id")
 	if data then
 		e["TCP"] = util.trim(data)
 	end
-	local data, code, msg = nixio.fs.readfile("/tmp/etc/passwall/id/UDP")
+	local data, code, msg = nixio.fs.readfile(path .. "/UDP.id")
 	if data then
 		e["UDP"] = util.trim(data)
 	end
@@ -162,13 +163,15 @@ function get_now_use_node()
 end
 
 function get_redir_log()
+	local name = luci.http.formvalue("name")
 	local proto = luci.http.formvalue("proto")
+	local path = "/tmp/etc/passwall/acl/" .. name
 	proto = proto:upper()
-	if proto == "UDP" and (ucic:get(appname, "@global[0]", "udp_node") or "nil") == "tcp" and not nixio.fs.access("/tmp/etc/passwall/" .. proto .. ".log") then
+	if proto == "UDP" and (ucic:get(appname, "@global[0]", "udp_node") or "nil") == "tcp" and not nixio.fs.access(path .. "/" .. proto .. ".log") then
 		proto = "TCP"
 	end
-	if nixio.fs.access("/tmp/etc/passwall/" .. proto .. ".log") then
-		local content = luci.sys.exec("cat /tmp/etc/passwall/" .. proto .. ".log")
+	if nixio.fs.access(path .. "/" .. proto .. ".log") then
+		local content = luci.sys.exec("cat ".. path .. "/" .. proto .. ".log")
 		content = content:gsub("\n", "<br />")
 		luci.http.write(content)
 	else
@@ -190,12 +193,12 @@ function status()
 	local e = {}
 	e.dns_mode_status = luci.sys.call("netstat -apn | grep ':15353 ' >/dev/null") == 0
 	e.haproxy_status = luci.sys.call(string.format("top -bn1 | grep -v grep | grep '%s/bin/' | grep haproxy >/dev/null", appname)) == 0
-	e["tcp_node_status"] = luci.sys.call(string.format("top -bn1 | grep -v -E 'grep|acl/|acl_' | grep '%s/bin/' | grep -i 'TCP' >/dev/null", appname)) == 0
+	e["tcp_node_status"] = luci.sys.call("top -bn1 | grep -v 'grep' | grep '/tmp/etc/passwall/bin/' | grep -v '_acl_' | grep 'TCP' >/dev/null") == 0
 
 	if (ucic:get(appname, "@global[0]", "udp_node") or "nil") == "tcp" then
 		e["udp_node_status"] = e["tcp_node_status"]
 	else
-		e["udp_node_status"] = luci.sys.call(string.format("top -bn1 | grep -v -E 'grep|acl/|acl_' | grep '%s/bin/' | grep -i 'UDP' >/dev/null", appname)) == 0
+		e["udp_node_status"] = luci.sys.call("top -bn1 | grep -v 'grep' | grep '/tmp/etc/passwall/bin/' | grep -v '_acl_' | grep 'UDP' >/dev/null") == 0
 	end
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
@@ -212,12 +215,12 @@ function socks_status()
 	local index = luci.http.formvalue("index")
 	local id = luci.http.formvalue("id")
 	e.index = index
-	e.socks_status = luci.sys.call(string.format("top -bn1 | grep -v -E 'grep|acl/|acl_' | grep '%s/bin/' | grep '%s' | grep 'SOCKS_' > /dev/null", appname, id)) == 0
+	e.socks_status = luci.sys.call(string.format("top -bn1 | grep -v 'grep' | grep '/tmp/etc/passwall/bin/' | grep -v '_acl_' | grep '%s' | grep 'SOCKS_' > /dev/null", id)) == 0
 	local use_http = ucic:get(appname, id, "http_port") or 0
 	e.use_http = 0
 	if tonumber(use_http) > 0 then
 		e.use_http = 1
-		e.http_status = luci.sys.call(string.format("top -bn1 | grep -v -E 'grep|acl/|acl_' | grep '%s/bin/' | grep '%s' | grep -E 'HTTP_|HTTP2SOCKS' > /dev/null", appname, id)) == 0
+		e.http_status = luci.sys.call(string.format("top -bn1 | grep -v 'grep' | grep '/tmp/etc/passwall/bin/' | grep -v '_acl_' | grep '%s' | grep -E 'HTTP_|HTTP2SOCKS' > /dev/null", id)) == 0
 	end
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
