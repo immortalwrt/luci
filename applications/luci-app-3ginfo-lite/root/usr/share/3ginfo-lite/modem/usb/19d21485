@@ -119,6 +119,11 @@ esac
 
 MODE=$(echo $MODE | sed "s/LTE_A/LTE-A |/g" | sed 's,/,+,')
 
+if [ "${LAC_DEC}" = "0" ]; then
+	LAC_DEC="-"
+	LAC_HEX="-"
+fi 
+
 # Firmware
 OF=$(sms_tool -d $DEVICE at "ati")
 DEVV=$(echo $OF | tr -s "\n"  | xargs)
@@ -164,16 +169,31 @@ fi
 # Protocol
 # DRIVER=QMI_WWAN & DRIVER=CDC_MBIM & DRIVER=CDC_ETHER
 PV=$(cat /sys/kernel/debug/usb/devices 2>/dev/null)
-PVCUT=$(echo $PV | awk -F 'Vendor=19d2 ProdID=1485' '{print $2}' | cut -c-1220)
-if echo "$PVCUT" | grep -q "Driver=qmi_wwan"
-then
+PV85=$(echo $PV | awk -F 'Vendor=19d2 ProdID=1485' '{print $2}' | cut -c-1220)
+if [ -n "$PV85" ]; then
+    if echo "$PV85" | grep -q "Driver=qmi_wwan"
+    then
     PROTO="qmi"
-elif echo "$PVCUT" | grep -q "Driver=cdc_mbim"
-then
+    elif echo "$PV85" | grep -q "Driver=cdc_mbim"
+    then
     PROTO="mbim"
-elif echo "$PVCUT" | grep -q "Driver=cdc_ether"
-then
+    elif echo "$PV85" | grep -q "Driver=cdc_ether"
+    then
     PROTO="ecm"
+    fi
+fi
+PV32=$(echo $PV | awk -F 'Vendor=19d2 ProdID=1432' '{print $2}' | cut -c-1220)
+if [ -n "$PV32" ]; then
+    if echo "$PV32" | grep -q "Driver=qmi_wwan"
+    then
+    PROTO="qmi"
+    elif echo "$PV32" | grep -q "Driver=cdc_mbim"
+    then
+    PROTO="mbim"
+    elif echo "$PV32" | grep -q "Driver=cdc_ether"
+    then
+    PROTO="ecm"
+    fi
 fi
 
 #T=$(echo "$O" | awk -F[,:] '/^\+ZDON/ {print $2}' | xargs)
