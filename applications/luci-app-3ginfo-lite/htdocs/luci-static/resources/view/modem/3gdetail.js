@@ -471,7 +471,7 @@ modemDialog: baseclass.extend({
 						view.textContent = '-';
 						}
 						else {
-						view.textContent = json.location;
+						view.innerHTML = json.location;
 						}
 						}
 					}
@@ -693,20 +693,20 @@ modemDialog: baseclass.extend({
 
 					if (document.getElementById('lac')) {
 						var view = document.getElementById("lac");
-						
-						if (json.lac_dec == 0 || json.lac_hex == 0) {
-						view.textContent = '-';
-						}
-						
-						if (json.lac_dec == '' || json.lac_hex == '') { 
-						var lc = json.lac_dec   + ' ' + json.lac_hex;
-						var ld = lc.split(' ').join('');
-						view.textContent = ld;
+						var viewn = document.getElementById("lacn");
+						if (json.lac_dec.length < 2 || json.lac_hex.length < 2) { 
+						viewn.style.display = "none";
 						}
 						else {
-						view.innerHTML = json.lac_dec + ' (' + json.lac_hex + ')';
+							if (json.lac_dec == '' || json.lac_hex == '') { 
+							var lc = json.lac_dec   + ' ' + json.lac_hex;
+							var ld = lc.split(' ').join('');
+							view.textContent = ld;
+							}
+							else {
+							view.innerHTML = json.lac_dec + ' (' + json.lac_hex + ')';
+							}
 						}
-
 					}
 
 					if (document.getElementById('tac')) {
@@ -939,7 +939,7 @@ modemDialog: baseclass.extend({
 					E('td', { 'class': 'td left', 'width': '33%' }, [ _('TAC')]),
 					E('td', { 'class': 'td left', 'id': 'tac' }, [ '-' ]),
 					]),
-				E('tr', { 'class': 'tr' }, [
+				E('tr', { 'id': 'lacn', 'class': 'tr' }, [
 					E('td', { 'class': 'td left', 'width': '33%' }, [ _('LAC')]),
 					E('td', { 'class': 'td left', 'id': 'lac' }, [ '-' ]),
 					]),

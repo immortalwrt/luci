@@ -1,7 +1,4 @@
-# Quectel RG500Q-EA
-# Quectel RG502Q-EA
-# Quectel RM500Q-GL
-# Quectel RM502Q-AE
+# Quectel RM500U-CNV
 
 O=$(sms_tool -d $DEVICE at "at+qtemp")
 
@@ -77,12 +74,12 @@ esac
 T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $5}')
 if [ -n "$T" ]; then
 	case $T in
-		*"LTE BAND"*)
-			B=$(echo $T | sed 's/"LTE BAND \(.*\)"/\1/')
+		*"LTE B"*)
+			B=$(echo $T | sed 's/[^0-9]*//g')
 			MODE="$MODE $(band ${B})"
 			;;
-		*"NR5G BAND"*)
-			B=$(echo $T | sed 's/"NR5G BAND \(.*\)"/\1/')
+		*"NR N"*)
+			B=$(echo $T | sed 's/[^0-9]*//g')
 			MODE="$MODE $(band5g ${B})"
 			;;
 	esac
@@ -91,12 +88,12 @@ if [ -n "$T" ]; then
 	if [ -n "$T1" ]; then
 		for T in $T1; do
 			case $T in
-				*"LTE-BAND"*)
-					B=$(echo $T | sed 's/"LTE-BAND-\(.*\)"/\1/')
+				*"LTE-B"*)
+					B=$(echo $T | sed 's/[^0-9]*//g')
 					MODE="$MODE / $(band ${B})"
 					;;
-				*"NR5G-BAND"*)
-					B=$(echo $T | sed 's/"NR5G-BAND-\(.*\)"/\1/')
+				*"NR-N"*)
+					B=$(echo $T | sed 's/[^0-9]*//g')
 					MODE="$MODE / $(band5g ${B})"
 					;;
 			esac
@@ -467,7 +464,7 @@ fi
 # Protocol
 # DRIVER=QMI_WWAN & DRIVER=CDC_MBIM & DRIVER=CDC_ETHER
 PV=$(cat /sys/kernel/debug/usb/devices 2>/dev/null)
-PVCUT=$(echo $PV | awk -F 'Vendor=2c7c ProdID=0800' '{print $2}' | cut -c-1220)
+PVCUT=$(echo $PV | awk -F 'Vendor=2c7c ProdID=0900' '{print $2}' | cut -c-1290)
 if echo "$PVCUT" | grep -q "Driver=qmi_wwan"
 then
     PROTO="qmi"

@@ -279,6 +279,17 @@ fi
 COPZ=$(echo $COPS | sed ':s;s/\(\<\S*\>\)\(.*\)\<\1\>/\1\2/g;ts')
 COPS=$(echo $COPZ | awk '{for(i=1;i<=NF;i++){ $i=toupper(substr($i,1,1)) substr($i,2) }}1')
 
+isp=$(sms_tool -d $DEVICE at "AT+COPS?"|sed -n '2p'|cut -d '"' -f2|tr -d '\r')
+isp_num="$COPS_MCC $COPS_MNC"
+isp_numws="$COPS_MCC$COPS_MNC"
+
+if [[ "$COPS" = "$isp_num" || "$COPS" = "$isp_numws" ]]; then
+	if [ -n "$isp" ]; then
+		COPS=$(awk -F[\;] '/^'$isp';/ {print $3}' $RES/mccmnc.dat)
+		LOC=$(awk -F[\;] '/^'$isp';/ {print $2}' $RES/mccmnc.dat)
+	fi
+fi
+
 # operator location from temporary config
 LOCATIONFILE=/tmp/location
 if [ -e "$LOCATIONFILE" ]; then

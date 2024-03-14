@@ -11,7 +11,7 @@ LUCI_DESCRIPTION:=LuCI JS interface for the 3ginfo-lite. The package allows you 
 LUCI_DEPENDS:=+sms-tool +comgt +kmod-usb-serial-option
 
 PKG_NAME:=luci-app-3ginfo-lite
-PKG_VERSION:=1.0.62-20240113
+PKG_VERSION:=1.0.64-20240201
 PKG_MAINTAINER:=Rafał Wabik <4Rafal@gmail.com>
 
 include ../../luci.mk
