@@ -724,7 +724,6 @@ return baseclass.extend({
 
 		o = this.replaceOption(s, 'devgeneral', cbiFlagTristate, 'ipv6', _('Enable IPv6'));
 		o.sysfs = '!/proc/sys/net/ipv6/conf/%s/disable_ipv6'.format(devname || 'default');
-		o.migrate = false;
 
 		o = this.replaceOption(s, 'devadvanced', cbiFlagTristate, 'ip6segmentrouting', _('Enable IPv6 segment routing'));
 		o.sysfs = '/proc/sys/net/ipv6/conf/%s/seg6_enabled'.format(devname || 'default');
@@ -918,6 +917,15 @@ return baseclass.extend({
 
 				return this.redraw();
 			}, this));
+		};
+
+		ss.handleRemove = function(section_id) {
+			this.map.data.remove('network', section_id);
+			s.map.addedVLANs = s.map.addedVLANs.filter(function(sid) {
+				return sid != section_id;
+			});
+
+			return this.redraw();
 		};
 
 		o = ss.option(form.Value, 'vlan', _('VLAN ID'));
