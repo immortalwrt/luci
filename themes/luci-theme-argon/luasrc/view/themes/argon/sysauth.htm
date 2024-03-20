@@ -71,11 +71,13 @@
 		local backgroundType	= "Image"
 		local mimeType			= ""
 
-		local online_wallpaper = uci:get_first('argon', 'global', 'online_wallpaper') or (uci:get_first('argon', 'global', 'bing_background') == '1' and 'bing')
-		if (online_wallpaper and online_wallpaper ~= "none") then
-			local picurl = sys.exec("/usr/libexec/argon/online_wallpaper")
-			if (picurl and picurl ~= '') then
-				return picurl, "Image", ""
+		if fs.access('/usr/libexec/argon/online_wallpaper') then
+			local online_wallpaper = uci:get_first('argon', 'global', 'online_wallpaper') or (uci:get_first('argon', 'global', 'bing_background') == '1' and 'bing')
+			if (online_wallpaper and online_wallpaper ~= "none") then
+				local picurl = sys.exec("/usr/libexec/argon/online_wallpaper")
+				if (picurl and picurl ~= '') then
+					return picurl, "Image", ""
+				end
 			end
 		end
 
