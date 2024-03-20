@@ -37,20 +37,15 @@
 	math.randomseed(tonumber(tostring(os.time()):reverse():sub(1, 9)))
 
 	-- Custom settings
-	local mode = 'normal'
+	local mode = uci:get_first('argon', 'global', 'mode') or 'normal'
 	local dark_css = fs.readfile('/www/luci-static/argon/css/dark.css')
-	local bar_color = '#5e72e4'
-	local primary, dark_primary, blur_radius, blur_radius_dark, blur_opacity
-	if fs.access('/etc/config/argon') then
-		primary = uci:get_first('argon', 'global', 'primary')
-		dark_primary = uci:get_first('argon', 'global', 'dark_primary')
-		blur_radius = uci:get_first('argon', 'global', 'blur')
-		blur_radius_dark = uci:get_first('argon', 'global', 'blur_dark')
-		blur_opacity = uci:get_first('argon', 'global', 'transparency')
-		blur_opacity_dark = uci:get_first('argon', 'global', 'transparency_dark')
-		mode = uci:get_first('argon', 'global', 'mode')
-		bar_color = mode == 'dark' and dark_primary or primary
-	end
+	local primary = uci:get_first('argon', 'global', 'primary') or '#5e72e4'
+	local dark_primary = uci:get_first('argon', 'global', 'dark_primary')
+	local bar_color = mode == 'dark' and dark_primary or primary
+	local blur_radius = uci:get_first('argon', 'global', 'blur')
+	local blur_radius_dark = uci:get_first('argon', 'global', 'blur_dark')
+	local blur_opacity = uci:get_first('argon', 'global', 'transparency')
+	local blur_opacity_dark = uci:get_first('argon', 'global', 'transparency_dark')
 -%>
 <!DOCTYPE html>
 <html lang="<%=luci.i18n.context.lang%>">
@@ -92,16 +87,14 @@
 		<% elseif mode == 'dark' then %>
 			<%=dark_css%>
 		<% end -%>
-		<% if fs.access('/etc/config/argon') then %>
 		:root {
-			--primary: <%=primary%>;
-			--dark-primary: <%=dark_primary%>;
+			--primary:<%=primary%>;
+			--dark-primary:<%=dark_primary%>;
 			--blur-radius:<%=blur_radius%>px;
 			--blur-opacity:<%=blur_opacity%>;
 			--blur-radius-dark:<%=blur_radius_dark%>px;
 			--blur-opacity-dark:<%=blur_opacity_dark%>;
 		}
-		<% end -%>
 	</style>
 	<link rel="shortcut icon" href="<%=media%>/favicon.ico">
 	<% if node and node.css then %>
