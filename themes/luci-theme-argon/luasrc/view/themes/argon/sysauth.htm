@@ -71,6 +71,7 @@
 		local backgroundType	= "Image"
 		local mimeType			= ""
 
+		-- Fetch URL from Internet
 		if fs.access('/usr/libexec/argon/online_wallpaper') then
 			local online_wallpaper = uci:get_first('argon', 'global', 'online_wallpaper') or (uci:get_first('argon', 'global', 'bing_background') == '1' and 'bing')
 			if (online_wallpaper and online_wallpaper ~= "none") then
@@ -79,6 +80,12 @@
 					return picurl, "Image", ""
 				end
 			end
+		end
+
+		-- Use certain URL
+		local wallpaper_url = uci:get_first('argon', 'global', 'wallpaper_url')
+		if (wallpaper_url and wallpaper_url ~= '') then
+			return wallpaper_url, "Image", ""
 		end
 
 		local backgroundTable, backgroundCount = fetchMedia("/www" .. themeDir .. "*", themeDir)
