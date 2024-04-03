@@ -1,14 +1,13 @@
 #!/bin/sh
 # author jjm2473
 
-# the script will be excuted when `argon.@global[0].bing_background == '1'`
-# defaults to 'bing' to be compatible with old config
-WEB_PIC_SRC="$(uci -q get argon.@global[0].online_wallpaper || echo 'bing')"
-CACHE="/var/run/argon_${WEB_PIC_SRC}.url"
-WRLOCK="/var/lock/argon_${WEB_PIC_SRC}.lock"
+# prefer $1, then argon.@global[0].online_wallpaper, 'bing' last
+PIC_SRC=${1:-"$(uci -q get argon.@global[0].online_wallpaper || echo 'bing')"}
+CACHE="/var/run/argon_${PIC_SRC}.url"
+WRLOCK="/var/lock/argon_${PIC_SRC}.lock"
 
 fetch_pic_url() {
-	case "$WEB_PIC_SRC" in
+	case "$PIC_SRC" in
 	bing)
 		local picpath="$(wget -T3 -qO- \
 			"https://www.bing.com/HPImageArchive.aspx?format=js&n=1" |
@@ -25,7 +24,7 @@ fetch_pic_url() {
 		[ -n "${pic_id}" ] && echo "https://images.unsplash.com/${pic_id}?fm=jpg&fit=crop&w=1920&h=1080"
 		;;
 	unsplash_*)
-		local collection_id="${WEB_PIC_SRC#unsplash_}"
+		local collection_id="${PIC_SRC#unsplash_}"
 		local pic_id="$(wget -T3 --spider \
 			"https://source.unsplash.com/collection/${collection_id}/1920x1080" 2>&1 |
 			grep -Eo "photo-\w+-\w+" | head -n1)"
