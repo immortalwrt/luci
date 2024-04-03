@@ -8,33 +8,25 @@ WRLOCK="/var/lock/argon_${PIC_SRC}.lock"
 
 fetch_pic_url() {
 	case "$PIC_SRC" in
-	bing)
-		local picpath="$(wget -T3 -qO- \
-			"https://www.bing.com/HPImageArchive.aspx?format=js&n=1" |
-			jsonfilter -qe '@.images[0].url')"
-		[ -n "${picpath}" ] && echo "//www.bing.com${picpath}"
-		;;
-	ghser)
-		echo "https://api.vvhan.com/api/wallpaper/acg"
-		;;
-	unsplash)
-		local pic_id="$(wget -T3 --spider \
-			"https://source.unsplash.com/1920x1080/daily?wallpapers" 2>&1 |
-			grep -Eo "photo-\w+-\w+" | head -n1)"
-		[ -n "${pic_id}" ] && echo "https://images.unsplash.com/${pic_id}?fm=jpg&fit=crop&w=1920&h=1080"
-		;;
-	unsplash_*)
-		local collection_id="${PIC_SRC#unsplash_}"
-		local pic_id="$(wget -T3 --spider \
-			"https://source.unsplash.com/collection/${collection_id}/1920x1080" 2>&1 |
-			grep -Eo "photo-\w+-\w+" | head -n1)"
-		[ -n "${pic_id}" ] && echo "https://images.unsplash.com/${pic_id}?fm=jpg&fit=crop&w=1920&h=1080"
-		;;
-	wallhaven)
-		wget -T3 -qO- \
-			"https://wallhaven.cc/api/v1/search?resolutions=1920x1080&sorting=random" |
-			jsonfilter -qe "@.data[0].path"
-		;;
+		'bing')
+			local picpath="$(wget -T3 -qO- "https://www.bing.com/HPImageArchive.aspx?format=js&n=1" |
+				jsonfilter -qe '@.images[0].url')"
+			[ -n "$picpath" ] && echo "//www.bing.com${picpath}"
+			;;
+		'konachan')
+			local tagday="date:$(date -d @$(( $(date +%s) - 86400 )) +"%Y-%m-%d")"
+			wget -T3 -qO- "https://konachan.net/post.json?tags=${tagday}&limit=2" |
+				jsonfilter -qe '@[1].file_url'
+			;;
+		'pic.re')
+			local fileurl="$(wget -T3 -qO- "https://pic.re/image.json" |
+				jsonfilter -qe '@.file_url')"
+			[ -n "$fileurl" ] && echo "//${fileurl}"
+			;;
+		'wallhaven')
+			wget -T3 -qO- "https://wallhaven.cc/api/v1/search?resolutions=1920x1080&sorting=random" |
+				jsonfilter -qe "@.data[0].path"
+			;;
 	esac
 }
 
