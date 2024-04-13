@@ -327,7 +327,7 @@ run_ipt2socks() {
 run_singbox() {
 	local flag type node tcp_redir_port udp_redir_port socks_address socks_port socks_username socks_password http_address http_port http_username http_password
 	local dns_listen_port direct_dns_port direct_dns_udp_server remote_dns_protocol remote_dns_udp_server remote_dns_tcp_server remote_dns_doh remote_fakedns remote_dns_query_strategy dns_cache dns_socks_address dns_socks_port
-	local loglevel log_file config_file
+	local loglevel log_file config_file server_host server_port
 	local _extra_param=""
 	eval_set_val $@
 	[ -z "$type" ] && {
@@ -353,6 +353,8 @@ run_singbox() {
 
 	[ -n "$flag" ] && _extra_param="${_extra_param} -flag $flag"
 	[ -n "$node" ] && _extra_param="${_extra_param} -node $node"
+	[ -n "$server_host" ] && _extra_param="${_extra_param} -server_host $server_host"
+	[ -n "$server_port" ] && _extra_param="${_extra_param} -server_port $server_port"
 	[ -n "$tcp_redir_port" ] && _extra_param="${_extra_param} -tcp_redir_port $tcp_redir_port"
 	[ -n "$udp_redir_port" ] && _extra_param="${_extra_param} -udp_redir_port $udp_redir_port"
 	[ -n "$socks_address" ] && _extra_param="${_extra_param} -local_socks_address $socks_address"
@@ -404,7 +406,7 @@ run_singbox() {
 run_xray() {
 	local flag type node tcp_redir_port udp_redir_port socks_address socks_port socks_username socks_password http_address http_port http_username http_password
 	local dns_listen_port remote_dns_udp_server remote_dns_tcp_server remote_dns_doh dns_client_ip dns_query_strategy dns_cache dns_socks_address dns_socks_port
-	local loglevel log_file config_file
+	local loglevel log_file config_file server_host server_port
 	local _extra_param=""
 	eval_set_val $@
 	[ -z "$type" ] && {
@@ -419,6 +421,8 @@ run_xray() {
 	[ -z "$loglevel" ] && local loglevel=$(config_t_get global loglevel "warning")
 	[ -n "$flag" ] && _extra_param="${_extra_param} -flag $flag"
 	[ -n "$node" ] && _extra_param="${_extra_param} -node $node"
+	[ -n "$server_host" ] && _extra_param="${_extra_param} -server_host $server_host"
+	[ -n "$server_port" ] && _extra_param="${_extra_param} -server_port $server_port"
 	[ -n "$tcp_redir_port" ] && _extra_param="${_extra_param} -tcp_redir_port $tcp_redir_port"
 	[ -n "$udp_redir_port" ] && _extra_param="${_extra_param} -udp_redir_port $udp_redir_port"
 	[ -n "$socks_address" ] && _extra_param="${_extra_param} -local_socks_address $socks_address"
@@ -595,7 +599,7 @@ run_socks() {
 			config_file=$(echo $config_file | sed "s/SOCKS/HTTP_SOCKS/g")
 			local _args="http_port=$http_port"
 		}
-		[ -n "$relay_port" ] && _args="${_args} -server_host $server_host -server_port $port"
+		[ -n "$relay_port" ] && _args="${_args} server_host=$server_host server_port=$port"
 		run_singbox flag=$flag node=$node socks_port=$socks_port config_file=$config_file log_file=$log_file ${_args}
 	;;
 	xray)
@@ -604,7 +608,7 @@ run_socks() {
 			config_file=$(echo $config_file | sed "s/SOCKS/HTTP_SOCKS/g")
 			local _args="http_port=$http_port"
 		}
-		[ -n "$relay_port" ] && _args="${_args} -server_host $server_host -server_port $port"
+		[ -n "$relay_port" ] && _args="${_args} server_host=$server_host server_port=$port"
 		run_xray flag=$flag node=$node socks_port=$socks_port config_file=$config_file log_file=$log_file ${_args}
 	;;
 	trojan*)
