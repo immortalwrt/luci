@@ -327,7 +327,7 @@ run_ipt2socks() {
 run_singbox() {
 	local flag type node tcp_redir_port udp_redir_port socks_address socks_port socks_username socks_password http_address http_port http_username http_password
 	local dns_listen_port direct_dns_port direct_dns_udp_server remote_dns_protocol remote_dns_udp_server remote_dns_tcp_server remote_dns_doh remote_fakedns remote_dns_query_strategy dns_cache dns_socks_address dns_socks_port
-	local loglevel log_file config_file
+	local loglevel log_file config_file server_host server_port
 	local _extra_param=""
 	eval_set_val $@
 	[ -z "$type" ] && {
@@ -353,6 +353,8 @@ run_singbox() {
 
 	[ -n "$flag" ] && _extra_param="${_extra_param} -flag $flag"
 	[ -n "$node" ] && _extra_param="${_extra_param} -node $node"
+	[ -n "$server_host" ] && _extra_param="${_extra_param} -server_host $server_host"
+	[ -n "$server_port" ] && _extra_param="${_extra_param} -server_port $server_port"
 	[ -n "$tcp_redir_port" ] && _extra_param="${_extra_param} -tcp_redir_port $tcp_redir_port"
 	[ -n "$udp_redir_port" ] && _extra_param="${_extra_param} -udp_redir_port $udp_redir_port"
 	[ -n "$socks_address" ] && _extra_param="${_extra_param} -local_socks_address $socks_address"
@@ -404,7 +406,7 @@ run_singbox() {
 run_xray() {
 	local flag type node tcp_redir_port udp_redir_port socks_address socks_port socks_username socks_password http_address http_port http_username http_password
 	local dns_listen_port remote_dns_udp_server remote_dns_tcp_server remote_dns_doh dns_client_ip dns_query_strategy dns_cache dns_socks_address dns_socks_port
-	local loglevel log_file config_file
+	local loglevel log_file config_file server_host server_port
 	local _extra_param=""
 	eval_set_val $@
 	[ -z "$type" ] && {
@@ -419,6 +421,8 @@ run_xray() {
 	[ -z "$loglevel" ] && local loglevel=$(config_t_get global loglevel "warning")
 	[ -n "$flag" ] && _extra_param="${_extra_param} -flag $flag"
 	[ -n "$node" ] && _extra_param="${_extra_param} -node $node"
+	[ -n "$server_host" ] && _extra_param="${_extra_param} -server_host $server_host"
+	[ -n "$server_port" ] && _extra_param="${_extra_param} -server_port $server_port"
 	[ -n "$tcp_redir_port" ] && _extra_param="${_extra_param} -tcp_redir_port $tcp_redir_port"
 	[ -n "$udp_redir_port" ] && _extra_param="${_extra_param} -udp_redir_port $udp_redir_port"
 	[ -n "$socks_address" ] && _extra_param="${_extra_param} -local_socks_address $socks_address"
@@ -595,7 +599,7 @@ run_socks() {
 			config_file=$(echo $config_file | sed "s/SOCKS/HTTP_SOCKS/g")
 			local _args="http_port=$http_port"
 		}
-		[ -n "$relay_port" ] && _args="${_args} -server_host $server_host -server_port $port"
+		[ -n "$relay_port" ] && _args="${_args} server_host=$server_host server_port=$port"
 		run_singbox flag=$flag node=$node socks_port=$socks_port config_file=$config_file log_file=$log_file ${_args}
 	;;
 	xray)
@@ -604,7 +608,7 @@ run_socks() {
 			config_file=$(echo $config_file | sed "s/SOCKS/HTTP_SOCKS/g")
 			local _args="http_port=$http_port"
 		}
-		[ -n "$relay_port" ] && _args="${_args} -server_host $server_host -server_port $port"
+		[ -n "$relay_port" ] && _args="${_args} server_host=$server_host server_port=$port"
 		run_xray flag=$flag node=$node socks_port=$socks_port config_file=$config_file log_file=$log_file ${_args}
 	;;
 	trojan*)
@@ -1252,7 +1256,7 @@ start_dns() {
 
 	[ "$CHINADNS_NG" = "1" ] && [ -n "$(first_type chinadns-ng)" ] && ([ "${CHN_LIST}" = "direct" ] || [ "${USE_GFW_LIST}" = "1" ]) && {
 		[ "$FILTER_PROXY_IPV6" = "1" ] && {
-			local _no_ipv6_rules="gt"
+			local _no_ipv6_rules="tag:gfw"
 			FILTER_PROXY_IPV6=0
 		}
 		local china_ng_listen_port=$(expr $dns_listen_port + 1)
@@ -1415,7 +1419,7 @@ acl_app() {
 
 							[ "$chinadns_ng" = "1" ] && [ -n "$(first_type chinadns-ng)" ] && ([ "${chn_list}" = "direct" ] || [ "${use_gfw_list}" = "1" ]) && {
 								[ "$filter_proxy_ipv6" = "1" ] && {
-									local _no_ipv6_rules="gt"
+									local _no_ipv6_rules="tag:gfw"
 									filter_proxy_ipv6=0
 								}
 								chinadns_port=$(expr $chinadns_port + 1)
@@ -1587,14 +1591,13 @@ start() {
 		if [ -n "$(command -v iptables-legacy || command -v iptables)" ] && [ -n "$(command -v ipset)" ] && [ -n "$(dnsmasq --version | grep 'Compile time options:.* ipset')" ]; then
 			USE_TABLES="iptables"
 		else
+			echolog "系统未安装iptables或ipset或Dnsmasq没有开启ipset支持，无法使用iptables+ipset透明代理！"
 			if [ -n "$(command -v fw4)" ] && [ -n "$(command -v nft)" ] && [ -n "$(dnsmasq --version | grep 'Compile time options:.* nftset')" ]; then
 				echolog "检测到fw4，使用nftables进行透明代理。"
 				USE_TABLES="nftables"
 				nftflag=1
 				config_t_set global_forwarding use_nft 1
 				uci commit ${CONFIG}
-			else
-				echolog "系统未安装iptables或ipset或Dnsmasq没有开启ipset支持，无法透明代理！"
 			fi
 		fi
 	else
