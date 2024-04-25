@@ -3,13 +3,17 @@
 CONFIG=passwall
 LOG_FILE=/tmp/log/$CONFIG.log
 LOCK_FILE_DIR=/tmp/lock
-
+LOG_EVENT_FILTER=
+LOG_EVENT_CMD=
 flag=0
 
 echolog() {
 	local d="$(date "+%Y-%m-%d %H:%M:%S")"
-	#echo -e "$d: $1"
-	echo -e "$d: $1" >> $LOG_FILE
+	local c="$1"
+	echo -e "$d: $c" >> $LOG_FILE
+	[ -n "$LOG_EVENT_CMD" ] && [ -n "$(echo -n $c |grep -E "$LOG_EVENT_FILTER")" ] && {
+		$(echo -n $LOG_EVENT_CMD |sed "s/%s/$c/g")
+	}
 }
 
 config_n_get() {
@@ -154,6 +158,8 @@ test_auto_switch() {
 start() {
 	id=$1
 	LOCK_FILE=${LOCK_FILE_DIR}/${CONFIG}_socks_auto_switch_${id}.lock
+	LOG_EVENT_FILTER=$(uci -q get "${CONFIG}.global[0].log_event_filter" 2>/dev/null)
+	LOG_EVENT_CMD=$(uci -q get "${CONFIG}.global[0].log_event_cmd" 2>/dev/null)
 	main_node=$(config_n_get $id node nil)
 	socks_port=$(config_n_get $id port 0)
 	delay=$(config_n_get $id autoswitch_testing_time 30)
@@ -177,4 +183,3 @@ start() {
 }
 
 start $@
-
