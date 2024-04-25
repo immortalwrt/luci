@@ -266,11 +266,8 @@ o.default = "0"
 
 ---- DNS Forward Mode
 dns_mode = s:taboption("DNS", ListValue, "dns_mode", translate("Filter Mode"))
-dns_mode.rmempty = false
-dns_mode:reset_values()
-if api.is_finded("dns2tcp") then
-	dns_mode:value("dns2tcp", translatef("Requery DNS By %s", "TCP"))
-end
+dns_mode:value("tcp", translatef("Requery DNS By %s", "TCP"))
+dns_mode:value("udp", translatef("Requery DNS By %s", "UDP"))
 if api.is_finded("dns2socks") then
 	dns_mode:value("dns2socks", "dns2socks")
 end
@@ -280,9 +277,8 @@ end
 if has_xray then
 	dns_mode:value("xray", "Xray")
 end
-dns_mode:value("udp", translatef("Requery DNS By %s", "UDP"))
 
-o = s:taboption("DNS", ListValue, "xray_dns_mode", " ")
+o = s:taboption("DNS", ListValue, "xray_dns_mode", translate("Request protocol"))
 o:value("tcp", "TCP")
 o:value("tcp+doh", "TCP + DoH (" .. translate("A/AAAA type") .. ")")
 o:depends("dns_mode", "xray")
@@ -295,7 +291,7 @@ o.write = function(self, section, value)
 	end
 end
 
-o = s:taboption("DNS", ListValue, "singbox_dns_mode", " ")
+o = s:taboption("DNS", ListValue, "singbox_dns_mode", translate("Request protocol"))
 o:value("tcp", "TCP")
 o:value("doh", "DoH")
 o:depends("dns_mode", "sing-box")
@@ -331,7 +327,7 @@ o:value("9.9.9.9", "9.9.9.9 (Quad9-Recommended)")
 o:value("208.67.220.220", "208.67.220.220 (OpenDNS)")
 o:value("208.67.222.222", "208.67.222.222 (OpenDNS)")
 o:depends({dns_mode = "dns2socks"})
-o:depends({dns_mode = "dns2tcp"})
+o:depends({dns_mode = "tcp"})
 o:depends({dns_mode = "udp"})
 o:depends({xray_dns_mode = "tcp"})
 o:depends({xray_dns_mode = "tcp+doh"})
@@ -374,13 +370,6 @@ o.validate = function(self, value, t)
 	end
 	return value
 end
-
-o = s:taboption("DNS", Flag, "dns_cache", translate("Cache Resolved"))
-o.default = "1"
-o:depends({dns_mode = "dns2socks"})
-o:depends({dns_mode = "sing-box", remote_fakedns = false})
-o:depends({dns_mode = "xray"})
-o.rmempty = false
 
 if api.is_finded("chinadns-ng") then
 	o = s:taboption("DNS", Flag, "chinadns_ng", translate("ChinaDNS-NG"), translate("The effect is better, recommend."))
@@ -502,13 +491,15 @@ trojan_loglevel:value("4", "fatal")
 
 o = s:taboption("log", Flag, "advanced_log_feature", translate("Advanced log feature"), translate("For professionals only."))
 o.default = "0"
-o.rmempty = false
-local syslog = s:taboption("log", Flag, "sys_log", translate("Logging to system log"), translate("Logging to the system log for more advanced functions. For example, send logs to a dedicated log server."))
-syslog:depends("advanced_log_feature", "1")
-syslog.default = "0"
-syslog.rmempty = false
-local logpath = s:taboption("log", Value, "persist_log_path", translate("Persist log file directory"), translate("The path to the directory used to store persist log files, the \"/\" at the end can be omitted. Leave it blank to disable this feature."))
-logpath:depends({ ["advanced_log_feature"] = 1, ["sys_log"] = 0 })
+o = s:taboption("log", Flag, "sys_log", translate("Logging to system log"), translate("Logging to the system log for more advanced functions. For example, send logs to a dedicated log server."))
+o:depends("advanced_log_feature", "1")
+o.default = "0"
+o = s:taboption("log", Value, "persist_log_path", translate("Persist log file directory"), translate("The path to the directory used to store persist log files, the \"/\" at the end can be omitted. Leave it blank to disable this feature."))
+o:depends({ ["advanced_log_feature"] = 1, ["sys_log"] = 0 })
+o = s:taboption("log", Value, "log_event_filter", translate("Log Event Filter"), translate("Support regular expression."))
+o:depends("advanced_log_feature", "1")
+o = s:taboption("log", Value, "log_event_cmd", translate("Shell Command"), translate("Shell command to execute, replace log content with %s."))
+o:depends("advanced_log_feature", "1")
 
 s:tab("faq", "FAQ")
 
