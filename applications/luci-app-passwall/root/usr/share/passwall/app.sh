@@ -1297,7 +1297,7 @@ start_dns() {
 	;;
 	udp)
 		use_udp_node_resolve_dns=1
-		if [ "$CHINADNS_NG" = "1" ] && [ -n "$(first_type chinadns-ng)" ]; then
+		if [ "$DNS_SHUNT" = "chinadns-ng" ] && [ -n "$(first_type chinadns-ng)" ]; then
 			local china_ng_listen_port=${dns_listen_port}
 			local china_ng_trust_dns="udp://$(get_first_dns REMOTE_DNS 53 | sed 's/:/#/g')"
 		else
@@ -1307,7 +1307,7 @@ start_dns() {
 	;;
 	*)
 		use_tcp_node_resolve_dns=1
-		if [ "$CHINADNS_NG" = "1" ] && [ -n "$(first_type chinadns-ng)" ]; then
+		if [ "$DNS_SHUNT" = "chinadns-ng" ] && [ -n "$(first_type chinadns-ng)" ]; then
 			local china_ng_listen_port=${dns_listen_port}
 			local china_ng_trust_dns="tcp://$(get_first_dns REMOTE_DNS 53 | sed 's/:/#/g')"
 		else
@@ -1322,7 +1322,7 @@ start_dns() {
 	[ "${use_tcp_node_resolve_dns}" = "1" ] && echolog "  * 请确认上游 DNS 支持 TCP 查询，如非直连地址，确保 TCP 代理打开，并且已经正确转发！"
 	[ "${use_udp_node_resolve_dns}" = "1" ] && echolog "  * 请确认上游 DNS 支持 UDP 查询并已使用 UDP 节点，如上游 DNS 非直连地址，确保 UDP 代理打开，并且已经正确转发！"
 
-	[ "$CHINADNS_NG" = "1" ] && [ -n "$(first_type chinadns-ng)" ] && {
+	[ "$DNS_SHUNT" = "chinadns-ng" ] && [ -n "$(first_type chinadns-ng)" ] && {
 		[ "$FILTER_PROXY_IPV6" = "1" ] && DNSMASQ_FILTER_PROXY_IPV6=0
 		[ -z "${china_ng_listen_port}" ] && local china_ng_listen_port=$(expr $dns_listen_port + 1)
 		local china_ng_listen="127.0.0.1#${china_ng_listen_port}"
@@ -1453,9 +1453,9 @@ acl_app() {
 			udp_proxy_mode=${udp_proxy_mode:-proxy}
 			filter_proxy_ipv6=${filter_proxy_ipv6:-0}
 			dnsmasq_filter_proxy_ipv6=${filter_proxy_ipv6}
+			dns_shunt=${dns_shunt:-dnsmasq}
 			dns_mode=${dns_mode:-dns2socks}
 			remote_dns=${remote_dns:-1.1.1.1}
-			chinadns_ng=${chinadns_ng:-0}
 			use_default_dns=${use_default_dns:-direct}
 			[ "$dns_mode" = "sing-box" ] && {
 				[ "$v2ray_dns_mode" = "doh" ] && remote_dns=${remote_dns_doh:-https://1.1.1.1/dns-query}
@@ -1491,7 +1491,7 @@ acl_app() {
 								eval node_${tcp_node}_$(echo -n "${remote_dns}" | md5sum | cut -d " " -f1)=${_dns_port}
 							}
 
-							[ "$chinadns_ng" = "1" ] && [ -n "$(first_type chinadns-ng)" ] && {
+							[ "$dns_shunt" = "chinadns-ng" ] && [ -n "$(first_type chinadns-ng)" ] && {
 								[ "$filter_proxy_ipv6" = "1" ] && dnsmasq_filter_proxy_ipv6=0
 								chinadns_port=$(expr $chinadns_port + 1)
 								_china_ng_listen="127.0.0.1#${chinadns_port}"
@@ -1766,10 +1766,11 @@ LOCALHOST_PROXY=$(config_t_get global localhost_proxy 1)
 	LOCALHOST_UDP_PROXY_MODE=$UDP_PROXY_MODE
 }
 CLIENT_PROXY=$(config_t_get global client_proxy 1)
+DNS_SHUNT=$(config_t_get global dns_shunt dnsmasq)
+[ -z "$(first_type $DNS_SHUNT)" ] && DNS_SHUNT="dnsmasq"
 DNS_MODE=$(config_t_get global dns_mode tcp)
 DNS_CACHE=0
 REMOTE_DNS=$(config_t_get global remote_dns 1.1.1.1:53 | sed 's/#/:/g' | sed -E 's/\:([^:]+)$/#\1/g')
-CHINADNS_NG=$(config_t_get global chinadns_ng 0)
 USE_DEFAULT_DNS=$(config_t_get global use_default_dns direct)
 FILTER_PROXY_IPV6=$(config_t_get global filter_proxy_ipv6 0)
 dns_listen_port=${DNS_PORT}
