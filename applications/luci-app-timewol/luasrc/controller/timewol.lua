@@ -4,7 +4,7 @@ function index()
     if not nixio.fs.access("/etc/config/timewol") then return end
 
     entry({"admin", "control"}, firstchild(), "Control", 44).dependent = false
-    local page = entry({"admin", "control", "timewol"}, cbi("timewol"), _("定时唤醒"))
+    local page = entry({"admin", "control", "timewol"}, cbi("timewol"), _("Timed WOL"))
 	page.order = 95
 	page.dependent = true
 	page.acl_depends = { "luci-app-timewol" }
