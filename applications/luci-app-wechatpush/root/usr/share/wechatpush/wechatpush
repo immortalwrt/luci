@@ -42,7 +42,7 @@ function read_config(){
 	"up_timeout" "down_timeout" "timeout_retry_count" "only_timeout_push" "passive_mode" "thread_num" "soc_code" "server_host" "server_port" \
 	"unattended_enable" "zerotier_helper" "unattended_only_on_disturb_time" "unattended_device_aliases" "network_disconnect_event" "unattended_autoreboot_mode" "autoreboot_system_uptime" "autoreboot_network_uptime" \
 	"device_info_helper" "gateway_host_url" "gateway_info_url" "gateway_logout_url" "gateway_username_id" "gateway_password_id" "gateway_username" "gateway_password" "scan_ip_range" "device_info_helper_sleeptime"
-
+	
 	( echo "$device_notification"|grep -q "online" ) && notification_online="true"
 	( echo "$device_notification"|grep -q "offline" ) && notification_offline="true"
 	( echo "$cpu_notification"|grep -q "load" ) && notification_load="true"
@@ -529,10 +529,10 @@ function time_for_humans {
 # 计算字符显示宽度
 function length_str {
 	[ ! "$1" ] && return
-
+	
 	local length_zh=`echo "$1"|awk '{print gensub(/[\u4e00-\u9FA5A-Za-z0-9_]/,"","g",$0)}'|awk -F "" '{print NF}'`
 	local length_en=`echo "$1"|awk '{print gensub(/[^\u4e00-\u9FA5A-Za-z0-9_]/,"","g",$0)}'|awk -F "" '{print NF}'`
-
+	
 	echo $((length_zh / 3 * 2 + length_en))
 }
 
@@ -544,7 +544,7 @@ function cut_str {
 		echo -n "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 		return
 	fi
-
+	
 	local columns=$(echo "$1" | awk '{print NF}')
 	if [ "$columns" -gt 1 ]; then
 		local max_length=0
@@ -796,9 +796,9 @@ function rand_geturl(){
 		echo `curl -k -s -w "%{http_code}" -m 5 ${url_str} -A "${User_Agent}" -o /dev/null`
 	}
 	local check=`getcheck`
-	while [ -z "$check" ] || [[ $check -ne 200 && $check -ne 301 && $check -ne 302 ]]; do
+	while [ -z "$check" ] || [[ $check -ne 200 && $check -ne 202 && $check -ne 301 && $check -ne 302 ]]; do
 		local check=`getcheck`
-		if [ ! -z "$check" ] && [[ $check -eq 200 || $check -eq 301 || $check -eq 302 ]]; then
+		if [ ! -z "$check" ] && [[ $check -eq 200 || $check -eq 202 || $check -eq 301 || $check -eq 302 ]]; then
 			[ ! -z "$network_enable" ] && [ "$network_enable" -eq "404" ] && echo "`date "+%Y-%m-%d %H:%M:%S"` 【网络状态】网络恢复正常.." >> ${logfile}
 			local network_enable="200"
 		else
@@ -974,11 +974,11 @@ function down(){
 	else
 		local tmp_name=`cat ${dir}ipAddress|grep -w ${1}|awk '{print $3}'|grep -v "^$"|sort -u|head -n1`
 		local tmp_mac=`cat ${dir}ipAddress|grep -w ${1}|awk '{print $2}'|grep -v "^$"|sort -u|head -n1`
-		if [ ${ip_name// /_} != ${tmp_name} ] || [ ${ip_mac} != ${tmp_mac} ]; then
+		if [ "${ip_name// /_}" != "${tmp_name}" ] || [ "${ip_mac}" != "${tmp_mac}" ]; then
 			LockFile lock
 			olduptime=$(cat ${dir}ipAddress|grep -w ${1}|awk '{print $4}'|grep -v "^$"|sort -u|head -n1)
 			sed -i "/^${1} /d" ${dir}ipAddress
-			[ ${ip_mac} != ${tmp_mac} ] && ip_name="unknown" # MAC 变化时应删除主机名重新获取
+			[ "${ip_mac}" != "${tmp_mac}" ] && ip_name="unknown" # MAC 变化时应删除主机名重新获取
 			echo "$1  ${ip_mac} ${ip_name// /_} ${olduptime} ${ip_interface}" >> ${dir}ipAddress
 			LockFile unlock
 		fi
@@ -1071,12 +1071,12 @@ function cpu_load(){
 			title="CPU 温度过高！"
 			temperaturecd_time=`date +%s`
 			echo "`date "+%Y-%m-%d %H:%M:%S"` ${disturb_text} CPU 温 度过高: ${cpu_temp}" >> ${logfile}
-			content="${content}${str_splitline}${str_title_start} CPU 温度过高${str_title_end}${str_linefeed}${str_tab}CPU 温度已连续五分钟超过预设${str_linefeed}${str_tab}接下来一小 时不再提示${str_linefeed}${str_tab}当前温度：${cpu_temp}℃"
+			content="${content}${str_splitline}${str_title_start} CPU 温度过高${str_title_end}${str_linefeed}${str_tab}CPU 温度已连续 $(time_for_humans $cpu_load_threshold) 超过预设${str_linefeed}${str_tab}接下来 $(time_for_humans $cpu_notification_delay) 不再提示${str_linefeed}${str_tab}当前温度：${cpu_temp}℃"
 		elif [ ! -z "$temperaturecd_time" ] && [ "$((`date +%s`-$temperaturecd_time))" -ge "$cpu_notification_delay" ] ;then
 			unset temperaturecd_time
 		fi
 	fi
-
+$(time_for_humans $cpu_notification_delay)
 	if [ -n "$notification_load" ] && [ -n "$cpu_load_threshold" ]; then
 		[ -z "$cpu_last_overload_time" ] && cpu_last_overload_time=`date +%s`
 		local cpu_fuzai=`cat /proc/loadavg|awk '{print $1}'` 2>/dev/null
@@ -1097,7 +1097,7 @@ function cpu_load(){
 			fi
 			cpucd_time=`date +%s`
 			echo "`date "+%Y-%m-%d %H:%M:%S"` ${disturb_text} CPU 负 载过高: ${cpu_fuzai}" >> ${logfile}
-			content="${content}${str_splitline}${str_title_start} CPU 负载过高${str_title_end}${str_linefeed}${str_tab}CPU 负载已连续五分钟超过预设${str_linefeed}${str_tab}接下来一小 时不再提示${str_linefeed}${str_tab}当前负载：${cpu_fuzai}"
+			content="${content}${str_splitline}${str_title_start} CPU 负载过高${str_title_end}${str_linefeed}${str_tab}CPU 负载已连续 $(time_for_humans $cpu_load_threshold) 超过预设${str_linefeed}${str_tab}接下来 $(time_for_humans $cpu_notification_delay) 不再提示${str_linefeed}${str_tab}当前负载：${cpu_fuzai}"
 			cputop
 		elif [ ! -z "$cpucd_time" ] && [ "$((`date +%s`-$cpucd_time))" -ge "$cpu_notification_delay" ] ;then
 			unset cpucd_time
@@ -1203,7 +1203,7 @@ function get_disk() {
 			[[ -n $disk_time && $disk_time != null ]] && printf "${str_linefeed}${str_tab}通电时间：${disk_time}h" >> "$output_dir/get_disk"
 			# 空间使用
 			disk_use=$(eval ${tmp_command} lsblk -o NAME,FSUSE%,TYPE 2>/dev/null | awk -v part_name="${tmp_name}" '$NF == "part" && $1 ~ part_name && NF > 2 {sub(".*" part_name, part_name, $1); printf "%s: %s  ", $1, $2} END {print ""}')
-			[ -z "$disk_use" ] && disk_use=$(eval ${tmp_command} df -h 2>/dev/null | awk -v part_name="${tmp_name}" '$1 ~ "^/dev/"part_name && NF > 1 {sub("/dev/", "", $1); sub(/[0-9]+$/, "", $1); printf "%s: %s  ", $1, $5} END {print ""}')
+			[ -z "$disk_use" ] && disk_use=$(eval ${tmp_command} df -h 2>/dev/null | awk -v part_name="${tmp_name}" '$1 ~ "^/dev/"part_name && NF > 1 {sub("/dev/", "", $1); if (!seen[$1]) { printf "%s: %s  ", $1, $5; seen[$1] = 1; }} END {print ""}')
 			[ -n "$disk_use" ] && [ -n "${disk_use// }" ] && echo -e -n "${str_linefeed}${str_tab}空间使用：${disk_use}" >> "$output_dir/get_disk"
 			# 寿命使用
 			disk_health=$(jq -r .nvme_smart_health_information_log.percentage_used ${file_path})
@@ -1254,10 +1254,6 @@ function login_send(){
 	[ -n "$login_web_black" ] && [ "$login_web_black" -eq 1 ] && init_ip_black "ipv6"
 	[ -n "$port_knocking_enable" ] && [ "$port_knocking_enable" -eq 1 ] && init_ip_white "ipv4"
 	[ -n "$port_knocking_enable" ] && [ "$port_knocking_enable" -eq 1 ] && init_ip_white "ipv6"
-	tmp_ip_list=`echo "$login_ip_white_list"|grep -v "^$"|sort -u`
-	while IFS= read -r tmp_ip; do
-		[ -n "$tmp_ip" ] && add_ip_white "$tmp_ip" "0"
-	done <<< "$tmp_ip_list"
 	[ -z "$web_logged" ] && [ -z "$ssh_logged" ] && [ -z "$web_login_failed" ] && [ -z "$ssh_login_failed" ] && return
 	set_ip_black
 	sys_log=$(logread notice)
@@ -1388,7 +1384,7 @@ function login_send(){
 	done
 	rm -f ${dir}ssh_failed >/dev/null 2>&1
 	unset login_ip login_time login_mode
-
+	
 	disturb;disturb=$?
 	[ -z "$login_title" ] && return
 	[ ! -z "$device_name" ] && login_title="【$device_name】$login_title"
@@ -1483,7 +1479,7 @@ function init_ip_black(){
 		ip_version="ip6"
 		nat_table_cmd="family inet6"
 	fi
-
+	
 	if [ -n "$nftables_version" ]; then
 		! nft list set inet fw4 ${ipset_name} >/dev/null 2>&1 && nft add set inet fw4 ${ipset_name} { type ${1}_addr\; flags timeout\; timeout ${login_ip_black_timeout}s\; }
 		! nft list ruleset|grep "$ip_version saddr @${ipset_name} counter .* comment \"\!wechatpush Drop rule\"" >/dev/null 2>&1 && nft insert rule inet fw4 input $ip_version saddr @${ipset_name} counter drop comment \"\!wechatpush Drop rule\" >/dev/null 2>&1
@@ -1495,13 +1491,13 @@ function init_ip_black(){
 
 # 添加黑名单
 function add_ip_black(){
-	[ ! "$1" ] && return
-	echo "$login_ip_white_list"|grep -w -q "$1" && return
+	[ ! "$1" ] && return 1
+	echo "$login_ip_white_list"|grep -w -q "$1" && return 1
 	# 检查 IP 版本
 	unset ipset_name
 	( echo "$1"|grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$' ) && ipset_name="wechatpush_blacklist"
 	( echo "$1"|grep -Eq '^([\da-fA-F0-9]{1,4}(:{1,2})){1,15}[\da-fA-F0-9]{1,4}$' ) && ipset_name="wechatpush_blacklistv6"
-	[ -z "$ipset_name" ] && echo "`date "+%Y-%m-%d %H:%M:%S"` 【!!!】黑名单添加失败，IP 格式错误" >> ${logfile} && return
+	[ -z "$ipset_name" ] && echo "`date "+%Y-%m-%d %H:%M:%S"` 【!!!】黑名单添加失败，IP 格式错误" >> ${logfile} && return 1
 
 	! cat ${ip_blacklist_path}|grep -q -w -i ${1} && echo "$1 timeout ${login_ip_black_timeout}" >> ${ip_blacklist_path}
 
@@ -1515,13 +1511,13 @@ function add_ip_black(){
 function del_ip_black(){
 	[ ! "$1" ] && return
 	sed -i "/^${1}/d" ${ip_blacklist_path}
-
+	
 	# 检查 IP 版本
 	unset ipset_name
 	( echo "$1"|grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$' ) && ipset_name="wechatpush_blacklist"
 	( echo "$1"|grep -Eq '^([\da-fA-F0-9]{1,4}(:{1,2})){1,15}[\da-fA-F0-9]{1,4}$' ) && ipset_name="wechatpush_blacklistv6"
 	[ -z "$ipset_name" ] && echo "`date "+%Y-%m-%d %H:%M:%S"` 【!!!】黑名单删除失败，IP 格式错误" >> ${logfile} && return
-
+	
 	[ -n "$nftables_version" ] && nft delete element inet fw4 ${ipset_name} { $1 } >/dev/null 2>&1
 	[ -n "$nftables_version" ] && return
 	ipset list ${ipset_name} >/dev/null 2>&1 && ipset -! del ${ipset_name} ${1}
@@ -1705,14 +1701,16 @@ process_login() {
 	login_log=$(logread notice | grep -w -i "$login_ip" | tail -n 1)
 
 	if [[ $count -eq $login_max_num && ( "$3" == "web_failed_counts" || "$3" == "ssh_failed_counts" ) ]]; then
-		add_ip_black ${login_ip}
-		unset login_counts["$login_ip"]
-		[ "$3" == "web_failed_counts" ] && echo "${login_ip} ${login_time}" >> ${dir}web_failed
-		[ "$3" == "ssh_failed_counts" ] && echo "${login_ip} ${login_time}" >> ${dir}ssh_failed
+		add_ip_black ${login_ip} && {
+			unset login_counts["$login_ip"]
+			[ "$3" == "web_failed_counts" ] && echo "${login_ip} ${login_time}" >> ${dir}web_failed
+			[ "$3" == "ssh_failed_counts" ] && echo "${login_ip} ${login_time}" >> ${dir}ssh_failed
+		}
 	fi
 
 	if [[ "$3" == "web_login_counts" || "$3" == "ssh_login_counts" ]]; then
 		add_ip_white ${login_ip}
+		del_ip_black ${login_ip} # 白名单已经优先于黑名单，但白名单集合有超时限制，防止下次修改代码忘记，上保险
 		unset web_failed_counts["$login_ip"]
 		unset ssh_failed_counts["$login_ip"]
 		unset login_counts["$login_ip"]
@@ -1744,7 +1742,7 @@ if [ -n "$web_logged" ] || [ -n "$ssh_logged" ] || [ -n "$web_login_failed" ] ||
 			ssh_login_ip=$(echo "$line" | grep -i "Password auth succeeded\|Pubkey auth succeeded" | awk '{print $NF}' | sed -nr 's#^(.*):.[0-9]{1,5}#\1#gp' | sed -e 's/%.*//')
 			[ -n "$ssh_login_ip" ] && process_login "$ssh_login_ip" $(echo "$line" | awk '{print $4}') ssh_login_counts
 		}
-
+		
 		[ -n "$web_login_failed" ] && {
 			web_failed_ip=$(echo "$line" | grep -i "failed login"|awk '{print $NF}')
 			[ -n "$web_failed_ip" ] && process_login "$web_failed_ip" $(echo "$line" | awk '{print $4}') web_failed_counts
@@ -1820,6 +1818,11 @@ while [ "$enable" -eq "1" ]; do
 
 	# 登录提醒通知
 	#[ ! -f "${dir}send_enable.lock" ] && login_send
+	# 因修改为实时推送，白名单设备并不会再更新时间，暂时性修复
+	tmp_ip_list=`echo "$login_ip_white_list"|grep -v "^$"|sort -u`
+	while IFS= read -r tmp_ip; do
+		[ -n "$tmp_ip" ] && add_ip_white "$tmp_ip" "0"
+	done <<< "$tmp_ip_list"
 
 	# 推送
 	if [ ! -f "${dir}send_enable.lock" ] && [ ! -z "$title" ] && [ ! -z "$content" ]; then
