@@ -8,12 +8,5 @@ uci -q batch <<-EOF >/dev/null
 	set firewall.timecontrol.reload=1
 EOF
 
-uci -q batch <<-EOF >/dev/null
-	delete ucitrack.@timecontrol[-1]
-	add ucitrack timecontrol
-	set ucitrack.@timecontrol[-1].init=timecontrol
-	commit ucitrack
-EOF
-
 rm -rf /tmp/luci-*cache
 exit 0

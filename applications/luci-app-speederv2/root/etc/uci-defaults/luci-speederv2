@@ -1,12 +1,5 @@
 #!/bin/sh
 
-uci -q batch <<-EOF >/dev/null
-    delete ucitrack.@speederv2[-1]
-    add ucitrack speederv2
-    set ucitrack.@speederv2[-1].init=speederv2
-    commit ucitrack
-EOF
-
 general=$(uci -q get speederv2.@general[-1])
 
 if [ -z "$general" ]; then

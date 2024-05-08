@@ -1,12 +1,5 @@
 #!/bin/sh
 
-uci -q batch <<-EOF >/dev/null
-	delete ucitrack.@kcptun[-1]
-	add ucitrack kcptun
-	set ucitrack.@kcptun[-1].init=kcptun
-	commit ucitrack
-EOF
-
 general=$(uci -q get kcptun.@general[-1])
 
 if [ -z "$general" ]; then

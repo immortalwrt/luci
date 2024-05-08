@@ -20,13 +20,6 @@ hinlink,opc-h69k)
 	;;
 esac
 
-uci -q batch <<-EOF >/dev/null
-	delete ucitrack.@oled[-1]
-	add ucitrack oled
-	set ucitrack.@oled[-1].init=oled
-	commit ucitrack
-EOF
-
 sed -e "/\/etc\/init\.d\/oled/d" -i /etc/crontabs/root && /etc/init.d/cron reload
 rm -rf /tmp/luci-*
 exit 0
