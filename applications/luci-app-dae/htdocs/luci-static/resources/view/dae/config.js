@@ -32,7 +32,7 @@ return view.extend({
 			});
 		}
 		o.write = function(section_id, value) {
-			return fs.write('/etc/dae/config.dae', value)
+			return fs.write('/etc/dae/config.dae', value, 384 /* 0600 */)
 			.catch(function(e) {
 				ui.addNotification(null, E('p', e.message));
 			});
