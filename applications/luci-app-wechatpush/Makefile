@@ -1,26 +1,26 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-wechatpush
-PKG_VERSION:=3.4.1
+PKG_VERSION:=3.4.2
 
 PKG_MAINTAINER:=tty228 <tty228@yeah.net>
 PKG_CONFIG_DEPENDS:= \
-        CONFIG_PACKAGE_WECHATPUSH_Enable_Traffic_Monitoring \
-        CONFIG_PACKAGE_WECHATPUSH_Enable_Local_Disk_Information_Detection \
-        CONFIG_PACKAGE_WECHATPUSH_Enable_Host_Information_Detection
+        CONFIG_PACKAGE_$(PKG_NAME)_Enable_Traffic_Monitoring \
+        CONFIG_PACKAGE_$(PKG_NAME)_Enable_Local_Disk_Information_Detection \
+        CONFIG_PACKAGE_$(PKG_NAME)_Enable_Host_Information_Detection
 
 LUCI_TITLE:=LuCI support for wechatpush
 LUCI_PKGARCH:=all
 LUCI_DEPENDS:=+iputils-arping +curl +jq +bash \
-        +PACKAGE_WECHATPUSH_Enable_Local_Disk_Information_Detection:lsblk \
-        +PACKAGE_WECHATPUSH_Enable_Local_Disk_Information_Detection:smartmontools \
-        +PACKAGE_WECHATPUSH_Enable_Local_Disk_Information_Detection:smartmontools-drivedb \
-        +PACKAGE_WECHATPUSH_Enable_Host_Information_Detection:openssh-client \
-        +PACKAGE_WECHATPUSH_Enable_Host_Information_Detection:openssh-keygen
+        +PACKAGE_$(PKG_NAME)_Enable_Local_Disk_Information_Detection:lsblk \
+        +PACKAGE_$(PKG_NAME)_Enable_Local_Disk_Information_Detection:smartmontools \
+        +PACKAGE_$(PKG_NAME)_Enable_Local_Disk_Information_Detection:smartmontools-drivedb \
+        +PACKAGE_$(PKG_NAME)_Enable_Host_Information_Detection:openssh-client \
+        +PACKAGE_$(PKG_NAME)_Enable_Host_Information_Detection:openssh-keygen
 
-define Package/luci-app-wechatpush/config
-  if PACKAGE_luci-app-wechatpush
-    config PACKAGE_WECHATPUSH_Enable_Traffic_Monitoring
+define Package/$(PKG_NAME)/config
+  if PACKAGE_$(PKG_NAME)
+    config PACKAGE_$(PKG_NAME)_Enable_Traffic_Monitoring
       bool "Enable Traffic Monitoring"
       depends on BROKEN
       help
@@ -29,7 +29,7 @@ define Package/luci-app-wechatpush/config
         proxy internet access plugins, potentially leading to an inability
         to retrieve traffic information.
 
-    config PACKAGE_WECHATPUSH_Enable_Local_Disk_Information_Detection
+    config PACKAGE_$(PKG_NAME)_Enable_Local_Disk_Information_Detection
       bool "Enable Local Disk Information Detection"
       help
         If the lsblk package is not installed, the total disk capacity
@@ -39,7 +39,7 @@ define Package/luci-app-wechatpush/config
         If you are using a virtual machine or have not installed a
         physical disk, this feature is typically unnecessary.
 
-    config PACKAGE_WECHATPUSH_Enable_Host_Information_Detection
+    config PACKAGE_$(PKG_NAME)_Enable_Host_Information_Detection
       bool "Enable Host Information Detection"
       help
         When using a virtual machine and requiring information about the
@@ -48,7 +48,7 @@ define Package/luci-app-wechatpush/config
   endif
 endef
 
-define Package/luci-app-wechatpush/conffiles
+define Package/$(PKG_NAME)/conffiles
 /etc/config/wechatpush
 /usr/share/wechatpush/api/diy.json
 /usr/share/wechatpush/api/logo.jpg
