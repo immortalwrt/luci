@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-04-29 07:07+0000\n"
+"PO-Revision-Date: 2024-05-13 22:00+0000\n"
 "Last-Translator: try496 <pinghejk@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "openwrt/luci/zh_Hans/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5.1\n"
+"X-Generator: Weblate 5.5.5\n"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1113
 msgid "!known (not known)"
@@ -175,7 +175,7 @@ msgstr "2"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1611
 msgid "256"
-msgstr ""
+msgstr "256"
 
 #: protocols/luci-proto-sstp/htdocs/luci-static/resources/protocol/sstp.js:62
 msgctxt "sstp log level value"
@@ -672,7 +672,7 @@ msgstr "活跃的 IPv6 规则"
 
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:251
 msgid "Active peers"
-msgstr "活跃 Peers"
+msgstr "活跃的对等节点"
 
 #: protocols/luci-proto-bonding/htdocs/luci-static/resources/protocol/bonding.js:210
 msgid "Active-Backup policy (active-backup, 1)"
@@ -753,10 +753,11 @@ msgid ""
 "interfaces. Choose an acceptable URI <code>tls://</code>, <code>tcp://</"
 "code>, <code>unix://</code> or <code>quic://</code>"
 msgstr ""
-"添加 listener 以接受来自非本地节点的传入 peering。不论此处 listener 如何设"
-"置，多播 peer 发现都会工作。URI 格式：<code>tls://0.0.0.0:0</code>或 "
-"<code>tls://[::]:0</code>来侦听所有接口。选择可接受的 URI <code>tls://</"
-"code>, <code>tcp://</code>, <code>unix://</code> 或 <code>quic://</code>"
+"添加监听器以便接受来自非本地节点的传入对等连接。无论这里设置了哪些监听器，多"
+"播对等发现都可以正常工作。URI 格式：<code>tls://0.0.0.0:0</code> 或 "
+"<code>tls://[::]:0</code> 用于在所有接口上监听。选择一个可接受的 URI，如 "
+"<code>tls://</code>,<code>tcp://</code>,<code>unix://</code> 或 "
+"<code>quic://</code>"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:390
 msgid "Add local domain suffix to names served from hosts files."
@@ -777,7 +778,7 @@ msgstr "添加对端"
 
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:269
 msgid "Add peer address"
-msgstr "添加 peer 地址"
+msgstr "增加对等地址"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:321
 msgctxt "Dnsmasq instance"
@@ -941,7 +942,7 @@ msgstr "顺序分配 IP"
 msgid "Allocate listen addresses"
 msgstr "分配监听地址"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:24
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:27
 msgid "Allow <abbr title=\"Secure Shell\">SSH</abbr> password authentication"
 msgstr ""
 "允许 <abbr title=\"Secure Shell（加密的传输协议）\">SSH</abbr> 密码验证"
@@ -981,11 +982,11 @@ msgstr "允许本机"
 msgid "Allow rebooting the device"
 msgstr "允许重启设备"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:35
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:38
 msgid "Allow remote hosts to connect to local SSH forwarded ports"
 msgstr "允许远程主机连接到本地 SSH 已转发的端口"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:30
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:33
 msgid "Allow root logins with password"
 msgstr "允许 root 用户凭密码登录"
 
@@ -993,7 +994,7 @@ msgstr "允许 root 用户凭密码登录"
 msgid "Allow system feature probing"
 msgstr "允许系统功能探测"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:30
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:33
 msgid "Allow the <em>root</em> user to log in with password"
 msgstr "允许 <em>root</em> 用户凭密码登录"
 
@@ -1336,7 +1337,7 @@ msgstr "返回至概览"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:860
 msgid "Back to peer configuration"
-msgstr "返回 peer 配置"
+msgstr "返回对等配置"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:391
 msgid "Backup"
@@ -1357,12 +1358,12 @@ msgstr "带宽"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/bandwidth.js:314
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:139
-msgid "Bandwith"
+msgid "Bandwidth"
 msgstr "带宽"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:431
 msgid "Base device"
-msgstr "基设备"
+msgstr "基础设备"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:155
 msgid "Base64-encoded public key of this interface for sharing."
@@ -1839,7 +1840,7 @@ msgstr "在给定时间（秒）后关闭非活动链接，0 为保持连接"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:359
 #: themes/luci-theme-material/ucode/template/themes/material/header.ut:67
 msgid "Collecting data..."
-msgstr "正在收集数据…"
+msgstr "正在收集数据中..."
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/29_ports.js:250
 msgid "Collisions seen"
@@ -2527,7 +2528,7 @@ msgstr "目录"
 msgid ""
 "Directs packet flows to specific CPUs where the local socket owner listens "
 "(the local service)."
-msgstr ""
+msgstr "将数据包流定向到特定的CPU，以便于本地套接字所有者（即本地服务）监听。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:114
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:201
@@ -2992,7 +2993,7 @@ msgstr "启用"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:510
 msgid "Enable / Disable peer. Restart wireguard interface to apply changes."
-msgstr "启用/禁用对端。重启 Wireguard 端口应用更改。"
+msgstr "启用/禁用对端。要应用更改请重启WireGuard接口。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:592
 msgid ""
@@ -3001,6 +3002,10 @@ msgid ""
 msgstr ""
 "启用 <abbr title=\"Internet Group Management Protocol（互联网组管理协"
 "议）\">IGMP</abbr> 嗅探"
+
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:17
+msgid "Enable <abbr title=\"Secure Shell\">SSH</abbr> service instance"
+msgstr "启用 <abbr title=\"Secure Shell（安全外壳）\">SSH</abbr> 服务实例"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:572
 msgid "Enable <abbr title=\"Spanning Tree Protocol\">STP</abbr>"
@@ -3051,6 +3056,10 @@ msgstr "在 PPP 链路上启用 IPv6 协商"
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:728
 msgid "Enable IPv6 segment routing"
 msgstr "启用 IPv6 段路由"
+
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:17
+msgid "Enable Instance"
+msgstr "启用实例"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:194
 msgid "Enable Jumbo Frame passthrough"
@@ -3142,7 +3151,7 @@ msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1598
 msgid "Enable packet steering across CPUs. May help or hinder network speed."
-msgstr ""
+msgstr "启用跨CPU的数据包引导。可能有助于提高或降低网络速度。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:676
 msgid "Enable promiscuous mode"
@@ -3199,7 +3208,7 @@ msgstr "已启用"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1601
 msgid "Enabled (all CPUs)"
-msgstr ""
+msgstr "已启用（所有CPU）"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:592
 msgid "Enables IGMP snooping on this bridge"
@@ -3844,7 +3853,7 @@ msgstr "网关"
 msgid "Gateway Mode"
 msgstr "网关模式"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:35
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:38
 msgid "Gateway Ports"
 msgstr "网关端口"
 
@@ -4278,7 +4287,7 @@ msgstr "IP 地址缺失"
 msgid ""
 "IP addresses for the peer to use inside the tunnel. Some clients require "
 "this setting."
-msgstr "peer 在隧道内部使用的 IP 地址。某些客户端需要此设置。"
+msgstr "隧道内对端要使用的IP地址。一些客户端需要此设置。"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:791
 msgid ""
@@ -4603,9 +4612,8 @@ msgstr "如果选中，则禁用加密"
 msgid ""
 "If empty, all incoming connections will be allowed (default). This does not "
 "affect outgoing peerings, nor link-local peers discovered via multicast."
-msgstr ""
-"若为空，所有传入连接都将被允许（默认）。这不影响传出 peering，也不影响通过多"
-"播发现的 link-local peers。"
+msgstr "如果为空，将允许所有传入连接（默认设置）。这不会影响传出连接，也不影响通过多"
+"播发现的链路本地对等节点。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1118
 msgid ""
@@ -4697,7 +4705,7 @@ msgstr "镜像检查失败了："
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:473
 msgid "Import as peer"
-msgstr "导入为 peer"
+msgstr "作为对端导入"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:185
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:473
@@ -4893,7 +4901,7 @@ msgstr "集成电路卡识别符"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:41
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:190
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:216
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:17
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:20
 msgid "Interface"
 msgstr "接口"
 
@@ -5137,7 +5145,7 @@ msgstr "保留当前配置"
 msgid "Keep-Alive"
 msgstr "保活"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/dmesg.js:38
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/dmesg.js:54
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:84
 msgid "Kernel Log"
 msgstr "内核日志"
@@ -5422,13 +5430,13 @@ msgstr "侦听地址"
 
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:255
 msgid "Listen for peers"
-msgstr "侦听 peers"
+msgstr "监听对等节点"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:501
 msgid "Listen interfaces"
 msgstr "监听接口"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:17
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:20
 msgid "Listen only on the given interface or, if unspecified, on all"
 msgstr "仅监听指定的接口，未指定则监听全部"
 
@@ -6611,7 +6619,7 @@ msgstr ""
 msgid ""
 "Note: this setting is for local services on the device only (not for "
 "forwarding)."
-msgstr ""
+msgstr "注意: 此设置仅适用于设备上的本地服务 (不适用于转发)。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:515
 msgid ""
@@ -7255,7 +7263,7 @@ msgstr "直通（将物理设备镜像到单个 MAC VLAN）"
 msgid "Password"
 msgstr "密码"
 
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:24
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:27
 msgid "Password authentication"
 msgstr "密码验证"
 
@@ -7284,7 +7292,7 @@ msgstr "粘贴或拖动 SSH 密钥文件……"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:441
 msgid "Paste or drag WireGuard peer configuration (wg0.conf) file…"
-msgstr "粘贴或拖动 WireGuard peer 配置 (wg0.conf) 文件…"
+msgstr "粘贴或拖动 WireGuard 对端配置 (wg0.conf) 文件…"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:434
 msgid ""
@@ -7292,8 +7300,9 @@ msgid ""
 "another system below to create a matching peer entry allowing that system to "
 "connect to the local WireGuard interface."
 msgstr ""
-"将来自另一个系统的 WireGuard 配置（通常是 <em>wg0.conf</em>）粘贴或拖动到下方"
-"创建一个匹配的 peer 条目，其允许该系统连接到本地 WireGuard 接口。"
+"将来自另一个系统的 WireGuard 配置（通常是 <em>wg0."
+"conf</em>）粘贴或拖动到下方创建一个匹配的对端条目，其允许该系统连接到本地 "
+"WireGuard 接口。"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:440
 msgid "Paste or drag supplied WireGuard configuration file…"
@@ -7359,7 +7368,7 @@ msgstr "对端 MAC 地址"
 
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:271
 msgid "Peer URI"
-msgstr "Peer URI"
+msgstr "对等节点URI"
 
 #: modules/luci-base/htdocs/luci-static/resources/network.js:14
 #: modules/luci-compat/luasrc/model/network.lua:32
@@ -7368,7 +7377,7 @@ msgstr "对端地址缺失"
 
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:265
 msgid "Peer addresses"
-msgstr "Peer 地址"
+msgstr "对等地址"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:648
 msgid "Peer device name"
@@ -7380,7 +7389,7 @@ msgstr "已禁用对端"
 
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:274
 msgid "Peer interface"
-msgstr "Peer 接口"
+msgstr "对等接口"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:211
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:249
@@ -7463,7 +7472,7 @@ msgid "Policy: <strong>%h</strong> (%h)"
 msgstr "策略：<strong>%h</strong> (%h)"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:872
-#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:20
+#: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:23
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:289
 msgid "Port"
 msgstr "端口"
@@ -7585,7 +7594,7 @@ msgstr "优先级"
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:562
 msgctxt "Label indicating that WireGuard peer private key is stored"
 msgid "Private"
-msgstr "Private"
+msgstr "私钥"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:490
 msgctxt "MACVLAN mode"
@@ -7646,7 +7655,7 @@ msgstr "添加新网络"
 msgid ""
 "Provide the NTP server to the selected interface or, if unspecified, to all "
 "interfaces"
-msgstr "将 NTP 服务器提供给选定的接口，或者，如果未指定，则提供给所有接口"
+msgstr "将 NTP 服务器提供给选定的接口，如果未指定，则提供给所有接口"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:156
 msgid "Proxy Server"
@@ -8541,14 +8550,14 @@ msgstr "扫描"
 msgid "Scheduled Tasks"
 msgstr "计划任务"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/dmesg.js:31
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:37
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/dmesg.js:47
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:52
 msgctxt "scroll to top (the head) of the log file"
 msgid "Scroll to head"
 msgstr "滚动到顶部"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/dmesg.js:22
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:28
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/dmesg.js:38
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:43
 msgctxt "scroll to bottom (the tail) of the log file"
 msgid "Scroll to tail"
 msgstr "滚动到底部"
@@ -9242,7 +9251,7 @@ msgstr "过时的邻近缓存超时"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1609
 msgid "Standard: none"
-msgstr ""
+msgstr "标准: 无"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:714
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:98
@@ -9325,7 +9334,8 @@ msgstr "状态"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1606
 msgid "Steering flows (<abbr title=\"Receive Packet Steering\">RPS</abbr>)"
-msgstr ""
+msgstr "流量引导（<abbr title=\"Receive Packet Steering （接受数据包转向）\""
+">RPS</abbr>）"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:548
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:100
@@ -9364,7 +9374,7 @@ msgstr "提交"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1610
 msgid "Suggested: 128"
-msgstr ""
+msgstr "建议: 128"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:617
 msgid "Suppress logging"
@@ -9438,7 +9448,7 @@ msgstr "语法： {code_syntax}."
 msgid "System"
 msgstr "系统"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:44
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:59
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:63
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:75
 msgid "System Log"
@@ -9597,7 +9607,7 @@ msgstr "<em>block mount</em> 命令失败，代码 %d"
 msgid ""
 "The <em>qrencode</em> package is required for generating an QR code image of "
 "the configuration."
-msgstr "<em>qrencode</em>包对生成配置的二维码图像是必需的。"
+msgstr "为了生成配置文件的二维码图像，需要<em>qrencode</em>软件包。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1092
 msgid "The DHCPv6-DUID (DHCP unique identifier) of this host."
@@ -9802,7 +9812,7 @@ msgstr "网关地址不能是本地 IP 地址"
 msgid ""
 "The generated configuration can be imported into a WireGuard client "
 "application to set up a connection towards this device."
-msgstr "生成的配置可以导入到 WireGuard 客户端应用中来设置到该设备的连接。"
+msgstr "生成的配置可以导入到 WireGuard 客户端应用程序中以设置与该设备的连接。"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/sshkeys.js:172
 msgid "The given SSH public key has already been added."
@@ -10496,8 +10506,8 @@ msgstr "无法调度"
 msgid "Unable to generate QR code: %s"
 msgstr "无法生成二维码：%s"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/dmesg.js:9
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:15
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/dmesg.js:15
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:19
 msgid "Unable to load log data:"
 msgstr "无法读取日志数据："
 
@@ -10527,7 +10537,7 @@ msgstr "无法解析 AFTR 主机名"
 #: modules/luci-base/htdocs/luci-static/resources/network.js:20
 #: modules/luci-compat/luasrc/model/network.lua:38
 msgid "Unable to resolve peer host name"
-msgstr "无法解析 Pear 主机名"
+msgstr "无法解析对等节点主机名"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:317
 msgid "Unable to restart firewall: %s"
@@ -11510,7 +11520,7 @@ msgstr "禁用"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:91
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/dhcpv6.js:25
 msgid "disabled"
-msgstr "已禁用"
+msgstr "禁用"
 
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/dhcpv6.js:20
 msgctxt "DHCPv6 address request mode"
@@ -11536,7 +11546,7 @@ msgstr "比如： dump"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:157
 msgid "enabled"
-msgstr "已开启"
+msgstr "启用"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/view/wireguard/status.js:60
 msgctxt "WireGuard keep alive interval"
@@ -12102,6 +12112,9 @@ msgstr "移远蜂窝网络"
 
 msgid "Temperature"
 msgstr "温度"
+
+#~ msgid "Bandwith"
+#~ msgstr "带宽"
 
 #~ msgid ""
 #~ "Enable packet steering across all CPUs. May help or hinder network speed."
