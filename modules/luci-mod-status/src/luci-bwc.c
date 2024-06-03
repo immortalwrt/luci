@@ -54,6 +54,7 @@
 #define LD_SCAN_PATTERN \
 	"%f %f %f"
 
+#define CONNTRACK_PATH "/usr/sbin/conntrack"
 
 struct file_map {
 	int fd;
@@ -535,7 +536,17 @@ static int run_daemon(void)
 			closedir(dir);
 		}
 
-		if ((info = fopen(ipc, "r")) != NULL)
+		if (!stat(ipc, &s))
+		{
+			info = fopen(ipc, "r");
+		}
+		else if (!stat(CONNTRACK_PATH, &s))
+		{
+			info = popen(CONNTRACK_PATH" -L -o extended 2>/dev/null && "
+						 CONNTRACK_PATH" -L -f ipv6 -o extended 2>/dev/null", "r");
+		}
+
+		if (info != NULL)
 		{
 			udp   = 0;
 			tcp   = 0;
