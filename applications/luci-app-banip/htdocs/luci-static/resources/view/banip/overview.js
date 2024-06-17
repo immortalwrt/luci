@@ -14,11 +14,11 @@
 function handleAction(ev) {
 	if (ev === 'restart' || ev === 'reload') {
 		let map = document.querySelector('.cbi-map');
-		return dom.callClassMethod(map, 'save')
-		.then(L.bind(ui.changes.apply, ui.changes))
-		.then(function() {
-			return fs.exec_direct('/etc/init.d/banip', [ev]);
-		});
+		dom.callClassMethod(map, 'save')
+			.then(L.bind(ui.changes.apply, ui.changes))
+			.then(function () {
+				return fs.exec_direct('/etc/init.d/banip', [ev]);
+			});
 	} else {
 		return fs.exec_direct('/etc/init.d/banip', [ev]);
 	}
@@ -162,48 +162,48 @@ return view.extend({
 			return E('div', { 'class': 'cbi-section' }, [
 				E('h3', _('Information')),
 				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;float:left;font-weight:bold;padding-top:0rem;' }, _('Status')),
-					E('div', { 'class': 'cbi-value-field spinning', 'id': 'status', 'style': 'margin-bottom:-5px;float:left;color:#37c;font-weight:bold;' }, '\xa0')
+					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;font-weight:bold;padding-top:0rem;' }, _('Status')),
+					E('div', { 'class': 'cbi-value-field spinning', 'id': 'status', 'style': 'margin-bottom:-5px;color:#37c;font-weight:bold;' }, '\xa0')
 				]),
 				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;float:left;font-weight:bold;padding-top:0rem;' }, _('Version')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'version', 'style': 'margin-bottom:-5px;float:left;color:#37c;font-weight:bold;' }, '-')
+					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;font-weight:bold;padding-top:0rem;' }, _('Version')),
+					E('div', { 'class': 'cbi-value-field', 'id': 'version', 'style': 'margin-bottom:-5px;color:#37c;font-weight:bold;' }, '-')
 				]),
 				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;float:left;font-weight:bold;padding-top:0rem;' }, _('Element Count')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'elements', 'style': 'margin-bottom:-5px;float:left;color:#37c;font-weight:bold;' }, '-')
+					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;font-weight:bold;padding-top:0rem;' }, _('Element Count')),
+					E('div', { 'class': 'cbi-value-field', 'id': 'elements', 'style': 'margin-bottom:-5px;color:#37c;font-weight:bold;' }, '-')
 				]),
 				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;float:left;font-weight:bold;padding-top:0rem;' }, _('Active Feeds')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'feeds', 'style': 'margin-bottom:-5px;float:left;color:#37c;font-weight:bold;' }, '-')
+					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;font-weight:bold;padding-top:0rem;' }, _('Active Feeds')),
+					E('div', { 'class': 'cbi-value-field', 'id': 'feeds', 'style': 'margin-bottom:-5px;color:#37c;font-weight:bold;' }, '-')
 				]),
 				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;float:left;font-weight:bold;padding-top:0rem;' }, _('Active Devices')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'devices', 'style': 'margin-bottom:-5px;float:left;color:#37c;font-weight:bold;' }, '-')
+					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;font-weight:bold;padding-top:0rem;' }, _('Active Devices')),
+					E('div', { 'class': 'cbi-value-field', 'id': 'devices', 'style': 'margin-bottom:-5px;color:#37c;font-weight:bold;' }, '-')
 				]),
 				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;float:left;font-weight:bold;padding-top:0rem;' }, _('Active Uplink')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'uplink', 'style': 'margin-bottom:-5px;float:left;color:#37c;font-weight:bold;' }, '-')
+					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;font-weight:bold;padding-top:0rem;' }, _('Active Uplink')),
+					E('div', { 'class': 'cbi-value-field', 'id': 'uplink', 'style': 'margin-bottom:-5px;color:#37c;font-weight:bold;' }, '-')
 				]),
 				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;float:left;font-weight:bold;padding-top:0rem;' }, _('NFT Information')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'nft', 'style': 'margin-bottom:-5px;float:left;color:#37c;font-weight:bold;' }, '-')
+					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;font-weight:bold;padding-top:0rem;' }, _('NFT Information')),
+					E('div', { 'class': 'cbi-value-field', 'id': 'nft', 'style': 'margin-bottom:-5px;color:#37c;font-weight:bold;' }, '-')
 				]),
 				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;float:left;font-weight:bold;padding-top:0rem;' }, _('Run Information')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'run', 'style': 'margin-bottom:-5px;float:left;color:#37c;font-weight:bold;' }, '-')
+					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;font-weight:bold;padding-top:0rem;' }, _('Run Information')),
+					E('div', { 'class': 'cbi-value-field', 'id': 'run', 'style': 'margin-bottom:-5px;color:#37c;font-weight:bold;' }, '-')
 				]),
 				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;float:left;font-weight:bold;padding-top:0rem;' }, _('Run Flags')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'flags', 'style': 'margin-bottom:-5px;float:left;color:#37c;font-weight:bold;' }, '-')
+					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;font-weight:bold;padding-top:0rem;' }, _('Run Flags')),
+					E('div', { 'class': 'cbi-value-field', 'id': 'flags', 'style': 'margin-bottom:-5px;color:#37c;font-weight:bold;' }, '-')
 				]),
 				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;float:left;font-weight:bold;padding-top:0rem;' }, _('Last Run')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'last', 'style': 'margin-bottom:-5px;float:left;color:#37c;font-weight:bold;' }, '-')
+					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;font-weight:bold;padding-top:0rem;' }, _('Last Run')),
+					E('div', { 'class': 'cbi-value-field', 'id': 'last', 'style': 'margin-bottom:-5px;color:#37c;font-weight:bold;' }, '-')
 				]),
 				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;float:left;font-weight:bold;padding-top:0rem;' }, _('System Information')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'system', 'style': 'margin-bottom:-5px;float:left;color:#37c;font-weight:bold;' }, '-')
+					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;font-weight:bold;padding-top:0rem;' }, _('System Information')),
+					E('div', { 'class': 'cbi-value-field', 'id': 'system', 'style': 'margin-bottom:-5px;color:#37c;font-weight:bold;' }, '-')
 				]),
 				E('div', { class: 'right' }, [
 					E('button', {
@@ -212,27 +212,28 @@ return view.extend({
 							return handleAction('lookup');
 						})
 					}, [_('Domain Lookup')]),
-					'\xa0\xa0\xa0',
+					'\xa0',
 					E('button', {
 						'class': 'btn cbi-button cbi-button-negative',
 						'click': ui.createHandlerFn(this, function () {
 							return handleAction('stop');
 						})
 					}, [_('Stop')]),
-					'\xa0\xa0\xa0',
+					'\xa0',
 					E('button', {
 						'class': 'btn cbi-button cbi-button-positive',
 						'click': ui.createHandlerFn(this, function () {
 							return handleAction('reload');
 						})
 					}, [_('Reload')]),
-					'\xa0\xa0\xa0',
+					'\xa0',
 					E('button', {
 						'class': 'btn cbi-button cbi-button-positive',
 						'click': ui.createHandlerFn(this, function () {
 							return handleAction('restart');
 						})
-					}, [_('Restart')])
+					}, [_('Restart')]),
+					'\xa0'
 				])
 			]);
 		}, o, this);
@@ -437,7 +438,7 @@ return view.extend({
 		o.optional = true;
 		o.rmempty = true;
 
-		o = s.taboption('adv_chain', form.ListValue, 'ban_icmplimit', _('ICMP-Threshold'), _('ICMP-Threshold in packets per second to prevent WAN-DDoS attacks. To disable this safeguard set it to \'0\'.'));
+		o = s.taboption('adv_chain', form.ListValue, 'ban_icmplimit', _('ICMP-Threshold'), _('ICMP-Threshold in packets per second to prevent WAN-DoS attacks. To disable this safeguard set it to \'0\'.'));
 		o.value('0');
 		o.value('10');
 		o.value('50');
@@ -451,7 +452,7 @@ return view.extend({
 		o.optional = true;
 		o.rmempty = true;
 
-		o = s.taboption('adv_chain', form.ListValue, 'ban_synlimit', _('SYN-Threshold'), _('SYN-Threshold in packets per second to prevent WAN-DDoS attacks. To disable this safeguard set it to \'0\'.'));
+		o = s.taboption('adv_chain', form.ListValue, 'ban_synlimit', _('SYN-Threshold'), _('SYN-Threshold in packets per second to prevent WAN-DoS attacks. To disable this safeguard set it to \'0\'.'));
 		o.value('0');
 		o.value('10');
 		o.value('50');
@@ -465,7 +466,7 @@ return view.extend({
 		o.optional = true;
 		o.rmempty = true;
 
-		o = s.taboption('adv_chain', form.ListValue, 'ban_udplimit', _('UDP-Threshold'), _('UDP-Threshold in packets per second to prevent WAN-DDoS attacks. To disable this safeguard set it to \'0\'.'));
+		o = s.taboption('adv_chain', form.ListValue, 'ban_udplimit', _('UDP-Threshold'), _('UDP-Threshold in packets per second to prevent WAN-DoS attacks. To disable this safeguard set it to \'0\'.'));
 		o.value('0');
 		o.value('100');
 		o.value('250');
