@@ -616,11 +616,11 @@ function gen_config(var)
 				settings = {network = "tcp,udp", followRedirect = true},
 				streamSettings = {sockopt = {tproxy = "tproxy"}},
 				sniffing = {
-					enabled = xray_settings.sniffing == "1" and true or false,
+					enabled = xray_settings.sniffing_override_dest == "1" or node.protocol == "_shunt",
 					destOverride = {"http", "tls", "quic"},
 					metadataOnly = false,
-					routeOnly = (xray_settings.sniffing == "1" and xray_settings.route_only == "1") and true or nil,
-					domainsExcluded = (xray_settings.sniffing == "1" and xray_settings.route_only == "0") and get_domain_excluded() or nil
+					routeOnly = node.protocol == "_shunt" and xray_settings.sniffing_override_dest ~= "1" or nil,
+					domainsExcluded = xray_settings.sniffing_override_dest == "1" and get_domain_excluded() or nil
 				}
 			}
 
@@ -693,7 +693,8 @@ function gen_config(var)
 
 			-- fallback node
 			local fallback_node_id = _node.fallback_node
-			if fallback_node_id and fallback_node_id ~= "" then
+			if fallback_node_id == "" then fallback_node_id = nil end
+			if fallback_node_id then
 				local is_new_node = true
 				for _, outbound in ipairs(outbounds) do
 					if outbound.tag == fallback_node_id then
@@ -723,7 +724,7 @@ function gen_config(var)
 				fallbackTag = fallback_node_id,
 				strategy = { type = _node.balancingStrategy or "random" }
 			})
-			if _node.balancingStrategy == "leastPing" then
+			if _node.balancingStrategy == "leastPing" or fallback_node_id then
 				if not observatory then
 					observatory = {
 						subjectSelector = { "blc-" },
@@ -767,8 +768,8 @@ function gen_config(var)
 		end
 
 		if node.protocol == "_shunt" then
-			local proxy_node_id = node["main_node"]
-			local proxy_tag = "main"
+			local proxy_tag = node.preproxy_enabled == "1" and "main" or nil
+			local proxy_node_id = proxy_tag and node["main_node"] or nil
 			local proxy_balancer_tag
 			local proxy_nodes
 
@@ -862,7 +863,6 @@ function gen_config(var)
 					end
 					return outbound_tag, nil
 				elseif _node.protocol == "_balancing" then
-
 					return nil, gen_balancer(_node, rule_name)
 				elseif _node.protocol == "_iface" then
 					if _node.iface then
@@ -884,7 +884,7 @@ function gen_config(var)
 			end
 
 			--proxy_node
-			if node.preproxy_enabled == "1" and proxy_node_id then
+			if proxy_tag and proxy_node_id then
 				local proxy_outbound_tag
 				proxy_outbound_tag, proxy_balancer_tag = gen_shunt_node(proxy_tag, proxy_node_id)
 				if proxy_balancer_tag then
@@ -947,6 +947,7 @@ function gen_config(var)
 							if w:find("#") == 1 then return end
 							table.insert(domains, w)
 						end)
+						if #domains == 0 then domains = nil end
 					end
 					local ip = nil
 					if e.ip_list then
@@ -955,6 +956,7 @@ function gen_config(var)
 							if w:find("#") == 1 then return end
 							table.insert(ip, w)
 						end)
+						if #ip == 0 then ip = nil end
 					end
 					local source = nil
 					if e.source then
