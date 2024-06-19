@@ -9,7 +9,6 @@ local has_chnlist = api.fs.access("/usr/share/passwall/rules/chnlist")
 local has_chnroute = api.fs.access("/usr/share/passwall/rules/chnroute")
 
 m = Map(appname)
-api.set_apply_on_parse(m)
 
 local nodes_table = {}
 for k, e in ipairs(api.get_valid_nodes()) do
@@ -74,7 +73,7 @@ local doh_validate = function(self, value, t)
 		for i = 1, #val do
 			local v = val[i]
 			if v then
-				if not datatypes.ipmask4(v) then
+				if not datatypes.ipmask4(v) and not datatypes.ipmask6(v) then
 					flag = 1
 				end
 			end
@@ -330,6 +329,7 @@ o:value("1.1.1.2", "1.1.1.2 (CloudFlare-Security)")
 o:value("8.8.4.4", "8.8.4.4 (Google)")
 o:value("8.8.8.8", "8.8.8.8 (Google)")
 o:value("9.9.9.9", "9.9.9.9 (Quad9-Recommended)")
+o:value("149.112.112.112", "149.112.112.112 (Quad9-Recommended)")
 o:value("208.67.220.220", "208.67.220.220 (OpenDNS)")
 o:value("208.67.222.222", "208.67.222.222 (OpenDNS)")
 o:depends({dns_mode = "dns2socks"})
@@ -346,7 +346,8 @@ o:value("https://1.1.1.1/dns-query", "CloudFlare")
 o:value("https://1.1.1.2/dns-query", "CloudFlare-Security")
 o:value("https://8.8.4.4/dns-query", "Google 8844")
 o:value("https://8.8.8.8/dns-query", "Google 8888")
-o:value("https://9.9.9.9/dns-query", "Quad9-Recommended")
+o:value("https://9.9.9.9/dns-query", "Quad9-Recommended 9.9.9.9")
+o:value("https://149.112.112.112/dns-query", "Quad9-Recommended 149.112.112.112")
 o:value("https://208.67.222.222/dns-query", "OpenDNS")
 o:value("https://dns.adguard.com/dns-query,176.103.130.130", "AdGuard")
 o:value("https://doh.libredns.gr/dns-query,116.202.176.26", "LibreDNS")
@@ -401,7 +402,14 @@ o.description = "<ul>"
 		.. "</ul>"
 o:depends({dns_shunt = "dnsmasq", tcp_proxy_mode = "proxy", chn_list = "direct"})
 
-o = s:taboption("DNS", Button, "clear_ipset", translate("Clear IPSET"), translate("Try this feature if the rule modification does not take effect."))
+o = s:taboption("DNS", Flag, "dns_redirect", "DNS " .. translate("Redirect"), translate("Force Router DNS server to all local devices."))
+o.default = "0"
+
+if (uci:get(appname, "@global_forwarding[0]", "use_nft") or "0") == "1" then
+	o = s:taboption("DNS", Button, "clear_ipset", translate("Clear NFTSET"), translate("Try this feature if the rule modification does not take effect."))
+else
+	o = s:taboption("DNS", Button, "clear_ipset", translate("Clear IPSET"), translate("Try this feature if the rule modification does not take effect."))
+end
 o.inputstyle = "remove"
 function o.write(e, e)
 	luci.sys.call('[ -n "$(nft list sets 2>/dev/null | grep \"passwall_\")" ] && sh /usr/share/passwall/nftables.sh flush_nftset_reload || sh /usr/share/passwall/iptables.sh flush_ipset_reload > /dev/null 2>&1 &')

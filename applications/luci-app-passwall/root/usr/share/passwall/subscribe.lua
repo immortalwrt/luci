@@ -1164,6 +1164,13 @@ local function update_node(manual)
 
 		uci:commit(appname)
 	end
+
+	if arg[3] == "cron" then
+		if not nixio.fs.access("/var/lock/" .. appname .. ".lock") then
+			luci.sys.call("touch /tmp/lock/" .. appname .. "_cron.lock")
+		end
+	end
+
 	luci.sys.call("/etc/init.d/" .. appname .. " restart > /dev/null 2>&1 &")
 end
 
