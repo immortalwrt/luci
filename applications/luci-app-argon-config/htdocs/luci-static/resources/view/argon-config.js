@@ -49,13 +49,30 @@ return view.extend({
 		s.addremove = false;
 		s.anonymous = true;
 
-		o = s.option(form.ListValue, 'online_wallpaper', _('Wallpaper source'));
-		o.value('none', _('Built-in'));
+		o = s.option(form.ListValue, 'bg_mode', _('Background mode'));
+		o.value('local_media', _('Local media files'));
+		o.value('wallpaper_url', _('Wallpaper URL'));
+		o.value('online_wallpaper', _('Fetch from Internet'));
+		o.default = 'wallpaper_url';
+		o.rmempty = false;
+
+		o = s.option(form.Value, 'wallpaper_url', _('Wallpaper URL'),
+			_('Set a picture URL here, some API link also works. Some URL may fail due to CORS policy.'));
+		o.value('https://source.unsplash.com/1920x1080/daily?wallpapers');
+		o.value('https://source.unsplash.com/collection/30697288/1920x1080');
+		o.value('https://cn.bing.com/th?id=OHR.BwindiNationalForest_ZH-CN0436137473_1920x1080.jpg');
+		o.depends('bg_mode', 'wallpaper_url');
+		o.retain = true;
+		o.rmempty = false;
+
+		o = s.option(form.ListValue, 'online_wallpaper', _('Online wallpaper source'));
 		o.value('bing', _('Bing'));
-		o.value('ghser', _('GHSer'));
-		o.value('unsplash', _('Unsplash'));
+		o.value('konachan', _('Konachan'));
+		o.value('pic.re', _('Pic.re'));
 		o.value('wallhaven', _('Wallhaven'));
+		o.depends('bg_mode', 'online_wallpaper')
 		o.default = 'bing';
+		o.retain = true;
 		o.rmempty = false;
 
 		o = s.option(form.ListValue, 'mode', _('Theme mode'));

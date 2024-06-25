@@ -52,8 +52,7 @@ return baseclass.extend({
 
 		if (!slide_menu)
 			return;
-		
-		
+
 		if (!collapse) {
 			$(slide).find(".slide-menu").slideDown("fast",function(){
 				slide_menu.classList.add('active');
