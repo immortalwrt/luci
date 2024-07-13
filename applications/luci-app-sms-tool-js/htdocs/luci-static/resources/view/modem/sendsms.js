@@ -214,7 +214,9 @@ return view.extend({
 								E('select', { 'class': 'cbi-input-select',
 										'id': 'pb',
 										'style': 'margin:5px 0; width:100%;',
-										'change': ui.createHandlerFn(this, 'handleCopy')},
+										'change': ui.createHandlerFn(this, 'handleCopy'),
+										'mousedown': ui.createHandlerFn(this, 'handleCopy')
+									    },
 									(loadResults[0] || "").trim().split("\n").map(function(cmd) {
 										var fields = cmd.split(/;/);
 										var name = fields[0];

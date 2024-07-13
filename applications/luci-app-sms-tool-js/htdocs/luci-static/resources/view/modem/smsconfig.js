@@ -73,8 +73,8 @@ return view.extend({
 		o.password = true;
 
 		o = s.taboption('smstab', form.Button, '_fsave');
-		o.title      = _('Save messages to a text file');
-		o.description      = _('This option allows to backup SMS messages or, for example, save messages that are not supported by the sms-tool.');
+		o.title = _('Save messages to a text file');
+		o.description = _('This option allows to backup SMS messages or, for example, save messages that are not supported by the sms-tool.');
 		o.inputtitle = _('Save as .txt file');
 		o.onclick = function() {
 			return uci.load('sms_tool_js').then(function() {
@@ -123,8 +123,8 @@ return view.extend({
 		};
 
 		o = s.taboption('smstab', form.Button, '_fdelete');
-		o.title      = _('Delete all messages');
-		o.description      = _("This option allows you to delete all SMS messages when they are not visible in the 'Received Messages' tab.");
+		o.title = _('Delete all messages');
+		o.description = _("This option allows you to delete all SMS messages when they are not visible in the 'Received Messages' tab.");
 		o.inputtitle = _('Delete all');
 		o.onclick = function() {
 			if (confirm(_('Delete all the messages?')))
