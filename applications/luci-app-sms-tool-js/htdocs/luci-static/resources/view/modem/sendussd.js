@@ -281,8 +281,12 @@ return view.extend({
 				return this.handleCommand('sms_tool', [ '-d' , port , '-r' , 'ussd' , ussd ]);
 				}
 			}
-		}
-
+			if ( get_ussd == '0' && get_pdu == '0')
+				{
+				//without ussd & pdu
+				return this.handleCommand('sms_tool', [ '-d' , port , 'ussd' , ussd ]);
+				}
+			}
 		if ( !port )
 		{
 			ui.addNotification(null, E('p', _('Please set the port for communication with the modem')), 'info');
@@ -330,7 +334,12 @@ return view.extend({
 						E('div', { 'class': 'cbi-value' }, [
 							E('label', { 'class': 'cbi-value-title' }, [ _('User USSD codes') ]),
 							E('div', { 'class': 'cbi-value-field' }, [
-								E('select', { 'class': 'cbi-input-select', 'id': 'tk', 'style': 'margin:5px 0; width:100%;', 'change': ui.createHandlerFn(this, 'handleCopy')},
+									E('select', { 'class': 'cbi-input-select',
+										'id': 'tk',
+										'style': 'margin:5px 0; width:100%;',
+										'change': ui.createHandlerFn(this, 'handleCopy'),
+										'mousedown': ui.createHandlerFn(this, 'handleCopy')
+									    },
 									(loadResults[0] || "").trim().split("\n").map(function(cmd) {
 										var fields = cmd.split(/;/);
 										var name = fields[0];
@@ -393,4 +402,3 @@ return view.extend({
 	handleSave: null,
 	handleReset: null
 })
-
