@@ -83,7 +83,7 @@ return view.extend({
 		o.inputtitle = _('Open website');
 		o.inputstyle = 'apply';
 		o.onclick = function () {
-			window.open('http://ua.233996.xyz/', '_blank');
+			window.open('http://ua-check.stagoh.com/', '_blank');
 		}
 
 		return m.render();
