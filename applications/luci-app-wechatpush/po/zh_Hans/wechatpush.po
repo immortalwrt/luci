@@ -56,6 +56,10 @@ msgstr "免打扰"
 msgid "Push Mode"
 msgstr "推送模式"
 
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:134
+msgid "Do not use push notifications, only use other features."
+msgstr "不使用推送通知，仅使用其他功能"
+
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:135
 msgid "WeChat serverchan"
 msgstr "微信 Server 酱"
@@ -325,8 +329,8 @@ msgstr "从以上列表中随机访问地址<br />文本框请使用「保存」
 
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:315
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:366
-msgid "Typically, it should be WAN or br-lan interface. For multi-wan environments, please choose accordingly."
-msgstr "一般应为 WAN 或 br-lan 接口。多拨环境请自行选择。"
+msgid "Generally, it should be the pppoe-wan or WAN interface. For multi-dial environments, please select the appropriate interface yourself."
+msgstr "一般应为 pppoe-wan 或 WAN 接口。多拨环境请自行选择。"
 
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:321
 msgid "IPv4 API List"
@@ -401,7 +405,7 @@ msgid "Load alert threshold"
 msgstr "负载报警阈值"
 
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:451
-msgid "In general, when the load value is lower than the number of logical cores, you typically don't need to pay much attention to it"
+msgid "In general, when the load value is lower than the number of logical cores, you typically don't need to pay much attention to it."
 msgstr "通常情况下，负载值低于逻辑核心数量时，你不需要关注它"
 
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:433
@@ -724,24 +728,24 @@ msgstr "CPU 报警免打扰时间（秒）"
 msgid "No repeat notifications within the set time after the initial push notification."
 msgstr "首次推送通知后，在设定时间内不再重复提醒"
 
-#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:667
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:700
 msgid "Do Not Disturb for Login Reminders"
 msgstr "登录提醒免打扰"
 
-#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:670
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:703
 msgid "Only record in the log"
 msgstr "仅记录到日志"
 
-#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:671
-msgid "Ignore all login reminders and only record in the log"
-msgstr "忽略所有登录提醒，仅记录到日志"
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:704
+msgid "Ignore all login notifications (including failed logins), and only record them in the log."
+msgstr "忽略所有登录提醒（包括失败的登录），仅记录到日志"
 
-#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:672
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:706
 msgid "Send notification only on the first login"
 msgstr "仅在首次登录时推送通知"
 
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:673
-msgid "Send notification only once within the specified time interval"
+msgid "Send notification only once within the specified time interval."
 msgstr "在设定时间间隔内，仅首次发送推送通知"
 
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:675
@@ -796,10 +800,17 @@ msgstr "若设备信号强度良好，无息屏 WiFi 休眠问题，可以减少
 msgid "Offline timeout applies only to the devices that receive push notifications"
 msgstr "离线超时只针对推送设备"
 
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/advanced.js:95
+msgid "IP address to always scan"
+msgstr "始终扫描的 IP"
+
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/advanced.js:95
+msgid "The IPs in the list are always subjected to online detection regardless of whether they exist in the ARP list, suitable for secondary routing scenarios."
+msgstr "列表中的 IP 始终进行在线检测，无论它是否存在于 ARP 列表，适用于二级路由等情况"
+
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/advanced.js:45
 msgid "When this option is selected, the offline timeout and offline detection count apply only to the devices that require push notifications. Other devices will use default values, which can significantly reduce the time required for detection. However, it may result in inaccurate online time displayed in the online devices list. It is recommended to enable this option only when there are many devices and frequent offline occurrences are observed for specific devices of interest."
 msgstr "选中此项后，离线超时时间和离线检测次数只针对需要推送的设备，其余设备使用默认值，可有效减少检测所需的时间，但会造成在线设备列表中的在线时间不准确，仅建议设备较多且关注的设备离线频繁时使用"
-
 
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/advanced.js:47
 msgid "Disable active detection"
@@ -816,6 +827,14 @@ msgstr "最大并发进程数"
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/advanced.js:56
 msgid "Do not change the setting value for low-performance devices, or reduce the parameters as appropriate."
 msgstr "低性能设备请勿更改设置值，或酌情减少参数"
+
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/advanced.js:120
+msgid "Client list sorting method"
+msgstr "客户端列表排序方式"
+
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/advanced.js:52
+msgid "This will change the sorting method for both the online device list page and the sorting order in the push content."
+msgstr "这将会同时改变在线设备列表页面和推送内容中的排序方式"
 
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/advanced.js:58
 msgid "Custom temperature reading command"
