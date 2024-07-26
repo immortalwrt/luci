@@ -5,13 +5,67 @@
 'require uci';
 'require rpc';
 'require form';
-'require tools.widgets as widgets';
-'require tools.firewall as fwtool';
+'require poll';
 
 return view.extend({
+	callHostHints: rpc.declare({
+		object: 'luci-rpc',
+		method: 'getHostHints',
+		expect: { '': {} }
+	}),
+
+	load: function () {
+		return Promise.all([
+			this.callHostHints(),
+			fs.read('/proc/net/arp')
+		]);
+	},
+
+	parseArp: function (data) {
+		var lines = data.split('\n'),
+			hosts = [];
+
+		for (var i = 1; i < lines.length; i++) {
+			var columns = lines[i].replace(/ +/g, ' ').split(' ');
+
+			if (columns.length >= 6) {
+				hosts.push({
+					ip: columns[0],
+					mac: columns[3]
+				});
+			}
+		}
+
+		// Sort hosts array by IP address
+		hosts.sort(function (a, b) {
+			var ipA = a.ip.split('.').map(Number);
+			var ipB = b.ip.split('.').map(Number);
+
+			for (var i = 0; i < 4; i++) {
+				if (ipA[i] !== ipB[i]) {
+					return ipA[i] - ipB[i];
+				}
+			}
+
+			return 0;
+		});
+
+		return hosts;
+	},
+
+	formatHostIPMAC: function (host) {
+		return host.ip + ' (' + host.mac + ')';
+	},
+
+	formatHostMACIP: function (host) {
+		return host.mac + ' (' + host.ip + ')';
+	},
+
 	render: function (data) {
-		var m, s, o;
-		var programPath = '/usr/share/wechatpush/wechatpush';
+		var arpData = data[1],
+			hosts = this.parseArp(arpData),
+			m, s, o,
+			programPath = '/usr/share/wechatpush/wechatpush';
 
 		m = new form.Map('wechatpush', _(''))
 		m.description = _("If you are not familiar with the meanings of these options, please do not modify them.<br/><br/>")
@@ -19,30 +73,6 @@ return view.extend({
 		s = m.section(form.NamedSection, 'config', 'wechatpush', _(''));
 		s.anonymous = true
 		s.addremove = false
-
-		o = s.option(form.Value, 'up_timeout', _('Device online detection timeout (s)'));
-		o.placeholder = "2"
-		o.optional = false
-		o.datatype = "uinteger"
-		o.rmempty = false;
-
-		o = s.option(form.Value, "down_timeout", _('Device offline detection timeout (s)'))
-		o.placeholder = "10"
-		o.optional = false
-		o.datatype = "uinteger"
-		o.rmempty = false;
-
-		o = s.option(form.Value, "timeout_retry_count", _('Offline detection count'))
-		o.placeholder = "2"
-		o.optional = false
-		o.datatype = "uinteger"
-		o.rmempty = false;
-		o.description = _("If the device has good signal strength and no Wi-Fi sleep issues, you can reduce the above values.<br/>Due to the mysterious nature of Wi-Fi sleep during the night, if you encounter frequent disconnections, please adjust the parameters accordingly.<br/>..╮(╯_╰）╭..")
-
-		o = s.option(form.Flag, "only_timeout_push", _("Offline timeout applies only to the devices that receive push notifications"))
-		o.default = 0
-		o.rmempty = true
-		o.description = _("When this option is selected, the offline timeout and offline detection count apply only to the devices that require push notifications. Other devices will use default values, which can significantly reduce the time required for detection. However, it may result in inaccurate online time displayed in the online devices list. It is recommended to enable this option only when there are many devices and frequent offline occurrences are observed for specific devices of interest.")
 
 		o = s.option(form.Flag, "passive_mode", _("Disable active detection"))
 		o.default = 0
@@ -54,6 +84,12 @@ return view.extend({
 		o.datatype = "uinteger"
 		o.rmempty = false;
 		o.description = _("Do not change the setting value for low-performance devices, or reduce the parameters as appropriate.")
+
+		o = s.option(form.ListValue, "defaultSortColumn", _("Client list sorting method"))
+		o.default = "ip"
+		o.value("ip", _("IP"))
+		o.value("uptime", _("Online time"))
+		o.description = _("This will change the sorting method for both the online device list page and the sorting order in the push content.")
 
 		o = s.option(form.Value, "soc_code", _('Custom temperature reading command'))
 		o.rmempty = true
@@ -88,11 +124,48 @@ return view.extend({
 			});
 		};
 
+		o = s.option(form.Value, 'up_timeout', _('Device online detection timeout (s)'));
+		o.placeholder = "2"
+		o.optional = false
+		o.datatype = "uinteger"
+		o.rmempty = false;
+		o.depends('passive_mode', '0');
+
+		o = s.option(form.Value, "down_timeout", _('Device offline detection timeout (s)'))
+		o.placeholder = "10"
+		o.optional = false
+		o.datatype = "uinteger"
+		o.rmempty = false;
+		o.depends('passive_mode', '0');
+
+		o = s.option(form.Value, "timeout_retry_count", _('Offline detection count'))
+		o.placeholder = "2"
+		o.optional = false
+		o.datatype = "uinteger"
+		o.rmempty = false;
+		o.description = _("If the device has good signal strength and no Wi-Fi sleep issues, you can reduce the above values.<br/>Due to the mysterious nature of Wi-Fi sleep during the night, if you encounter frequent disconnections, please adjust the parameters accordingly.<br/>..╮(╯_╰）╭..")
+		o.depends('passive_mode', '0');
+
+		o = s.option(form.Flag, "only_timeout_push", _("Offline timeout applies only to the devices that receive push notifications"))
+		o.default = 0
+		o.rmempty = true
+		o.description = _("When this option is selected, the offline timeout and offline detection count apply only to the devices that require push notifications. Other devices will use default values, which can significantly reduce the time required for detection. However, it may result in inaccurate online time displayed in the online devices list. It is recommended to enable this option only when there are many devices and frequent offline occurrences are observed for specific devices of interest.")
+		o.depends('passive_mode', '0');
+
+		o = s.option(form.DynamicList, 'always_check_ip_list', _('IP address to always scan'));
+		o.datatype = 'ipaddr';
+		o.description = _('The IPs in the list are always subjected to online detection regardless of whether they exist in the ARP list, suitable for secondary routing scenarios.');
+		hosts.forEach(function (host) {
+			o.value(host.ip, this.formatHostIPMAC(host));
+		}, this);
+		o.depends('passive_mode', '0');
+
 		o = s.option(form.MultiValue, 'device_info_helper', _('Assist in obtaining device information'));
 		o.value('gateway_info', _('Retrieve hostname list from modem'));
 		o.value('scan_local_ip', _('Scan local IP'));
 		o.modalonly = true;
 		o.description = _('When OpenWrt is used as a bypass gateway and cannot obtain device hostnames or a complete list of local network devices.<br/>the \"Retrieve hostname list from modem\" option has only been tested with HG5143F/HN8145V China Telecom gateways and may not be universally applicable.<br/>The \"Scan local IP\" option may not retrieve hostnames, so please use device name annotations in conjunction with it.');
+		o.depends('passive_mode', '0');
 
 		o = s.option(form.Value, "gateway_host_url", _('Optical modem login URL'));
 		o.rmempty = true;
@@ -160,11 +233,14 @@ return view.extend({
 		o.description = _("Avoid redialing network during the day to prevent waiting for DDNS domain resolution. This feature does not affect disconnection detection.<br/>Due to the issue of certain apps consuming excessive data at night, this feature may be unstable.")
 		o.depends('unattended_enable', '1');
 
-		o = s.option(form.DynamicList, "unattended_device_aliases", _("Followed device list"))
-		o.rmempty = true
+		o = s.option(form.DynamicList, 'unattended_device_aliases', _('Followed device list'));
+		o.datatype = 'macaddr';
 		o.description = _("Will only be executed when none of the devices in the list are online.<br/>After an hour of Do-Not-Disturb period, if the devices in the focus list have low traffic (around 100kb/m) for five minutes, they will be considered offline.")
-		//nt.mac_hints(function(mac, name) o :value(mac, "%s (%s)" %{ mac, name }) end)
 		o.depends('unattended_enable', '1');
+
+		hosts.forEach(function (host) {
+			o.value(host.mac, this.formatHostMACIP(host));
+		}, this);
 
 		o = s.option(form.ListValue, "network_disconnect_event", _("When the network is disconnected"))
 		o.default = ""
