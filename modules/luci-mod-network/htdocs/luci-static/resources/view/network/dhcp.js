@@ -101,7 +101,7 @@ function generateDnsmasqInstanceEntry(data) {
 	}
 	formatString += ')';
 
-	return nameValueMap.get('.name'), formatString;
+	return [nameValueMap.get('.name'), formatString];
 }
 
 function getDHCPPools() {
@@ -221,7 +221,7 @@ function expandAndFormatMAC(macs) {
 		}
 	});
 
-	return result.length ? result.join(' ') : null;
+	return result.length ? result : null;
 }
 
 function isValidMAC(sid, s) {
@@ -834,8 +834,8 @@ return view.extend({
 		so.optional = true;
 
 		Object.values(L.uci.sections('dhcp', 'dnsmasq')).forEach(function(val, index) {
-			var name, display_str = generateDnsmasqInstanceEntry(val);
-			so.value(index, display_str);
+			var [name, display_str] = generateDnsmasqInstanceEntry(val);
+			so.value(name, display_str);
 		});
 
 		o = s.taboption('dnsrecords', form.SectionValue, '__dnsrecords__', form.TypedSection, '__dnsrecords__');
@@ -1043,8 +1043,12 @@ return view.extend({
 		//As a special case, in DHCPv4, it is possible to include more than one hardware address. eg: --dhcp-host=11:22:33:44:55:66,12:34:56:78:90:12,192.168.0.2 This allows an IP address to be associated with multiple hardware addresses, and gives dnsmasq permission to abandon a DHCP lease to one of the hardware addresses when another one asks for a lease
 		so.rmempty  = true;
 		so.cfgvalue = function(section) {
-			var macs = L.toArray(uci.get('dhcp', section, 'mac'));
-			return expandAndFormatMAC(macs);
+			var macs = uci.get('dhcp', section, 'mac');
+			if(!Array.isArray(macs)){
+				return expandAndFormatMAC(L.toArray(macs));
+			} else {
+				return expandAndFormatMAC(macs);
+			}
 		};
 		//removed jows renderwidget function which hindered multi-mac entry
 		so.validate = validateMACAddr.bind(so, pools);
@@ -1129,8 +1133,8 @@ return view.extend({
 		so.optional = true;
 
 		Object.values(L.uci.sections('dhcp', 'dnsmasq')).forEach(function(val, index) {
-			var name, display_str = generateDnsmasqInstanceEntry(val);
-			so.value(index, display_str);
+			var [name, display_str] = generateDnsmasqInstanceEntry(val);
+			so.value(name, display_str);
 		});
 
 
