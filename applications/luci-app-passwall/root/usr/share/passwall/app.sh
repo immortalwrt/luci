@@ -217,6 +217,30 @@ check_depends() {
 	fi
 }
 
+check_ver() {
+	local version1="$1"
+	local version2="$2"
+	local i v1 v1_1 v1_2 v1_3 v2 v2_1 v2_2 v2_3
+	IFS='.'; set -- $version1; v1_1=${1:-0}; v1_2=${2:-0}; v1_3=${3:-0}
+	IFS='.'; set -- $version2; v2_1=${1:-0}; v2_2=${2:-0}; v2_3=${3:-0}
+	IFS=
+	for i in 1 2 3; do
+		eval v1=\$v1_$i
+		eval v2=\$v2_$i
+		if [ "$v1" -gt "$v2" ]; then
+			# $1 大于 $2
+			echo 0
+			return
+		elif [ "$v1" -lt "$v2" ]; then
+			# $1 小于 $2
+			echo 1
+			return
+		fi
+	done
+	# $1 等于 $2
+	echo 255
+}
+
 get_new_port() {
 	port=$1
 	[ "$port" == "auto" ] && port=2082
@@ -902,6 +926,16 @@ run_redir() {
 				_args="${_args} udp_redir_port=${UDP_REDIR_PORT}"
 				config_file=$(echo $config_file | sed "s/TCP/TCP_UDP/g")
 			}
+
+			local protocol=$(config_n_get $node protocol)
+			local default_node=$(config_n_get $node default_node)
+			local v2ray_dns_mode=$(config_t_get global v2ray_dns_mode tcp)
+			[ "${DNS_MODE}" != "sing-box" ] && [ "${DNS_MODE}" != "udp" ] && [ "$protocol" = "_shunt" ] && [ "$default_node" = "_direct" ] && {
+				DNS_MODE="sing-box"
+				v2ray_dns_mode="tcp"
+				echolog "* 当前TCP节点采用Sing-Box分流且默认节点为直连，远程DNS过滤模式将默认使用Sing-Box(TCP)，防止环回！"
+			}
+
 			[ "${DNS_MODE}" = "sing-box" ] && {
 				resolve_dns=1
 				config_file=$(echo $config_file | sed "s/.json/_DNS.json/g")
@@ -910,11 +944,8 @@ run_redir() {
 				[ "${DNS_CACHE}" == "0" ] && _args="${_args} dns_cache=0"
 				resolve_dns_port=${dns_listen_port}
 				_args="${_args} dns_listen_port=${resolve_dns_port}"
-
 				local local_dns=$(echo "${LOCAL_DNS}" | sed "s/,/\n/g" | head -n1)
 				_args="${_args} direct_dns_udp_server=${local_dns}"
-
-				local v2ray_dns_mode=$(config_t_get global v2ray_dns_mode tcp)
 				_args="${_args} remote_dns_protocol=${v2ray_dns_mode}"
 				case "$v2ray_dns_mode" in
 					tcp)
@@ -957,6 +988,16 @@ run_redir() {
 				_args="${_args} udp_redir_port=${UDP_REDIR_PORT}"
 				config_file=$(echo $config_file | sed "s/TCP/TCP_UDP/g")
 			}
+
+			local protocol=$(config_n_get $node protocol)
+			local default_node=$(config_n_get $node default_node)
+			local v2ray_dns_mode=$(config_t_get global v2ray_dns_mode tcp)
+			[ "${DNS_MODE}" != "xray" ] && [ "${DNS_MODE}" != "udp" ] && [ "$protocol" = "_shunt" ] && [ "$default_node" = "_direct" ] && {
+				DNS_MODE="xray"
+				v2ray_dns_mode="tcp"
+				echolog "* 当前TCP节点采用Xray分流且默认节点为直连，远程DNS过滤模式将默认使用Xray(TCP)，防止环回！"
+			}
+
 			[ "${DNS_MODE}" = "xray" ] && {
 				resolve_dns=1
 				config_file=$(echo $config_file | sed "s/.json/_DNS.json/g")
@@ -968,7 +1009,6 @@ run_redir() {
 				resolve_dns_port=${dns_listen_port}
 				_args="${_args} dns_listen_port=${resolve_dns_port}"
 				_args="${_args} remote_dns_tcp_server=${REMOTE_DNS}"
-				local v2ray_dns_mode=$(config_t_get global v2ray_dns_mode tcp)
 				if [ "$v2ray_dns_mode" = "tcp+doh" ]; then
 					remote_dns_doh=$(config_t_get global remote_dns_doh "https://1.1.1.1/dns-query")
 					_args="${_args} remote_dns_doh=${remote_dns_doh}"
@@ -1298,6 +1338,38 @@ stop_crontab() {
 start_dns() {
 	echolog "DNS域名解析："
 
+	local direct_dns_mode=$(config_t_get global direct_dns_mode "auto")
+	case "$direct_dns_mode" in
+		udp)
+			LOCAL_DNS=$(config_t_get global direct_dns_udp 223.5.5.5 | sed 's/:/#/g')
+		;;
+		tcp)
+			LOCAL_DNS="127.0.0.1#${dns_listen_port}"
+			dns_listen_port=$(expr $dns_listen_port + 1)
+			local DIRECT_DNS=$(config_t_get global direct_dns_tcp 223.5.5.5 | sed 's/:/#/g')
+			ln_run "$(first_type dns2tcp)" dns2tcp "/dev/null" -L "${LOCAL_DNS}" -R "$(get_first_dns DIRECT_DNS 53)" -v
+			echolog "  - dns2tcp(${LOCAL_DNS}) -> tcp://$(get_first_dns DIRECT_DNS 53 | sed 's/#/:/g')"
+			echolog "  * 请确保上游直连 DNS 支持 TCP 查询。"
+		;;
+		dot)
+			if [ "$(chinadns-ng -V | grep -i wolfssl)" != "nil" ]; then
+				LOCAL_DNS="127.0.0.1#${dns_listen_port}"
+				local cdns_listen_port=${dns_listen_port}
+				dns_listen_port=$(expr $dns_listen_port + 1)
+				local DIRECT_DNS=$(config_t_get global direct_dns_dot "tls://dot.pub@1.12.12.12")
+				ln_run "$(first_type chinadns-ng)" chinadns-ng "/dev/null" -b 127.0.0.1 -l ${cdns_listen_port} -c ${DIRECT_DNS} -d chn
+				echolog "  - ChinaDNS-NG(${LOCAL_DNS}) -> ${DIRECT_DNS}"
+				echolog "  * 请确保上游直连 DNS 支持 DoT 查询。"
+			else
+				echolog "  - 你的ChinaDNS-NG版本不支持DoT，直连DNS将使用默认UDP地址。"
+			fi
+		;;
+		auto)
+			#Automatic logic is already done by default
+			:
+		;;
+	esac
+
 	TUN_DNS="127.0.0.1#${dns_listen_port}"
 	[ "${resolve_dns}" == "1" ] && TUN_DNS="127.0.0.1#${resolve_dns_port}"
 
@@ -1401,10 +1473,10 @@ start_dns() {
 	[ "${use_udp_node_resolve_dns}" = "1" ] && echolog "  * 请确认上游 DNS 支持 UDP 查询并已使用 UDP 节点，如上游 DNS 非直连地址，确保 UDP 代理打开，并且已经正确转发！"
 
 	[ "$DNS_SHUNT" = "chinadns-ng" ] && [ -n "$(first_type chinadns-ng)" ] && {
-		chinadns_ng_min=2024-04-13
-		chinadns_ng_now=$(chinadns-ng -V | grep -i "ChinaDNS-NG " | awk '{print $2}' | awk 'BEGIN{FS=".";OFS="-"};{print $1,$2,$3}')
-		if [ $(date -d "$chinadns_ng_now" +%s) -lt $(date -d "$chinadns_ng_min" +%s) ]; then
-			echolog "  * 注意：当前 ChinaDNS-NG 版本为[ ${chinadns_ng_now//-/.} ]，请更新到[ ${chinadns_ng_min//-/.} ]或以上版本，否则 DNS 有可能无法正常工作！"
+		chinadns_ng_min=2024.04.13
+		chinadns_ng_now=$(chinadns-ng -V | grep -i "ChinaDNS-NG " | awk '{print $2}')
+		if [ $(check_ver "$chinadns_ng_now" "$chinadns_ng_min") = 1 ]; then
+			echolog "  * 注意：当前 ChinaDNS-NG 版本为[ $chinadns_ng_now ]，请更新到[ $chinadns_ng_min ]或以上版本，否则 DNS 有可能无法正常工作！"
 		fi
 
 		local china_ng_local_dns=$(echo -n $(echo "${LOCAL_DNS}" | sed "s/,/\n/g" | head -n2  | awk -v prefix="udp://" '{ for (i=1; i<=NF; i++) print prefix $i }') | tr " " ",")
@@ -1578,10 +1650,10 @@ acl_app() {
 							}
 
 							[ "$dns_shunt" = "chinadns-ng" ] && [ -n "$(first_type chinadns-ng)" ] && {
-								chinadns_ng_min=2024-04-13
-								chinadns_ng_now=$(chinadns-ng -V | grep -i "ChinaDNS-NG " | awk '{print $2}' | awk 'BEGIN{FS=".";OFS="-"};{print $1,$2,$3}')
-								if [ $(date -d "$chinadns_ng_now" +%s) -lt $(date -d "$chinadns_ng_min" +%s) ]; then
-									echolog "  * 注意：当前 ChinaDNS-NG 版本为[ ${chinadns_ng_now//-/.} ]，请更新到[ ${chinadns_ng_min//-/.} ]或以上版本，否则 DNS 有可能无法正常工作！"
+								chinadns_ng_min=2024.04.13
+								chinadns_ng_now=$(chinadns-ng -V | grep -i "ChinaDNS-NG " | awk '{print $2}')
+								if [ $(check_ver "$chinadns_ng_now" "$chinadns_ng_min") = 1 ]; then
+									echolog "  * 注意：当前 ChinaDNS-NG 版本为[ $chinadns_ng_now ]，请更新到[ $chinadns_ng_min ]或以上版本，否则 DNS 有可能无法正常工作！"
 								fi
 
 								[ "$filter_proxy_ipv6" = "1" ] && dnsmasq_filter_proxy_ipv6=0
@@ -1880,9 +1952,6 @@ DEFAULT_DNSMASQ_CFGID=$(uci show dhcp.@dnsmasq[0] |  awk -F '.' '{print $2}' | a
 DEFAULT_DNS=$(uci show dhcp.@dnsmasq[0] | grep "\.server=" | awk -F '=' '{print $2}' | sed "s/'//g" | tr ' ' '\n' | grep -v "\/" | head -2 | sed ':label;N;s/\n/,/;b label')
 [ -z "${DEFAULT_DNS}" ] && [ "$(echo $ISP_DNS | tr ' ' '\n' | wc -l)" -le 2 ] && DEFAULT_DNS=$(echo -n $ISP_DNS | tr ' ' '\n' | head -2 | tr '\n' ',')
 LOCAL_DNS="${DEFAULT_DNS:-119.29.29.29,223.5.5.5}"
-DIRECT_DNS=$(config_t_get global direct_dns "auto")
-#Automatic logic is already done by default
-[ "${DIRECT_DNS}" != "auto" ] && LOCAL_DNS=$(echo ${DIRECT_DNS} | sed 's/:/#/g')
 
 DNS_QUERY_STRATEGY="UseIP"
 [ "$FILTER_PROXY_IPV6" = "1" ] && DNS_QUERY_STRATEGY="UseIPv4"
