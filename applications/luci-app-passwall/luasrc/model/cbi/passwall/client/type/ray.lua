@@ -17,7 +17,7 @@ local function option_name(name)
 	return option_prefix .. name
 end
 
-local x_ss_encrypt_method_list = {
+local ss_method_list = {
 	"aes-128-gcm", "aes-256-gcm", "chacha20-poly1305", "xchacha20-poly1305", "2022-blake3-aes-128-gcm", "2022-blake3-aes-256-gcm", "2022-blake3-chacha20-poly1305"
 }
 
@@ -298,16 +298,16 @@ o.default = "none"
 o:value("none")
 o:depends({ [option_name("protocol")] = "vless" })
 
-o = s:option(ListValue, option_name("x_ss_encrypt_method"), translate("Encrypt Method"))
+o = s:option(ListValue, option_name("ss_method"), translate("Encrypt Method"))
 o.rewrite_option = "method"
-for a, t in ipairs(x_ss_encrypt_method_list) do o:value(t) end
+for a, t in ipairs(ss_method_list) do o:value(t) end
 o:depends({ [option_name("protocol")] = "shadowsocks" })
 
 o = s:option(Flag, option_name("iv_check"), translate("IV Check"))
-o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("x_ss_encrypt_method")] = "aes-128-gcm" })
-o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("x_ss_encrypt_method")] = "aes-256-gcm" })
-o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("x_ss_encrypt_method")] = "chacha20-poly1305" })
-o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("x_ss_encrypt_method")] = "xchacha20-poly1305" })
+o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("ss_method")] = "aes-128-gcm" })
+o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("ss_method")] = "aes-256-gcm" })
+o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("ss_method")] = "chacha20-poly1305" })
+o:depends({ [option_name("protocol")] = "shadowsocks", [option_name("ss_method")] = "xchacha20-poly1305" })
 
 o = s:option(Flag, option_name("uot"), translate("UDP over TCP"))
 o:depends({ [option_name("protocol")] = "shadowsocks" })
@@ -341,9 +341,12 @@ o:depends({ [option_name("tls")] = true, [option_name("transport")] = "grpc" })
 o = s:option(ListValue, option_name("alpn"), translate("alpn"))
 o.default = "default"
 o:value("default", translate("Default"))
-o:value("h2,http/1.1")
+o:value("h3")
 o:value("h2")
+o:value("h3,h2")
 o:value("http/1.1")
+o:value("h2,http/1.1")
+o:value("h3,h2,http/1.1")
 o:depends({ [option_name("tls")] = true, [option_name("reality")] = false })
 
 -- o = s:option(Value, option_name("minversion"), translate("minversion"))
@@ -397,6 +400,7 @@ o:value("ds", "DomainSocket")
 o:value("quic", "QUIC")
 o:value("grpc", "gRPC")
 o:value("httpupgrade", "HttpUpgrade")
+o:value("splithttp", "SplitHTTP")
 o:depends({ [option_name("protocol")] = "vmess" })
 o:depends({ [option_name("protocol")] = "vless" })
 o:depends({ [option_name("protocol")] = "socks" })
@@ -561,6 +565,14 @@ o:depends({ [option_name("transport")] = "httpupgrade" })
 o = s:option(Value, option_name("httpupgrade_path"), translate("HttpUpgrade Path"))
 o.placeholder = "/"
 o:depends({ [option_name("transport")] = "httpupgrade" })
+
+-- [[ SplitHTTP部分 ]]--
+o = s:option(Value, option_name("splithttp_host"), translate("SplitHTTP Host"))
+o:depends({ [option_name("transport")] = "splithttp" })
+
+o = s:option(Value, option_name("splithttp_path"), translate("SplitHTTP Path"))
+o.placeholder = "/"
+o:depends({ [option_name("transport")] = "splithttp" })
 
 -- [[ Mux ]]--
 o = s:option(Flag, option_name("mux"), translate("Mux"))
