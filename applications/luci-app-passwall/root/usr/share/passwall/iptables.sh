@@ -34,7 +34,7 @@ ip6t_m="$ip6t -t mangle -w"
 [ -z "$ip6t" -o -z "$(lsmod | grep 'ip6table_nat')" ] && ip6t_n="eval #$ip6t_n"
 [ -z "$ip6t" -o -z "$(lsmod | grep 'ip6table_mangle')" ] && ip6t_m="eval #$ip6t_m"
 FWI=$(uci -q get firewall.passwall.path 2>/dev/null)
-FAKE_IP="198.18.0.0/16"
+FAKE_IP="198.18.0.0/15"
 
 factor() {
 	if [ -z "$1" ] || [ -z "$2" ]; then
@@ -698,8 +698,17 @@ filter_node() {
 }
 
 dns_hijack() {
-	$ipt_n -I PSW -p udp --dport 53 -j REDIRECT --to-ports 53
-	echolog "强制转发本机DNS端口 UDP/53 的请求[$?]"
+	[ $(config_t_get global dns_redirect "0") = "1" ] && {
+		$ipt_m -A PSW -p udp --dport 53 -j RETURN
+		$ipt_m -A PSW -p tcp --dport 53 -j RETURN
+		$ip6t_m -A PSW -p udp --dport 53 -j RETURN
+		$ip6t_m -A PSW -p tcp --dport 53 -j RETURN
+		$ipt_n -I PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53 -m comment --comment "PSW_DNS_Hijack" 2>/dev/null
+		$ipt_n -I PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53 -m comment --comment "PSW_DNS_Hijack" 2>/dev/null
+		$ip6t_n -I PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53 -m comment --comment "PSW_DNS_Hijack" 2>/dev/null
+		$ip6t_n -I PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53 -m comment --comment "PSW_DNS_Hijack" 2>/dev/null
+		echolog "  - 开启 DNS 重定向"
+	}
 }
 
 add_firewall_rule() {
@@ -841,14 +850,24 @@ add_firewall_rule() {
 	$ipt_m -N PSW_OUTPUT
 	$ipt_m -A PSW_OUTPUT $(dst $IPSET_LANLIST) -j RETURN
 	$ipt_m -A PSW_OUTPUT $(dst $IPSET_VPSLIST) -j RETURN
-	[ -n "$LOCAL_DNS" ] && {
-		for local_dns in $(echo $LOCAL_DNS | tr ',' ' '); do
-			local dns_address=$(echo $local_dns | awk -F '#' '{print $1}')
-			local dns_port=$(echo $local_dns | awk -F '#' '{print $2}')
-			$ipt_m -A PSW_OUTPUT -p udp -d ${dns_address} --dport ${dns_port:-53} -j RETURN
-			echolog "  - [$?]追加直连DNS到iptables：${dns_address}:${dns_port:-53}"
+
+	[ -n "$IPT_APPEND_DNS" ] && {
+		local local_dns dns_address dns_port
+		for local_dns in $(echo $IPT_APPEND_DNS | tr ',' ' '); do
+			dns_address=$(echo "$local_dns" | sed -E 's/(@|\[)?([0-9a-fA-F:.]+)(@|#|$).*/\2/')
+			dns_port=$(echo "$local_dns" | sed -nE 's/.*#([0-9]+)$/\1/p')
+			if echo "$dns_address" | grep -q -v ':'; then
+				$ipt_m -A PSW_OUTPUT -p udp -d ${dns_address} --dport ${dns_port:-53} -j RETURN
+				$ipt_m -A PSW_OUTPUT -p tcp -d ${dns_address} --dport ${dns_port:-53} -j RETURN
+				echolog "  - [$?]追加直连DNS到iptables：${dns_address}:${dns_port:-53}"
+			else
+				$ip6t_m -A PSW_OUTPUT -p udp -d ${dns_address} --dport ${dns_port:-53} -j RETURN
+				$ip6t_m -A PSW_OUTPUT -p tcp -d ${dns_address} --dport ${dns_port:-53} -j RETURN
+				echolog "  - [$?]追加直连DNS到iptables：[${dns_address}]:${dns_port:-53}"
+			fi
 		done
 	}
+
 	[ "${USE_DIRECT_LIST}" = "1" ] && $ipt_m -A PSW_OUTPUT $(dst $IPSET_WHITELIST) -j RETURN
 	$ipt_m -A PSW_OUTPUT -m mark --mark 0xff -j RETURN
 	[ "${USE_BLOCK_LIST}" = "1" ] && $ipt_m -A PSW_OUTPUT $(dst $IPSET_BLOCKLIST) -j DROP
@@ -1111,17 +1130,7 @@ add_firewall_rule() {
 		$ip6t_m -I OUTPUT $(comment "mangle-OUTPUT-PSW") -o lo -j RETURN
 		insert_rule_before "$ip6t_m" "OUTPUT" "mwan3" "$(comment mangle-OUTPUT-PSW) -m mark --mark 1 -j RETURN"
 
-		[ $(config_t_get global dns_redirect "0") = "1" ] && {
-			$ipt_m -A PSW -p udp --dport 53 -j RETURN
-			$ipt_m -A PSW -p tcp --dport 53 -j RETURN
-			$ip6t_m -A PSW -p udp --dport 53 -j RETURN
-			$ip6t_m -A PSW -p tcp --dport 53 -j RETURN
-			$ipt_n -I PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53 -m comment --comment "PSW_DNS_Hijack" 2>/dev/null
-			$ipt_n -I PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53 -m comment --comment "PSW_DNS_Hijack" 2>/dev/null
-			$ip6t_n -I PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53 -m comment --comment "PSW_DNS_Hijack" 2>/dev/null
-			$ip6t_n -I PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53 -m comment --comment "PSW_DNS_Hijack" 2>/dev/null
-			echolog "  - 开启 DNS 重定向"
-		}
+		dns_hijack
 
 	}
 
