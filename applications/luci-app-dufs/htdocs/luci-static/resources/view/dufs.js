@@ -78,12 +78,6 @@ return view.extend({
 		o.datatype = 'port';
 		o.placeholder = '5000';
 
-		o = s.option(form.Value, 'tls_cert', _('Certificate pubkey path'),
-			_('Path to an SSL/TLS certificate to serve with HTTPS.'));
-
-		o = s.option(form.Value, 'tls_key', _('Certificate privkey path'),
-			_('Path to the SSL/TLS certificate\'s private key.'));
-
 		o = s.option(form.Flag, 'enable_cors', _('Enable CORS'));
 
 		o = s.option(form.Flag, 'internet', _('Allow access from Internet'));
