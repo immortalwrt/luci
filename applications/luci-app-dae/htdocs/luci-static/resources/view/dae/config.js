@@ -26,8 +26,15 @@ return view.extend({
 			.then(function(content) {
 				return content ?? '';
 			}).catch(function(e) {
-				if (!e.toString().includes('NotFoundError'))
-					ui.addNotification(null, E('p', e.message));
+				if (e.toString().includes('NotFoundError'))
+					return fs.read_direct('/etc/dae/example.dae', 'text')
+					.then(function(content) {
+						return content ?? '';
+					}).catch(function(e) {
+						return '';
+					});
+
+				ui.addNotification(null, E('p', e.message));
 				return '';
 			});
 		}
