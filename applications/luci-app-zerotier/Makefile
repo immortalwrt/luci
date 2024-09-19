@@ -9,6 +9,7 @@ LUCI_DEPENDS:=+zerotier +jsonfilter +ucode
 LUCI_PKGARCH:=all
 
 define Package/luci-app-zerotier/conffiles
+/etc/config/zero/
 /etc/config/zerotier
 endef
 
