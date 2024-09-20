@@ -84,6 +84,9 @@ return view.extend({
 		o.default = '300';
 		o.rmempty = false;
 
+		o = s.option(form.Value, 'dns', _('Custom DNS server'));
+		o.datatype = 'ipaddr'; 
+
 		o = s.option(form.Flag, 'noweb', _('Disable WebUI'));
 		o.default = o.disabled;
 
