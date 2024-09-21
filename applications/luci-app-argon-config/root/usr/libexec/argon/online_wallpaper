@@ -1,0 +1,71 @@
+#!/bin/sh
+# author jjm2473
+
+# prefer $1, then argon.@global[0].online_wallpaper, 'bing' last
+PIC_SRC=${1:-"$(uci -q get argon.@global[0].online_wallpaper || echo 'bing')"}
+CACHE="/var/run/argon_${PIC_SRC}.url"
+WRLOCK="/var/lock/argon_${PIC_SRC}.lock"
+
+fetch_pic_url() {
+	case "$PIC_SRC" in
+		'bing')
+			local picpath="$(wget -T3 -qO- "https://www.bing.com/HPImageArchive.aspx?format=js&n=1" |
+				jsonfilter -qe '@.images[0].url')"
+			[ -n "$picpath" ] && echo "//www.bing.com${picpath}"
+			;;
+		'konachan')
+			local tagday="date:$(date -d @$(( $(date +%s) - 86400 )) +"%Y-%m-%d")"
+			wget -T3 -qO- "https://konachan.net/post.json?tags=${tagday}&limit=2" |
+				jsonfilter -qe '@[1].file_url'
+			;;
+		'pic.re')
+			local fileurl="$(wget -T3 -qO- "https://pic.re/image.json" |
+				jsonfilter -qe '@.file_url')"
+			[ -n "$fileurl" ] && echo "//${fileurl}"
+			;;
+		'wallhaven')
+			wget -T3 -qO- "https://wallhaven.cc/api/v1/search?resolutions=1920x1080&sorting=random" |
+				jsonfilter -qe "@.data[0].path"
+			;;
+	esac
+}
+
+try_update() {
+	local lock="$WRLOCK"
+	exec 200>"$lock"
+
+	if flock -n 200 >"/dev/null" 2>&1; then
+		local picurl="$(fetch_pic_url)"
+		if [ -n "$picurl" ]; then
+			echo "$picurl" | tee "$CACHE"
+		else
+			if [ -s "$CACHE" ]; then
+				cat "$CACHE"
+			else
+				touch "$CACHE"
+			fi
+		fi
+		flock -u 200 >"/dev/null" 2>&1
+	elif [ -s "$CACHE" ]; then
+		cat "$CACHE"
+	fi
+}
+
+get_url() {
+	if [ -f "$CACHE" ]; then
+		local idle_t="$(($(date '+%s') - $(date -r "$CACHE" '+%s' 2>/dev/null || echo '0')))"
+		if [ -s "$CACHE" ]; then
+			if [ "$idle_t" -le 43200 ]; then
+				cat "$CACHE"
+				return
+			fi
+		else
+			if [ "$idle_t" -le 120 ]; then
+				return
+			fi
+		fi
+	fi
+	try_update
+}
+
+get_url
