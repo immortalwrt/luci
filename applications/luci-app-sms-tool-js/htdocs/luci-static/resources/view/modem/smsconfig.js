@@ -8,7 +8,7 @@
 
 /*
 	Copyright 2022-2024 Rafał Wabik - IceG - From eko.one.pl forum
-	
+
 	Licensed to the GNU General Public License v3.0.
 */
 
@@ -38,10 +38,10 @@ return view.extend({
 			_('Select one of the available ttyUSBX ports.'));
 		devs.sort((a, b) => a.name > b.name);
 		devs.forEach(dev => o.value('/dev/' + dev.name));
-		
+
 		o.placeholder = _('Please select a port');
 		o.rmempty = false;
-		
+
 		o = s.taboption('smstab', form.ListValue, 'storage', _('Message storage area'),
 		_('Messages are stored in a specific location (for example, on the SIM card or modem memory), but other areas may also be available depending on the type of device.'));
 		o.value('SM', _('SIM card'));
@@ -83,24 +83,23 @@ return view.extend({
 							.then(function(res) {
 								if (res) {
 									fs.write('/tmp/mysms.txt', res.trim().replace(/\r\n/g, '\n') + '\n');
-  									var fileName = 'mysms.txt';
-  									var filePath = '/tmp/' + fileName;
+									var fileName = 'mysms.txt';
+									var filePath = '/tmp/' + fileName;
 
-  									fs.stat(filePath)
-    									.then(function () {
+									fs.stat(filePath)
+									.then(function () {
 
-									if (confirm(_('Save sms to txt file?')))
-									{
+									if (confirm(_('Save sms to txt file?'))) {
 										L.resolveDefault(fs.read_direct('/tmp/mysms.txt'), null).then(function (restxt) {
 											if (restxt) {
 												L.ui.showModal(_('Saving...'), [
 													E('p', { 'class': 'spinning' }, _('Please wait.. Process of saving SMS message to a text file is in progress.'))
 												]);
-											var link = E('a', {
-												'download': 'mysms.txt',
-												'href': URL.createObjectURL(
-												new Blob([ restxt ], { type: 'text/plain' })),
-											});
+												var link = E('a', {
+													'download': 'mysms.txt',
+													'href': URL.createObjectURL(
+													new Blob([ restxt ], { type: 'text/plain' })),
+												});
 												window.setTimeout(function() {
 													link.click();
 													URL.revokeObjectURL(link.href);
@@ -109,7 +108,7 @@ return view.extend({
 											} else {
 												ui.addNotification(null, E('p', {}, _('Saving SMS messages to a file failed. Please try again.')));
 											}
-											
+
 										}).catch(() => {
 											ui.addNotification(null, E('p', {}, _('Download error') + ': ' + err.message));
 										});
@@ -118,8 +117,8 @@ return view.extend({
 								}
 				});
 
-    			});
-			
+			});
+
 		};
 
 		o = s.taboption('smstab', form.Button, '_fdelete');
@@ -127,12 +126,11 @@ return view.extend({
 		o.description = _("This option allows you to delete all SMS messages when they are not visible in the 'Received Messages' tab.");
 		o.inputtitle = _('Delete all');
 		o.onclick = function() {
-			if (confirm(_('Delete all the messages?')))
-			{
+			if (confirm(_('Delete all the messages?'))) {
 				return uci.load('sms_tool_js').then(function() {
 					var portFD = (uci.get('sms_tool_js', '@sms_tool_js[0]', 'readport'));
 					fs.exec_direct('/usr/bin/sms_tool', [ '-d' , portFD , 'delete' , 'all' ]);
-    				});
+				});
 			}
 		};
 
@@ -140,7 +138,7 @@ return view.extend({
 			_("Select one of the available ttyUSBX ports."));
 		devs.sort((a, b) => a.name > b.name);
 		devs.forEach(dev => o.value('/dev/' + dev.name));
-		
+
 		o.placeholder = _('Please select a port');
 		o.rmempty = false;
 
@@ -160,7 +158,7 @@ return view.extend({
 		);
 		o.rmempty = false;
 		//o.default = true;
-		
+
 		o = s.taboption('smstab', form.Flag, 'sendingroup', _('Enable group messaging'),
 		_("This option allows you to send one message to all contacts in the user's contact list."));
 		o.rmempty = false;
@@ -208,7 +206,7 @@ return view.extend({
 			_('Select one of the available ttyUSBX ports.'));
 		devs.sort((a, b) => a.name > b.name);
 		devs.forEach(dev => o.value('/dev/' + dev.name));
-		
+
 		o.placeholder = _('Please select a port');
 		o.rmempty = false;
 
@@ -221,6 +219,12 @@ return view.extend({
 		_('Receive and display the message without decoding it as a PDU.')
 		);
 		o.rmempty = false;
+
+		o = s.taboption('ussd', form.ListValue, 'coding', _('PDU decoding scheme'));
+		o.value('auto', _('Autodetect'));
+		o.value('0', _('7Bit'));
+		o.value('2', _('UCS2'));
+		o.default = 'auto';
 
 		o = s.taboption('ussd', form.TextValue, '_tmp4', _('User USSD codes'),
 			_("Each line must have the following format: 'Code description;code'. For user convenience, the file is saved to the location <code>/etc/modem/ussdcodes.user</code>."));
@@ -241,7 +245,7 @@ return view.extend({
 			_('Select one of the available ttyUSBX ports.'));
 		devs.sort((a, b) => a.name > b.name);
 		devs.forEach(dev => o.value('/dev/' + dev.name));
-		
+
 		o.placeholder = _('Please select a port');
 		o.rmempty = false;
 
@@ -283,8 +287,7 @@ return view.extend({
 								var sections = uci.sections('sms_tool_js');
 								var led = sections[0].smsled;
 
-								if (value == '1')
-								{
+								if (value == '1') {
 									uci.set('sms_tool_js', '@sms_tool_js[0]', 'sms_count', L.toArray(u).join(' '));
 									uci.set('sms_tool_js', '@sms_tool_js[0]', 'lednotify', "1");
 									uci.save();
@@ -294,8 +297,7 @@ return view.extend({
 									fs.exec_direct('/etc/init.d/my_new_sms', [ 'start' ]);
 								}
 
-								if (value == '0')
-								{
+								if (value == '0') {
 									uci.set('sms_tool_js', '@sms_tool_js[0]', 'lednotify', "0");
 									uci.save();
 									fs.exec_direct('/sbin/new_cron_sync.sh');
@@ -304,16 +306,15 @@ return view.extend({
 									fs.exec_direct('/etc/init.d/my_new_sms', [ 'disable' ]);
 									fs.exec_direct('/etc/init.d/my_new_sms', [ 'disable' ]);
 
-									if (dsled == 'D')
-									{
-									fs.write('/sys/class/leds/'+led+'/brightness', '0');
+									if (dsled == 'D') {
+										fs.write('/sys/class/leds/'+led+'/brightness', '0');
 									}
 								}
 							}
 					});
 			});
 
-		return form.Flag.prototype.write.apply(this, [section_id, value]);
+			return form.Flag.prototype.write.apply(this, [section_id, value]);
 		};
 
 		o = s.taboption('notifytab', form.Value, 'checktime', _('Check inbox every minute(s)'),
@@ -354,8 +355,8 @@ return view.extend({
 		o.load = function(section_id) {
 			return L.resolveDefault(fs.list('/sys/class/leds'), []).then(L.bind(function(leds) {
 				if(leds.length > 0) {
-				leds.sort((a, b) => a.name > b.name);
-				leds.forEach(e => o.value(e.name));
+					leds.sort((a, b) => a.name > b.name);
+					leds.forEach(e => o.value(e.name));
 				}
 				return this.super('load', [section_id]);
 			}, this));

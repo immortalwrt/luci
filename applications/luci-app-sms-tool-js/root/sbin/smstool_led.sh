@@ -21,7 +21,7 @@ if [ $SMS == $SMSD ]; then
 	exit 0
 fi
 
-if [ $SMS > $SMSD ]; then
+if [ $SMS -gt $SMSD ]; then
 
 echo timer > $LEDT
 echo $TMOFF > $LEDOFF
