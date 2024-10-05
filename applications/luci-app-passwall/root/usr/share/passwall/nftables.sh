@@ -289,25 +289,35 @@ load_acl() {
 				udp_proxy_mode=${UDP_PROXY_MODE}
 			}
 
-			for i in $(cat ${TMP_ACL_PATH}/${sid}/rule_list); do
-				if [ -n "$(echo ${i} | grep '^iprange:')" ]; then
-					_iprange=$(echo ${i} | sed 's#iprange:##g')
-					_ipt_source=$(factor ${_iprange} "ip saddr")
-					msg="【$remarks】，IP range【${_iprange}】，"
-				elif [ -n "$(echo ${i} | grep '^ipset:')" ]; then
-					_ipset=$(echo ${i} | sed 's#ipset:##g')
-					_ipt_source="ip daddr @${_ipset}"
-					msg="【$remarks】，NFTset【${_ipset}】，"
-				elif [ -n "$(echo ${i} | grep '^ip:')" ]; then
-					_ip=$(echo ${i} | sed 's#ip:##g')
-					_ipt_source=$(factor ${_ip} "ip saddr")
-					msg="【$remarks】，IP【${_ip}】，"
-				elif [ -n "$(echo ${i} | grep '^mac:')" ]; then
-					_mac=$(echo ${i} | sed 's#mac:##g')
-					_ipt_source=$(factor ${_mac} "ether saddr")
-					msg="【$remarks】，MAC【${_mac}】，"
+			_acl_list=${TMP_ACL_PATH}/${sid}/rule_list
+			[ $use_interface = "1" ] && _acl_list=${TMP_ACL_PATH}/${sid}/interface_list
+
+			for i in $(cat $_acl_list); do
+				if [ $use_interface = "0" ]; then
+					if [ -n "$(echo ${i} | grep '^iprange:')" ]; then
+						_iprange=$(echo ${i} | sed 's#iprange:##g')
+						_ipt_source=$(factor ${_iprange} "ip saddr")
+						msg="【$remarks】，IP range【${_iprange}】，"
+					elif [ -n "$(echo ${i} | grep '^ipset:')" ]; then
+						_ipset=$(echo ${i} | sed 's#ipset:##g')
+						_ipt_source="ip daddr @${_ipset}"
+						msg="【$remarks】，NFTset【${_ipset}】，"
+					elif [ -n "$(echo ${i} | grep '^ip:')" ]; then
+						_ip=$(echo ${i} | sed 's#ip:##g')
+						_ipt_source=$(factor ${_ip} "ip saddr")
+						msg="【$remarks】，IP【${_ip}】，"
+					elif [ -n "$(echo ${i} | grep '^mac:')" ]; then
+						_mac=$(echo ${i} | sed 's#mac:##g')
+						_ipt_source=$(factor ${_mac} "ether saddr")
+						msg="【$remarks】，MAC【${_mac}】，"
+					else
+						continue
+					fi
 				else
-					continue
+					[ -z "${i}" ] && continue
+					_ifname="${i}"
+					_ipt_source="iifname $_ifname"
+					msg="【$remarks】，IF【${_ifname}】，"
 				fi
 
 				[ "$tcp_no_redir_ports" != "disable" ] && {
@@ -473,8 +483,8 @@ load_acl() {
 				nft "add rule $NFTABLE_NAME PSW_MANGLE ip protocol udp ${_ipt_source} counter return comment \"$remarks\""
 				nft "add rule $NFTABLE_NAME PSW_MANGLE_V6 meta l4proto udp ${_ipt_source} counter return comment \"$remarks\"" 2>/dev/null
 			done
-			unset enabled sid remarks sources use_global_config use_direct_list use_proxy_list use_block_list use_gfw_list chn_list tcp_proxy_mode udp_proxy_mode tcp_no_redir_ports udp_no_redir_ports tcp_proxy_drop_ports udp_proxy_drop_ports tcp_redir_ports udp_redir_ports tcp_node udp_node
-			unset _ip _mac _iprange _ipset _ip_or_mac rule_list tcp_port udp_port tcp_node_remark udp_node_remark
+			unset enabled sid remarks sources use_global_config use_direct_list use_proxy_list use_block_list use_gfw_list chn_list tcp_proxy_mode udp_proxy_mode tcp_no_redir_ports udp_no_redir_ports tcp_proxy_drop_ports udp_proxy_drop_ports tcp_redir_ports udp_redir_ports tcp_node udp_node use_interface interface
+			unset _ip _mac _iprange _ipset _ip_or_mac rule_list tcp_port udp_port tcp_node_remark udp_node_remark _acl_list _ifname
 			unset msg msg2
 		done
 	}
@@ -662,9 +672,10 @@ filter_vps_addr() {
 }
 
 filter_vpsip() {
-	insert_nftset $NFTSET_VPSLIST "-1" $(uci show $CONFIG | grep ".address=" | cut -d "'" -f 2 | grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | sed -e "/^$/d")
+	insert_nftset $NFTSET_VPSLIST "-1" $(uci show $CONFIG | grep ".address=" | cut -d "'" -f 2 | grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | grep -v "^127\.0\.0\.1$" | sed -e "/^$/d")
+	echolog "  - [$?]加入所有IPv4节点到nftset[$NFTSET_VPSLIST]直连完成"
 	insert_nftset $NFTSET_VPSLIST6 "-1" $(uci show $CONFIG | grep ".address=" | cut -d "'" -f 2 | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "/^$/d")
-	echolog "  - [$?]加入所有节点到nftset[$NFTSET_VPSLIST]直连完成"
+	echolog "  - [$?]加入所有IPv6节点到nftset[$NFTSET_VPSLIST6]直连完成"
 }
 
 filter_node() {
@@ -857,7 +868,7 @@ add_firewall_rule() {
 
 	#  过滤所有节点IP
 	filter_vpsip > /dev/null 2>&1 &
-	filter_haproxy > /dev/null 2>&1 &
+	# filter_haproxy > /dev/null 2>&1 &
 	# Prevent some conditions
 	filter_vps_addr $(config_n_get $TCP_NODE address) $(config_n_get $UDP_NODE address) > /dev/null 2>&1 &
 
@@ -947,8 +958,9 @@ add_firewall_rule() {
 
 	WAN_IP=$(get_wan_ip)
 	if [ -n "${WAN_IP}" ]; then
-		nft "add rule $NFTABLE_NAME PSW_MANGLE ip daddr ${WAN_IP} counter return comment \"WAN_IP_RETURN\""
 		[ -z "${is_tproxy}" ] && nft "add rule $NFTABLE_NAME PSW_NAT ip daddr ${WAN_IP} counter return comment \"WAN_IP_RETURN\""
+		nft "add rule $NFTABLE_NAME PSW_MANGLE ip daddr ${WAN_IP} counter return comment \"WAN_IP_RETURN\""
+		echolog "  - [$?]追加WAN IP到nftables：${WAN_IP}"
 	fi
 	unset WAN_IP
 
@@ -1088,18 +1100,29 @@ add_firewall_rule() {
 		if [ "$TCP_NODE" != "nil" ]; then
 			_proxy_tcp_access() {
 				[ -n "${2}" ] || return 0
-				nft "get element $NFTABLE_NAME $NFTSET_LANLIST {${2}}" &>/dev/null
-				[ $? -eq 0 ] && {
-					echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 TCP 代理转发对该服务器 TCP/${3} 端口的访问"
-					return 0
-				}
-				if [ -z "${is_tproxy}" ]; then
-					nft insert rule $NFTABLE_NAME PSW_OUTPUT_NAT ip protocol tcp ip daddr ${2} tcp dport ${3} $(REDIRECT $TCP_REDIR_PORT)
+				if echo "${2}" | grep -q -v ':'; then
+					nft "get element $NFTABLE_NAME $NFTSET_LANLIST {${2}}" &>/dev/null
+					[ $? -eq 0 ] && {
+						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 TCP 代理转发对该服务器 TCP/${3} 端口的访问"
+						return 0
+					}
+					if [ -z "${is_tproxy}" ]; then
+						nft insert rule $NFTABLE_NAME PSW_OUTPUT_NAT ip protocol tcp ip daddr ${2} tcp dport ${3} $(REDIRECT $TCP_REDIR_PORT)
+					else
+						nft insert rule $NFTABLE_NAME PSW_OUTPUT_MANGLE ip protocol tcp ip daddr ${2} tcp dport ${3} counter jump PSW_RULE
+						nft insert rule $NFTABLE_NAME PSW_MANGLE ip protocol tcp iif lo tcp dport ${3} ip daddr ${2} $(REDIRECT $TCP_REDIR_PORT TPROXY4) comment \"本机\"
+					fi
+					echolog "  - [$?]将上游 DNS 服务器 ${2}:${3} 加入到路由器自身代理的 TCP 转发链"
 				else
-					nft insert rule $NFTABLE_NAME PSW_OUTPUT_MANGLE ip protocol tcp ip daddr ${2} tcp dport ${3} counter jump PSW_RULE
-					nft insert rule $NFTABLE_NAME PSW_MANGLE ip protocol tcp iif lo tcp dport ${3} ip daddr ${2} $(REDIRECT $TCP_REDIR_PORT TPROXY4) comment \"本机\"
+					nft "get element $NFTABLE_NAME $NFTSET_LANLIST6 {${2}}" &>/dev/null
+					[ $? -eq 0 ] && {
+						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 TCP 代理转发对该服务器 TCP/${3} 端口的访问"
+						return 0
+					}
+					nft "insert rule $NFTABLE_NAME PSW_OUTPUT_MANGLE_V6 meta l4proto tcp ip6 daddr ${2} tcp dport ${3} counter jump PSW_RULE"
+					nft "insert rule $NFTABLE_NAME PSW_MANGLE_V6 meta l4proto tcp iif lo tcp dport ${3} ip6 daddr ${2} $(REDIRECT $TCP_REDIR_PORT TPROXY6) comment \"本机\""
+					echolog "  - [$?]将上游 DNS 服务器 [${2}]:${3} 加入到路由器自身代理的 TCP 转发链，请确保您的节点支持IPv6，并开启IPv6透明代理！"
 				fi
-				echolog "  - [$?]将上游 DNS 服务器 ${2}:${3} 加入到路由器自身代理的 TCP 转发链"
 			}
 			[ "$use_tcp_node_resolve_dns" == 1 ] && hosts_foreach REMOTE_DNS _proxy_tcp_access 53
 
@@ -1163,14 +1186,25 @@ add_firewall_rule() {
 		if [ "$UDP_NODE" != "nil" -o "$TCP_UDP" = "1" ]; then
 			_proxy_udp_access() {
 				[ -n "${2}" ] || return 0
-				nft "get element $NFTABLE_NAME $NFTSET_LANLIST {${2}}" &>/dev/null
-				[ $? == 0 ] && {
-					echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 UDP 代理转发对该服务器 UDP/${3} 端口的访问"
-					return 0
-				}
-				nft "insert rule $NFTABLE_NAME PSW_OUTPUT_MANGLE ip protocol udp ip daddr ${2} udp dport ${3} counter jump PSW_RULE"
-				nft "insert rule $NFTABLE_NAME PSW_MANGLE ip protocol udp iif lo ip daddr ${2} $(REDIRECT $UDP_REDIR_PORT TPROXY4) comment \"本机\""
-				echolog "  - [$?]将上游 DNS 服务器 ${2}:${3} 加入到路由器自身代理的 UDP 转发链"
+				if echo "${2}" | grep -q -v ':'; then
+					nft "get element $NFTABLE_NAME $NFTSET_LANLIST {${2}}" &>/dev/null
+					[ $? == 0 ] && {
+						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 UDP 代理转发对该服务器 UDP/${3} 端口的访问"
+						return 0
+					}
+					nft "insert rule $NFTABLE_NAME PSW_OUTPUT_MANGLE ip protocol udp ip daddr ${2} udp dport ${3} counter jump PSW_RULE"
+					nft "insert rule $NFTABLE_NAME PSW_MANGLE ip protocol udp iif lo ip daddr ${2} $(REDIRECT $UDP_REDIR_PORT TPROXY4) comment \"本机\""
+					echolog "  - [$?]将上游 DNS 服务器 ${2}:${3} 加入到路由器自身代理的 UDP 转发链"
+				else
+					nft "get element $NFTABLE_NAME $NFTSET_LANLIST6 {${2}}" &>/dev/null
+					[ $? == 0 ] && {
+						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 UDP 代理转发对该服务器 UDP/${3} 端口的访问"
+						return 0
+					}
+					nft "insert rule $NFTABLE_NAME PSW_OUTPUT_MANGLE_V6 meta l4proto udp ip6 daddr ${2} udp dport ${3} counter jump PSW_RULE"
+					nft "insert rule $NFTABLE_NAME PSW_MANGLE_V6 meta l4proto tcp iif lo ip6 daddr ${2} $(REDIRECT $UDP_REDIR_PORT TPROXY6) comment \"本机\""
+					echolog "  - [$?]将上游 DNS 服务器 [${2}]:${3} 加入到路由器自身代理的 UDP 转发链，请确保您的节点支持IPv6，并开启IPv6透明代理！"
+				fi
 			}
 			[ "$use_udp_node_resolve_dns" == 1 ] && hosts_foreach REMOTE_DNS _proxy_udp_access 53
 			[ -n "${LOCALHOST_UDP_PROXY_MODE}" ] && {
