@@ -229,25 +229,35 @@ load_acl() {
 				udp_proxy_mode=${UDP_PROXY_MODE}
 			}
 
-			for i in $(cat ${TMP_ACL_PATH}/${sid}/rule_list); do
-				if [ -n "$(echo ${i} | grep '^iprange:')" ]; then
-					_iprange=$(echo ${i} | sed 's#iprange:##g')
-					_ipt_source=$(factor ${_iprange} "-m iprange --src-range")
-					msg="【$remarks】，IP range【${_iprange}】，"
-				elif [ -n "$(echo ${i} | grep '^ipset:')" ]; then
-					_ipset=$(echo ${i} | sed 's#ipset:##g')
-					_ipt_source="-m set --match-set ${_ipset} src"
-					msg="【$remarks】，IPset【${_ipset}】，"
-				elif [ -n "$(echo ${i} | grep '^ip:')" ]; then
-					_ip=$(echo ${i} | sed 's#ip:##g')
-					_ipt_source=$(factor ${_ip} "-s")
-					msg="【$remarks】，IP【${_ip}】，"
-				elif [ -n "$(echo ${i} | grep '^mac:')" ]; then
-					_mac=$(echo ${i} | sed 's#mac:##g')
-					_ipt_source=$(factor ${_mac} "-m mac --mac-source")
-					msg="【$remarks】，MAC【${_mac}】，"
+			_acl_list=${TMP_ACL_PATH}/${sid}/rule_list
+			[ $use_interface = "1" ] && _acl_list=${TMP_ACL_PATH}/${sid}/interface_list
+
+			for i in $(cat $_acl_list); do
+				if [ $use_interface = "0" ]; then
+					if [ -n "$(echo ${i} | grep '^iprange:')" ]; then
+						_iprange=$(echo ${i} | sed 's#iprange:##g')
+						_ipt_source=$(factor ${_iprange} "-m iprange --src-range")
+						msg="【$remarks】，IP range【${_iprange}】，"
+					elif [ -n "$(echo ${i} | grep '^ipset:')" ]; then
+						_ipset=$(echo ${i} | sed 's#ipset:##g')
+						_ipt_source="-m set --match-set ${_ipset} src"
+						msg="【$remarks】，IPset【${_ipset}】，"
+					elif [ -n "$(echo ${i} | grep '^ip:')" ]; then
+						_ip=$(echo ${i} | sed 's#ip:##g')
+						_ipt_source=$(factor ${_ip} "-s")
+						msg="【$remarks】，IP【${_ip}】，"
+					elif [ -n "$(echo ${i} | grep '^mac:')" ]; then
+						_mac=$(echo ${i} | sed 's#mac:##g')
+						_ipt_source=$(factor ${_mac} "-m mac --mac-source")
+						msg="【$remarks】，MAC【${_mac}】，"
+					else
+						continue
+					fi
 				else
-					continue
+					[ -z "${i}" ] && continue
+					_ifname="${i}"
+					_ipt_source="-i $_ifname"
+					msg="【$remarks】，IF【${_ifname}】，"
 				fi
 
 				ipt_tmp=$ipt_n
@@ -411,8 +421,8 @@ load_acl() {
 				$ip6t_m -A PSW $(comment "$remarks") ${_ipt_source} -p udp -j RETURN 2>/dev/null
 				$ipt_m -A PSW $(comment "$remarks") ${_ipt_source} -p udp -j RETURN
 			done
-			unset enabled sid remarks sources use_global_config use_direct_list use_proxy_list use_block_list use_gfw_list chn_list tcp_proxy_mode udp_proxy_mode tcp_no_redir_ports udp_no_redir_ports tcp_proxy_drop_ports udp_proxy_drop_ports tcp_redir_ports udp_redir_ports tcp_node udp_node
-			unset _ip _mac _iprange _ipset _ip_or_mac rule_list tcp_port udp_port tcp_node_remark udp_node_remark
+			unset enabled sid remarks sources use_global_config use_direct_list use_proxy_list use_block_list use_gfw_list chn_list tcp_proxy_mode udp_proxy_mode tcp_no_redir_ports udp_no_redir_ports tcp_proxy_drop_ports udp_proxy_drop_ports tcp_redir_ports udp_redir_ports tcp_node udp_node use_interface interface
+			unset _ip _mac _iprange _ipset _ip_or_mac rule_list tcp_port udp_port tcp_node_remark udp_node_remark _acl_list
 			unset ipt_tmp msg msg2
 		done
 	}
@@ -584,13 +594,14 @@ filter_haproxy() {
 		local ip=$(get_host_ip ipv4 $(echo $item | awk -F ":" '{print $1}') 1)
 		ipset -q add $IPSET_VPSLIST $ip
 	done
-	echolog "  - [$?]加入负载均衡的节点到ipset[$IPSET_VPSLIST]"
+	echolog "  - [$?]加入负载均衡的节点到ipset[$IPSET_VPSLIST]直连完成"
 }
 
 filter_vpsip() {
-	uci show $CONFIG | grep ".address=" | cut -d "'" -f 2 | grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_VPSLIST &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	uci show $CONFIG | grep ".address=" | cut -d "'" -f 2 | grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | grep -v "^127\.0\.0\.1$" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_VPSLIST &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	echolog "  - [$?]加入所有IPv4节点到ipset[$IPSET_VPSLIST]直连完成"
 	uci show $CONFIG | grep ".address=" | cut -d "'" -f 2 | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_VPSLIST6 &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
-	echolog "  - [$?]加入所有节点到ipset[$IPSET_VPSLIST]"
+	echolog "  - [$?]加入所有IPv6节点到ipset[$IPSET_VPSLIST6]直连完成"
 }
 
 filter_node() {
@@ -716,20 +727,20 @@ add_firewall_rule() {
 	ipset -! create $IPSET_LANLIST nethash maxelem 1048576
 	ipset -! create $IPSET_VPSLIST nethash maxelem 1048576
 	ipset -! create $IPSET_SHUNTLIST nethash maxelem 1048576
-	ipset -! create $IPSET_GFW nethash maxelem 1048576
-	ipset -! create $IPSET_CHN nethash maxelem 1048576
-	ipset -! create $IPSET_BLACKLIST nethash maxelem 1048576
-	ipset -! create $IPSET_WHITELIST nethash maxelem 1048576
-	ipset -! create $IPSET_BLOCKLIST nethash maxelem 1048576
+	ipset -! create $IPSET_GFW nethash maxelem 1048576 timeout 172800
+	ipset -! create $IPSET_CHN nethash maxelem 1048576 timeout 172800
+	ipset -! create $IPSET_BLACKLIST nethash maxelem 1048576 timeout 172800
+	ipset -! create $IPSET_WHITELIST nethash maxelem 1048576 timeout 172800
+	ipset -! create $IPSET_BLOCKLIST nethash maxelem 1048576 timeout 172800
 
 	ipset -! create $IPSET_LANLIST6 nethash family inet6 maxelem 1048576
 	ipset -! create $IPSET_VPSLIST6 nethash family inet6 maxelem 1048576
 	ipset -! create $IPSET_SHUNTLIST6 nethash family inet6 maxelem 1048576
-	ipset -! create $IPSET_GFW6 nethash family inet6 maxelem 1048576
-	ipset -! create $IPSET_CHN6 nethash family inet6 maxelem 1048576
-	ipset -! create $IPSET_BLACKLIST6 nethash family inet6 maxelem 1048576
-	ipset -! create $IPSET_WHITELIST6 nethash family inet6 maxelem 1048576
-	ipset -! create $IPSET_BLOCKLIST6 nethash family inet6 maxelem 1048576
+	ipset -! create $IPSET_GFW6 nethash family inet6 maxelem 1048576 timeout 172800
+	ipset -! create $IPSET_CHN6 nethash family inet6 maxelem 1048576 timeout 172800
+	ipset -! create $IPSET_BLACKLIST6 nethash family inet6 maxelem 1048576 timeout 172800
+	ipset -! create $IPSET_WHITELIST6 nethash family inet6 maxelem 1048576 timeout 172800
+	ipset -! create $IPSET_BLOCKLIST6 nethash family inet6 maxelem 1048576 timeout 172800
 
 	local shunt_ids=$(uci show $CONFIG | grep "=shunt_rules" | awk -F '.' '{print $2}' | awk -F '=' '{print $1}')
 
@@ -741,15 +752,15 @@ add_firewall_rule() {
 		config_n_get $shunt_id ip_list | tr -s "\r\n" "\n" | sed -e "/^$/d" | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "s/^/add $IPSET_SHUNTLIST6 &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
 	done
 
-	cat $RULES_PATH/chnroute | tr -s '\n' | grep -v "^#" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_CHN &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
-	cat $RULES_PATH/proxy_ip | tr -s '\n' | grep -v "^#" | sed -e "/^$/d" | grep -E "(\.((2(5[0-5]|[0-4][0-9]))|[0-1]?[0-9]{1,2})){3}" | sed -e "s/^/add $IPSET_BLACKLIST &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
-	cat $RULES_PATH/direct_ip | tr -s '\n' | grep -v "^#" | sed -e "/^$/d" | grep -E "(\.((2(5[0-5]|[0-4][0-9]))|[0-1]?[0-9]{1,2})){3}" | sed -e "s/^/add $IPSET_WHITELIST &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
-	cat $RULES_PATH/block_ip | tr -s '\n' | grep -v "^#" | sed -e "/^$/d" | grep -E "(\.((2(5[0-5]|[0-4][0-9]))|[0-1]?[0-9]{1,2})){3}" | sed -e "s/^/add $IPSET_BLOCKLIST &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	cat $RULES_PATH/chnroute | tr -s '\n' | grep -v "^#" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_CHN &/g" -e "s/$/ timeout 0/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	cat $RULES_PATH/proxy_ip | tr -s '\n' | grep -v "^#" | sed -e "/^$/d" | grep -E "(\.((2(5[0-5]|[0-4][0-9]))|[0-1]?[0-9]{1,2})){3}" | sed -e "s/^/add $IPSET_BLACKLIST &/g" -e "s/$/ timeout 0/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	cat $RULES_PATH/direct_ip | tr -s '\n' | grep -v "^#" | sed -e "/^$/d" | grep -E "(\.((2(5[0-5]|[0-4][0-9]))|[0-1]?[0-9]{1,2})){3}" | sed -e "s/^/add $IPSET_WHITELIST &/g" -e "s/$/ timeout 0/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	cat $RULES_PATH/block_ip | tr -s '\n' | grep -v "^#" | sed -e "/^$/d" | grep -E "(\.((2(5[0-5]|[0-4][0-9]))|[0-1]?[0-9]{1,2})){3}" | sed -e "s/^/add $IPSET_BLOCKLIST &/g" -e "s/$/ timeout 0/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
 
-	cat $RULES_PATH/chnroute6 | tr -s '\n' | grep -v "^#" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_CHN6 &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
-	cat $RULES_PATH/proxy_ip | tr -s '\n' | grep -v "^#" | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_BLACKLIST6 &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
-	cat $RULES_PATH/direct_ip | tr -s '\n' | grep -v "^#" | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_WHITELIST6 &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
-	cat $RULES_PATH/block_ip | tr -s '\n' | grep -v "^#" | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_BLOCKLIST6 &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	cat $RULES_PATH/chnroute6 | tr -s '\n' | grep -v "^#" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_CHN6 &/g" -e "s/$/ timeout 0/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	cat $RULES_PATH/proxy_ip | tr -s '\n' | grep -v "^#" | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_BLACKLIST6 &/g" -e "s/$/ timeout 0/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	cat $RULES_PATH/direct_ip | tr -s '\n' | grep -v "^#" | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_WHITELIST6 &/g" -e "s/$/ timeout 0/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	cat $RULES_PATH/block_ip | tr -s '\n' | grep -v "^#" | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_BLOCKLIST6 &/g" -e "s/$/ timeout 0/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
 
 	ipset -! -R <<-EOF
 		$(gen_lanlist | sed -e "s/^/add $IPSET_LANLIST /")
@@ -780,7 +791,7 @@ add_firewall_rule() {
 	[ -n "$ISP_DNS" ] && {
 		#echolog "处理 ISP DNS 例外..."
 		for ispip in $ISP_DNS; do
-			ipset -! add $IPSET_WHITELIST $ispip
+			ipset -! add $IPSET_WHITELIST $ispip timeout 0
 			echolog "  - [$?]追加ISP IPv4 DNS到白名单：${ispip}"
 		done
 	}
@@ -788,14 +799,14 @@ add_firewall_rule() {
 	[ -n "$ISP_DNS6" ] && {
 		#echolog "处理 ISP IPv6 DNS 例外..."
 		for ispip6 in $ISP_DNS6; do
-			ipset -! add $IPSET_WHITELIST6 $ispip6
+			ipset -! add $IPSET_WHITELIST6 $ispip6 timeout 0
 			echolog "  - [$?]追加ISP IPv6 DNS到白名单：${ispip6}"
 		done
 	}
 
 	#  过滤所有节点IP
 	filter_vpsip > /dev/null 2>&1 &
-	filter_haproxy > /dev/null 2>&1 &
+	# filter_haproxy > /dev/null 2>&1 &
 
 	accept_icmp=$(config_t_get global_forwarding accept_icmp 0)
 	accept_icmpv6=$(config_t_get global_forwarding accept_icmpv6 0)
@@ -841,7 +852,10 @@ add_firewall_rule() {
 	$ipt_m -A PSW $(dst $IPSET_LANLIST) -j RETURN
 	$ipt_m -A PSW $(dst $IPSET_VPSLIST) -j RETURN
 
-	[ ! -z "${WAN_IP}" ] && $ipt_m -A PSW $(comment "WAN_IP_RETURN") -d "${WAN_IP}" -j RETURN
+	[ ! -z "${WAN_IP}" ] && {
+		$ipt_m -A PSW $(comment "WAN_IP_RETURN") -d "${WAN_IP}" -j RETURN
+		echolog "  - [$?]追加WAN IP到iptables：${WAN_IP}"
+	}
 	unset WAN_IP
 
 	insert_rule_before "$ipt_m" "PREROUTING" "mwan3" "-j PSW"
@@ -1011,18 +1025,29 @@ add_firewall_rule() {
 		if [ "$TCP_NODE" != "nil" ]; then
 			_proxy_tcp_access() {
 				[ -n "${2}" ] || return 0
-				ipset -q test $IPSET_LANLIST ${2}
-				[ $? -eq 0 ] && {
-					echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 TCP 代理转发对该服务器 TCP/${3} 端口的访问"
-					return 0
-				}
-				if [ -z "${is_tproxy}" ]; then
-					$ipt_n -I PSW_OUTPUT -p tcp -d ${2} --dport ${3} $(REDIRECT $TCP_REDIR_PORT)
+				if echo "${2}" | grep -q -v ':'; then
+					ipset -q test $IPSET_LANLIST ${2}
+					[ $? -eq 0 ] && {
+						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 TCP 代理转发对该服务器 TCP/${3} 端口的访问"
+						return 0
+					}
+					if [ -z "${is_tproxy}" ]; then
+						$ipt_n -I PSW_OUTPUT -p tcp -d ${2} --dport ${3} $(REDIRECT $TCP_REDIR_PORT)
+					else
+						$ipt_m -I PSW_OUTPUT -p tcp -d ${2} --dport ${3} -j PSW_RULE
+						$ipt_m -I PSW $(comment "本机") -p tcp -i lo -d ${2} --dport ${3} $(REDIRECT $TCP_REDIR_PORT TPROXY)
+					fi
+					echolog "  - [$?]将上游 DNS 服务器 ${2}:${3} 加入到路由器自身代理的 TCP 转发链"
 				else
-					$ipt_m -I PSW_OUTPUT -p tcp -d ${2} --dport ${3} -j PSW_RULE
-					$ipt_m -I PSW $(comment "本机") -p tcp -i lo -d ${2} --dport ${3} $(REDIRECT $TCP_REDIR_PORT TPROXY)
+					ipset -q test $IPSET_LANLIST6 ${2}
+					[ $? -eq 0 ] && {
+						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 TCP 代理转发对该服务器 TCP/${3} 端口的访问"
+						return 0
+					}
+					$ip6t_m -I PSW_OUTPUT -p tcp -d ${2} --dport ${3} -j PSW_RULE
+					$ip6t_m -I PSW $(comment "本机") -p tcp -i lo -d ${2} --dport ${3} $(REDIRECT $TCP_REDIR_PORT TPROXY)
+					echolog "  - [$?]将上游 DNS 服务器 [${2}]:${3} 加入到路由器自身代理的 TCP 转发链，请确保您的节点支持IPv6，并开启IPv6透明代理！"
 				fi
-				echolog "  - [$?]将上游 DNS 服务器 ${2}:${3} 加入到路由器自身代理的 TCP 转发链"
 			}
 			[ "$use_tcp_node_resolve_dns" == 1 ] && hosts_foreach REMOTE_DNS _proxy_tcp_access 53
 
@@ -1087,14 +1112,25 @@ add_firewall_rule() {
 		if [ "$UDP_NODE" != "nil" -o "$TCP_UDP" = "1" ]; then
 			_proxy_udp_access() {
 				[ -n "${2}" ] || return 0
-				ipset -q test $IPSET_LANLIST ${2}
-				[ $? == 0 ] && {
-					echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 UDP 代理转发对该服务器 UDP/${3} 端口的访问"
-					return 0
-				}
-				$ipt_m -I PSW_OUTPUT -p udp -d ${2} --dport ${3} -j PSW_RULE
-				$ipt_m -I PSW $(comment "本机") -p udp -i lo -d ${2} --dport ${3} $(REDIRECT $UDP_REDIR_PORT TPROXY)
-				echolog "  - [$?]将上游 DNS 服务器 ${2}:${3} 加入到路由器自身代理的 UDP 转发链"
+				if echo "${2}" | grep -q -v ':'; then
+					ipset -q test $IPSET_LANLIST ${2}
+					[ $? == 0 ] && {
+						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 UDP 代理转发对该服务器 UDP/${3} 端口的访问"
+						return 0
+					}
+					$ipt_m -I PSW_OUTPUT -p udp -d ${2} --dport ${3} -j PSW_RULE
+					$ipt_m -I PSW $(comment "本机") -p udp -i lo -d ${2} --dport ${3} $(REDIRECT $UDP_REDIR_PORT TPROXY)
+					echolog "  - [$?]将上游 DNS 服务器 ${2}:${3} 加入到路由器自身代理的 UDP 转发链"
+				else
+					ipset -q test $IPSET_LANLIST6 ${2}
+					[ $? == 0 ] && {
+						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 UDP 代理转发对该服务器 UDP/${3} 端口的访问"
+						return 0
+					}
+					$ip6t_m -I PSW_OUTPUT -p udp -d ${2} --dport ${3} -j PSW_RULE
+					$ip6t_m -I PSW $(comment "本机") -p udp -i lo -d ${2} --dport ${3} $(REDIRECT $UDP_REDIR_PORT TPROXY)
+					echolog "  - [$?]将上游 DNS 服务器 [${2}]:${3} 加入到路由器自身代理的 UDP 转发链，请确保您的节点支持IPv6，并开启IPv6透明代理！"
+				fi
 			}
 			[ "$use_udp_node_resolve_dns" == 1 ] && hosts_foreach REMOTE_DNS _proxy_udp_access 53
 
