@@ -217,7 +217,7 @@ return view.extend({
 		o.placeholder = '0';
 
 		o = s.option(form.Value, 'mcsub_renew', _('Renew multicast subscription periodicity'), _('Unit: seconds; 0 is skip.'));
-		o.datatype = 'or(0, range(30, 64000))';
+		o.datatype = 'range(30, 64000)';
 		o.placeholder = '0';
 
 		return m.render();
