@@ -14,14 +14,14 @@ var callServiceList = rpc.declare({
 	object: 'service',
 	method: 'list',
 	params: ['name'],
-	expect: { '': {} },
+	expect: { '': {} }
 });
-
 
 function tidyExtra(data) {
 	var extra_sections = L.uci.sections('zerotier-extra', 'network');
 	var sections = Object.values(data);
-	var section_ids = sections.length > 0 ? sections.map(section => section['id']) : [];
+	var section_ids =
+		sections.length > 0 ? sections.map(section => section['id']) : [];
 	var remove_section_names = [];
 	for (var i = 0; i < extra_sections.length; i++) {
 		var idx = section_ids.indexOf(extra_sections[i]['id']);
@@ -30,11 +30,10 @@ function tidyExtra(data) {
 			continue;
 		}
 		section_ids.splice(idx, 1);
-		var section = sections.splice(idx, 1)[0];	
-		// if (section.hasOwnProperty('') && section['auto_nat'] == '1') {
-			if (section?.['auto_nat'] == '1') {
-				L.uci.set('zerotier-extra', extra_sections[i]['.name'], 'auto_nat', '1');
-				continue;
+		var section = sections.splice(idx, 1)[0];
+		if (section?.['auto_nat'] == '1') {
+			L.uci.set('zerotier-extra', extra_sections[i]['.name'], 'auto_nat', '1');
+			continue;
 		}
 		remove_section_names.push(extra_sections[i]['.name']);
 	}
@@ -84,16 +83,6 @@ async function loadNetwork() {
 	await L.uci.load('zerotier', 'zerotier-extra');
 }
 return view.extend({
-	// load: function () {
-	// 	return Promise.all([
-	//   L.uci.load('zerotier'),
-	//   L.uci.load('zerotier-extra').then(async() => {
-	// 	  return await L.uci.sections('zerotier-extra', 'network')
-	//   }).catch(() => {
-	// 	  return [];
-	//   })
-	// ]);
-	// },
 	load: function () {
 		return L.uci.load(['zerotier', 'zerotier-extra']).then(data => {
 			var sections = uci.sections('zerotier', 'network');
@@ -135,7 +124,7 @@ return view.extend({
 			});
 
 			return E('div', { class: 'cbi-section', id: 'status_bar' }, [
-				E('p', { id: 'service_status' }, _('Collecting data ...')),
+				E('p', { id: 'service_status' }, _('Collecting data ...'))
 			]);
 		};
 
@@ -241,7 +230,11 @@ return view.extend({
 				delete this.map.data.data[section_name];
 			} else {
 				for (var key in section) {
-					if (key.charAt(0) != '.' && key != 'auto_nat' && old_section[key] != section[key]) {
+					if (
+						key.charAt(0) != '.' &&
+						key != 'auto_nat' &&
+						old_section[key] != section[key]
+					) {
 						L.uci.set('zerotier', section_name, key, section[key]);
 					}
 				}
@@ -251,7 +244,10 @@ return view.extend({
 			return res;
 		};
 		netS.handleRemove = function (section_id, ev) {
-			var res =  form.GridSection.prototype.handleRemove.apply(this, [section_id,ev]);
+			var res = form.GridSection.prototype.handleRemove.apply(this, [
+				section_id,
+				ev
+			]);
 			L.uci.remove('zerotier', section_id);
 			tidyExtra(this.map.data.data);
 			L.uci.save();
@@ -301,5 +297,5 @@ return view.extend({
 		netO.default = '0';
 
 		return Promise.all([m.render(), netM.render()]);
-	},
+	}
 });
