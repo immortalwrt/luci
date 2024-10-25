@@ -324,9 +324,9 @@ var CBIWifiFrequencyValue = form.Value.extend({
 			this.callFrequencyList(section_id)
 		]).then(L.bind(function(data) {
 			this.channels = {
-				'2g': L.hasSystemFeature('hostapd', 'acs') ? [ 'auto', 'auto', true ] : [],
-				'5g': L.hasSystemFeature('hostapd', 'acs') ? [ 'auto', 'auto', true ] : [],
-				'6g': L.hasSystemFeature('hostapd', 'acs') ? [ 'auto', 'auto', true ] : [],
+				'2g': L.hasSystemFeature('hostapd', 'acs') ? [ 'auto', 'auto', { available: true } ] : [],
+				'5g': L.hasSystemFeature('hostapd', 'acs') ? [ 'auto', 'auto', { available: true } ] : [],
+				'6g': L.hasSystemFeature('hostapd', 'acs') ? [ 'auto', 'auto', { available: true } ] : [],
 				'60g': []
 			};
 
@@ -334,12 +334,21 @@ var CBIWifiFrequencyValue = form.Value.extend({
 				if (!data[1][i].band)
 					continue;
 
-				var band = '%dg'.format(data[1][i].band);
+				var band = '%dg'.format(data[1][i].band),
+				    available = true;
+
+
+				if (data[1][i].restricted && data[1][i].no_ir)
+					available = false;
 
 				this.channels[band].push(
 					data[1][i].channel,
 					'%d (%d Mhz)'.format(data[1][i].channel, data[1][i].mhz),
-					!data[1][i].restricted
+					{
+						available: available,
+						no_outdoor: data[1][i].no_outdoor
+					}
+					
 				);
 			}
 
@@ -348,11 +357,11 @@ var CBIWifiFrequencyValue = form.Value.extend({
 
 			// Define supported modes
 			this.modes = [
-				'', 'Legacy', hwmodelist.a || hwmodelist.b || hwmodelist.g,
-				'n', 'N', hwmodelist.n,
-				'ac', 'AC', L.hasSystemFeature('hostapd', '11ac') && hwmodelist.ac,
-				'ax', 'AX', L.hasSystemFeature('hostapd', '11ax') && hwmodelist.ax,
-				'be', 'BE', L.hasSystemFeature('hostapd', '11be') && hwmodelist.be
+				'', 'Legacy', { available: hwmodelist.a || hwmodelist.b || hwmodelist.g },
+				'n', 'N', { available: hwmodelist.n },
+				'ac', 'AC', { available: L.hasSystemFeature('hostapd', '11ac') && hwmodelist.ac },
+				'ax', 'AX', { available: L.hasSystemFeature('hostapd', '11ax') && hwmodelist.ax },
+				'be', 'BE', { available: L.hasSystemFeature('hostapd', '11be') && hwmodelist.be }
 			];
 
 			// Create a list of HT modes based on device capabilities
@@ -360,29 +369,29 @@ var CBIWifiFrequencyValue = form.Value.extend({
 				.reduce(function(o, v) { o[v] = true; return o }, {});
 
 			this.htmodes = {
-				'': [ '', '-', true ],
+				'': [ '', '-', { available: true } ],
 				'n': [
-					'HT20', '20 MHz', htmodelist.HT20,
-					'HT40', '40 MHz', htmodelist.HT40
+					'HT20', '20 MHz', { available: htmodelist.HT20 },
+					'HT40', '40 MHz', { available: htmodelist.HT40 }
 				],
 				'ac': [
-					'VHT20', '20 MHz', htmodelist.VHT20,
-					'VHT40', '40 MHz', htmodelist.VHT40,
-					'VHT80', '80 MHz', htmodelist.VHT80,
-					'VHT160', '160 MHz', htmodelist.VHT160
+					'VHT20', '20 MHz', { available: htmodelist.VHT20 },
+					'VHT40', '40 MHz', { available: htmodelist.VHT40 },
+					'VHT80', '80 MHz', { available: htmodelist.VHT80 },
+					'VHT160', '160 MHz', { available: htmodelist.VHT160 }
 				],
 				'ax': [
-					'HE20', '20 MHz', htmodelist.HE20,
-					'HE40', '40 MHz', htmodelist.HE40,
-					'HE80', '80 MHz', htmodelist.HE80,
-					'HE160', '160 MHz', htmodelist.HE160
+					'HE20', '20 MHz', { available: htmodelist.HE20 },
+					'HE40', '40 MHz', { available: htmodelist.HE40 },
+					'HE80', '80 MHz', { available: htmodelist.HE80 },
+					'HE160', '160 MHz', { available: htmodelist.HE160 }
 				],
 				'be': [
-					'EHT20', '20 MHz', htmodelist.EHT20,
-					'EHT40', '40 MHz', htmodelist.EHT40,
-					'EHT80', '80 MHz', htmodelist.EHT80,
-					'EHT160', '160 MHz', htmodelist.EHT160,
-					'EHT320', '320 MHz', htmodelist.EHT320
+					'EHT20', '20 MHz', { available: htmodelist.EHT20 },
+					'EHT40', '40 MHz', { available: htmodelist.EHT40 },
+					'EHT80', '80 MHz', { available: htmodelist.EHT80 },
+					'EHT160', '160 MHz', { available: htmodelist.EHT160 },
+					'EHT320', '320 MHz', { available: htmodelist.EHT320 }
 				]
 			};
 
@@ -390,27 +399,27 @@ var CBIWifiFrequencyValue = form.Value.extend({
 			// AX and BE are available on 2/5/6G bands
 			this.bands = {
 				'': [
-					'2g', '2.4 GHz', this.channels['2g'].length > 3,
-					'5g', '5 GHz', this.channels['5g'].length > 3,
-					'60g', '60 GHz', this.channels['60g'].length > 0
+					'2g', '2.4 GHz', { available: this.channels['2g'].length > 3 },
+					'5g', '5 GHz', { available: this.channels['5g'].length > 3 },
+					'60g', '60 GHz', { available: this.channels['60g'].length > 0 }
 				],
 				'n': [
-					'2g', '2.4 GHz', this.channels['2g'].length > 3,
-					'5g', '5 GHz', this.channels['5g'].length > 3
+					'2g', '2.4 GHz', { available: this.channels['2g'].length > 3 },
+					'5g', '5 GHz', { available: this.channels['5g'].length > 3 }
 				],
 				'ac': [
-					'5g', '5 GHz', true
+					'5g', '5 GHz', { available: true }
 				],
 				'ax': [
-					'2g', '2.4 GHz', this.channels['2g'].length > 3,
-					'5g', '5 GHz', this.channels['5g'].length > 3,
-					'6g', '6 GHz', this.channels['6g'].length > 3
+					'2g', '2.4 GHz', { available: this.channels['2g'].length > 3 },
+					'5g', '5 GHz', { available: this.channels['5g'].length > 3 },
+					'6g', '6 GHz', { available: this.channels['6g'].length > 3 }
 				],
 				'be': [
-					'2g', '2.4 GHz', this.channels['2g'].length > 3,
-					'5g', '5 GHz', this.channels['5g'].length > 3,
-					'6g', '6 GHz', this.channels['6g'].length > 3
-				],
+					'2g', '2.4 GHz', { available: this.channels['2g'].length > 3 },
+					'5g', '5 GHz', { available: this.channels['5g'].length > 3 },
+					'6g', '6 GHz', { available: this.channels['6g'].length > 3 }
+				]
 			};
 		}, this));
 	},
@@ -424,7 +433,7 @@ var CBIWifiFrequencyValue = form.Value.extend({
 			sel.remove(0);
 
 		for (var i = 0; vals && i < vals.length; i += 3)
-			if (vals[i+2])
+			if (vals[i+2] && vals[i+2].available)
 				sel.add(E('option', { value: vals[i+0] }, [ vals[i+1] ]));
 
 		if (vals && !isNaN(vals.selected))
@@ -456,11 +465,31 @@ var CBIWifiFrequencyValue = form.Value.extend({
 		this.map.checkDepends();
 	},
 
+	checkWifiChannelRestriction: function(elem) {
+		var band = elem.querySelector('.band'),
+		     chan = elem.querySelector('.channel'),
+		     restricted_chan = elem.querySelector('.restricted_channel'),
+		     channels = this.channels[band.value],
+		     no_outdoor;
+
+		if (chan.selectedIndex < 0)
+			return;
+
+		no_outdoor = channels[(chan.selectedIndex*3)+2].no_outdoor;
+		if (no_outdoor)
+			restricted_chan.style.display = '';
+		else
+			restricted_chan.style.display = 'none';
+	},
+
 	toggleWifiChannel: function(elem) {
 		var band = elem.querySelector('.band');
 		var chan = elem.querySelector('.channel');
 
 		this.setValues(chan, this.channels[band.value]);
+
+		this.map.checkDepends();
+		this.checkWifiChannelRestriction(elem);
 	},
 
 	setInitialValues: function(section_id, elem) {
@@ -510,6 +539,8 @@ var CBIWifiFrequencyValue = form.Value.extend({
 		bwdt.value = htval;
 		chan.value = chval || (chan.options[0] ? chan.options[0].value : 'auto');
 
+		this.checkWifiChannelRestriction(elem);
+
 		return elem;
 	},
 
@@ -517,6 +548,9 @@ var CBIWifiFrequencyValue = form.Value.extend({
 		var elem = E('div');
 
 		dom.content(elem, [
+			E('div', { 'class' : 'restricted_channel', 'style': 'display:none'}, [
+				E('div', {'class': 'cbi-button alert-message warning disabled'}, _('Indoor Only Channel Selected'))
+			]),
 			E('label', { 'style': 'float:left; margin-right:3px' }, [
 				_('Mode'), E('br'),
 				E('select', {
@@ -540,7 +574,7 @@ var CBIWifiFrequencyValue = form.Value.extend({
 				E('select', {
 					'class': 'channel',
 					'style': 'width:auto',
-					'change': L.bind(this.map.checkDepends, this.map),
+					'change': L.bind(this.toggleWifiChannel, this, elem),
 					'disabled': (this.disabled != null) ? this.disabled : this.map.readonly
 				})
 			]),
@@ -966,7 +1000,7 @@ return view.extend({
 				o.inputtitle = isDisabled ? _('Enable') : _('Disable');
 				o.onclick = ui.createHandlerFn(s, network_updown, s.section, s.map);
 
-				o = ss.taboption('general', CBIWifiFrequencyValue, '_freq', '<br />' + _('Operating frequency'));
+				o = ss.taboption('general', CBIWifiFrequencyValue, '_freq', '<br />' + _('Operating frequency'), _('Some channels may be restricted to Indoor Only use by your Regulatory Domain. Make sure to follow this advice if a channel is reported as such.'));
 				o.ucisection = s.section;
 
 				if (hwtype == 'mac80211') {
@@ -1449,19 +1483,25 @@ return view.extend({
 				}
 
 
+				o = ss.taboption('encryption', form.Flag, 'ppsk', _('Enable Private PSK (PPSK)'), _('Private Pre-Shared Key (PPSK) allows the use of different Pre-Shared Key for each STA MAC address. Private MAC PSKs are stored on the RADIUS server.'));
+				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['psk', 'psk2', 'psk+psk2', 'psk-mixed'] });
+
 				o = ss.taboption('encryption', form.Value, 'auth_server', _('RADIUS Authentication Server'));
 				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['wpa', 'wpa2', 'wpa3', 'wpa3-mixed', 'wpa3-192'] });
+				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['psk', 'psk2', 'psk+psk2', 'psk-mixed'], ppsk: ['1'] });
 				o.rmempty = true;
 				o.datatype = 'host(0)';
 
 				o = ss.taboption('encryption', form.Value, 'auth_port', _('RADIUS Authentication Port'));
 				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['wpa', 'wpa2', 'wpa3', 'wpa3-mixed', 'wpa3-192'] });
+				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['psk', 'psk2', 'psk+psk2', 'psk-mixed'], ppsk: ['1'] });
 				o.rmempty = true;
 				o.datatype = 'port';
 				o.placeholder = '1812';
 
 				o = ss.taboption('encryption', form.Value, 'auth_secret', _('RADIUS Authentication Secret'));
 				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['wpa', 'wpa2', 'wpa3', 'wpa3-mixed', 'wpa3-192'] });
+				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['psk', 'psk2', 'psk+psk2', 'psk-mixed'], ppsk: ['1'] });
 				o.rmempty = true;
 				o.password = true;
 
@@ -1512,6 +1552,7 @@ return view.extend({
 
 				o = ss.taboption('encryption', form.ListValue, 'dynamic_vlan', _('RADIUS Dynamic VLAN Assignment'), _('Required: Rejects auth if RADIUS server does not provide appropriate VLAN attributes.'));
 				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['wpa', 'wpa2', 'wpa3', 'wpa3-mixed', 'wpa3-192'] });
+				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['psk', 'psk2', 'psk+psk2', 'psk-mixed'], ppsk: ['1'] });
 				o.value('0', _('Disabled'));
 				o.value('1', _('Optional'));
 				o.value('2', _('Required'));
@@ -1521,13 +1562,16 @@ return view.extend({
 
 				o = ss.taboption('encryption', form.Flag, 'per_sta_vif', _('RADIUS Per STA VLAN'), _('Each STA is assigned its own AP_VLAN interface.'));
 				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['wpa', 'wpa2', 'wpa3', 'wpa3-mixed', 'wpa3-192'] });
+				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['psk', 'psk2', 'psk+psk2', 'psk-mixed'], ppsk: ['1'] });
 
 				//hostapd internally defaults to vlan_naming=1 even with dynamic VLAN off
 				o = ss.taboption('encryption', form.Flag, 'vlan_naming', _('RADIUS VLAN Naming'), _('Off: <code>vlanXXX</code>, e.g., <code>vlan1</code>. On: <code>vlan_tagged_interface.XXX</code>, e.g. <code>eth0.1</code>.'));
 				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['wpa', 'wpa2', 'wpa3', 'wpa3-mixed', 'wpa3-192'] });
+				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['psk', 'psk2', 'psk+psk2', 'psk-mixed'], ppsk: ['1'] });
 
 				o = ss.taboption('encryption', widgets.DeviceSelect, 'vlan_tagged_interface', _('RADIUS VLAN Tagged Interface'), _('E.g. eth0, eth1'));
 				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['wpa', 'wpa2', 'wpa3', 'wpa3-mixed', 'wpa3-192'] });
+				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['psk', 'psk2', 'psk+psk2', 'psk-mixed'], ppsk: ['1'] });
 				o.size = 1;
 				o.rmempty = true;
 				o.multiple = false;
@@ -1537,6 +1581,7 @@ return view.extend({
 
 				o = ss.taboption('encryption', form.Value, 'vlan_bridge', _('RADIUS VLAN Bridge Naming Scheme'), _('E.g. <code>br-vlan</code> or <code>brvlan</code>.'));
 				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['wpa', 'wpa2', 'wpa3', 'wpa3-mixed', 'wpa3-192'] });
+				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['psk', 'psk2', 'psk+psk2', 'psk-mixed'], ppsk: ['1'] });
 				o.rmempty = true;
 
 				/* extra RADIUS settings end */
@@ -1563,10 +1608,8 @@ return view.extend({
 
 
 				o = ss.taboption('encryption', form.Value, '_wpa_key', _('Key'));
-				o.depends('encryption', 'psk');
-				o.depends('encryption', 'psk2');
-				o.depends('encryption', 'psk+psk2');
-				o.depends('encryption', 'psk-mixed');
+				add_dependency_permutations(o, { mode: ['ap', 'ap-wds'], encryption: ['psk', 'psk2', 'psk+psk2', 'psk-mixed'], ppsk: ['0'] });
+				add_dependency_permutations(o, { mode: ['sta', 'adhoc', 'mesh', 'sta-wds'], encryption: ['psk', 'psk2', 'psk+psk2', 'psk-mixed'] });
 				o.depends('encryption', 'sae');
 				o.depends('encryption', 'sae-mixed');
 				o.datatype = 'wpakey';
