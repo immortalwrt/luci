@@ -13,6 +13,10 @@ PKG_RELEASE:=20230420
 
 CONFIG_LUCI_CSSTIDY:=
 
+define Package/luci-theme-argon/conffiles
+/www/luci-static/argon/background/
+endef
+
 include ../../luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
