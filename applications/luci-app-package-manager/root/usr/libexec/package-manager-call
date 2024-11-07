@@ -27,7 +27,7 @@ case "$action" in
 			find "${lists_dir:-/usr/lib/opkg/lists}" -type f '!' -name '*.sig' | xargs -r gzip -cd
 		fi
 	;;
-	install|update|remove)
+	install|update|upgrade|remove)
 		(
 			cmd="$ipkg_bin"
 
@@ -38,12 +38,15 @@ case "$action" in
 						action="add"
 					;;
 					update)
+						action="update"
+					;;
+					upgrade)
 						action="upgrade"
 					;;
 					remove)
 						action="del"
 					;;
-				esac							
+				esac
 			fi
 
 			# APK have --autoremove enabled by default and
@@ -85,6 +88,7 @@ case "$action" in
 			fi
 
 			if flock -x 200; then
+				pkmcmd="$cmd $action $@"
 				$cmd $action "$@" </dev/null >/tmp/ipkg.out 2>/tmp/ipkg.err
 				code=$?
 				stdout=$(cat /tmp/ipkg.out)
@@ -96,6 +100,7 @@ case "$action" in
 
 			json_init
 			json_add_int code $code
+			[ -n "$pkmcmd" ] && json_add_string pkmcmd "$pkmcmd"
 			[ -n "$stdout" ] && json_add_string stdout "$stdout"
 			[ -n "$stderr" ] && json_add_string stderr "$stderr"
 			json_dump
@@ -104,7 +109,7 @@ case "$action" in
 		rm -f /tmp/ipkg.lock /tmp/ipkg.err /tmp/ipkg.out
 	;;
 	*)
-		echo "Usage: $0 {list-installed|list-available}"       >&2
+		echo "Usage: $0 {list-installed|list-available|update}" >&2
 		echo "       $0 {install|upgrade|remove} pkg[ pkg...]" >&2
 		exit 1
 	;;
