@@ -11,7 +11,7 @@ LUCI_DESCRIPTION:=LuCI JS interface for the sms-tool. The user interface support
 LUCI_DEPENDS:=+sms-tool +kmod-usb-serial +kmod-usb-serial-option +comgt
 
 PKG_NAME:=luci-app-sms-tool-js
-PKG_VERSION:=2.0.24-20240827
+PKG_VERSION:=2.0.24.20240827
 PKG_MAINTAINER:=Rafał Wabik <4Rafal@gmail.com>
 
 define Package/luci-app-sms-tool-js/conffiles
