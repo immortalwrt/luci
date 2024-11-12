@@ -291,20 +291,24 @@ return view.extend({
 					continue;
 
 				res.channel_width = "20 MHz";
-				if (res.ht_operation != null)
-					if (res.ht_operation.channel_width == 2040) { /* 40 MHz Channel Enabled */
-						if (res.ht_operation.secondary_channel_offset == "below") {
-							res.channel_width = "40 MHz";
-							chan_width = 4; /* 40 MHz Channel Used */
-							center_channels[0] -= 2;
-						} else if (res.ht_operation.secondary_channel_offset == "above") {
-							res.channel_width = "40 MHz";
-							chan_width = 4; /* 40 MHz Channel Used */
-							center_channels[0] += 2;
-						} else {
+				if (res.ht_operation != null) {
+					/* Detect 40 MHz operation by looking for the presence of
+					 * a secondary channel. */
+					if (res.ht_operation.secondary_channel_offset == "below") {
+						res.channel_width = "40 MHz";
+						chan_width = 4; /* 40 MHz Channel Used */
+						center_channels[0] -= 2;
+					} else if (res.ht_operation.secondary_channel_offset == "above") {
+						res.channel_width = "40 MHz";
+						chan_width = 4; /* 40 MHz Channel Used */
+						center_channels[0] += 2;
+					} else {
+						/* Fallback to 20 MHz due to discovery of other APs on the
+						 * same channel (802.11n coexistence mechanism). */
+						if (res.ht_operation.channel_width == 2040)
 							res.channel_width = "20 MHz (40 MHz Intolerant)";
-						}
 					}
+				}
 
 				/* if channel_width <= 40, refer to HT (above) for actual channel width,
 				 * as vht_operation.channel_width == 40 really only means that the used
@@ -314,6 +318,22 @@ return view.extend({
 					if (res.vht_operation.channel_width == 80) {
 						chan_width = 8;
 						res.channel_width = "80 MHz";
+
+						/* If needed, adjust based on the 802.11ac Wave 2 interop workaround. */
+						if (res.vht_operation.center_freq_2) {
+							var diff = Math.abs(res.vht_operation.center_freq_2 -
+							                    res.vht_operation.center_freq_1);
+
+							if (diff == 8) {
+								chan_width = 16;
+								res.channel_width = "160 MHz";
+								center_channels.push(res.vht_operation.center_freq_2);
+							} else if (diff > 8) {
+								chan_width = 8;
+								res.channel_width = "80+80 MHz";
+								center_channels.push(res.vht_operation.center_freq_2);
+							}
+						}
 					} else if (res.vht_operation.channel_width == 8080) {
 						res.channel_width = "80+80 MHz";
 						chan_width = 8;
