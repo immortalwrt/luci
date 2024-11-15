@@ -1403,3 +1403,8 @@ get_wan6_ip)
 stop)
 	stop
 	;;
+start)
+	start
+	;;
+*) ;;
+esac
