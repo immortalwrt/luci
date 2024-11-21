@@ -160,22 +160,22 @@ gen_lanlist_6() {
 get_wan_ip() {
 	local NET_IF
 	local NET_ADDR
-	
+
 	network_flush_cache
 	network_find_wan NET_IF
 	network_get_ipaddr NET_ADDR "${NET_IF}"
-	
+
 	echo $NET_ADDR
 }
 
 get_wan6_ip() {
 	local NET_IF
 	local NET_ADDR
-	
+
 	network_flush_cache
 	network_find_wan6 NET_IF
 	network_get_ipaddr6 NET_ADDR "${NET_IF}"
-	
+
 	echo $NET_ADDR
 }
 
@@ -229,37 +229,52 @@ load_acl() {
 				udp_proxy_mode=${UDP_PROXY_MODE}
 			}
 
-			_acl_list=${TMP_ACL_PATH}/${sid}/rule_list
-			[ "$use_interface" = "1" ] && _acl_list=${TMP_ACL_PATH}/${sid}/interface_list
+			_acl_list=${TMP_ACL_PATH}/${sid}/source_list
 
 			for i in $(cat $_acl_list); do
-				if [ "$use_interface" = "0" ]; then
-					if [ -n "$(echo ${i} | grep '^iprange:')" ]; then
-						_iprange=$(echo ${i} | sed 's#iprange:##g')
-						_ipt_source=$(factor ${_iprange} "-m iprange --src-range")
-						msg="【$remarks】，IP range【${_iprange}】，"
-					elif [ -n "$(echo ${i} | grep '^ipset:')" ]; then
-						_ipset=$(echo ${i} | sed 's#ipset:##g')
-						_ipt_source="-m set --match-set ${_ipset} src"
-						msg="【$remarks】，IPset【${_ipset}】，"
-					elif [ -n "$(echo ${i} | grep '^ip:')" ]; then
-						_ip=$(echo ${i} | sed 's#ip:##g')
-						_ipt_source=$(factor ${_ip} "-s")
-						msg="【$remarks】，IP【${_ip}】，"
-					elif [ -n "$(echo ${i} | grep '^mac:')" ]; then
-						_mac=$(echo ${i} | sed 's#mac:##g')
-						_ipt_source=$(factor ${_mac} "-m mac --mac-source")
-						msg="【$remarks】，MAC【${_mac}】，"
+				local _ipt_source
+				local msg
+				if [ -n "${interface}" ]; then
+					. /lib/functions/network.sh
+					local gateway device
+					network_get_gateway gateway "${interface}"
+					network_get_device device "${interface}"
+					[ -z "${device}" ] && device="${interface}"
+					_ipt_source="-i ${device} "
+					msg="源接口【${device}】，"
+				fi
+				if [ -n "$(echo ${i} | grep '^iprange:')" ]; then
+					_iprange=$(echo ${i} | sed 's#iprange:##g')
+					_ipt_source=$(factor ${_iprange} "${_ipt_source}-m iprange --src-range")
+					msg="${msg}IP range【${_iprange}】，"
+					unset _iprange
+				elif [ -n "$(echo ${i} | grep '^ipset:')" ]; then
+					_ipset=$(echo ${i} | sed 's#ipset:##g')
+					msg="${msg}IPset【${_ipset}】，"
+					ipset -q list ${_ipset} >/dev/null
+					if [ $? -eq 0 ]; then
+						_ipt_source="${_ipt_source}-m set --match-set ${_ipset} src"
+						unset _ipset
 					else
+						echolog "  - 【$remarks】，${msg}不存在，忽略。"
+						unset _ipset
 						continue
 					fi
+				elif [ -n "$(echo ${i} | grep '^ip:')" ]; then
+					_ip=$(echo ${i} | sed 's#ip:##g')
+					_ipt_source=$(factor ${_ip} "${_ipt_source}-s")
+					msg="${msg}IP【${_ip}】，"
+					unset _ip
+				elif [ -n "$(echo ${i} | grep '^mac:')" ]; then
+					_mac=$(echo ${i} | sed 's#mac:##g')
+					_ipt_source=$(factor ${_mac} "${_ipt_source}-m mac --mac-source")
+					msg="${msg}MAC【${_mac}】，"
+					unset _mac
 				else
-					[ -z "${i}" ] && continue
-					_ifname="${i}"
-					_ipt_source="-i $_ifname"
-					msg="【$remarks】，IF【${_ifname}】，"
+					continue
 				fi
-				
+				msg="【$remarks】，${msg}"
+
 				ipt_tmp=$ipt_n
 				[ -n "${is_tproxy}" ] && ipt_tmp=$ipt_m
 
@@ -274,7 +289,7 @@ load_acl() {
 						echolog "     - ${msg}不代理所有 TCP 端口"
 					fi
 				}
-				
+
 				[ "$udp_no_redir_ports" != "disable" ] && {
 					if [ "$udp_no_redir_ports" != "1:65535" ]; then
 						$ip6t_m -A PSW $(comment "$remarks") ${_ipt_source} -p udp -m multiport --dport $udp_no_redir_ports -j RETURN 2>/dev/null
@@ -286,7 +301,7 @@ load_acl() {
 						echolog "     - ${msg}不代理所有 UDP 端口"
 					fi
 				}
-				
+
 				[ -n "$tcp_port" -o -n "$udp_port" ] && {
 					[ "${use_direct_list}" = "1" ] && $ipt_n -A PSW $(comment "$remarks") ${_ipt_source} $(dst $IPSET_WHITELIST) -j RETURN
 					[ "${use_direct_list}" = "1" ] && $ipt_m -A PSW $(comment "$remarks") ${_ipt_source} $(dst $IPSET_WHITELIST) -j RETURN
@@ -330,7 +345,7 @@ load_acl() {
 						echolog "     - ${msg}屏蔽代理 UDP 端口[${udp_proxy_drop_ports}]"
 					}
 				}
-				
+
 				[ -n "$tcp_port" ] && {
 					if [ -n "${tcp_proxy_mode}" ]; then
 						[ -s "${TMP_ACL_PATH}/${sid}/var_redirect_dns_port" ] && $ipt_n -A PSW_REDIRECT $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j REDIRECT --to-ports $(cat ${TMP_ACL_PATH}/${sid}/var_redirect_dns_port)
@@ -341,7 +356,7 @@ load_acl() {
 						else
 							msg2="${msg2}(REDIRECT:${tcp_port})"
 						fi
-						
+
 						[ "$accept_icmp" = "1" ] && {
 							$ipt_n -A PSW $(comment "$remarks") -p icmp ${_ipt_source} -d $FAKE_IP $(REDIRECT)
 							$ipt_n -A PSW $(comment "$remarks") -p icmp ${_ipt_source} $(dst $IPSET_SHUNTLIST) $(REDIRECT)
@@ -350,7 +365,7 @@ load_acl() {
 							[ "${chn_list}" != "0" ] && $ipt_n -A PSW $(comment "$remarks") -p icmp ${_ipt_source} $(dst $IPSET_CHN) $(get_jump_ipt ${chn_list})
 							[ "${tcp_proxy_mode}" != "disable" ] && $ipt_n -A PSW $(comment "$remarks") -p icmp ${_ipt_source} $(REDIRECT)
 						}
-						
+
 						[ "$accept_icmpv6" = "1" ] && [ "$PROXY_IPV6" == "1" ] && {
 							$ip6t_n -A PSW $(comment "$remarks") -p ipv6-icmp ${_ipt_source} $(dst $IPSET_SHUNTLIST6) $(REDIRECT) 2>/dev/null
 							[ "${use_proxy_list}" = "1" ] && $ip6t_n -A PSW $(comment "$remarks") -p ipv6-icmp ${_ipt_source} $(dst $IPSET_BLACKLIST6) $(REDIRECT) 2>/dev/null
@@ -358,7 +373,7 @@ load_acl() {
 							[ "${chn_list}" != "0" ] && $ip6t_n -A PSW $(comment "$remarks") -p ipv6-icmp ${_ipt_source} $(dst $IPSET_CHN6) $(get_jump_ipt ${chn_list}) 2>/dev/null
 							[ "${tcp_proxy_mode}" != "disable" ] && $ip6t_n -A PSW $(comment "$remarks") -p ipv6-icmp ${_ipt_source} $(REDIRECT) 2>/dev/null
 						}
-						
+
 						if [ -z "${is_tproxy}" ]; then
 							$ipt_n -A PSW $(comment "$remarks") -p tcp ${_ipt_source} -d $FAKE_IP $(REDIRECT $tcp_port)
 							$ipt_n -A PSW $(comment "$remarks") -p tcp ${_ipt_source} $(factor $tcp_redir_ports "-m multiport --dport") $(dst $IPSET_SHUNTLIST) $(REDIRECT $tcp_port)
@@ -420,13 +435,13 @@ load_acl() {
 				}
 				$ip6t_m -A PSW $(comment "$remarks") ${_ipt_source} -p udp -j RETURN 2>/dev/null
 				$ipt_m -A PSW $(comment "$remarks") ${_ipt_source} -p udp -j RETURN
+				unset ipt_tmp _ipt_source msg msg2
 			done
-			unset enabled sid remarks sources use_global_config use_direct_list use_proxy_list use_block_list use_gfw_list chn_list tcp_proxy_mode udp_proxy_mode tcp_no_redir_ports udp_no_redir_ports tcp_proxy_drop_ports udp_proxy_drop_ports tcp_redir_ports udp_redir_ports tcp_node udp_node use_interface interface
-			unset _ip _mac _iprange _ipset _ip_or_mac rule_list tcp_port udp_port tcp_node_remark udp_node_remark _acl_list
-			unset ipt_tmp msg msg2
+			unset enabled sid remarks sources use_global_config use_direct_list use_proxy_list use_block_list use_gfw_list chn_list tcp_proxy_mode udp_proxy_mode tcp_no_redir_ports udp_no_redir_ports tcp_proxy_drop_ports udp_proxy_drop_ports tcp_redir_ports udp_redir_ports tcp_node udp_node interface
+			unset tcp_port udp_port tcp_node_remark udp_node_remark _acl_list
 		done
 	}
-	
+
 	[ "$ENABLED_DEFAULT_ACL" == 1 ] && [ "$CLIENT_PROXY" == 1 ] && {
 		msg="【默认】，"
 		local ipt_tmp=$ipt_n
@@ -442,7 +457,7 @@ load_acl() {
 				echolog "     - ${msg}不代理所有 TCP 端口"
 			fi
 		}
-		
+
 		[ "$UDP_NO_REDIR_PORTS" != "disable" ] && {
 			$ip6t_m -A PSW $(comment "默认") -p udp -m multiport --dport $UDP_NO_REDIR_PORTS -j RETURN
 			$ipt_m -A PSW $(comment "默认") -p udp -m multiport --dport $UDP_NO_REDIR_PORTS -j RETURN
@@ -462,7 +477,7 @@ load_acl() {
 				[ "${USE_DIRECT_LIST}" = "1" ] && $ip6t_m -A PSW $(comment "默认") $(dst $IPSET_WHITELIST6) -j RETURN 2>/dev/null
 				[ "${USE_BLOCK_LIST}" = "1" ] && $ip6t_m -A PSW $(comment "默认") $(dst $IPSET_BLOCKLIST6) -j DROP 2>/dev/null
 			}
-			
+
 			[ "$TCP_PROXY_DROP_PORTS" != "disable" ] && {
 				[ "$PROXY_IPV6" == "1" ] && {
 					$ip6t_m -A PSW $(comment "默认") -p tcp $(factor $TCP_PROXY_DROP_PORTS "-m multiport --dport") $(dst $IPSET_SHUNTLIST6) -j DROP
@@ -479,7 +494,7 @@ load_acl() {
 				[ "${TCP_PROXY_MODE}" != "disable" ] && $ipt_m -A PSW $(comment "默认") -p tcp $(factor $TCP_PROXY_DROP_PORTS "-m multiport --dport") -j DROP
 				echolog "     - ${msg}屏蔽代理 TCP 端口[${TCP_PROXY_DROP_PORTS}]"
 			}
-			
+
 			[ "$UDP_PROXY_DROP_PORTS" != "disable" ] && {
 				[ "$PROXY_IPV6" == "1" ] && {
 					$ip6t_m -A PSW $(comment "默认") -p udp $(factor $UDP_PROXY_DROP_PORTS "-m multiport --dport") $(dst $IPSET_SHUNTLIST6) -j DROP
@@ -507,7 +522,7 @@ load_acl() {
 				else
 					msg2="${msg2}(REDIRECT:${TCP_REDIR_PORT})"
 				fi
-				
+
 				[ "$accept_icmp" = "1" ] && {
 					$ipt_n -A PSW $(comment "默认") -p icmp -d $FAKE_IP $(REDIRECT)
 					$ipt_n -A PSW $(comment "默认") -p icmp $(dst $IPSET_SHUNTLIST) $(REDIRECT)
@@ -516,7 +531,7 @@ load_acl() {
 					[ "${CHN_LIST}" != "0" ] && $ipt_n -A PSW $(comment "默认") -p icmp $(dst $IPSET_CHN) $(get_jump_ipt ${CHN_LIST})
 					[ "${TCP_PROXY_MODE}" != "disable" ] && $ipt_n -A PSW $(comment "默认") -p icmp $(REDIRECT)
 				}
-				
+
 				[ "$accept_icmpv6" = "1" ] && [ "$PROXY_IPV6" == "1" ] && {
 					$ip6t_n -A PSW $(comment "默认") -p ipv6-icmp $(dst $IPSET_SHUNTLIST6) $(REDIRECT)
 					[ "${USE_PROXY_LIST}" = "1" ] && $ip6t_n -A PSW $(comment "默认") -p ipv6-icmp $(dst $IPSET_BLACKLIST6) $(REDIRECT)
@@ -524,7 +539,7 @@ load_acl() {
 					[ "${CHN_LIST}" != "0" ] && $ip6t_n -A PSW $(comment "默认") -p ipv6-icmp $(dst $IPSET_CHN6) $(get_jump_ipt ${CHN_LIST})
 					[ "${TCP_PROXY_MODE}" != "disable" ] && $ip6t_n -A PSW $(comment "默认") -p ipv6-icmp $(REDIRECT)
 				}
-				
+
 				if [ -z "${is_tproxy}" ]; then
 					$ipt_n -A PSW $(comment "默认") -p tcp -d $FAKE_IP $(REDIRECT $TCP_REDIR_PORT)
 					$ipt_n -A PSW $(comment "默认") -p tcp $(factor $TCP_REDIR_PORTS "-m multiport --dport") $(dst $IPSET_SHUNTLIST) $(REDIRECT $TCP_REDIR_PORT)
@@ -837,7 +852,7 @@ add_firewall_rule() {
 
 	WAN_IP=$(get_wan_ip)
 	[ ! -z "${WAN_IP}" ] && $ipt_n -A PSW $(comment "WAN_IP_RETURN") -d "${WAN_IP}" -j RETURN
-	
+
 	[ "$accept_icmp" = "1" ] && insert_rule_after "$ipt_n" "PREROUTING" "prerouting_rule" "-p icmp -j PSW"
 	[ -z "${is_tproxy}" ] && insert_rule_after "$ipt_n" "PREROUTING" "prerouting_rule" "-p tcp -j PSW"
 
@@ -864,7 +879,7 @@ add_firewall_rule() {
 	$ipt_m -N PSW
 	$ipt_m -A PSW $(dst $IPSET_LANLIST) -j RETURN
 	$ipt_m -A PSW $(dst $IPSET_VPSLIST) -j RETURN
-	
+
 	[ ! -z "${WAN_IP}" ] && {
 		$ipt_m -A PSW $(comment "WAN_IP_RETURN") -d "${WAN_IP}" -j RETURN
 		echolog "  - [$?]追加WAN IP到iptables：${WAN_IP}"
@@ -929,7 +944,7 @@ add_firewall_rule() {
 	$ip6t_m -N PSW
 	$ip6t_m -A PSW $(dst $IPSET_LANLIST6) -j RETURN
 	$ip6t_m -A PSW $(dst $IPSET_VPSLIST6) -j RETURN
-	
+
 	WAN6_IP=$(get_wan6_ip)
 	[ ! -z "${WAN6_IP}" ] && $ip6t_m -A PSW $(comment "WAN6_IP_RETURN") -d ${WAN6_IP} -j RETURN
 	unset WAN6_IP
@@ -946,9 +961,9 @@ add_firewall_rule() {
 
 	ip -6 rule add fwmark 1 table 100
 	ip -6 route add local ::/0 dev lo table 100
-	
+
 	[ "$TCP_UDP" = "1" ] && [ "$UDP_NODE" = "nil" ] && UDP_NODE=$TCP_NODE
-	
+
 	# 过滤Socks节点
 	[ "$SOCKS_ENABLED" = "1" ] && {
 		local ids=$(uci show $CONFIG | grep "=socks" | awk -F '.' '{print $2}' | awk -F '=' '{print $1}')
@@ -985,10 +1000,10 @@ add_firewall_rule() {
 				filter_node $node $stream $port > /dev/null 2>&1 &
 			fi
 		done
-		
+
 		local ipt_tmp=$ipt_n
 		[ -n "${is_tproxy}" ] && ipt_tmp=$ipt_m
-		
+
 		msg="【路由器本机】，"
 		[ "$TCP_NO_REDIR_PORTS" != "disable" ] && {
 			$ipt_tmp -A PSW_OUTPUT -p tcp -m multiport --dport $TCP_NO_REDIR_PORTS -j RETURN
@@ -1000,7 +1015,7 @@ add_firewall_rule() {
 				echolog "  - ${msg}不代理所有 TCP 端口"
 			fi
 		}
-		
+
 		[ "$UDP_NO_REDIR_PORTS" != "disable" ] && {
 			$ipt_m -A PSW_OUTPUT -p udp -m multiport --dport $UDP_NO_REDIR_PORTS -j RETURN
 			$ip6t_m -A PSW_OUTPUT -p udp -m multiport --dport $UDP_NO_REDIR_PORTS -j RETURN
@@ -1011,7 +1026,7 @@ add_firewall_rule() {
 				echolog "  - ${msg}不代理所有 UDP 端口"
 			fi
 		}
-		
+
 		[ -n "${LOCALHOST_TCP_PROXY_MODE}" -o -n "${LOCALHOST_UDP_PROXY_MODE}" ] && {
 			[ "$TCP_PROXY_DROP_PORTS" != "disable" ] && {
 				$ipt_m -A PSW_OUTPUT -p tcp $(factor $TCP_PROXY_DROP_PORTS "-m multiport --dport") -d $FAKE_IP -j DROP
@@ -1022,7 +1037,7 @@ add_firewall_rule() {
 				[ "${LOCALHOST_TCP_PROXY_MODE}" != "disable" ] && $ipt_m -A PSW_OUTPUT -p tcp $(factor $TCP_PROXY_DROP_PORTS "-m multiport --dport") -j DROP
 				echolog "  - ${msg}屏蔽代理 TCP 端口[${TCP_PROXY_DROP_PORTS}]"
 			}
-			
+
 			[ "$UDP_PROXY_DROP_PORTS" != "disable" ] && {
 				$ipt_m -A PSW_OUTPUT -p udp $(factor $UDP_PROXY_DROP_PORTS "-m multiport --dport") -d $FAKE_IP -j DROP
 				$ipt_m -A PSW_OUTPUT -p udp $(factor $UDP_PROXY_DROP_PORTS "-m multiport --dport") $(dst $IPSET_SHUNTLIST) -j DROP
@@ -1175,7 +1190,7 @@ add_firewall_rule() {
 
 		$ipt_m -I OUTPUT $(comment "mangle-OUTPUT-PSW") -o lo -j RETURN
 		insert_rule_before "$ipt_m" "OUTPUT" "mwan3" "$(comment mangle-OUTPUT-PSW) -m mark --mark 1 -j RETURN"
-		
+
 		$ip6t_m -I OUTPUT $(comment "mangle-OUTPUT-PSW") -o lo -j RETURN
 		insert_rule_before "$ip6t_m" "OUTPUT" "mwan3" "$(comment mangle-OUTPUT-PSW) -m mark --mark 1 -j RETURN"
 
@@ -1342,7 +1357,7 @@ gen_include() {
 	}
 	cat <<-EOF >> $FWI
 		${__ipt}
-		
+
 		${__ip6t}
 	EOF
 	return 0
