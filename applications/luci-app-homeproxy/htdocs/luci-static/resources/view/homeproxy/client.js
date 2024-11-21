@@ -48,13 +48,13 @@ function getServiceStatus() {
 	});
 }
 
-function renderStatus(isRunning) {
-	var spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
+function renderStatus(isRunning, version) {
+	var spanTemp = '<em><span style="color:%s"><strong>%s (sing-box v%s) %s</strong></span></em>';
 	var renderHTML;
 	if (isRunning)
-		renderHTML = spanTemp.format('green', _('HomeProxy'), _('RUNNING'));
+		renderHTML = spanTemp.format('green', _('HomeProxy'), version, _('RUNNING'));
 	else
-		renderHTML = spanTemp.format('red', _('HomeProxy'), _('NOT RUNNING'));
+		renderHTML = spanTemp.format('red', _('HomeProxy'), version, _('NOT RUNNING'));
 
 	return renderHTML;
 }
@@ -125,7 +125,7 @@ return view.extend({
 			poll.add(function () {
 				return L.resolveDefault(getServiceStatus()).then((res) => {
 					var view = document.getElementById('service_status');
-					view.innerHTML = renderStatus(res);
+					view.innerHTML = renderStatus(res, features.version);
 				});
 			});
 
@@ -480,10 +480,31 @@ return view.extend({
 
 		so = ss.taboption('field_other', form.MultiValue, 'protocol', _('Protocol'),
 			_('Sniffed protocol, see <a target="_blank" href="https://sing-box.sagernet.org/configuration/route/sniff/">Sniff</a> for details.'));
+		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0)
+			so.value('bittorrent', _('BitTorrent'));
+		so.value('dns', _('DNS'));
+		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0)
+			so.value('dtls', _('DTLS'));
 		so.value('http', _('HTTP'));
-		so.value('tls', _('TLS'));
 		so.value('quic', _('QUIC'));
+		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
+			so.value('rdp', _('RDP'));
+			so.value('ssh', _('SSH'));
+		}
 		so.value('stun', _('STUN'));
+		so.value('tls', _('TLS'));
+
+		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
+			so = ss.taboption('field_other', form.Value, 'client', _('Client'),
+				_('Sniffed client type (QUIC client type or SSH client name).'));
+			so.value('chromium', _('Chromium / Cronet'));
+			so.value('firefox', _('Firefox / uquic firefox'));
+			so.value('quic-go', _('quic-go / uquic chrome'));
+			so.value('safari', _('Safari / Apple Network API'));
+			so.depends('protocol', 'quic');
+			so.depends('protocol', 'ssh');
+			so.modalonly = true;
+		}
 
 		so = ss.taboption('field_other', form.ListValue, 'network', _('Network'));
 		so.value('tcp', _('TCP'));
@@ -557,6 +578,12 @@ return view.extend({
 			_('Match process path.'));
 		so.modalonly = true;
 
+		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
+			so = ss.taboption('field_other', form.DynamicList, 'process_path_regex', _('Process path (regex)'),
+				_('Match process path using regular expression.'));
+			so.modalonly = true;
+		}
+
 		so = ss.taboption('field_other', form.DynamicList, 'user', _('User'),
 			_('Match user name.'));
 		so.modalonly = true;
@@ -577,10 +604,9 @@ return view.extend({
 		}
 		so.modalonly = true;
 
-		so = ss.taboption('field_other', form.Flag, 'rule_set_ipcidr_match_source', _('Match source IP via rule set'),
+		so = ss.taboption('field_other', form.Flag, 'rule_set_ip_cidr_match_source', _('Match source IP via rule set'),
 			_('Make IP CIDR in rule set used to match the source IP.'));
 		so.default = so.disabled;
-		so.rmempty = false;
 		so.modalonly = true;
 
 		so = ss.taboption('field_other', form.Flag, 'invert', _('Invert'),
@@ -820,11 +846,18 @@ return view.extend({
 
 		so = ss.taboption('field_other', form.MultiValue, 'protocol', _('Protocol'),
 			_('Sniffed protocol, see <a target="_blank" href="https://sing-box.sagernet.org/configuration/route/sniff/">Sniff</a> for details.'));
+		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
+			so.value('bittorrent', _('BitTorrent'));
+			so.value('dtls', _('DTLS'));
+		}
 		so.value('http', _('HTTP'));
-		so.value('tls', _('TLS'));
 		so.value('quic', _('QUIC'));
-		so.value('dns', _('DNS'));
+		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
+			so.value('rdp', _('RDP'));
+			so.value('ssh', _('SSH'));
+		}
 		so.value('stun', _('STUN'));
+		so.value('tls', _('TLS'));
 
 		so = ss.taboption('field_host', form.DynamicList, 'domain', _('Domain name'),
 			_('Match full domain.'));
@@ -891,6 +924,12 @@ return view.extend({
 			_('Match process path.'));
 		so.modalonly = true;
 
+		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
+			so = ss.taboption('field_other', form.DynamicList, 'process_path_regex', _('Process path (regex)'),
+				_('Match process path using regular expression.'));
+			so.modalonly = true;
+		}
+
 		so = ss.taboption('field_other', form.DynamicList, 'user', _('User'),
 			_('Match user name.'));
 		so.modalonly = true;
@@ -911,10 +950,17 @@ return view.extend({
 		}
 		so.modalonly = true;
 
-		so = ss.taboption('field_other', form.Flag, 'rule_set_ipcidr_match_source', _('Rule set IP CIDR as source IP'),
-			_('Make <code>ipcidr</code> in rule sets match the source IP.'));
+		so = ss.taboption('field_other', form.Flag, 'rule_set_ip_cidr_match_source', _('Rule set IP CIDR as source IP'),
+			_('Make IP CIDR in rule sets match the source IP.'));
 		so.default = so.disabled;
 		so.modalonly = true;
+
+		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
+			so = ss.taboption('field_other', form.Flag, 'rule_set_ip_cidr_accept_empty', _('Accept empty query response'),
+				_('Make IP CIDR in rule-sets accept empty query response.'));
+			so.default = so.disabled;
+			so.modalonly = true;
+		}
 
 		so = ss.taboption('field_other', form.Flag, 'invert', _('Invert'),
 			_('Invert match result.'));
@@ -922,7 +968,7 @@ return view.extend({
 		so.modalonly = true;
 
 		so = ss.taboption('field_other', form.MultiValue, 'outbound', _('Outbound'),
-			_('Match <code>.outbounds[].server</code> domains.'));
+			_('Match the server name of outbound.'));
 		so.load = function(section_id) {
 			delete this.keylist;
 			delete this.vallist;

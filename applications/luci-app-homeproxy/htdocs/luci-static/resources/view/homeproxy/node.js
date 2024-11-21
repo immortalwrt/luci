@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only
  *
- * Copyright (C) 2022 ImmortalWrt.org
+ * Copyright (C) 2022-2024 ImmortalWrt.org
  */
 
 'use strict';
@@ -404,7 +404,7 @@ function renderNodeSettings(section, data, features, main_node, routing_mode) {
 	o.value('trojan', _('Trojan'));
 	if (features.with_quic)
 		o.value('tuic', _('Tuic'));
-	if (features.with_wireguard)
+	if (features.with_wireguard && features.with_gvisor)
 		o.value('wireguard', _('WireGuard'));
 	o.value('vless', _('VLESS'));
 	o.value('vmess', _('VMess'));
@@ -874,9 +874,8 @@ function renderNodeSettings(section, data, features, main_node, routing_mode) {
 
 	o = s.option(form.Value, 'wireguard_mtu', _('MTU'));
 	o.datatype = 'range(0,9000)';
-	o.default = '1408';
+	o.placeholder = '1408';
 	o.depends('type', 'wireguard');
-	o.rmempty = false;
 	o.modalonly = true;
 	/* Wireguard config end */
 
@@ -1062,11 +1061,13 @@ function renderNodeSettings(section, data, features, main_node, routing_mode) {
 		o.value('360');
 		o.value('android');
 		o.value('chrome');
-		o.value('chrome_psk');
-		o.value('chrome_psk_shuffle');
-		o.value('chrome_padding_psk_shuffle');
-		o.value('chrome_pq');
-		o.value('chrome_pq_psk');
+		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) < 0) {
+			o.value('chrome_psk');
+			o.value('chrome_psk_shuffle');
+			o.value('chrome_padding_psk_shuffle');
+			o.value('chrome_pq');
+			o.value('chrome_pq_psk');
+		}
 		o.value('edge');
 		o.value('firefox');
 		o.value('ios');
