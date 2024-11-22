@@ -97,8 +97,8 @@ local chinadns_dot_validate = function(self, value, t)
 		ip = at_index and address:sub(at_index + 1, (hash_index or 0) - 1) or address:sub(1, (hash_index or 0) - 1)
 		port = hash_index and address:sub(hash_index + 1) or nil
 		local num_port = tonumber(port)
-		if (port and (not num_port or num_port <= 0 or num_port >= 65536)) or 
-		   (domain and domain == "") or 
+		if (port and (not num_port or num_port <= 0 or num_port >= 65536)) or
+		   (domain and domain == "") or
 		   (not datatypes.ipaddr(ip) and not datatypes.ip6addr(ip)) then
 			return false
 		end
@@ -396,10 +396,6 @@ if api.is_finded("smartdns") then
 		end
 		return DynamicList.write(self, section, t)
 	end
-
-	o = s:taboption("DNS", Flag, "smartdns_exclude_default_group", translate("Exclude Default Group"), translate("Exclude DNS Server from default group."))
-	o.default = "0"
-	o:depends("dns_shunt", "smartdns")
 end
 
 ---- DNS Forward Mode
@@ -557,6 +553,9 @@ o:value("remote", translate("Remote DNS"))
 o:value("direct", translate("Direct DNS"))
 o.description = desc .. "</ul>"
 o:depends({dns_shunt = "dnsmasq", tcp_proxy_mode = "proxy", chn_list = "direct"})
+if api.is_finded("smartdns") then
+	o:depends({dns_shunt = "smartdns", tcp_proxy_mode = "proxy", chn_list = "direct"})
+end
 
 o = s:taboption("DNS", Flag, "dns_redirect", "DNS " .. translate("Redirect"), translate("Force Router DNS server to all local devices."))
 o.default = "0"
