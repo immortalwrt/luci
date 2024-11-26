@@ -720,6 +720,7 @@ local default_file_tree = {
 	mips    = "mips",
 	mips64  = "mips64",
 	mipsel  = "mipsel",
+	mips64el = "mips64el",
 	armv5   = "arm.*5",
 	armv6   = "arm.*6[^4]*",
 	armv7   = "arm.*7",
@@ -986,7 +987,11 @@ function to_move(app_name,file)
 end
 
 function get_version()
-	return sys.exec("echo -n $(opkg list-installed luci-app-passwall |awk '{print $3}')")
+	local version = sys.exec("opkg list-installed luci-app-passwall 2>/dev/null | awk '{print $3}'")
+	if not version or #version == 0 then
+		version = sys.exec("apk info luci-app-passwall 2>/dev/null | awk 'NR == 1 {print $1}' | cut -d'-' -f4-")
+	end
+	return version or ""
 end
 
 function to_check_self()
@@ -1078,4 +1083,25 @@ function luci_types(id, m, s, type_name, option_prefix)
 			end
 		end
 	end
+end
+
+function get_std_domain(domain)
+	domain = trim(domain)
+	if domain == "" or domain:find("#") then return "" end
+	-- 删除首尾所有的 .
+	domain = domain:gsub("^[%.]+", ""):gsub("[%.]+$", "")
+	-- 如果 domain 包含 '*'，则分割并删除包含 '*' 的部分及其前面的部分
+	if domain:find("%*") then
+		local parts = {}
+		for part in domain:gmatch("[^%.]+") do
+			table.insert(parts, part)
+		end
+		for i = #parts, 1, -1 do
+			if parts[i]:find("%*") then
+				-- 删除包含 '*' 的部分及其前面的部分
+				return parts[i + 1] and parts[i + 1] .. "." .. table.concat(parts, ".", i + 2) or ""
+			end
+		end
+	end
+	return domain
 end
