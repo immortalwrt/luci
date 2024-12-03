@@ -928,6 +928,15 @@ msgstr "V2ray/Xray 资源文件目录"
 msgid "This variable specifies a directory where geoip.dat and geosite.dat files are."
 msgstr "此变量指定 geoip.dat 和 geosite.dat 文件所在的目录。"
 
+msgid "Enable Geo Data Parsing"
+msgstr "开启 Geo 数据解析"
+
+msgid "Analyzes and preloads GeoIP/Geosite data to enhance the shunt performance of Sing-box/Xray."
+msgstr "分析和预加载 GeoIP/Geosite 数据，以增强 Sing-box/Xray 的分流效果。"
+
+msgid "Note: Increases resource usage; Geosite analysis is only supported in ChinaDNS-NG and SmartDNS modes."
+msgstr "注：会增加一些系统资源的开销，仅在 ChinaDNS-NG 和 SmartDNS 模式下支持分析 Geosite 。"
+
 msgid "Shunt Rule"
 msgstr "分流规则"
 
@@ -1531,26 +1540,8 @@ msgstr "客户端文件不适合当前设备。"
 msgid "Can't move new file to path: %s"
 msgstr "无法移动新文件到：%s"
 
-msgid "XHTTP download splitting"
-msgstr "XHTTP 下行分离"
-
-msgid "Must be the same as upload path."
-msgstr "必须与上行 path 相同。"
-
-msgid "Enable XHTTP XMUX. It's not recommended to enable Mux.Cool at the same time."
-msgstr "启用 XHTTP XMUX。不建议与 Mux.Cool 同时启用。"
-
-msgid "XMUX Max Concurrency"
-msgstr "XMUX 连接最大复用流数"
-
-msgid "XMUX Max Connections"
-msgstr "XMUX 最大连接数"
-
-msgid "XMUX Connection Max Reuse Times"
-msgstr "XMUX 连接最多复用次数"
-
-msgid "XMUX Connection Max Lifetime (ms)"
-msgstr "XMUX 连接最大存活时间（ms）"
+msgid "An <a target='_blank' href='https://xtls.github.io/config/transports/splithttp.html#extra'>XHTTP extra object</a> in raw json"
+msgstr "一个 json 格式的 <a target='_blank' href='https://xtls.github.io/config/transports/splithttp.html#extra'>XHTTP extra object</a>"
 
 msgid "Enable Mux.Cool"
 msgstr "启用 Mux.Cool"
@@ -1618,6 +1609,9 @@ msgstr "端口跳跃时间 "
 msgid "Additional ports for hysteria hop"
 msgstr "端口跳跃额外端口"
 
+msgid "HeartbeatPeriod(second)"
+msgstr "心跳周期（单位：秒）"
+
 msgid "Custom geoip Path"
 msgstr "自定义 geoip 文件路径"
 
@@ -1645,8 +1639,8 @@ msgstr "握手服务器"
 msgid "Handshake Server Port"
 msgstr "握手服务器端口"
 
-msgid "Override the connection destination address with the sniffed domain."
-msgstr "用探测出的域名覆盖连接目标地址。"
+msgid "Override the connection destination address with the sniffed domain.<br />When enabled, traffic will match only by domain, ignoring IP rules.<br />If using shunt nodes, configure the domain shunt rules correctly."
+msgstr "用探测出的域名覆盖连接目标地址。<br />启用后仅使用域名进行流量匹配，将忽略IP规则。<br />如使用分流节点，请正确设置域名分流规则。"
 
 msgid "Protocol parameter. Will waste traffic randomly if enabled."
 msgstr "协议参数。如果启用会随机浪费流量。"
