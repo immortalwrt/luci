@@ -218,12 +218,15 @@ if not fs.access(CACHE_DNS_PATH) then
 			fwd_dns = nil
 		else
 			uci:foreach(appname, "nodes", function(t)
-				local address = t.address
-				if address == "engage.cloudflareclient.com" then return end
-				if datatypes.hostname(address) then
-					set_domain_dns(address, fwd_dns)
-					set_domain_ipset(address, setflag_4 .. "passwall_vpslist," .. setflag_6 .. "passwall_vpslist6")
+				local function process_address(address)
+					if address == "engage.cloudflareclient.com" then return end
+					if datatypes.hostname(address) then
+						set_domain_dns(address, fwd_dns)
+						set_domain_ipset(address, setflag_4 .. "passwall_vpslist," .. setflag_6 .. "passwall_vpslist6")
+					end
 				end
+				process_address(t.address)
+				process_address(t.download_address)
 			end)
 			log(string.format("  - 节点列表中的域名(vpslist)：%s", fwd_dns or "默认"))
 		end
@@ -374,7 +377,11 @@ if not fs.access(CACHE_DNS_PATH) then
 
 				if _node_id == "_direct" then
 					fwd_dns = LOCAL_DNS
-					ipset_flag = setflag_4 .. "passwall_whitelist," .. setflag_6 .. "passwall_whitelist6"
+					if USE_DIRECT_LIST == "1" then
+						ipset_flag = setflag_4 .. "passwall_whitelist," .. setflag_6 .. "passwall_whitelist6"
+					else
+						ipset_flag = setflag_4 .. "passwall_shuntlist," .. setflag_6 .. "passwall_shuntlist6"
+					end
 				else
 					fwd_dns = TUN_DNS
 					ipset_flag = setflag_4 .. "passwall_shuntlist," .. setflag_6 .. "passwall_shuntlist6"
