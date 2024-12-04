@@ -82,7 +82,7 @@ uci.foreach(uciconfig, uciserver, (cfg) => {
 		/* HTTP / Hysteria (2) / Mixed / Socks / Trojan / Tuic / VLESS / VMess */
 		users: (cfg.type !== 'shadowsocks') ? [
 			{
-				name: !(cfg.type in ['http', 'mixed', 'socks']) ? 'cfg-' + cfg['.name'] + '-server' : null,
+				name: !(cfg.type in ['http', 'mixed', 'naive', 'socks']) ? 'cfg-' + cfg['.name'] + '-server' : null,
 				username: cfg.username,
 				password: cfg.password,
 
@@ -119,7 +119,7 @@ uci.foreach(uciconfig, uciserver, (cfg) => {
 			certificate_path: cfg.tls_cert_path,
 			key_path: cfg.tls_key_path,
 			acme: (cfg.tls_acme === '1') ? {
-				domain: cfg.tls_acme_domains,
+				domain: cfg.tls_acme_domain,
 				data_directory: HP_DIR + '/certs',
 				default_server_name: cfg.tls_acme_dsn,
 				email: cfg.tls_acme_email,
