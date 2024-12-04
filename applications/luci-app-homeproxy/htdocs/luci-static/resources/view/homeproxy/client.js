@@ -17,21 +17,21 @@
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
-var callServiceList = rpc.declare({
+const callServiceList = rpc.declare({
 	object: 'service',
 	method: 'list',
 	params: ['name'],
 	expect: { '': {} }
 });
 
-var callReadDomainList = rpc.declare({
+const callReadDomainList = rpc.declare({
 	object: 'luci.homeproxy',
 	method: 'acllist_read',
 	params: ['type'],
 	expect: { '': {} }
 });
 
-var callWriteDomainList = rpc.declare({
+const callWriteDomainList = rpc.declare({
 	object: 'luci.homeproxy',
 	method: 'acllist_write',
 	params: ['type', 'content'],
@@ -101,7 +101,7 @@ return view.extend({
 	},
 
 	render: function(data) {
-		var m, s, o, ss, so;
+		let m, s, o, ss, so;
 
 		var features = data[1],
 		    hosts = data[2]?.hosts;
@@ -1092,6 +1092,7 @@ return view.extend({
 			delete this.keylist;
 			delete this.vallist;
 
+			this.value('', _('Default'));
 			this.value('direct-out', _('Direct'));
 			uci.sections(data[0], 'routing_node', (res) => {
 				if (res.enabled === '1')
@@ -1100,8 +1101,6 @@ return view.extend({
 
 			return this.super('load', section_id);
 		}
-		so.default = 'direct-out';
-		so.rmempty = false;
 		so.depends('type', 'remote');
 
 		so = ss.option(form.Value, 'update_interval', _('Update interval'),
