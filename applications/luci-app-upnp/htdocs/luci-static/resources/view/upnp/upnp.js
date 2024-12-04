@@ -6,35 +6,35 @@
 'require rpc';
 'require form';
 
-var callInitAction, callUpnpGetStatus, callUpnpDeleteRule, handleDelRule;
 
-callInitAction = rpc.declare({
+
+const callInitAction = rpc.declare({
 	object: 'luci',
 	method: 'setInitAction',
 	params: [ 'name', 'action' ],
 	expect: { result: false }
 });
 
-callUpnpGetStatus = rpc.declare({
+const callUpnpGetStatus = rpc.declare({
 	object: 'luci.upnp',
 	method: 'get_status',
 	expect: {  }
 });
 
-callUpnpDeleteRule = rpc.declare({
+const callUpnpDeleteRule = rpc.declare({
 	object: 'luci.upnp',
 	method: 'delete_rule',
 	params: [ 'token' ],
 	expect: { result : "OK" },
 });
 
-handleDelRule = function(num, ev) {
+function handleDelRule(num, ev) {
 	dom.parent(ev.currentTarget, '.tr').style.opacity = 0.5;
 	ev.currentTarget.classList.add('spinning');
 	ev.currentTarget.disabled = true;
 	ev.currentTarget.blur();
 	callUpnpDeleteRule(num);
-};
+}
 
 return view.extend({
 	load: function() {
@@ -70,10 +70,17 @@ return view.extend({
 
 	render: function(data) {
 
-		var m, s, o;
+		let m, s, o;
 
+		var protocols = '%s & %s/%s'.format(
+			'<a href="https://en.wikipedia.org/wiki/Internet_Gateway_Device_Protocol" target="_blank" rel="noreferrer"><abbr title="UPnP Internet Gateway Device (Control Protocol)">UPnP IGD</abbr></a>',
+			'<a href="https://en.wikipedia.org/wiki/Port_Control_Protocol" target="_blank" rel="noreferrer"><abbr title="Port Control Protocol">PCP</abbr></a>',
+			'<a href="https://en.wikipedia.org/wiki/NAT_Port_Mapping_Protocol" target="_blank" rel="noreferrer"><abbr title="NAT Port Mapping Protocol">NAT-PMP</abbr></a>');
 		m = new form.Map('upnpd', [_('UPnP IGD & PCP/NAT-PMP Service')],
-			_('The %s protocols allow clients on the local network to configure port maps/forwards on the router autonomously.', 'The %s (%s = UPnP IGD & PCP/NAT-PMP) protocols allow clients on the local network to configure port maps/forwards on the router autonomously.').format('%s & %s/%s').format('<a href="https://en.wikipedia.org/wiki/Internet_Gateway_Device_Protocol" target="_blank" rel="noreferrer"><abbr title="UPnP Internet Gateway Device (Control Protocol)">UPnP IGD</abbr></a>', '<a href="https://en.wikipedia.org/wiki/Port_Control_Protocol" target="_blank" rel="noreferrer"><abbr title="Port Control Protocol">PCP</abbr></a>', '<a href="https://en.wikipedia.org/wiki/NAT_Port_Mapping_Protocol" target="_blank" rel="noreferrer"><abbr title="NAT Port Mapping Protocol">NAT-PMP</abbr></a>'));
+			_('The %s protocols allow clients on the local network to configure port maps/forwards on the router autonomously.',
+				'The %s (%s = UPnP IGD & PCP/NAT-PMP) protocols allow clients on the local network to configure port maps/forwards on the router autonomously.')
+				.format(protocols)
+		);
 
 		s = m.section(form.GridSection, '_active_rules');
 
@@ -140,14 +147,15 @@ return view.extend({
 			_('Report maximum upload speed in kByte/s'));
 		o.depends('enable_upnp', '1');
 
-		s.taboption('advanced', form.Flag, 'use_stun', _('Use %s', 'Use %s (%s = STUN)').format('<a href="https://en.wikipedia.org/wiki/STUN" target="_blank" rel="noreferrer"><abbr title="Session Traversal Utilities for NAT">STUN</abbr></a>'),
+		s.taboption('advanced', form.Flag, 'use_stun', _('Use %s', 'Use %s (%s = STUN)')
+				.format('<a href="https://en.wikipedia.org/wiki/STUN" target="_blank" rel="noreferrer"><abbr title="Session Traversal Utilities for NAT">STUN</abbr></a>'),
 			_('To detect the public IPv4 address for unrestricted full-cone/one-to-one NATs'));
 
-		o = s.taboption('advanced', form.Value, 'stun_host', _('STUN Host'));
+		o = s.taboption('advanced', form.Value, 'stun_host', _('STUN host'));
 		o.depends('use_stun', '1');
 		o.datatype = 'host';
 
-		o = s.taboption('advanced', form.Value, 'stun_port', _('STUN Port'));
+		o = s.taboption('advanced', form.Value, 'stun_port', _('STUN port'));
 		o.depends('use_stun', '1');
 		o.datatype = 'port';
 		o.placeholder = '3478';
@@ -158,7 +166,8 @@ return view.extend({
 		o.depends('enable_upnp', '1');
 
 		o = s.taboption('advanced', form.Value, 'notify_interval', _('Notify interval'),
-			_('A 900s interval will result in %s notifications with the minimum max-age of 1800s', 'A 900s interval will result in %s (%s = SSDP) notifications with the minimum max-age of 1800s').format('<abbr title="Simple Service Discovery Protocol">SSDP</abbr>'));
+			_('A 900s interval will result in %s notifications with the minimum max-age of 1800s', 'A 900s interval will result in %s (%s = SSDP) notifications with the minimum max-age of 1800s')
+				.format('<abbr title="Simple Service Discovery Protocol">SSDP</abbr>'));
 		o.datatype = 'uinteger';
 		o.placeholder = '900';
 		o.depends('enable_upnp', '1');
