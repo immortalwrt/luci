@@ -41,7 +41,7 @@ o.validate = function(self, value)
 	value = value:gsub("^%s+", ""):gsub("%s+$","\n"):gsub("\r\n","\n"):gsub("[ \t]*\n[ \t]*", "\n")
 	string.gsub(value, '[^' .. "\r\n" .. ']+', function(w) table.insert(hosts, w) end)
 	for index, host in ipairs(hosts) do
-		if host:sub(1, 1) == "#" then
+		if host:sub(1, 1) == "#" or host:sub(1, 8) == "geosite:" then
 			return value
 		end
 		if not datatypes.hostname(host) then
@@ -70,7 +70,7 @@ o.validate = function(self, value)
 	value = value:gsub("^%s+", ""):gsub("%s+$","\n"):gsub("\r\n","\n"):gsub("[ \t]*\n[ \t]*", "\n")
 	string.gsub(value, '[^' .. "\r\n" .. ']+', function(w) table.insert(ipmasks, w) end)
 	for index, ipmask in ipairs(ipmasks) do
-		if ipmask:sub(1, 1) == "#" then
+		if ipmask:sub(1, 1) == "#" or ipmask:sub(1, 6) == "geoip:" then
 			return value
 		end
 		if not ( datatypes.ipmask4(ipmask) or datatypes.ipmask6(ipmask) ) then
@@ -101,7 +101,7 @@ o.validate = function(self, value)
 	value = value:gsub("^%s+", ""):gsub("%s+$","\n"):gsub("\r\n","\n"):gsub("[ \t]*\n[ \t]*", "\n")
 	string.gsub(value, '[^' .. "\r\n" .. ']+', function(w) table.insert(hosts, w) end)
 	for index, host in ipairs(hosts) do
-		if host:sub(1, 1) == "#" then
+		if host:sub(1, 1) == "#" or host:sub(1, 8) == "geosite:" then
 			return value
 		end
 		if not datatypes.hostname(host) then
@@ -130,7 +130,7 @@ o.validate = function(self, value)
 	value = value:gsub("^%s+", ""):gsub("%s+$","\n"):gsub("\r\n","\n"):gsub("[ \t]*\n[ \t]*", "\n")
 	string.gsub(value, '[^' .. "\r\n" .. ']+', function(w) table.insert(ipmasks, w) end)
 	for index, ipmask in ipairs(ipmasks) do
-		if ipmask:sub(1, 1) == "#" then
+		if ipmask:sub(1, 1) == "#" or ipmask:sub(1, 6) == "geoip:" then
 			return value
 		end
 		if not ( datatypes.ipmask4(ipmask) or datatypes.ipmask6(ipmask) ) then
@@ -159,7 +159,7 @@ o.validate = function(self, value)
 	value = value:gsub("^%s+", ""):gsub("%s+$","\n"):gsub("\r\n","\n"):gsub("[ \t]*\n[ \t]*", "\n")
 	string.gsub(value, '[^' .. "\r\n" .. ']+', function(w) table.insert(hosts, w) end)
 	for index, host in ipairs(hosts) do
-		if host:sub(1, 1) == "#" then
+		if host:sub(1, 1) == "#" or host:sub(1, 8) == "geosite:" then
 			return value
 		end
 		if not datatypes.hostname(host) then
@@ -188,7 +188,7 @@ o.validate = function(self, value)
 	value = value:gsub("^%s+", ""):gsub("%s+$","\n"):gsub("\r\n","\n"):gsub("[ \t]*\n[ \t]*", "\n")
 	string.gsub(value, '[^' .. "\r\n" .. ']+', function(w) table.insert(ipmasks, w) end)
 	for index, ipmask in ipairs(ipmasks) do
-		if ipmask:sub(1, 1) == "#" then
+		if ipmask:sub(1, 1) == "#" or ipmask:sub(1, 6) == "geoip:" then
 			return value
 		end
 		if not ( datatypes.ipmask4(ipmask) or datatypes.ipmask6(ipmask) ) then
@@ -278,8 +278,20 @@ if api.fs.access(gfwlist_path) then
 	o.rows = 45
 	o.wrap = "off"
 	o.cfgvalue = function(self, section)
-		return fs.readfile(gfwlist_path) or ""
+		local limit = 100 -- 限制行数
+		local cmd = string.format("head -n %d %s", limit, gfwlist_path)
+		return api.sys.exec(cmd) or ""
+		-- return fs.readfile(gfwlist_path) or ""
 	end
+    local total_lines_cmd = string.format("wc -l < %s", gfwlist_path)
+    local total_lines = tonumber(api.sys.exec(total_lines_cmd)) or 0
+    local displayed_lines = 100
+
+    local total_lines_label = s:taboption("gfw_list", DummyValue, "total_lines", translate("Total Lines"))
+    total_lines_label.value = translatef("%d lines", total_lines)
+
+    local displayed_lines_label = s:taboption("gfw_list", DummyValue, "displayed_lines", translate("Displayed Lines"))
+    displayed_lines_label.value = translatef("%d lines", displayed_lines)
 end
 
 if api.fs.access(chnlist_path) then
@@ -289,8 +301,20 @@ if api.fs.access(chnlist_path) then
 	o.rows = 45
 	o.wrap = "off"
 	o.cfgvalue = function(self, section)
-		return fs.readfile(chnlist_path) or ""
+		local limit = 100 -- 限制行数
+		local cmd = string.format("head -n %d %s", limit, chnlist_path)
+		return api.sys.exec(cmd) or ""
+		-- return fs.readfile(chnlist_path) or ""
 	end
+	local total_lines_cmd = string.format("wc -l < %s", chnlist_path)
+    local total_lines = tonumber(api.sys.exec(total_lines_cmd)) or 0
+    local displayed_lines = 100
+
+    local total_lines_label = s:taboption("chn_list", DummyValue, "total_lines", translate("Total Lines"))
+    total_lines_label.value = translatef("%d lines", total_lines)
+
+    local displayed_lines_label = s:taboption("chn_list", DummyValue, "displayed_lines", translate("Displayed Lines"))
+    displayed_lines_label.value = translatef("%d lines", displayed_lines)
 end
 
 if api.fs.access(chnroute_path) then
@@ -300,8 +324,20 @@ if api.fs.access(chnroute_path) then
 	o.rows = 45
 	o.wrap = "off"
 	o.cfgvalue = function(self, section)
-		return fs.readfile(chnroute_path) or ""
+		local limit = 100 -- 限制行数
+		local cmd = string.format("head -n %d %s", limit, chnroute_path)
+		return api.sys.exec(cmd) or ""
+		-- return fs.readfile(chnroute_path) or ""
 	end
+	local total_lines_cmd = string.format("wc -l < %s", chnroute_path)
+    local total_lines = tonumber(api.sys.exec(total_lines_cmd)) or 0
+    local displayed_lines = 100
+
+    local total_lines_label = s:taboption("chnroute_list", DummyValue, "total_lines", translate("Total Lines"))
+    total_lines_label.value = translatef("%d lines", total_lines)
+
+    local displayed_lines_label = s:taboption("chnroute_list", DummyValue, "displayed_lines", translate("Displayed Lines"))
+    displayed_lines_label.value = translatef("%d lines", displayed_lines)
 end
 
 m:append(Template(appname .. "/rule_list/js"))
