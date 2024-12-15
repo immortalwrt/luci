@@ -4,7 +4,6 @@ local appname = "passwall"
 
 local var = api.get_args(arg)
 local FLAG = var["-FLAG"]
-local DNSMASQ_CONF_DIR = var["-DNSMASQ_CONF_DIR"]
 local TMP_DNSMASQ_PATH = var["-TMP_DNSMASQ_PATH"]
 local DNSMASQ_CONF_FILE = var["-DNSMASQ_CONF_FILE"]
 local DEFAULT_DNS = var["-DEFAULT_DNS"]
@@ -192,7 +191,6 @@ local setflag_4= (NFTFLAG == "1") and "4#inet#passwall#" or ""
 local setflag_6= (NFTFLAG == "1") and "6#inet#passwall#" or ""
 
 if not fs.access(CACHE_DNS_PATH) then
-	fs.mkdir(DNSMASQ_CONF_DIR)
 	fs.mkdir(CACHE_DNS_PATH)
 
 	--屏蔽列表
@@ -443,11 +441,11 @@ if not fs.access(CACHE_DNS_PATH) then
 				if key == "#" then
 					domain = key
 				end
-				address_out:write(string.format("address=/%s/%s\n", domain, value.address))
+				address_out:write(string.format("address=/%s/%s", domain, value.address) .. "\n")
 			end
 			if value.dns and #value.dns > 0 then
 				for i, dns in ipairs(value.dns) do
-					server_out:write(string.format("server=/.%s/%s\n", key, dns))
+					server_out:write(string.format("server=/.%s/%s", key, dns) .. "\n")
 				end
 			end
 			if value.ipsets and #value.ipsets > 0 then
@@ -456,7 +454,7 @@ if not fs.access(CACHE_DNS_PATH) then
 					ipsets_str = ipsets_str .. ipset .. ","
 				end
 				ipsets_str = ipsets_str:sub(1, #ipsets_str - 1)
-				ipset_out:write(string.format("%s=/.%s/%s\n", set_name, key, ipsets_str))
+				ipset_out:write(string.format("%s=/.%s/%s", set_name, key, ipsets_str) .. "\n")
 			end
 		end
 		address_out:close()
@@ -481,15 +479,15 @@ end
 if DNSMASQ_CONF_FILE ~= "nil" then
 	local conf_out = io.open(DNSMASQ_CONF_FILE, "a")
 	if USE_CHINADNS_NG == "0" then
-		conf_out:write(string.format("conf-dir=%s\n", TMP_DNSMASQ_PATH))
+		conf_out:write(string.format("conf-dir=%s", TMP_DNSMASQ_PATH) .. "\n")
 	end
 	if dnsmasq_default_dns then
 		for s in string.gmatch(dnsmasq_default_dns, '[^' .. "," .. ']+') do
-			conf_out:write(string.format("server=%s\n", s))
+			conf_out:write(string.format("server=%s", s) .. "\n")
 		end
-		conf_out:write("all-servers\n")
-		conf_out:write("no-poll\n")
-		conf_out:write("no-resolv\n")
+		conf_out:write("all-servers" .. "\n")
+		conf_out:write("no-poll" .. "\n")
+		conf_out:write("no-resolv" .. "\n")
 		conf_out:close()
 		if USE_CHINADNS_NG == "0" then
 			log(string.format("  - 默认：%s", dnsmasq_default_dns))
