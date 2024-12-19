@@ -8,6 +8,7 @@ local uci = luci.model.uci.cursor()		-- in funtion index()
 local http = require "luci.http"
 local util = require "luci.util"
 local i18n = require "luci.i18n"
+local fs = require "nixio.fs"
 
 function index()
 	if not nixio.fs.access("/etc/config/passwall") then
@@ -46,7 +47,7 @@ function index()
 	entry({"admin", "services", appname, "socks_config"}, cbi(appname .. "/client/socks_config")).leaf = true
 	entry({"admin", "services", appname, "acl"}, cbi(appname .. "/client/acl"), _("Access control"), 98).leaf = true
 	entry({"admin", "services", appname, "acl_config"}, cbi(appname .. "/client/acl_config")).leaf = true
-	entry({"admin", "services", appname, "log"}, form(appname .. "/client/log"), _("Watch Logs"), 999).leaf = true
+	entry({"admin", "services", appname, "log"}, form(appname .. "/client/log"), _("Log Maint"), 999).leaf = true
 
 	--[[ Server ]]
 	entry({"admin", "services", appname, "server"}, cbi(appname .. "/server/index"), _("Server-Side"), 99).leaf = true
@@ -78,9 +79,7 @@ function index()
 	entry({"admin", "services", appname, "update_rules"}, call("update_rules")).leaf = true
 
 	--[[rule_list]]
-	entry({"admin", "services", appname, "read_gfwlist"}, call("read_rulelist", "gfw")).leaf = true
-	entry({"admin", "services", appname, "read_chnlist"}, call("read_rulelist", "chn")).leaf = true
-	entry({"admin", "services", appname, "read_chnroute"}, call("read_rulelist", "chnroute")).leaf = true
+	entry({"admin", "services", appname, "read_rulelist"}, call("read_rulelist")).leaf = true
 
 	--[[Components update]]
 	entry({"admin", "services", appname, "check_passwall"}, call("app_check")).leaf = true
@@ -90,6 +89,9 @@ function index()
 		entry({"admin", "services", appname, "check_" .. com}, call("com_check", com)).leaf = true
 		entry({"admin", "services", appname, "update_" .. com}, call("com_update", com)).leaf = true
 	end
+
+	--[[Backup]]
+	entry({"admin", "services", appname, "backup"}, call("create_backup")).leaf = true
 end
 
 local function http_write_json(content)
@@ -166,11 +168,11 @@ end
 function get_now_use_node()
 	local path = "/tmp/etc/passwall/acl/default"
 	local e = {}
-	local tcp_node = api.get_cache_var("GLOBAL_TCP_node")
+	local tcp_node = api.get_cache_var("ACL_GLOBAL_TCP_node")
 	if tcp_node then
 		e["TCP"] = tcp_node
 	end
-	local udp_node = api.get_cache_var("GLOBAL_UDP_node")
+	local udp_node = api.get_cache_var("ACL_GLOBAL_UDP_node")
 	if udp_node then
 		e["UDP"] = udp_node
 	end
@@ -364,8 +366,8 @@ end
 
 function clear_all_nodes()
 	uci:set(appname, '@global[0]', "enabled", "0")
-	uci:set(appname, '@global[0]', "tcp_node", "nil")
-	uci:set(appname, '@global[0]', "udp_node", "nil")
+	uci:delete(appname, '@global[0]', "tcp_node")
+	uci:delete(appname, '@global[0]', "udp_node")
 	uci:foreach(appname, "socks", function(t)
 		uci:delete(appname, t[".name"])
 		uci:set_list(appname, t[".name"], "autoswitch_backup_node", {})
@@ -374,8 +376,8 @@ function clear_all_nodes()
 		uci:delete(appname, t[".name"])
 	end)
 	uci:foreach(appname, "acl_rule", function(t)
-		uci:set(appname, t[".name"], "tcp_node", "nil")
-		uci:set(appname, t[".name"], "udp_node", "nil")
+		uci:delete(appname, t[".name"], "tcp_node")
+		uci:delete(appname, t[".name"], "udp_node")
 	end)
 	uci:foreach(appname, "nodes", function(node)
 		uci:delete(appname, node['.name'])
@@ -388,11 +390,11 @@ end
 function delete_select_nodes()
 	local ids = luci.http.formvalue("ids")
 	string.gsub(ids, '[^' .. "," .. ']+', function(w)
-		if (uci:get(appname, "@global[0]", "tcp_node") or "nil") == w then
-			uci:set(appname, '@global[0]', "tcp_node", "nil")
+		if (uci:get(appname, "@global[0]", "tcp_node") or "") == w then
+			uci:delete(appname, '@global[0]', "tcp_node")
 		end
-		if (uci:get(appname, "@global[0]", "udp_node") or "nil") == w then
-			uci:set(appname, '@global[0]', "udp_node", "nil")
+		if (uci:get(appname, "@global[0]", "udp_node") or "") == w then
+			uci:delete(appname, '@global[0]', "udp_node")
 		end
 		uci:foreach(appname, "socks", function(t)
 			if t["node"] == w then
@@ -413,10 +415,10 @@ function delete_select_nodes()
 		end)
 		uci:foreach(appname, "acl_rule", function(t)
 			if t["tcp_node"] == w then
-				uci:set(appname, t[".name"], "tcp_node", "nil")
+				uci:delete(appname, t[".name"], "tcp_node")
 			end
 			if t["udp_node"] == w then
-				uci:set(appname, t[".name"], "udp_node", "nil")
+				uci:delete(appname, t[".name"], "udp_node")
 			end
 		end)
 		uci:foreach(appname, "nodes", function(t)
@@ -491,17 +493,44 @@ function com_update(comname)
 	http_write_json(json)
 end
 
-function read_rulelist(list)
+function read_rulelist()
+	local rule_type = http.formvalue("type")
 	local rule_path
-	if list == "gfw" then
+	if rule_type == "gfw" then
 		rule_path = "/usr/share/passwall/rules/gfwlist"
-	elseif list == "chn" then
+	elseif rule_type == "chn" then
 		rule_path = "/usr/share/passwall/rules/chnlist"
-	else
+	elseif rule_type == "chnroute" then
 		rule_path = "/usr/share/passwall/rules/chnroute"
+	else
+		http.status(400, "Invalid rule type")
+		return
 	end
-	if api.fs.access(rule_path) then
-		luci.http.prepare_content("text/plain")
-		luci.http.write(api.fs.readfile(rule_path))
+	if fs.access(rule_path) then
+		http.prepare_content("text/plain")
+		http.write(fs.readfile(rule_path))
 	end
+end
+
+function create_backup()
+	local backup_files = {
+		"/etc/config/passwall",
+		"/etc/config/passwall_server",
+		"/usr/share/passwall/rules/block_host",
+		"/usr/share/passwall/rules/block_ip",
+		"/usr/share/passwall/rules/direct_host",
+		"/usr/share/passwall/rules/direct_ip",
+		"/usr/share/passwall/rules/proxy_host",
+		"/usr/share/passwall/rules/proxy_ip"
+	}
+	local date = os.date("%Y%m%d")
+	local tar_file = "/tmp/passwall-" .. date .. "-backup.tar.gz"
+	fs.remove(tar_file)
+	local cmd = "tar -czf " .. tar_file .. " " .. table.concat(backup_files, " ")
+	api.sys.call(cmd)
+	http.header("Content-Disposition", "attachment; filename=passwall-" .. date .. "-backup.tar.gz")
+	http.header("X-Backup-Filename", "passwall-" .. date .. "-backup.tar.gz")
+	http.prepare_content("application/octet-stream")
+	http.write(fs.readfile(tar_file))
+	fs.remove(tar_file)
 end
