@@ -102,10 +102,8 @@ function logic_restart(var)
 					tinsert(dns_table, v)
 				end
 			end
-			if dns_table and #dns_table > 0 then
-				uci:set_list("dhcp", "@dnsmasq[0]", "server", dns_table)
-				uci:commit("dhcp")
-			end
+			uci:set_list("dhcp", "@dnsmasq[0]", "server", dns_table)
+			uci:commit("dhcp")
 		end
 		sys.call("/etc/init.d/dnsmasq restart >/dev/null 2>&1")
 		restore_servers()
@@ -119,7 +117,7 @@ end
 
 function copy_instance(var)
 	local LISTEN_PORT = var["-LISTEN_PORT"]
-	local DNSMASQ_CONF = var["-DNSMASQ_CONF"]
+	local TMP_DNSMASQ_PATH = var["-TMP_DNSMASQ_PATH"]
 	local conf_lines = {}
 	local DEFAULT_DNSMASQ_CFGID = sys.exec("echo -n $(uci -q show dhcp.@dnsmasq[0] | awk 'NR==1 {split($0, conf, /[.=]/); print conf[2]}')")
 	for line in io.lines("/tmp/etc/dnsmasq.conf." .. DEFAULT_DNSMASQ_CFGID) do
@@ -127,16 +125,32 @@ function copy_instance(var)
 		if line:find("passwall") then filter = true end
 		if line:find("ubus") then filter = true end
 		if line:find("dhcp") then filter = true end
-		if line:find("server") then filter = true end
-		if line:find("port") then filter = true end
+		if line:find("server=") == 1 then filter = true end
+		if line:find("port=") == 1 then filter = true end
+		if line:find("conf%-dir=") == 1 then
+			filter = true
+			if TMP_DNSMASQ_PATH then
+				local tmp_path = line:sub(1 + #"conf-dir=")
+				sys.call(string.format("cp -r %s/* %s/ 2>/dev/null", tmp_path, TMP_DNSMASQ_PATH))
+			end
+		end
+		if line:find("address=") == 1 or (line:find("server=") == 1 and line:find("/")) then filter = nil end
 		if not filter then
 			tinsert(conf_lines, line)
 		end
 	end
 	tinsert(conf_lines, "port=" .. LISTEN_PORT)
+	if TMP_DNSMASQ_PATH then
+		sys.call("rm -rf " .. TMP_DNSMASQ_PATH .. "/*passwall*")
+	end
+	if var["-return"] == "1" then
+		return conf_lines
+	end
 	if #conf_lines > 0 then
+		local DNSMASQ_CONF = var["-DNSMASQ_CONF"]
 		local conf_out = io.open(DNSMASQ_CONF, "a")
 		conf_out:write(table.concat(conf_lines, "\n"))
+		conf_out:write("\n")
 		conf_out:close()
 	end
 end
@@ -341,7 +355,6 @@ function add_rule(var)
 		end
 
 		local fwd_dns
-		local ipset_flag
 		local no_ipv6
 
 		--始终用国内DNS解析节点域名
@@ -350,12 +363,16 @@ function add_rule(var)
 			if USE_CHINADNS_NG == "1" then
 				fwd_dns = nil
 			else
+				local sets = {
+					setflag_4 .. "passwall_vps",
+					setflag_6 .. "passwall_vps6"
+				}
 				uci:foreach(appname, "nodes", function(t)
 					local function process_address(address)
 						if address == "engage.cloudflareclient.com" then return end
 						if datatypes.hostname(address) then
 							set_domain_dns(address, fwd_dns)
-							set_domain_ipset(address, setflag_4 .. "passwall_vpslist," .. setflag_6 .. "passwall_vpslist6")
+							set_domain_ipset(address, table.concat(sets, ","))
 						end
 					end
 					process_address(t.address)
@@ -373,13 +390,17 @@ function add_rule(var)
 					fwd_dns = nil
 				end
 				if fwd_dns then
+					local sets = {
+						setflag_4 .. "passwall_white",
+						setflag_6 .. "passwall_white6"
+					}
 					--始终用国内DNS解析直连（白名单）列表
 					for line in io.lines("/usr/share/passwall/rules/direct_host") do
 						line = api.get_std_domain(line)
 						if line ~= "" and not line:find("#") then
 							add_excluded_domain(line)
 							set_domain_dns(line, fwd_dns)
-							set_domain_ipset(line, setflag_4 .. "passwall_whitelist," .. setflag_6 .. "passwall_whitelist6")
+							set_domain_ipset(line, table.concat(sets, ","))
 						end
 					end
 					log(string.format("  - 域名白名单(whitelist)：%s", fwd_dns or "默认"))
@@ -395,21 +416,31 @@ function add_rule(var)
 					fwd_dns = nil
 				end
 				if fwd_dns then
+					local set_name = "passwall_black"
+					local set6_name = "passwall_black6"
+					if FLAG ~= "default" then
+						set_name = "passwall_" .. FLAG .. "_black"
+						set6_name = "passwall_" .. FLAG .. "_black6"
+					end
+					local sets = {
+						setflag_4 .. set_name
+					}
+					if NO_PROXY_IPV6 ~= "1" then
+						table.insert(sets, setflag_6 .. set6_name)
+					end
+					if REMOTE_FAKEDNS == "1" then
+						sets = {}
+					end
 					--始终使用远程DNS解析代理（黑名单）列表
 					for line in io.lines("/usr/share/passwall/rules/proxy_host") do
 						line = api.get_std_domain(line)
 						if line ~= "" and not line:find("#") then
 							add_excluded_domain(line)
-							local ipset_flag = setflag_4 .. "passwall_blacklist," .. setflag_6 .. "passwall_blacklist6"
 							if NO_PROXY_IPV6 == "1" then
 								set_domain_address(line, "::")
-								ipset_flag = setflag_4 .. "passwall_blacklist"
-							end
-							if REMOTE_FAKEDNS == "1" then
-								ipset_flag = nil
 							end
 							set_domain_dns(line, fwd_dns)
-							set_domain_ipset(line, ipset_flag)
+							set_domain_ipset(line, table.concat(sets, ","))
 						end
 					end
 					log(string.format("  - 代理域名表(blacklist)：%s", fwd_dns or "默认"))
@@ -425,12 +456,20 @@ function add_rule(var)
 					fwd_dns = nil
 				end
 				if fwd_dns then
-					local ipset_flag = setflag_4 .. "passwall_gfwlist," .. setflag_6 .. "passwall_gfwlist6"
-					if NO_PROXY_IPV6 == "1" then
-						ipset_flag = setflag_4 .. "passwall_gfwlist"
+					local set_name = "passwall_gfw"
+					local set6_name = "passwall_gfw6"
+					if FLAG ~= "default" then
+						set_name = "passwall_" .. FLAG .. "_gfw"
+						set6_name = "passwall_" .. FLAG .. "_gfw6"
+					end
+					local sets = {
+						setflag_4 .. set_name
+					}
+					if NO_PROXY_IPV6 ~= "1" then
+						table.insert(sets, setflag_6 .. set6_name)
 					end
 					if REMOTE_FAKEDNS == "1" then
-						ipset_flag = nil
+						sets = {}
 					end
 					local gfwlist_str = sys.exec('cat /usr/share/passwall/rules/gfwlist | grep -v -E "^#" | grep -v -E "' .. excluded_domain_str .. '"')
 					for line in string.gmatch(gfwlist_str, "[^\r\n]+") do
@@ -443,7 +482,7 @@ function add_rule(var)
 							else
 								set_domain_dns(line, fwd_dns)
 							end
-							set_domain_ipset(line, ipset_flag)
+							set_domain_ipset(line, table.concat(sets, ","))
 						end
 					end
 					log(string.format("  - 防火墙域名表(gfwlist)：%s", fwd_dns or "默认"))
@@ -465,13 +504,15 @@ function add_rule(var)
 					fwd_dns = nil
 				end
 				if fwd_dns then
-					local ipset_flag = setflag_4 .. "passwall_chnroute," .. setflag_6 .. "passwall_chnroute6"
+					local sets = {
+						setflag_4 .. "passwall_chn"
+					}
 					if CHN_LIST == "proxy" then
-						if NO_PROXY_IPV6 == "1" then
-							ipset_flag = setflag_4 .. "passwall_chnroute"
+						if NO_PROXY_IPV6 ~= "1" then
+							table.insert(sets, setflag_6 .. "passwall_chn6")
 						end
 						if REMOTE_FAKEDNS == "1" then
-							ipset_flag = nil
+							sets = {}
 						end
 					end
 					local chnlist_str = sys.exec('cat /usr/share/passwall/rules/chnlist | grep -v -E "^#" | grep -v -E "' .. excluded_domain_str .. '"')
@@ -485,7 +526,7 @@ function add_rule(var)
 							else
 								set_domain_dns(line, fwd_dns)
 							end
-							set_domain_ipset(line, ipset_flag)
+							set_domain_ipset(line, table.concat(sets, ","))
 						end
 					end
 					log(string.format("  - 中国域名表(chnroute)：%s", fwd_dns or "默认"))
@@ -498,33 +539,49 @@ function add_rule(var)
 			local t = uci:get_all(appname, TCP_NODE)
 			local default_node_id = t["default_node"] or "_direct"
 			uci:foreach(appname, "shunt_rules", function(s)
-				local _node_id = t[s[".name"]] or "nil"
-				if _node_id ~= "nil" and _node_id ~= "_blackhole" then
+				local _node_id = t[s[".name"]]
+				if _node_id and _node_id ~= "_blackhole" then
 					if _node_id == "_default" then
 						_node_id = default_node_id
 					end
 
 					fwd_dns = nil
-					ipset_flag = nil
 					no_ipv6 = nil
+
+					local sets = {}
 
 					if _node_id == "_direct" then
 						fwd_dns = LOCAL_DNS
 						if USE_DIRECT_LIST == "1" then
-							ipset_flag = setflag_4 .. "passwall_whitelist," .. setflag_6 .. "passwall_whitelist6"
+							table.insert(sets, setflag_4 .. "passwall_white")
+							table.insert(sets, setflag_6 .. "passwall_white6")
 						else
-							ipset_flag = setflag_4 .. "passwall_shuntlist," .. setflag_6 .. "passwall_shuntlist6"
+							local set_name = "passwall_shunt"
+							local set6_name = "passwall_shunt6"
+							if FLAG ~= "default" then
+								set_name = "passwall_" .. FLAG .. "_shunt"
+								set6_name = "passwall_" .. FLAG .. "_shunt6"
+							end
+							table.insert(sets, setflag_4 .. set_name)
+							table.insert(sets, setflag_6 .. set6_name)
 						end
 					else
+						local set_name = "passwall_shunt"
+						local set6_name = "passwall_shunt6"
+						if FLAG ~= "default" then
+							set_name = "passwall_" .. FLAG .. "_shunt"
+							set6_name = "passwall_" .. FLAG .. "_shunt6"
+						end
 						fwd_dns = TUN_DNS
-						ipset_flag = setflag_4 .. "passwall_shuntlist," .. setflag_6 .. "passwall_shuntlist6"
-						if NO_PROXY_IPV6 == "1" then
-							ipset_flag = setflag_4 .. "passwall_shuntlist"
+						table.insert(sets, setflag_4 .. set_name)
+						if NO_PROXY_IPV6 ~= "1" then
+							table.insert(sets, setflag_6 .. set6_name)
+						else
 							no_ipv6 = true
 						end
 						if not only_global then
 							if REMOTE_FAKEDNS == "1" then
-								ipset_flag = nil
+								sets = {}
 							end
 						end
 					end
@@ -542,7 +599,7 @@ function add_rule(var)
 								set_domain_address(line, "::")
 							end
 							set_domain_dns(line, fwd_dns)
-							set_domain_ipset(line, ipset_flag)
+							set_domain_ipset(line, table.concat(sets, ","))
 						end
 					end
 					if _node_id ~= "_direct" then
@@ -603,31 +660,15 @@ function add_rule(var)
 	end
 
 	if USE_CHINADNS_NG == "0" then
-		if api.is_install("procd\\-ujail") then
-			fs.copyr(CACHE_DNS_PATH, TMP_DNSMASQ_PATH)
-		else
-			api.remove(TMP_DNSMASQ_PATH)
-			fs.symlink(CACHE_DNS_PATH, TMP_DNSMASQ_PATH)
-		end
+		api.remove(TMP_DNSMASQ_PATH)
+		fs.symlink(CACHE_DNS_PATH, TMP_DNSMASQ_PATH)
 	end
 
 	if DNSMASQ_CONF_FILE ~= "nil" then
 		local conf_lines = {}
 		if LISTEN_PORT then
 			--Copy dnsmasq instance
-			local DEFAULT_DNSMASQ_CFGID = sys.exec("echo -n $(uci -q show dhcp.@dnsmasq[0] | awk 'NR==1 {split($0, conf, /[.=]/); print conf[2]}')")
-			for line in io.lines("/tmp/etc/dnsmasq.conf." .. DEFAULT_DNSMASQ_CFGID) do
-				local filter
-				if line:find("passwall") then filter = true end
-				if line:find("ubus") then filter = true end
-				if line:find("dhcp") then filter = true end
-				if line:find("server") then filter = true end
-				if line:find("port") then filter = true end
-				if not filter then
-					tinsert(conf_lines, line)
-				end
-			end
-			tinsert(conf_lines, "port=" .. LISTEN_PORT)
+			conf_lines = copy_instance({["-LISTEN_PORT"] = LISTEN_PORT, ["-TMP_DNSMASQ_PATH"] = TMP_DNSMASQ_PATH, ["-return"] = "1"})
 		else
 			--Modify the default dnsmasq service
 		end
@@ -652,6 +693,7 @@ function add_rule(var)
 		if #conf_lines > 0 then
 			local conf_out = io.open(DNSMASQ_CONF_FILE, "a")
 			conf_out:write(table.concat(conf_lines, "\n"))
+			conf_out:write("\n")
 			conf_out:close()
 		end
 	end
