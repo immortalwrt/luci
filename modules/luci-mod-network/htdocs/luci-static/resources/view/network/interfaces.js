@@ -284,7 +284,7 @@ return view.extend({
 				var e = map.querySelector('[id="cbi-network-%s"] .cbi-button-edit'.format(ifc.getName()));
 				if (e) e.disabled = true;
 
-				var link = L.url('admin/system/opkg') + '?query=luci-proto';
+				var link = L.url('admin/system/package-manager') + '?query=luci-proto';
 				dom.content(dsc, [
 					E('em', _('Unsupported protocol type.')), E('br'),
 					E('a', { href: link }, _('Install protocol extensions...'))
@@ -325,7 +325,6 @@ return view.extend({
 			network.getDSLModemType(),
 			network.getDevices(),
 			fs.lines('/etc/iproute2/rt_tables'),
-			L.resolveDefault(fs.read('/usr/lib/opkg/info/netifd.control')),
 			uci.changes()
 		]);
 	},
@@ -425,14 +424,11 @@ return view.extend({
 	},
 
 	render: function(data) {
-		var netifdVersion = (data[3] || '').match(/Version: ([^\n]+)/);
 
-		if (netifdVersion && netifdVersion[1] >= "2021-05-26") {
-			if (this.interfaceBridgeWithIfnameSections().length)
-				return this.renderBridgeMigration();
-			else if (this.deviceWithIfnameSections().length || this.interfaceWithIfnameSections().length)
-				return this.renderIfnameMigration();
-		}
+		if (this.interfaceBridgeWithIfnameSections().length)
+			return this.renderBridgeMigration();
+		else if (this.deviceWithIfnameSections().length || this.interfaceWithIfnameSections().length)
+			return this.renderIfnameMigration();
 
 		var dslModemType = data[0],
 		    netDevs = data[1],
@@ -679,6 +675,17 @@ return view.extend({
 						so = ss.taboption('general', form.Value, 'leasetime', _('Lease time'), _('Expiry time of leased addresses, minimum is 2 minutes (<code>2m</code>).'));
 						so.optional = true;
 						so.default = '12h';
+						so.validate = function (section_id, value) {
+							if (value === "infinite" || value === "deprecated") {
+								return true;
+							}
+
+							const regex = new RegExp("^[0-9]+[smhdw]?$", "i");
+							if (regex.test(value)) {
+								return true;
+							}
+							return _("Invalid DHCP lease time format. Use integer values optionally followed by s, m, h, d, or w.");
+						}
 
 						so = ss.taboption('advanced', form.Flag, 'dynamicdhcp', _('Dynamic <abbr title="Dynamic Host Configuration Protocol">DHCP</abbr>'), _('Dynamically allocate DHCP addresses for clients. If disabled, only clients having static leases will be served.'));
 						so.default = so.enabled;
@@ -1456,6 +1463,9 @@ return view.extend({
 			case '8021ad':
 				return '8021ad';
 
+			case 'bonding':
+				return 'bonding';
+
 			case 'bridge':
 				return 'bridge';
 
@@ -1487,6 +1497,9 @@ return view.extend({
 
 			case '8021ad':
 				return _('VLAN (802.1ad)');
+
+			case 'bonding':
+				return _('Aggregation device');
 
 			case 'bridge':
 				return _('Bridge device');
