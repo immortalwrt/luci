@@ -1,12 +1,12 @@
 local api = require "luci.passwall.api"
 local appname = "passwall"
-local uci = api.libuci
 local datatypes = api.datatypes
+local fs = api.fs
 local has_singbox = api.finded_com("singbox")
 local has_xray = api.finded_com("xray")
-local has_gfwlist = api.fs.access("/usr/share/passwall/rules/gfwlist")
-local has_chnlist = api.fs.access("/usr/share/passwall/rules/chnlist")
-local has_chnroute = api.fs.access("/usr/share/passwall/rules/chnroute")
+local has_gfwlist = fs.access("/usr/share/passwall/rules/gfwlist")
+local has_chnlist = fs.access("/usr/share/passwall/rules/chnlist")
+local has_chnroute = fs.access("/usr/share/passwall/rules/chnroute")
 local chinadns_tls = os.execute("chinadns-ng -V | grep -i wolfssl >/dev/null")
 
 m = Map(appname)
@@ -37,13 +37,13 @@ end
 
 local socks_list = {}
 
-local tcp_socks_server = "127.0.0.1" .. ":" .. (uci:get(appname, "@global[0]", "tcp_node_socks_port") or "1070")
+local tcp_socks_server = "127.0.0.1" .. ":" .. (m:get("@global[0]", "tcp_node_socks_port") or "1070")
 local socks_table = {}
 socks_table[#socks_table + 1] = {
 	id = tcp_socks_server,
 	remark = tcp_socks_server .. " - " .. translate("TCP Node")
 }
-uci:foreach(appname, "socks", function(s)
+m.uci:foreach(appname, "socks", function(s)
 	if s.enabled == "1" and s.node then
 		local id, remark
 		for k, n in pairs(nodes_table) do
@@ -199,7 +199,7 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 				type:depends("tcp_node", "__hide") --不存在的依赖，即始终隐藏
 			end
 
-			uci:foreach(appname, "shunt_rules", function(e)
+			m.uci:foreach(appname, "shunt_rules", function(e)
 				local id = e[".name"]
 				local node_option = vid .. "-" .. id .. "_node"
 				if id and e.remarks then
@@ -347,6 +347,7 @@ o:value("180.184.1.1")
 o:value("180.184.2.2")
 o:value("114.114.114.114")
 o:value("114.114.115.115")
+o:value("119.28.28.28")
 o:depends("direct_dns_mode", "tcp")
 
 o = s:taboption("DNS", Value, "direct_dns_dot", translate("Direct DNS DoT"))
@@ -388,7 +389,7 @@ end
 ---- SmartDNS Forward Mode
 if api.is_finded("smartdns") then
 	o = s:taboption("DNS", ListValue, "smartdns_dns_mode", translate("Filter Mode"))
-	o:value("socks", "SOCKS")
+	o:value("socks", "Socks")
 	if has_singbox then
 		o:value("sing-box", "Sing-Box")
 	end
@@ -593,14 +594,15 @@ o = s:taboption("DNS", Flag, "dns_redirect", translate("DNS Redirect"), translat
 o.default = "1"
 o.rmempty = false
 
-if (uci:get(appname, "@global_forwarding[0]", "use_nft") or "0") == "1" then
+if (m:get("@global_forwarding[0]", "use_nft") or "0") == "1" then
 	o = s:taboption("DNS", Button, "clear_ipset", translate("Clear NFTSET"), translate("Try this feature if the rule modification does not take effect."))
 else
 	o = s:taboption("DNS", Button, "clear_ipset", translate("Clear IPSET"), translate("Try this feature if the rule modification does not take effect."))
 end
 o.inputstyle = "remove"
 function o.write(e, e)
-	luci.sys.call('[ -n "$(nft list sets 2>/dev/null | grep \"passwall_\")" ] && sh /usr/share/passwall/nftables.sh flush_nftset_reload || sh /usr/share/passwall/iptables.sh flush_ipset_reload > /dev/null 2>&1 &')
+	m:set("@global[0]", "flush_set", "1")
+	api.uci_save(m.uci, appname, true, true)
 	luci.http.redirect(api.url("log"))
 end
 
@@ -659,11 +661,11 @@ end
 
 s:tab("log", translate("Log"))
 o = s:taboption("log", Flag, "log_tcp", translate("Enable") .. " " .. translatef("%s Node Log", "TCP"))
-o.default = "1"
+o.default = "0"
 o.rmempty = false
 
 o = s:taboption("log", Flag, "log_udp", translate("Enable") .. " " .. translatef("%s Node Log", "UDP"))
-o.default = "1"
+o.default = "0"
 o.rmempty = false
 
 o = s:taboption("log", ListValue, "loglevel", "Sing-Box/Xray " .. translate("Log Level"))
@@ -693,8 +695,17 @@ o:depends("advanced_log_feature", "1")
 o = s:taboption("log", Value, "log_event_cmd", translate("Shell Command"), translate("Shell command to execute, replace log content with %s."))
 o:depends("advanced_log_feature", "1")
 
-s:tab("faq", "FAQ")
+o = s:taboption("log", Flag, "log_chinadns_ng", translate("Enable") .. " ChinaDNS-NG " .. translate("Log"))
+o.default = "0"
+o.rmempty = false
 
+o = s:taboption("log", DummyValue, "_log_tips", " ")
+o.rawhtml = true
+o.cfgvalue = function(t, n)
+	return string.format('<font color="red">%s</font>', translate("It is recommended to disable logging during regular use to reduce system overhead."))
+end
+
+s:tab("faq", "FAQ")
 o = s:taboption("faq", DummyValue, "")
 o.template = appname .. "/global/faq"
 
@@ -728,7 +739,7 @@ o.rmempty = false
 o = s2:option(ListValue, "node", translate("Socks Node"))
 
 local n = 1
-uci:foreach(appname, "socks", function(s)
+m.uci:foreach(appname, "socks", function(s)
 	if s[".name"] == section then
 		return false
 	end
