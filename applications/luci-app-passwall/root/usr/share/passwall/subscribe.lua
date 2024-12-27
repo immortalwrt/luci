@@ -17,7 +17,7 @@ local ssub, slen, schar, sbyte, sformat, sgsub = string.sub, string.len, string.
 local split = api.split
 local jsonParse, jsonStringify = luci.jsonc.parse, luci.jsonc.stringify
 local base64Decode = api.base64Decode
-local uci = api.libuci
+local uci = api.uci
 local fs = api.fs
 uci:revert(appname)
 
@@ -228,7 +228,7 @@ do
 				set = function(o)
 					for kk, vv in pairs(CONFIG) do
 						if (vv.remarks == id .. "备用节点的列表") then
-							api.uci_set_list(uci, appname, id, "autoswitch_backup_node", vv.new_nodes)
+							uci:set_list(appname, id, "autoswitch_backup_node", vv.new_nodes)
 						end
 					end
 				end
@@ -299,8 +299,8 @@ do
 						if (vv.remarks == "Xray负载均衡节点[" .. node_id .. "]列表") then
 							uci:foreach(appname, "nodes", function(node2)
 								if node2[".name"] == node[".name"] then
-									local section = api.uci_section(uci, appname, "nodes", node_id)
-									api.uci_set_list(uci, appname, section, "balancing_node", vv.new_nodes)
+									local section = uci:section(appname, "nodes", node_id)
+									uci:set_list(appname, section, "balancing_node", vv.new_nodes)
 								end
 							end)
 						end
@@ -465,6 +465,7 @@ local function processData(szType, content, add_mode, add_from)
 		elseif result.type == "Xray" and info.net == "tcp" then
 			info.net = "raw"
 		end
+		if info.net == "splithttp" then info.net = "xhttp" end
 		if info.net == 'h2' or info.net == 'http' then
 			info.net = "http"
 			result.transport = (result.type == "Xray") and "xhttp" or "http"
@@ -527,7 +528,7 @@ local function processData(szType, content, add_mode, add_from)
 		if info.net == 'grpc' then
 			result.grpc_serviceName = info.path
 		end
-		if info.net == 'xhttp' or info.net == 'splithttp' then
+		if info.net == 'xhttp' then
 			result.xhttp_host = info.host
 			result.xhttp_path = info.path
 		end
@@ -593,7 +594,7 @@ local function processData(szType, content, add_mode, add_from)
 			info = info:sub(1, find_index - 1)
 		end
 
-		local hostInfo = split(base64Decode(info), "@")
+		local hostInfo = split(base64Decode(UrlDecode(info)), "@")
 		if hostInfo and #hostInfo > 0 then
 			local host_port = hostInfo[#hostInfo]
 			-- [2001:4860:4860::8888]:443
@@ -639,12 +640,9 @@ local function processData(szType, content, add_mode, add_from)
 				result.protocol = 'shadowsocks'
 			end
 
-			if result.type == "SS-Rust" and method:lower() == "chacha20-poly1305" then
-				result.method = "chacha20-ietf-poly1305"
-			end
-
-			if result.type == "Xray" and method:lower() == "chacha20-ietf-poly1305" then
-				result.method = "chacha20-poly1305"
+			if result.type ~= "Xray" then
+				result.method = (method:lower() == "chacha20-poly1305" and "chacha20-ietf-poly1305") or
+						(method:lower() == "xchacha20-poly1305" and "xchacha20-ietf-poly1305") or method
 			end
 
 			if result.plugin then
@@ -977,6 +975,7 @@ local function processData(szType, content, add_mode, add_from)
 			elseif result.type == "Xray" and params.type == "tcp" then
 				params.type = "raw"
 			end
+			if params.type == "splithttp" then params.type = "xhttp" end
 			if params.type == "h2" or params.type == "http" then
 				params.type = "http"
 				result.transport = (result.type == "Xray") and "xhttp" or "http"
@@ -1040,7 +1039,7 @@ local function processData(szType, content, add_mode, add_from)
 				if params.serviceName then result.grpc_serviceName = params.serviceName end
 				result.grpc_mode = params.mode or "gun"
 			end
-			if params.type == 'xhttp' or params.type == 'splithttp' then
+			if params.type == 'xhttp' then
 				result.xhttp_host = params.host
 				result.xhttp_path = params.path
 				result.xhttp_mode = params.mode or "auto"
@@ -1313,7 +1312,7 @@ local function truncate_nodes(add_from)
 			end
 		end
 	end)
-	uci:commit(appname)
+	api.uci_save(uci, appname, true)
 end
 
 local function select_node(nodes, config)
@@ -1434,7 +1433,7 @@ end
 
 local function update_node(manual)
 	if next(nodeResult) == nil then
-		log("更新失败，没有可用的节点信息")
+		log("没有可用的节点信息更新。")
 		return
 	end
 
@@ -1455,7 +1454,7 @@ local function update_node(manual)
 		local remark = v["remark"]
 		local list = v["list"]
 		for _, vv in ipairs(list) do
-			local cfgid = api.uci_section(uci, appname, "nodes", api.gen_short_uuid())
+			local cfgid = uci:section(appname, "nodes", api.gen_short_uuid())
 			for kkk, vvv in pairs(vv) do
 				uci:set(appname, cfgid, kkk, vvv)
 				-- sing-box 域名解析策略
@@ -1465,7 +1464,7 @@ local function update_node(manual)
 			end
 		end
 	end
-	uci:commit(appname)
+	api.uci_save(uci, appname, true)
 
 	if next(CONFIG) then
 		local nodes = {}
@@ -1500,7 +1499,7 @@ local function update_node(manual)
 		end
 		]]--
 
-		uci:commit(appname)
+		api.uci_save(uci, appname, true)
 	end
 
 	if arg[3] == "cron" then
@@ -1671,8 +1670,15 @@ local execute = function()
 				local stdout = f:read("*all")
 				f:close()
 				raw = trim(stdout)
-				os.remove("/tmp/" .. cfgid)
-				parse_link(raw, "2", remark)
+				local old_md5 = value.md5 or ""
+				local new_md5 = luci.sys.exec(string.format("echo -n $(echo '%s' | md5sum | awk '{print $1}')", raw))
+				if old_md5 == new_md5 then
+					log('订阅:【' .. remark .. '】没有变化，无需更新。')
+				else
+					os.remove("/tmp/" .. cfgid)
+					parse_link(raw, "2", remark)
+					uci:set(appname, cfgid, "md5", new_md5)
+				end
 			else
 				fail_list[#fail_list + 1] = value
 			end

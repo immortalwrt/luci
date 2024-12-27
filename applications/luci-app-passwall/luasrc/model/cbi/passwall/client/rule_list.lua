@@ -271,7 +271,7 @@ o.remove = function(self, section, value)
 	fs.writefile(hosts, "")
 end
 
-if api.fs.access(gfwlist_path) then
+if fs.access(gfwlist_path) then
 	s:tab("gfw_list", translate("GFW List"))
 	o = s:taboption("gfw_list", DummyValue, "_gfw_fieldset")
 	o.rawhtml = true
@@ -284,7 +284,7 @@ if api.fs.access(gfwlist_path) then
 	]], translate("Read List"))
 end
 
-if api.fs.access(chnlist_path) then
+if fs.access(chnlist_path) then
 	s:tab("chn_list", translate("China List") .. "(" .. translate("Domain") .. ")")
 	o = s:taboption("chn_list", DummyValue, "_chn_fieldset")
 	o.rawhtml = true
@@ -297,7 +297,7 @@ if api.fs.access(chnlist_path) then
 	]], translate("Read List"))
 end
 
-if api.fs.access(chnroute_path) then
+if fs.access(chnroute_path) then
 	s:tab("chnroute_list", translate("China List") .. "(IP)")
 	o = s:taboption("chnroute_list", DummyValue, "_chnroute_fieldset")
 	o.rawhtml = true
@@ -312,15 +312,18 @@ end
 
 m:append(Template(appname .. "/rule_list/js"))
 
-if sys.call('[ -f "/www/luci-static/resources/uci.js" ]') == 0 then
+function m.on_before_save(self)
+	m:set("@global[0]", "flush_set", "1")
+end
+
+if api.is_js_luci() then
+	function m.on_before_save(self)
+		api.sh_uci_set(appname, "@global[0]", "flush_set", "1", true)
+	end
 	m.apply_on_parse = true
 	function m.on_apply(self)
 		luci.sys.call("/etc/init.d/passwall reload > /dev/null 2>&1 &")
 	end
-end
-
-function m.on_commit(self)
-	luci.sys.call('[ -n "$(nft list sets 2>/dev/null | grep \"passwall_\")" ] && sh /usr/share/passwall/nftables.sh flush_nftset || sh /usr/share/passwall/iptables.sh flush_ipset > /dev/null 2>&1 &')
 end
 
 return m
