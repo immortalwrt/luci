@@ -378,6 +378,7 @@ return view.extend({
 
 		so = ss.option(form.ListValue, 'node', _('Node'),
 			_('Outbound node'));
+		so.value('urltest', _('URLTest'));
 		for (var i in proxy_nodes)
 			so.value(i, proxy_nodes[i]);
 		so.validate = L.bind(hp.validateUniqueValue, this, data[0], 'routing_node', 'node');
@@ -387,13 +388,14 @@ return view.extend({
 			_('If set, the server domain name will be resolved to IP before connecting.<br/>'));
 		for (var i in hp.dns_strategy)
 			so.value(i, hp.dns_strategy[i]);
+		so.depends({'node': 'urltest', '!reverse': true});
 		so.modalonly = true;
 
 		so = ss.option(widgets.DeviceSelect, 'bind_interface', _('Bind interface'),
 			_('The network interface to bind to.'));
 		so.multiple = false;
 		so.noaliases = true;
-		so.depends('outbound', '');
+		so.depends({'outbound': '', 'node': /^((?!urltest$).)+$/});
 		so.modalonly = true;
 
 		so = ss.option(form.ListValue, 'outbound', _('Outbound'),
@@ -416,9 +418,12 @@ return view.extend({
 
 				var conflict = false;
 				uci.sections(data[0], 'routing_node', (res) => {
-					if (res['.name'] !== section_id)
+					if (res['.name'] !== section_id) {
 						if (res.outbound === section_id && res['.name'] == value)
 							conflict = true;
+						else if (res?.urltest_nodes?.includes(node) && res['.name'] == value)
+							conflict = true;
+					}
 				});
 				if (conflict)
 					return _('Recursive outbound detected!');
@@ -426,6 +431,67 @@ return view.extend({
 
 			return true;
 		}
+		so.depends({'node': 'urltest', '!reverse': true});
+		so.editable = true;
+
+		so = ss.option(hp.CBIStaticList, 'urltest_nodes', _('URLTest nodes'),
+			_('List of nodes to test.'));
+		for (var i in proxy_nodes)
+			so.value(i, proxy_nodes[i]);
+		so.depends('node', 'urltest');
+		so.modalonly = true;
+
+		so = ss.option(form.Value, 'urltest_url', _('Test URL'),
+			_('The URL to test. <code>https://www.gstatic.com/generate_204</code> will be used if empty.'));
+		so.validate = function(section_id, value) {
+			if (section_id && value) {
+				try {
+					var url = new URL(value);
+					if (!url.hostname)
+						return _('Expecting: %s').format(_('valid URL'));
+				}
+				catch(e) {
+					return _('Expecting: %s').format(_('valid URL'));
+				}
+			}
+
+			return true;
+		}
+		so.depends('node', 'urltest');
+		so.modalonly = true;
+
+		so = ss.option(form.Value, 'urltest_interval', _('Test interval'),
+			_('The test interval in seconds. <code>180</code> will be used if empty.'));
+		so.datatype = 'uinteger';
+		so.validate = function(section_id, value) {
+			if (section_id && value) {
+				var idle_timeout = this.map.lookupOption('urltest_idle_timeout', section_id)[0].formvalue(section_id) || '1800';
+				if (parseInt(value) > parseInt(idle_timeout))
+					return _('Test interval must be less or equal than idle timeout.');
+			}
+
+			return true;
+		}
+		so.depends('node', 'urltest');
+		so.modalonly = true;
+
+		so = ss.option(form.Value, 'urltest_tolerance', _('Test tolerance'),
+			_('The test tolerance in milliseconds. <code>50</code> will be used if empty.'));
+		so.datatype = 'uinteger';
+		so.depends('node', 'urltest');
+		so.modalonly = true;
+
+		so = ss.option(form.Value, 'urltest_idle_timeout', _('Idle timeout'),
+			_('The idle timeout in seconds. <code>1800</code> will be used if empty.'));
+		so.datatype = 'uinteger';
+		so.depends('node', 'urltest');
+		so.modalonly = true;
+
+		so = ss.option(form.Flag, 'urltest_interrupt_exist_connections', _('Interrupt existing connections'),
+			_('Interrupt existing connections when the selected outbound has changed.'));
+		so.default = so.disabled;
+		so.depends('node', 'urltest');
+		so.modalonly = true;
 		/* Routing nodes end */
 
 		/* Routing rules start */
@@ -480,31 +546,25 @@ return view.extend({
 
 		so = ss.taboption('field_other', form.MultiValue, 'protocol', _('Protocol'),
 			_('Sniffed protocol, see <a target="_blank" href="https://sing-box.sagernet.org/configuration/route/sniff/">Sniff</a> for details.'));
-		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0)
-			so.value('bittorrent', _('BitTorrent'));
+		so.value('bittorrent', _('BitTorrent'));
 		so.value('dns', _('DNS'));
-		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0)
-			so.value('dtls', _('DTLS'));
+		so.value('dtls', _('DTLS'));
 		so.value('http', _('HTTP'));
 		so.value('quic', _('QUIC'));
-		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
-			so.value('rdp', _('RDP'));
-			so.value('ssh', _('SSH'));
-		}
+		so.value('rdp', _('RDP'));
+		so.value('ssh', _('SSH'));
 		so.value('stun', _('STUN'));
 		so.value('tls', _('TLS'));
 
-		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
-			so = ss.taboption('field_other', form.Value, 'client', _('Client'),
-				_('Sniffed client type (QUIC client type or SSH client name).'));
-			so.value('chromium', _('Chromium / Cronet'));
-			so.value('firefox', _('Firefox / uquic firefox'));
-			so.value('quic-go', _('quic-go / uquic chrome'));
-			so.value('safari', _('Safari / Apple Network API'));
-			so.depends('protocol', 'quic');
-			so.depends('protocol', 'ssh');
-			so.modalonly = true;
-		}
+		so = ss.taboption('field_other', form.Value, 'client', _('Client'),
+			_('Sniffed client type (QUIC client type or SSH client name).'));
+		so.value('chromium', _('Chromium / Cronet'));
+		so.value('firefox', _('Firefox / uquic firefox'));
+		so.value('quic-go', _('quic-go / uquic chrome'));
+		so.value('safari', _('Safari / Apple Network API'));
+		so.depends('protocol', 'quic');
+		so.depends('protocol', 'ssh');
+		so.modalonly = true;
 
 		so = ss.taboption('field_other', form.ListValue, 'network', _('Network'));
 		so.value('tcp', _('TCP'));
@@ -578,23 +638,20 @@ return view.extend({
 			_('Match process path.'));
 		so.modalonly = true;
 
-		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
-			so = ss.taboption('field_other', form.DynamicList, 'process_path_regex', _('Process path (regex)'),
-				_('Match process path using regular expression.'));
-			so.modalonly = true;
-		}
+		so = ss.taboption('field_other', form.DynamicList, 'process_path_regex', _('Process path (regex)'),
+			_('Match process path using regular expression.'));
+		so.modalonly = true;
 
 		so = ss.taboption('field_other', form.DynamicList, 'user', _('User'),
 			_('Match user name.'));
 		so.modalonly = true;
 
-		so = ss.taboption('field_other', form.MultiValue, 'rule_set', _('Rule set'),
+		so = ss.taboption('field_other', hp.CBIStaticList, 'rule_set', _('Rule set'),
 			_('Match rule set.'));
 		so.load = function(section_id) {
 			delete this.keylist;
 			delete this.vallist;
 
-			this.value('', _('-- Please choose --'));
 			uci.sections(data[0], 'ruleset', (res) => {
 				if (res.enabled === '1')
 					this.value(res['.name'], res.label);
@@ -846,16 +903,12 @@ return view.extend({
 
 		so = ss.taboption('field_other', form.MultiValue, 'protocol', _('Protocol'),
 			_('Sniffed protocol, see <a target="_blank" href="https://sing-box.sagernet.org/configuration/route/sniff/">Sniff</a> for details.'));
-		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
-			so.value('bittorrent', _('BitTorrent'));
-			so.value('dtls', _('DTLS'));
-		}
+		so.value('bittorrent', _('BitTorrent'));
+		so.value('dtls', _('DTLS'));
 		so.value('http', _('HTTP'));
 		so.value('quic', _('QUIC'));
-		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
-			so.value('rdp', _('RDP'));
-			so.value('ssh', _('SSH'));
-		}
+		so.value('rdp', _('RDP'));
+		so.value('ssh', _('SSH'));
 		so.value('stun', _('STUN'));
 		so.value('tls', _('TLS'));
 
@@ -924,23 +977,20 @@ return view.extend({
 			_('Match process path.'));
 		so.modalonly = true;
 
-		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
-			so = ss.taboption('field_other', form.DynamicList, 'process_path_regex', _('Process path (regex)'),
-				_('Match process path using regular expression.'));
-			so.modalonly = true;
-		}
+		so = ss.taboption('field_other', form.DynamicList, 'process_path_regex', _('Process path (regex)'),
+			_('Match process path using regular expression.'));
+		so.modalonly = true;
 
 		so = ss.taboption('field_other', form.DynamicList, 'user', _('User'),
 			_('Match user name.'));
 		so.modalonly = true;
 
-		so = ss.taboption('field_other', form.MultiValue, 'rule_set', _('Rule set'),
+		so = ss.taboption('field_other', hp.CBIStaticList, 'rule_set', _('Rule set'),
 			_('Match rule set.'));
 		so.load = function(section_id) {
 			delete this.keylist;
 			delete this.vallist;
 
-			this.value('', _('-- Please choose --'));
 			uci.sections(data[0], 'ruleset', (res) => {
 				if (res.enabled === '1')
 					this.value(res['.name'], res.label);
@@ -955,12 +1005,10 @@ return view.extend({
 		so.default = so.disabled;
 		so.modalonly = true;
 
-		if (features.version.localeCompare('1.10.0', undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
-			so = ss.taboption('field_other', form.Flag, 'rule_set_ip_cidr_accept_empty', _('Accept empty query response'),
-				_('Make IP CIDR in rule-sets accept empty query response.'));
-			so.default = so.disabled;
-			so.modalonly = true;
-		}
+		so = ss.taboption('field_other', form.Flag, 'rule_set_ip_cidr_accept_empty', _('Accept empty query response'),
+			_('Make IP CIDR in rule-sets accept empty query response.'));
+		so.default = so.disabled;
+		so.modalonly = true;
 
 		so = ss.taboption('field_other', form.Flag, 'invert', _('Invert'),
 			_('Invert match result.'));

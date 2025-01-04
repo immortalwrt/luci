@@ -300,6 +300,8 @@ function get_outbound(cfg) {
 			const node = uci.get(uciconfig, cfg, 'node');
 			if (isEmpty(node))
 				die(sprintf("%s's node is missing, please check your configuration.", cfg));
+			else if (node === 'urltest')
+				return 'cfg-' + cfg + '-out';
 			else
 				return 'cfg-' + node + '-out';
 		}
@@ -459,8 +461,7 @@ if (!isEmpty(main_node)) {
 			user: cfg.user,
 			rule_set: get_ruleset(cfg.rule_set),
 			/* rule_set_ipcidr_match_source is deprecated in sing-box 1.10.0 */
-			rule_set_ipcidr_match_source: (features.version < '1.10.0' && cfg.rule_set_ip_cidr_match_source  === '1') || null,
-			rule_set_ip_cidr_match_source: (features.version >= '1.10.0' && cfg.rule_set_ip_cidr_match_source  === '1') || null,
+			rule_set_ip_cidr_match_source: (cfg.rule_set_ip_cidr_match_source  === '1') || null,
 			invert: (cfg.invert === '1') || null,
 			outbound: get_outbound(cfg.outbound),
 			server: get_resolver(cfg.server),
@@ -530,9 +531,7 @@ if (match(proxy_mode, /tun/))
 
 		interface_name: tun_name,
 		/* inet4_address and inet6_address are deprecated in sing-box 1.10.0 */
-		inet4_address: (features.version < '1.10.0') ? tun_addr4 : null,
-		inet6_address: (features.version < '1.10.0' && ipv6_support === '1') ? tun_addr6 : null,
-		address: (features.version >= '1.10.0') ? ((ipv6_support === '1') ? [tun_addr4, tun_addr6] : [tun_addr4]) : null,
+		address: (ipv6_support === '1') ? [tun_addr4, tun_addr6] : [tun_addr4],
 		mtu: strToInt(tun_mtu),
 		gso: (tun_gso === '1'),
 		auto_route: false,
@@ -574,17 +573,39 @@ if (!isEmpty(main_node)) {
 		push(config.outbounds, generate_outbound(main_udp_node_cfg));
 		config.outbounds[length(config.outbounds)-1].tag = 'main-udp-out';
 	}
-} else if (!isEmpty(default_outbound))
+} else if (!isEmpty(default_outbound)) {
+	let urltest_nodes = [],
+	    routing_nodes = [];
+
 	uci.foreach(uciconfig, uciroutingnode, (cfg) => {
 		if (cfg.enabled !== '1')
 			return;
 
-		const outbound = uci.get_all(uciconfig, cfg.node) || {};
-		push(config.outbounds, generate_outbound(outbound));
-		config.outbounds[length(config.outbounds)-1].domain_strategy = cfg.domain_strategy;
-		config.outbounds[length(config.outbounds)-1].bind_interface = cfg.bind_interface;
-		config.outbounds[length(config.outbounds)-1].detour = get_outbound(cfg.outbound);
+		if (cfg.node === 'urltest') {
+			push(config.outbounds, {
+				type: 'urltest',
+				tag: 'cfg-' + cfg['.name'] + '-out',
+				outbounds: map(cfg.urltest_nodes, (k) => `cfg-${k}-out`),
+				url: cfg.urltest_url,
+				interval: cfg.urltest_interval ? (cfg.urltest_interval + 's') : null,
+				tolerance: strToInt(cfg.urltest_tolerance),
+				idle_timeout: cfg.urltest_idle_timeout ? (cfg.urltest_idle_timeout + 's') : null,
+				interrupt_exist_connections: (cfg.urltest_interrupt_exist_connections === '1')
+			});
+			urltest_nodes = [...urltest_nodes, ...filter(cfg.urltest_nodes, ((l) => !~index(urltest_nodes, l)))];
+		} else {
+			const outbound = uci.get_all(uciconfig, cfg.node) || {};
+			push(config.outbounds, generate_outbound(outbound));
+			config.outbounds[length(config.outbounds)-1].domain_strategy = cfg.domain_strategy;
+			config.outbounds[length(config.outbounds)-1].bind_interface = cfg.bind_interface;
+			config.outbounds[length(config.outbounds)-1].detour = get_outbound(cfg.outbound);
+			push(routing_nodes, cfg.node);
+		}
 	});
+
+	for (let i in filter(urltest_nodes, ((l) => !~index(routing_nodes, l))))
+		push(config.outbounds, generate_outbound(uci.get_all(uciconfig, i)));
+}
 /* Outbound end */
 
 /* Routing rules start */
@@ -596,7 +617,6 @@ config.route = {
 			outbound: 'dns-out'
 		}
 	],
-	rule_set: [],
 	auto_detect_interface: isEmpty(default_interface) ? true : null,
 	default_interface: default_interface
 };
@@ -645,8 +665,7 @@ if (!isEmpty(main_node)) {
 			user: cfg.user,
 			rule_set: get_ruleset(cfg.rule_set),
 			/* rule_set_ipcidr_match_source is deprecated in sing-box 1.10.0 */
-			rule_set_ipcidr_match_source: (features.version < '1.10.0' && cfg.rule_set_ip_cidr_match_source  === '1') || null,
-			rule_set_ip_cidr_match_source: (features.version >= '1.10.0' && cfg.rule_set_ip_cidr_match_source  === '1') || null,
+			rule_set_ip_cidr_match_source: (cfg.rule_set_ip_cidr_match_source  === '1') || null,
 			rule_set_ip_cidr_accept_empty: (cfg.rule_set_ip_cidr_accept_empty === '1') || null,
 			invert: (cfg.invert === '1') || null,
 			outbound: get_outbound(cfg.outbound)
@@ -658,6 +677,7 @@ if (!isEmpty(main_node)) {
 
 /* Rule set */
 if (routing_mode === 'custom') {
+	config.route.rule_set = [];
 	uci.foreach(uciconfig, uciruleset, (cfg) => {
 		if (cfg.enabled !== '1')
 			return null;
