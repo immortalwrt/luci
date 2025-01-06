@@ -216,7 +216,7 @@ start_service() {
 	procd_set_param respawn
 	procd_close_instance
 
-	case "$rouing_mode" in
+	case "$routing_mode" in
 	"bypass_mainland_china")
 		# Prepare cache db
 		[ -e "$RUN_DIR/cache.db" ] || touch "$RUN_DIR/cache.db"
@@ -227,15 +227,13 @@ start_service() {
 		;;
 	esac
 
-	# Update permissions for ujail
-	if [ "$outbound_node" != "nil" ]; then
-		echo > "$RUN_DIR/sing-box-c.log"
-		chmod 0644 "$HP_DIR/resources/gfw_list.txt"
-	fi
+	[ "$outbound_node" = "nil" ] || echo > "$RUN_DIR/sing-box-c.log"
 	if [ "$server_enabled" = "1" ]; then
 		echo > "$RUN_DIR/sing-box-s.log"
 		mkdir -p "$HP_DIR/certs"
 	fi
+
+	# Update permissions for ujail
 	chown -R sing-box:sing-box "$RUN_DIR"
 
 	# Setup firewall
