@@ -1,5 +1,27 @@
 local api = require "luci.passwall.api"
+local uci = require "luci.model.uci".cursor()
 local appname = "passwall"
+
+m = Map(appname)
+m.redirect = api.url("node_subscribe")
+
+if not arg[1] or not m:get(arg[1]) then
+	luci.http.redirect(m.redirect)
+end
+
+function m.commit_handler(self)
+	self:del(arg[1], "md5")
+end
+
+if api.is_js_luci() then
+	m.apply_on_parse = false
+	m.on_after_apply = function(self)
+		uci:delete(appname, arg[1], "md5")
+		uci:commit(appname)
+		api.showMsg_Redirect(self.redirect, 3000)
+	end
+end
+
 local has_ss = api.is_finded("ss-redir")
 local has_ss_rust = api.is_finded("sslocal")
 local has_trojan_plus = api.is_finded("trojan-plus")
@@ -42,9 +64,6 @@ if has_hysteria2 then
 	local s = "hysteria2"
 	table.insert(hysteria2_type, s)
 end
-
-m = Map(appname)
-m.redirect = api.url("node_subscribe")
 
 s = m:section(NamedSection, arg[1])
 s.addremove = false
