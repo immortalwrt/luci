@@ -10,7 +10,7 @@ return network.registerProtocol('minieap', {
 		return _('MiniEAP client');
 	},
 
-	getOpkgPackage: function() {
+	getPackageName: function() {
 		return 'minieap';
 	},
 
