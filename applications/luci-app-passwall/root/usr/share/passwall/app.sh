@@ -352,7 +352,7 @@ get_geoip() {
 	local geoip_type_flag=""
 	local geoip_path="$(config_t_get global_rules v2ray_location_asset)"
 	geoip_path="${geoip_path%*/}/geoip.dat"
-	[ -e "$geoip_path" ] || { echo ""; return; }
+	[ -s "$geoip_path" ] || { echo ""; return; }
 	case "$2" in
 		"ipv4") geoip_type_flag="-ipv6=false" ;;
 		"ipv6") geoip_type_flag="-ipv4=false" ;;
@@ -773,9 +773,26 @@ run_redir() {
 			run_ipt2socks flag=default proto=UDP local_port=${local_port} socks_address=${_socks_address} socks_port=${_socks_port} socks_username=${_socks_username} socks_password=${_socks_password} log_file=${log_file}
 		;;
 		sing-box)
+			local protocol=$(config_n_get $node protocol)
+			[ "$protocol" = "_shunt" ] && {
+				local geoip_path="$(config_t_get global_singbox geoip_path)"
+				local geosite_path="$(config_t_get global_singbox geosite_path)"
+				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
+					echolog "* 缺少Geo规则文件，UDP Sing-Box分流节点无法正常使用！"
+				fi
+			}
 			run_singbox flag=UDP node=$node udp_redir_port=$local_port config_file=$config_file log_file=$log_file
 		;;
 		xray)
+			local protocol=$(config_n_get $node protocol)
+			[ "$protocol" = "_shunt" ] && {
+				local geo_path="$(config_t_get global_rules v2ray_location_asset)"
+				local geoip_path="${geo_path%*/}/geoip.dat"
+				local geosite_path="${geo_path%*/}/geosite.dat"
+				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
+					echolog "* 缺少Geo规则文件，UDP Xray分流节点无法正常使用！"
+				fi
+			}
 			run_xray flag=UDP node=$node udp_redir_port=$local_port config_file=$config_file log_file=$log_file
 		;;
 		trojan*)
@@ -875,6 +892,14 @@ run_redir() {
 				echolog "* 当前TCP节点采用Sing-Box分流且默认节点为直连，远程DNS过滤模式将默认使用Sing-Box(TCP)，防止环回！"
 			}
 
+			[ "$protocol" = "_shunt" ] && {
+				local geoip_path="$(config_t_get global_singbox geoip_path)"
+				local geosite_path="$(config_t_get global_singbox geosite_path)"
+				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
+					echolog "* 缺少Geo规则文件，TCP Sing-Box分流节点无法正常使用！"
+				fi
+			}
+
 			[ "${DNS_MODE}" = "sing-box" ] && {
 				NO_PLUGIN_DNS=1
 				config_file=$(echo $config_file | sed "s/.json/_DNS.json/g")
@@ -894,7 +919,7 @@ run_redir() {
 						_args="${_args} direct_dns_tcp_server=$(config_t_get global direct_dns_tcp 223.5.5.5 | sed 's/:/#/g')"
 					;;
 					dot)
-						local tmp_dot_dns=$(config_t_get global direct_dns_dot "tls://dot.pub@1.12.12.12")
+						local tmp_dot_dns=$(config_t_get global direct_dns_dot "tls://1.12.12.12")
 						local tmp_dot_ip=$(echo "$tmp_dot_dns" | sed -n 's/.*:\/\/\([^@#]*@\)*\([^@#]*\).*/\2/p')
 						local tmp_dot_port=$(echo "$tmp_dot_dns" | sed -n 's/.*#\([0-9]\+\).*/\1/p')
 						_args="${_args} direct_dns_dot_server=$tmp_dot_ip#${tmp_dot_port:-853}"
@@ -951,6 +976,15 @@ run_redir() {
 				DNS_MODE="xray"
 				v2ray_dns_mode="tcp"
 				echolog "* 当前TCP节点采用Xray分流且默认节点为直连，远程DNS过滤模式将默认使用Xray(TCP)，防止环回！"
+			}
+
+			[ "$protocol" = "_shunt" ] && {
+				local geo_path="$(config_t_get global_rules v2ray_location_asset)"
+				local geoip_path="${geo_path%*/}/geoip.dat"
+				local geosite_path="${geo_path%*/}/geosite.dat"
+				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
+					echolog "* 缺少Geo规则文件，TCP Xray分流节点无法正常使用！"
+				fi
 			}
 
 			[ "${DNS_MODE}" = "xray" ] && {
@@ -1363,7 +1397,7 @@ start_dns() {
 		;;
 		dot)
 			if [ "$chinadns_tls" != "nil" ]; then
-				local DIRECT_DNS=$(config_t_get global direct_dns_dot "tls://dot.pub@1.12.12.12")
+				local DIRECT_DNS=$(config_t_get global direct_dns_dot "tls://1.12.12.12")
 				china_ng_local_dns=${DIRECT_DNS}
 
 				#当全局（包括访问控制节点）开启chinadns-ng时，不启动新进程。
@@ -1485,7 +1519,7 @@ start_dns() {
 		TCP_PROXY_DNS=1
 		if [ "$chinadns_tls" != "nil" ]; then
 			local china_ng_listen_port=${NEXT_DNS_LISTEN_PORT}
-			local china_ng_trust_dns=$(config_t_get global remote_dns_dot "tls://dns.google@8.8.4.4")
+			local china_ng_trust_dns=$(config_t_get global remote_dns_dot "tls://1.1.1.1")
 			local tmp_dot_ip=$(echo "$china_ng_trust_dns" | sed -n 's/.*:\/\/\([^@#]*@\)*\([^@#]*\).*/\2/p')
 			local tmp_dot_port=$(echo "$china_ng_trust_dns" | sed -n 's/.*#\([0-9]\+\).*/\1/p')
 			REMOTE_DNS="$tmp_dot_ip#${tmp_dot_port:-853}"
@@ -1830,7 +1864,7 @@ acl_app() {
 										;;
 										dot)
 											if [ "$(chinadns-ng -V | grep -i wolfssl)" != "nil" ]; then
-												_chinadns_local_dns=$(config_t_get global direct_dns_dot "tls://dot.pub@1.12.12.12")
+												_chinadns_local_dns=$(config_t_get global direct_dns_dot "tls://1.12.12.12")
 											fi
 										;;
 									esac
@@ -1992,6 +2026,8 @@ start() {
 	get_config
 	export V2RAY_LOCATION_ASSET=$(config_t_get global_rules v2ray_location_asset "/usr/share/v2ray/")
 	export XRAY_LOCATION_ASSET=$V2RAY_LOCATION_ASSET
+	export ENABLE_DEPRECATED_GEOSITE=true
+	export ENABLE_DEPRECATED_GEOIP=true
 	ulimit -n 65535
 	start_haproxy
 	start_socks

@@ -216,7 +216,7 @@ if DEFAULT_DNS_GROUP then
 	local domain_rules_str = "domain-rules /./ -nameserver " .. DEFAULT_DNS_GROUP
 	if DEFAULT_DNS_GROUP == REMOTE_GROUP then
 		domain_rules_str = domain_rules_str .. " -speed-check-mode none -d no -no-serve-expired"
-		if NO_PROXY_IPV6 == "1" and only_global == 1 and uci:get(appname, TCP_NODE, "protocol") ~= "_shunt" then
+		if NO_PROXY_IPV6 == "1" then
 			domain_rules_str = domain_rules_str .. " -address #6"
 		end
 	elseif DEFAULT_DNS_GROUP == LOCAL_GROUP then
@@ -274,11 +274,13 @@ end
 local file_vpslist = TMP_ACL_PATH .. "/vpslist"
 if not is_file_nonzero(file_vpslist) then
 	local f_out = io.open(file_vpslist, "w")
+	local written_domains = {}
 	uci:foreach(appname, "nodes", function(t)
 		local function process_address(address)
 			if address == "engage.cloudflareclient.com" then return end
-			if datatypes.hostname(address) then
+			if datatypes.hostname(address) and not written_domains[address] then
 				f_out:write(address .. "\n")
+				written_domains[address] = true
 			end
 		end
 		process_address(t.address)
