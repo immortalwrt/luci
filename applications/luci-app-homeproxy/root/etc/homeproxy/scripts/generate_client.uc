@@ -407,6 +407,7 @@ if (!isEmpty(main_node)) {
 		push(config.dns.servers, {
 			tag: 'china-dns',
 			address: china_dns_server,
+			address_resolver: 'default-dns',
 			detour: 'direct-out'
 		});
 
