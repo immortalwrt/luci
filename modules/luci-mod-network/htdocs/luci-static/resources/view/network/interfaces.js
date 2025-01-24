@@ -516,12 +516,8 @@ return view.extend({
 		};
 
 		s.addModalOptions = function(s) {
-			var protoval = uci.get('network', s.section, 'proto'),
-			    protoclass = protoval ? network.getProtocol(protoval) : null,
+			var protoval = uci.get('network', s.section, 'proto') || 'none',
 			    o, proto_select, proto_switch, type, stp, igmp, ss, so;
-
-			if (!protoval)
-				return;
 
 			return network.getNetwork(s.section).then(L.bind(function(ifc) {
 				var protocols = network.getProtocols();
@@ -545,6 +541,7 @@ return view.extend({
 
 				proto_select = s.taboption('general', form.ListValue, 'proto', _('Protocol'));
 				proto_select.modalonly = true;
+				proto_select.default = 'none';
 
 				proto_switch = s.taboption('general', form.Button, '_switch_proto');
 				proto_switch.modalonly  = true;
@@ -613,7 +610,7 @@ return view.extend({
 				for (var i = 0; i < protocols.length; i++) {
 					proto_select.value(protocols[i].getProtocol(), protocols[i].getI18n());
 
-					if (protocols[i].getProtocol() != uci.get('network', s.section, 'proto'))
+					if (protocols[i].getProtocol() != protoval)
 						proto_switch.depends('proto', protocols[i].getProtocol());
 				}
 
@@ -1575,9 +1572,10 @@ return view.extend({
 		o.datatype = 'cidr6';
 
 		o = s.option(form.ListValue, 'packet_steering', _('Packet Steering'), _('Enable packet steering across CPUs. May help or hinder network speed.'));
-		o.value('', _('Disabled'));
+		o.value('0', _('Disabled'));
 		o.value('1',_('Enabled'));
 		o.value('2',_('Enabled (all CPUs)'));
+		o.default = '1';
 		o.optional = true;
 
 		var steer_flow = uci.get('network', 'globals', 'steering_flows');	
