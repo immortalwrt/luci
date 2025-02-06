@@ -557,8 +557,10 @@ const methods = {
 				map(keys(stat), (ifname) => {
 					if (
 						ifname &&
-						stat[ifname]?.devtype in ['ethernet', 'dsa'] &&
-						length(stat[ifname]['link-advertising'])
+						stat[ifname]?.devtype in ['ethernet', 'dsa'] && (
+							length(stat[ifname]['link-advertising']) ||
+							match(ifname, /^eth\d+$/)
+						)
 					)
 						push(ports, { role: 'unknown', device: ifname });
 				});
