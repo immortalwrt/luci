@@ -215,7 +215,7 @@ return view.extend({
 
 				let ipv6_support = this.map.lookupOption('ipv6_support', section_id)[0].formvalue(section_id);
 				try {
-					let url = new URL(value);
+					let url = new URL(value.replace(/^.*:\/\//, 'http://'));
 					if (stubValidator.apply('hostname', url.hostname))
 						return true;
 					else if (stubValidator.apply('ip4addr', url.hostname))
@@ -249,7 +249,7 @@ return view.extend({
 					return _('Expecting: %s').format(_('non-empty value'));
 
 				try {
-					let url = new URL(value);
+					let url = new URL(value.replace(/^.*:\/\//, 'http://'));
 					if (stubValidator.apply('hostname', url.hostname))
 						return true;
 					else if (stubValidator.apply('ip4addr', url.hostname))
@@ -649,7 +649,6 @@ return view.extend({
 		so = ss.taboption('field_source_ip', form.Flag, 'source_ip_is_private', _('Private source IP'),
 			_('Match private source IP.'));
 		so.default = so.disabled;
-		so.rmempty = false;
 		so.modalonly = true;
 
 		so = ss.taboption('field_host', form.DynamicList, 'ip_cidr', _('IP CIDR'),
@@ -660,7 +659,6 @@ return view.extend({
 		so = ss.taboption('field_host', form.Flag, 'ip_is_private', _('Private IP'),
 			_('Match private IP.'));
 		so.default = so.disabled;
-		so.rmempty = false;
 		so.modalonly = true;
 
 		so = ss.taboption('field_source_port', form.DynamicList, 'source_port', _('Source port'),
@@ -833,7 +831,7 @@ return view.extend({
 					return _('Expecting: %s').format(_('non-empty value'));
 
 				try {
-					let url = new URL(value);
+					let url = new URL(value.replace(/^.*:\/\//, 'http://'));
 					if (stubValidator.apply('hostname', url.hostname))
 						return true;
 					else if (stubValidator.apply('ip4addr', url.hostname))
