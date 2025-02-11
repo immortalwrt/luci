@@ -352,15 +352,17 @@ get_geoip() {
 	local geoip_type_flag=""
 	local geoip_path="$(config_t_get global_rules v2ray_location_asset)"
 	geoip_path="${geoip_path%*/}/geoip.dat"
-	[ -s "$geoip_path" ] || { echo ""; return; }
+	[ -s "$geoip_path" ] || { echo ""; return 1; }
 	case "$2" in
 		"ipv4") geoip_type_flag="-ipv6=false" ;;
 		"ipv6") geoip_type_flag="-ipv4=false" ;;
 	esac
 	if type geoview &> /dev/null; then
 		geoview -input "$geoip_path" -list "$geoip_code" $geoip_type_flag -lowmem=true
+		return 0
 	else
 		echo ""
+		return 1
 	fi
 }
 
@@ -1925,6 +1927,7 @@ acl_app() {
 								if [ -n "${type}" ] && ([ "${type}" = "sing-box" ] || [ "${type}" = "xray" ]); then
 									config_file="acl/${tcp_node}_TCP_${redir_port}.json"
 									_extra_param="socks_address=127.0.0.1 socks_port=$socks_port"
+									_extra_param="${_extra_param} tcp_proxy_way=$TCP_PROXY_WAY"
 									if [ "$dns_mode" = "sing-box" ] || [ "$dns_mode" = "xray" ]; then
 										dns_port=$(get_new_port $(expr $dns_port + 1))
 										_dns_port=$dns_port
