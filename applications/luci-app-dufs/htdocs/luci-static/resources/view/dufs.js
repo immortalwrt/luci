@@ -22,12 +22,13 @@ function getServiceStatus() {
 	});
 }
 
-function renderStatus(isRunning, port) {
+function renderStatus(isRunning, port, path) {
 	var spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
 	var renderHTML;
 	if (isRunning) {
-		var button = String.format('&#160;<a class="btn cbi-button" href="http://%s:%s" target="_blank" rel="noreferrer noopener">%s</a>',
-			window.location.hostname, port, _('Open Web Interface'));
+		var dufsURL = '//' + window.location.hostname + ':' + port + '/' + path.replace(/^\//, '');
+		var button = String.format('&#160;<a class="btn cbi-button" href="%s" target="_blank" rel="noreferrer noopener">%s</a>',
+			dufsURL, _('Open Web Interface'));
 		renderHTML = spanTemp.format('green', _('Dufs'), _('RUNNING')) + button;
 	} else {
 		renderHTML = spanTemp.format('red', _('Dufs'), _('NOT RUNNING'));
@@ -46,6 +47,7 @@ return view.extend({
 	render: function(data) {
 		var m, s, o;
 		var webport = uci.get(data[0], 'config', 'port') || '5244';
+		var webpath = uci.get(data[0], 'config', 'path_prefix') || '/';
 
 		m = new form.Map('dufs', _('Dufs'),
 			_('Dufs is a distinctive utility file server that supports static serving, uploading, searching, accessing control, webdav...'));
@@ -56,12 +58,12 @@ return view.extend({
 			poll.add(function () {
 				return L.resolveDefault(getServiceStatus()).then(function (res) {
 					var view = document.getElementById('service_status');
-					view.innerHTML = renderStatus(res, webport);
+					view.innerHTML = renderStatus(res, webport, webpath);
 				});
 			});
 
 			return E('div', { class: 'cbi-section', id: 'status_bar' }, [
-					E('p', { id: 'service_status' }, _('Collecting data…'))
+				E('p', { id: 'service_status' }, _('Collecting data…'))
 			]);
 		}
 
@@ -77,6 +79,10 @@ return view.extend({
 		o = s.option(form.Value, 'port', _('Listen port'));
 		o.datatype = 'port';
 		o.placeholder = '5000';
+
+		o = s.option(form.Value, 'path_prefix', _('Path Prefix'),
+			_('Specify a (URL) path prefix'));
+		o.placeholder = 'dufs';
 
 		o = s.option(form.Flag, 'enable_cors', _('Enable CORS'));
 
