@@ -409,7 +409,7 @@ run_ipt2socks() {
 		flag="${flag}_TCP_UDP"
 	;;
 	esac
-	_extra_param="${_extra_param} -v"
+	_extra_param="${_extra_param} -n 65535 -v"
 	ln_run "$(first_type ipt2socks)" "ipt2socks_${flag}" $log_file -l $local_port -b 0.0.0.0 -s $socks_address -p $socks_port ${_extra_param}
 }
 
@@ -621,7 +621,7 @@ run_socks() {
 
 	if [ "$type" == "sing-box" ] || [ "$type" == "xray" ]; then
 		local protocol=$(config_n_get $node protocol)
-		if [ "$protocol" == "_balancing" ] || [ "$protocol" == "_shunt" ] || [ "$protocol" == "_iface" ]; then
+		if [ "$protocol" == "_balancing" ] || [ "$protocol" == "_shunt" ] || [ "$protocol" == "_iface" ] || [ "$protocol" == "_urltest" ]; then
 			unset error_msg
 		fi
 	fi
