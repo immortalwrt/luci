@@ -1,6 +1,6 @@
 /*************************************************************************
  *
- * Copyright (C) 2018-2024 Ruilin Peng (Nick) <pymumu@gmail.com>.
+ * Copyright (C) 2018-2025 Ruilin Peng (Nick) <pymumu@gmail.com>.
  *
  * smartdns is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 'require ui';
 
 var conf = 'smartdns';
-const callServiceList = rpc.declare({
+var callServiceList = rpc.declare({
 	object: 'service',
 	method: 'list',
 	params: ['name'],
@@ -92,7 +92,7 @@ return view.extend({
 		]);
 	},
 	render: function (stats) {
-		let m, s, o;
+		var m, s, o;
 		var ss, so;
 		var servers, download_files;
 
@@ -745,7 +745,7 @@ return view.extend({
 
 		o = s.taboption("custom", form.ListValue, "log_level", _("Log Level"));
 		o.rmempty = true;
-		o.placeholder = "default";
+		o.default = "";
 		o.value("", _("default"));
 		o.value("debug");
 		o.value("info");
@@ -757,7 +757,7 @@ return view.extend({
 
 		o = s.taboption("custom", form.ListValue, "log_output_mode", _("Log Output Mode"));
 		o.rmempty = true;
-		o.placeholder = _("file");
+		o.default = "file";
 		o.value("file", _("file"));
 		o.value("syslog", _("syslog"));
 
@@ -776,6 +776,21 @@ return view.extend({
 		o.placeholder = "/var/log/smartdns/smartdns.log"
 		o.depends("log_output_mode", "file");
 
+		o = s.taboption("custom", form.DummyValue, "view_log", _("View Log"));
+		o.renderWidget = function () {
+			return E('button', {
+				'class': 'btn cbi-button',
+				'id': 'btn_view_log',
+				'click': ui.createHandlerFn(this, function () {
+					window.location.href = "/cgi-bin/luci/admin/services/smartdns/log";
+				})
+			}, [_("View Log")]);
+		}
+		var log_levels = ["debug", "info", "notice", "warn", "error", "fatal"];
+		log_levels.forEach(function(level) {
+			o.depends({ log_output_mode: "file", log_level: level });
+		});
+
 		o = s.taboption("custom", form.Flag, "enable_audit_log", _("Enable Audit Log"));
 		o.rmempty = true;
 		o.default = o.disabled;
@@ -783,7 +798,7 @@ return view.extend({
 
 		o = s.taboption("custom", form.ListValue, "audit_log_output_mode", _("Audit Log Output Mode"));
 		o.rmempty = true;
-		o.placeholder = _("file");
+		o.default = "file";
 		o.value("file", _("file"));
 		o.value("syslog", _("syslog"));
 		o.depends("enable_audit_log", "1");
