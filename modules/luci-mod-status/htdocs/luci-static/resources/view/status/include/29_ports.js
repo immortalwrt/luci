@@ -212,7 +212,7 @@ function buildInterfaceMapping(zones, networks) {
 function formatSpeed(carrier, speed, duplex) {
 	if (speed && duplex) {
 		var d = (duplex == 'half') ? '\u202f(H)' : '',
-		    e = E('span', { 'title': _('Speed: %d Mbit/s, Duplex: %s').format(speed, duplex) });
+		    e = E('span', { 'title': _('Speed: %d Mibit/s, Duplex: %s').format(speed, duplex) });
 
 		switch (speed) {
 		case 10:    e.innerText = '10\u202fM' + d;  break;
