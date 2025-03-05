@@ -26,15 +26,15 @@ local comment_pattern = "^[#!\\[@]+"
 local ip_pattern = "^%d+%.%d+%.%d+%.%d+"
 local ip4_ipset_pattern = "^%d+%.%d+%.%d+%.%d+[%/][%d]+$"
 local ip6_ipset_pattern = ":-[%x]+%:+[%x]-[%/][%d]+$"
-local domain_pattern = "([%w%-%_]+%.[%w%.%-%_]+)[%/%*]*"
+local domain_pattern = "([%w%-]+%.[%w%.%-]+)[%/%*]*"
 local excluded_domain = {"apple.com","sina.cn","sina.com.cn","baidu.com","byr.cn","jlike.com","weibo.com","zhongsou.com","youdao.com","sogou.com","so.com","soso.com","aliyun.com","taobao.com","jd.com","qq.com","bing.com"}
 
 local gfwlist_url = uci:get(name, "@global_rules[0]", "gfwlist_url") or {"https://fastly.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/gfw.txt"}
 local chnroute_url = uci:get(name, "@global_rules[0]", "chnroute_url") or {"https://ispip.clang.cn/all_cn.txt"}
 local chnroute6_url =  uci:get(name, "@global_rules[0]", "chnroute6_url") or {"https://ispip.clang.cn/all_cn_ipv6.txt"}
 local chnlist_url = uci:get(name, "@global_rules[0]", "chnlist_url") or {"https://fastly.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/accelerated-domains.china.conf","https://fastly.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/apple.china.conf","https://fastly.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/google.china.conf"}
-local geoip_api =  "https://api.github.com/repos/Loyalsoldier/v2ray-rules-dat/releases/latest"
-local geosite_api =  "https://api.github.com/repos/Loyalsoldier/v2ray-rules-dat/releases/latest"
+local geoip_api =  uci:get(name, "@global_rules[0]", "geoip_url") or "https://api.github.com/repos/Loyalsoldier/v2ray-rules-dat/releases/latest"
+local geosite_api =  uci:get(name, "@global_rules[0]", "geosite_url") or "https://api.github.com/repos/Loyalsoldier/v2ray-rules-dat/releases/latest"
 local asset_location = uci:get(name, "@global_rules[0]", "v2ray_location_asset") or "/usr/share/v2ray/"
 local use_nft = uci:get(name, "@global_forwarding[0]", "use_nft") or "0"
 
@@ -172,9 +172,10 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 
 			if rule_type == "domain" and exclude_domain == true then
 				for line in io.lines(download_file_tmp..k) do
-					if not (string.find(line, comment_pattern) or string.find(line, ip_pattern) or check_excluded_domain(line)) then
-						local start, finish, match = string.find(line, domain_pattern)
-						if (start) then
+					line = line:gsub("full:", "")
+					if not (string.find(line, comment_pattern) or string.find(line, ip_pattern) or check_excluded_domain(line) or string.find(line, ":")) then
+						local match = string.match(line, domain_pattern)
+						if match then
 							domains[match] = true
 						end
 					end
@@ -182,9 +183,10 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 
 			elseif rule_type == "domain" then
 				for line in io.lines(download_file_tmp..k) do
-					if not (string.find(line, comment_pattern) or string.find(line, ip_pattern)) then
-						local start, finish, match = string.find(line, domain_pattern)
-						if (start) then
+					line = line:gsub("full:", "")
+					if not (string.find(line, comment_pattern) or string.find(line, ip_pattern) or string.find(line, ":")) then
+						local match = string.match(line, domain_pattern)
+						if match then
 							domains[match] = true
 						end
 					end
@@ -193,8 +195,7 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 			elseif rule_type == "ip4" then
 				local out = io.open(unsort_file_tmp, "a")
 				for line in io.lines(download_file_tmp..k) do
-					local start, finish, match = string.find(line, ip4_ipset_pattern)
-					if (start) then
+					if string.match(line, ip4_ipset_pattern) then
 						out:write(string.format("%s\n", line))
 					end
 				end
@@ -203,8 +204,7 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 			elseif rule_type == "ip6" then
 				local out = io.open(unsort_file_tmp, "a")
 				for line in io.lines(download_file_tmp..k) do
-					local start, finish, match = string.find(line, ip6_ipset_pattern)
-					if (start) then
+					if string.match(line, ip6_ipset_pattern) then
 						out:write(string.format("%s\n", line))
 					end
 				end
@@ -230,8 +230,8 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 		sys.call("cat " ..unsort_file_tmp.. " | sort -u > "..file_tmp)
 		os.remove(unsort_file_tmp)
 
-		local old_md5 = sys.exec("echo -n $(md5sum " .. rule_path .. "/" ..rule_name.. " | awk '{print $1}')")
-		local new_md5 = sys.exec("echo -n $([ -f '" ..file_tmp.. "' ] && md5sum " ..file_tmp.." | awk '{print $1}')")
+		local old_md5 = sys.exec("echo -n $(md5sum " .. rule_path .. "/" ..rule_name.. " | awk '{print $1}')"):gsub("\n", "")
+		local new_md5 = sys.exec("echo -n $([ -f '" ..file_tmp.. "' ] && md5sum " ..file_tmp.." | awk '{print $1}')"):gsub("\n", "")
 		if old_md5 ~= new_md5 then
 			local count = line_count(file_tmp)
 			if use_nft == "1" and (rule_type == "ip6" or rule_type == "ip4") then
