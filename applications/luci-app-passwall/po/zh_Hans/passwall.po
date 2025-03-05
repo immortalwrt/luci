@@ -937,8 +937,14 @@ msgstr "小时"
 msgid "Hour"
 msgstr "小时"
 
-msgid "Location of V2ray/Xray asset"
-msgstr "V2ray/Xray 资源文件目录"
+msgid "GeoIP Update URL"
+msgstr "GeoIP 更新URL"
+
+msgid "Geosite Update URL"
+msgstr "Geosite 更新URL"
+
+msgid "Location of Geo rule files"
+msgstr "Geo 规则文件目录"
 
 msgid "This variable specifies a directory where geoip.dat and geosite.dat files are."
 msgstr "此变量指定 geoip.dat 和 geosite.dat 文件所在的目录。"
@@ -1579,9 +1585,6 @@ msgstr "最大并发连接数"
 msgid "XUDP Mux concurrency"
 msgstr "XUDP 最大并发连接数"
 
-msgid "Mux idle timeout"
-msgstr "最大闲置时间"
-
 msgid "Padding"
 msgstr "填充"
 
@@ -1599,9 +1602,6 @@ msgstr "推荐值：Sec-WebSocket-Protocol"
 
 msgid "Health check"
 msgstr "健康检查"
-
-msgid "Idle timeout"
-msgstr "闲置时间"
 
 msgid "Health check timeout"
 msgstr "检查超时时间"
@@ -1638,24 +1638,6 @@ msgstr "端口跳跃额外端口"
 
 msgid "HeartbeatPeriod(second)"
 msgstr "心跳周期（单位：秒）"
-
-msgid "Custom geoip Path"
-msgstr "自定义 geoip 文件路径"
-
-msgid "Custom geoip URL"
-msgstr "自定义 geoip 文件更新链接"
-
-msgid "Custom geosite Path"
-msgstr "自定义 geosite 文件路径"
-
-msgid "Custom geosite URL"
-msgstr "自定义 geosite 文件更新链接"
-
-msgid "Remove resource files"
-msgstr "删除资源文件"
-
-msgid "Sing-Box will automatically download resource files when starting, you can use this feature achieve upgrade resource files."
-msgstr "Sing-Box 会在启动时自动下载资源文件，您可以使用此功能实现升级资源文件。"
 
 msgid "Override the connection destination address"
 msgstr "覆盖连接目标地址"
@@ -1803,3 +1785,39 @@ msgstr "是否真的要恢复客户端默认配置？"
 
 msgid "Settings have been successfully saved and applied!"
 msgstr "设置已成功保存并应用!"
+
+msgid "_urltest"
+msgstr "URLTest"
+
+msgid "URLTest node list"
+msgstr "URLTest 节点列表"
+
+msgid "List of nodes to test, <a target='_blank' href='https://sing-box.sagernet.org/configuration/outbound/urltest'>document</a>"
+msgstr "要测试的节点列表，<a target='_blank' href='https://sing-box.sagernet.org/zh/configuration/outbound/urltest'>文档原理</a>"
+
+msgid "Test interval"
+msgstr "测试间隔"
+
+msgid "The test interval in seconds."
+msgstr "测试间隔时间（单位：秒）。"
+
+msgid "Test interval must be less or equal than idle timeout."
+msgstr "测试间隔时间必须小于或等于空闲超时时间。"
+
+msgid "Test tolerance"
+msgstr "测试容差"
+
+msgid "The test tolerance in milliseconds."
+msgstr "测试容差时间（单位：毫秒）。"
+
+msgid "Idle timeout"
+msgstr "空闲超时"
+
+msgid "The idle timeout in seconds."
+msgstr "空闲超时时间（单位：秒）。"
+
+msgid "Interrupt existing connections"
+msgstr "中断现有连接"
+
+msgid "Interrupt existing connections when the selected outbound has changed."
+msgstr "当选择的出站发生变化时中断现有连接。"
