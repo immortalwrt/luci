@@ -3848,11 +3848,6 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 	 * to the `dom.content()` function - refer to its documentation for
 	 * applicable values.
 	 *	 
-	 * @param {int} [timeout]
-	 * A millisecond value after which the notification will disappear
-	 * automatically. If omitted, the notification will remain until it receives
-	 * the click event.
-	 *
 	 * @param {...string} [classes]
 	 * A number of extra CSS class names which are set on the notification
 	 * banner element.
@@ -3860,7 +3855,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 	 * @returns {Node}
 	 * Returns a DOM Node representing the notification banner element.
 	 */
-	addNotification(title, children, timeout, ...classes) {
+	addNotification(title, children, ...classes) {
 		const mc = document.querySelector('#maincontent') ?? document.body;
 		const msg = E('div', {
 			'class': 'alert-message fade-in',
@@ -3877,7 +3872,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 					'class': 'btn',
 					'style': 'margin-left:auto; margin-top:auto',
 					'click': function(ev) {
-						fadeOutNotification(ev.target);
+						dom.parent(ev.target, '.alert-message').classList.add('fade-out');
 					},
 
 				}, [ _('Dismiss') ])
@@ -3892,27 +3887,6 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 		msg.classList.add(...classes);
 
 		mc.insertBefore(msg, mc.firstElementChild);
-
-		function fadeOutNotification(element) {
-			const notification = dom.parent(element, '.alert-message');
-			if (notification) {
-				notification.classList.add('fade-out');
-				notification.classList.remove('fade-in');
-				setTimeout(() => {
-					if (notification.parentNode) {
-						notification.parentNode.removeChild(notification);
-					}
-				});
-			}
-		}
-
-		if (typeof timeout === 'number' && timeout > 0) {
-			setTimeout(() => {
-				if (msg && msg.parentNode) {
-					fadeOutNotification(msg);
-				}
-			}, timeout);
-		}
 
 		return msg;
 	},
@@ -4639,7 +4613,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 					E('div', { 'class': 'uci-change-legend-label' }, [
 						E('var', {}, E('del', '&#160;')), ' ', _('Option removed') ])]),
 				E('br'), list,
-				E('div', { 'class': 'right' }, [ //button-row?
+				E('div', { 'class': 'button-row' }, [
 					E('button', {
 						'class': 'btn cbi-button',
 						'click': UI.prototype.hideModal
@@ -4755,7 +4729,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 						UI.prototype.changes.displayStatus('warning', [
 							E('h4', _('Configuration changes have been rolled back!')),
 							E('p', _('The device could not be reached within %d seconds after applying the pending changes, which caused the configuration to be rolled back for safety reasons. If you believe that the configuration changes are correct nonetheless, perform an unchecked configuration apply. Alternatively, you can dismiss this warning and edit changes before attempting to apply again, or revert all pending changes to keep the currently working configuration state.').format(L.env.apply_rollback)),
-							E('div', { 'class': 'right' }, [
+							E('div', { 'class': 'button-row' }, [
 								E('button', {
 									'class': 'btn',
 									'click': L.bind(UI.prototype.changes.displayStatus, UI.prototype.changes, false)
@@ -4899,7 +4873,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 							E('button', {
 								'class': 'btn cbi-button-action important',
 								'click': resolveFn.bind(null, true)
-							}, [ _('Apply, reverting in case of connectivity loss') ]), ' ',
+							}, [ _('Apply checked') ]), ' ',
 							E('button', {
 								'class': 'btn cbi-button-negative important',
 								'click': resolveFn.bind(null, false)
