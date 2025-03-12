@@ -24,7 +24,7 @@ uci:revert(appname)
 local has_ss = api.is_finded("ss-redir")
 local has_ss_rust = api.is_finded("sslocal")
 local has_trojan_plus = api.is_finded("trojan-plus")
-local has_singbox = api.finded_com("singbox")
+local has_singbox = api.finded_com("sing-box")
 local has_xray = api.finded_com("xray")
 local has_hysteria2 = api.finded_com("hysteria")
 local allowInsecure_default = nil
@@ -187,7 +187,9 @@ do
 		local i = 0
 		local option = "lbss"
 		local function is_ip_port(str)
-			return str:match("^%d+%.%d+%.%d+%.%d+:%d+$") ~= nil
+			if type(str) ~= "string" then return false end
+			local ip, port = str:match("^([%d%.]+):(%d+)$")
+			return ip and datatypes.ipaddr(ip) and tonumber(port) and tonumber(port) <= 65535
 		end
 		uci:foreach(appname, "haproxy_config", function(t)
 			i = i + 1
@@ -1303,19 +1305,21 @@ local function processData(szType, content, add_mode, add_from)
 end
 
 local function curl(url, file, ua, mode)
-	local curl_args = api.clone(api.curl_args)
+	local curl_args = {
+		"-skL", "-w %{http_code}", "--retry 3", "--connect-timeout 3"
+	}
 	if ua and ua ~= "" and ua ~= "curl" then
-		table.insert(curl_args, '--user-agent "' .. ua .. '"')
+		curl_args[#curl_args + 1] = '--user-agent "' .. ua .. '"'
 	end
-	local return_code
+	local return_code, result
 	if mode == "direct" then
-		return_code = api.curl_direct(url, file, curl_args)
+		return_code, result = api.curl_direct(url, file, curl_args)
 	elseif mode == "proxy" then
-		return_code = api.curl_proxy(url, file, curl_args)
+		return_code, result = api.curl_proxy(url, file, curl_args)
 	else
-		return_code = api.curl_auto(url, file, curl_args)
+		return_code, result = api.curl_auto(url, file, curl_args)
 	end
-	return return_code
+	return tonumber(result)
 end
 
 local function truncate_nodes(add_from)
@@ -1639,7 +1643,7 @@ local function parse_link(raw, add_mode, add_from, cfgid)
 		log('成功解析【' .. add_from .. '】节点数量: ' .. #node_list)
 	else
 		if add_mode == "2" then
-			log('获取到的【' .. add_from .. '】订阅内容为空，可能是订阅地址失效，或是网络问题，请请检测。')
+			log('获取到的【' .. add_from .. '】订阅内容为空，可能是订阅地址无效，或是网络问题，请诊断！')
 		end
 	end
 end
@@ -1714,23 +1718,27 @@ local execute = function()
 			local result = (not access_mode) and "自动" or (access_mode == "direct" and "直连访问" or (access_mode == "proxy" and "通过代理" or "自动"))
 			log('正在订阅:【' .. remark .. '】' .. url .. ' [' .. result .. ']')
 			local tmp_file = "/tmp/" .. cfgid
-			local raw = curl(url, tmp_file, ua, access_mode)
-			if raw == 0 then
-				local f = io.open(tmp_file, "r")
-				local stdout = f:read("*all")
-				f:close()
-				raw = trim(stdout)
-				local old_md5 = value.md5 or ""
-				local new_md5 = luci.sys.exec("[ -f " .. tmp_file .. " ] && md5sum " .. tmp_file .. " | awk '{print $1}' || echo 0"):gsub("\n", "")
-				os.remove(tmp_file)
-				if old_md5 == new_md5 then
-					log('订阅:【' .. remark .. '】没有变化，无需更新。')
-				else
-					parse_link(raw, "2", remark, cfgid)
-					uci:set(appname, cfgid, "md5", new_md5)
-				end
-			else
+			value.http_code = curl(url, tmp_file, ua, access_mode)
+			if value.http_code ~= 200 then
 				fail_list[#fail_list + 1] = value
+			else
+				if luci.sys.call("[ -f " .. tmp_file .. " ] && sed -i -e '/^[ \t]*$/d' -e '/^[ \t]*\r$/d' " .. tmp_file) == 0 then
+					local f = io.open(tmp_file, "r")
+					local stdout = f:read("*all")
+					f:close()
+					local raw_data = trim(stdout)
+					local old_md5 = value.md5 or ""
+					local new_md5 = luci.sys.exec("md5sum " .. tmp_file .. " 2>/dev/null | awk '{print $1}'"):gsub("\n", "")
+					os.remove(tmp_file)
+					if old_md5 == new_md5 then
+						log('订阅:【' .. remark .. '】没有变化，无需更新。')
+					else
+						parse_link(raw_data, "2", remark, cfgid)
+						uci:set(appname, cfgid, "md5", new_md5)
+					end
+				else
+					fail_list[#fail_list + 1] = value
+				end
 			end
 			allowInsecure_default = nil
 			filter_keyword_mode_default = uci:get(appname, "@global_subscribe[0]", "filter_keyword_mode") or "0"
@@ -1745,7 +1753,7 @@ local execute = function()
 
 		if #fail_list > 0 then
 			for index, value in ipairs(fail_list) do
-				log(string.format('【%s】订阅失败，可能是订阅地址失效，或是网络问题，请诊断！', value.remark))
+				log(string.format('【%s】订阅失败，可能是订阅地址无效，或是网络问题，请诊断！[%s]', value.remark, tostring(value.http_code)))
 			end
 		end
 		update_node(0)
