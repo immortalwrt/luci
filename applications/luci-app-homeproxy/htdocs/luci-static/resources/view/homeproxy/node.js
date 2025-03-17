@@ -271,6 +271,10 @@ function parseShareLink(uri, features) {
 					config.http_path = params.get('path') ? decodeURIComponent(params.get('path')) : null;
 				}
 				break;
+			case 'httpupgrade':
+				config.httpupgrade_host = params.get('host') ? decodeURIComponent(params.get('host')) : null;
+				config.http_path = params.get('path') ? decodeURIComponent(params.get('path')) : null;
+				break;
 			case 'ws':
 				config.ws_host = params.get('host') ? decodeURIComponent(params.get('host')) : null;
 				config.ws_path = params.get('path') ? decodeURIComponent(params.get('path')) : null;
@@ -288,7 +292,7 @@ function parseShareLink(uri, features) {
 			if (uri.includes('&'))
 				return null;
 
-			/* https://github.com/2dust/v2rayN/wiki/%E5%88%86%E4%BA%AB%E9%93%BE%E6%8E%A5%E6%A0%BC%E5%BC%8F%E8%AF%B4%E6%98%8E(ver-2) */
+			/* https://github.com/2dust/v2rayN/wiki/Description-of-VMess-share-link */
 			uri = JSON.parse(hp.decodeBase64Str(uri[1]));
 
 			if (uri.v != '2')
@@ -314,7 +318,8 @@ function parseShareLink(uri, features) {
 				transport: (uri.net !== 'tcp') ? uri.net : null,
 				tls: uri.tls === 'tls' ? '1' : '0',
 				tls_sni: uri.sni || uri.host,
-				tls_alpn: uri.alpn ? uri.alpn.split(',') : null
+				tls_alpn: uri.alpn ? uri.alpn.split(',') : null,
+				tls_utls: features.with_utls ? uri.fp : null
 			};
 			switch (uri.net) {
 			case 'grpc':
@@ -327,6 +332,10 @@ function parseShareLink(uri, features) {
 					config.http_host = uri.host ? uri.host.split(',') : null;
 					config.http_path = uri.path;
 				}
+				break;
+			case 'httpupgrade':
+				config.httpupgrade_host = uri.host;
+				config.http_path = uri.path;
 				break;
 			case 'ws':
 				config.ws_host = uri.host;
@@ -439,12 +448,12 @@ function renderNodeSettings(section, data, features, main_node, routing_mode) {
 	o.depends({'type': 'socks', 'socks_version': '5'});
 	o.validate = function(section_id, value) {
 		if (section_id) {
-			let type = this.map.lookupOption('type', section_id)[0].formvalue(section_id);
+			let type = this.section.formvalue(section_id, 'type');
 			let required_type = [ 'shadowsocks', 'shadowtls', 'trojan' ];
 
 			if (required_type.includes(type)) {
 				if (type === 'shadowsocks') {
-					let encmode = this.map.lookupOption('shadowsocks_encrypt_method', section_id)[0].formvalue(section_id);
+					let encmode = this.section.formvalue(section_id, 'shadowsocks_encrypt_method');
 					if (encmode === 'none')
 						return true;
 				}
@@ -458,16 +467,6 @@ function renderNodeSettings(section, data, features, main_node, routing_mode) {
 	o.modalonly = true;
 
 	/* Direct config */
-	o = s.option(form.Value, 'override_address', _('Override address'),
-		_('Override the connection destination address.'));
-	o.datatype = 'host';
-	o.depends('type', 'direct');
-
-	o = s.option(form.Value, 'override_port', _('Override port'),
-		_('Override the connection destination port.'));
-	o.datatype = 'port';
-	o.depends('type', 'direct');
-
 	o = s.option(form.ListValue, 'proxy_protocol', _('Proxy protocol'),
 		_('Write proxy protocol in the connection header.'));
 	o.value('', _('Disable'));
@@ -477,6 +476,20 @@ function renderNodeSettings(section, data, features, main_node, routing_mode) {
 	o.modalonly = true;
 
 	/* Hysteria (2) config start */
+	o = s.option(form.DynamicList, 'hysteria_hopping_port', _('Hopping port'));
+	o.depends('type', 'hysteria');
+	o.depends('type', 'hysteria2');
+	o.validate = hp.validatePortRange;
+	o.modalonly = true;
+
+	o = s.option(form.Value, 'hysteria_hop_interval', _('Hop interval'),
+		_('Port hopping interval in seconds.'));
+	o.datatype = 'uinteger';
+	o.placeholder = '30';
+	o.depends({'type': 'hysteria', 'hysteria_hopping_port': /[\s\S]/});
+	o.depends({'type': 'hysteria2', 'hysteria_hopping_port': /[\s\S]/});
+	o.modalonly = true;
+
 	o = s.option(form.ListValue, 'hysteria_protocol', _('Protocol'));
 	o.value('udp');
 	/* WeChat-Video / FakeTCP are unsupported by sing-box currently
@@ -832,12 +845,6 @@ function renderNodeSettings(section, data, features, main_node, routing_mode) {
 	/* Transport config end */
 
 	/* Wireguard config start */
-	o = s.option(form.Flag, 'wireguard_gso', _('Generic segmentation offload'));
-	o.default = o.disabled;
-	o.depends('type', 'wireguard');
-	o.rmempty = false;
-	o.modalonly = true;
-
 	o = s.option(form.DynamicList, 'wireguard_local_address', _('Local address'),
 		_('List of IP (v4 or v6) addresses prefixes to be assigned to the interface.'));
 	o.datatype = 'cidr';
@@ -875,6 +882,12 @@ function renderNodeSettings(section, data, features, main_node, routing_mode) {
 	o = s.option(form.Value, 'wireguard_mtu', _('MTU'));
 	o.datatype = 'range(0,9000)';
 	o.placeholder = '1408';
+	o.depends('type', 'wireguard');
+	o.modalonly = true;
+
+	o = s.option(form.Value, 'wireguard_persistent_keepalive_interval', _('Persistent keepalive interval'),
+		_('In seconds. Disabled by default.'));
+	o.datatype = 'uinteger';
 	o.depends('type', 'wireguard');
 	o.modalonly = true;
 	/* Wireguard config end */
@@ -1021,7 +1034,7 @@ function renderNodeSettings(section, data, features, main_node, routing_mode) {
 		_('The path to the server certificate, in PEM format.'));
 	o.value('/etc/homeproxy/certs/client_ca.pem');
 	o.depends('tls_self_sign', '1');
-	o.validate = L.bind(hp.validateCertificatePath, this);
+	o.validate = hp.validateCertificatePath;
 	o.rmempty = false;
 	o.modalonly = true;
 
@@ -1037,11 +1050,6 @@ function renderNodeSettings(section, data, features, main_node, routing_mode) {
 		o = s.option(form.Flag, 'tls_ech', _('Enable ECH'),
 			_('ECH (Encrypted Client Hello) is a TLS extension that allows a client to encrypt the first part of its ClientHello message.'));
 		o.depends('tls', '1');
-		o.default = o.disabled;
-		o.modalonly = true;
-
-		o = s.option(form.Flag, 'tls_ech_tls_disable_drs', _('Disable dynamic record sizing'));
-		o.depends('tls_ech', '1');
 		o.default = o.disabled;
 		o.modalonly = true;
 
