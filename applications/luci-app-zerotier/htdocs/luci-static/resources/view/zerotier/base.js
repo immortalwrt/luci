@@ -146,7 +146,7 @@ return view.extend({
 		};
 
 		s = m.section(
-			form.GridSection,
+			form.TableSection,
 			'network',
 			_('Networks'),
 			_(
