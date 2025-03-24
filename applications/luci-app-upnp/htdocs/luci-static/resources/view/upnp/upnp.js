@@ -178,6 +178,9 @@ return view.extend({
 		o.datatype    = 'port'
 		o.placeholder = '0-65535'
 
+		s.taboption('advanced', form.Flag, 'force_forwarding', _('Force forwarding'),
+			_('Force forwarding ports even the network is behind NAT'));
+
 		s = m.section(form.GridSection, 'perm_rule', _('MiniUPnP ACLs'),
 			_('ACLs specify which external ports may be redirected to which internal addresses and ports'))
 
