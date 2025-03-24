@@ -171,6 +171,9 @@ return view.extend({
 		o.datatype = 'port';
 		o.placeholder = '3478';
 
+		s.taboption('advanced', form.Flag, 'force_forwarding', _('Force forwarding'),
+			_('Force forwarding ports even the network is behind NAT'));
+
 		o = s.taboption('advanced', form.Flag, 'secure_mode', _('Enable secure mode'),
 			_('Allow adding port maps for requesting IP addresses only'));
 		o.default = '1';
