@@ -258,6 +258,8 @@ main() {
 
 	# 设置信号处理
 	trap cleanup SIGINT SIGTERM EXIT
+	MAIN_PID=$$
+	PROCESS_TAG="{wechatpush}_${MAIN_PID}"
 
 	# 初始化
 	if [ "$1" ]; then
@@ -531,9 +533,27 @@ LockFile() {
 
 # 检测退出信号
 cleanup() {
+	local pids=$(ps | grep -E "\{wechatpush\}_${MAIN_PID}|\{wechatpush-call\}" | grep -v grep | awk '{print $1}')
+	[ -n "$pids" ] && echo "$pids" | xargs kill 2>/dev/null
 	LockFile unlock
-	exit 0
+	$EXIT_FLAG && exit 0
 }
+
+# 子进程调用
+run_with_tag() {
+	[ -z "$1" ] && return
+	local command_name=$1  # 第一个参数是命令名称
+	shift # 移除第一个参数，剩下的参数传递给命令
+	local command_path=$(readlink -f "$(which "$command_name")") # 检查命令路径
+	
+	# 如果是 BusyBox 的 applet，调用 wechatpush-call
+	if [[ "$command_path" == *"busybox"* ]]; then
+		/usr/libexec/wechatpush-call child "$command_name" "$@"
+	else
+		bash -c 'exec -a "$0" "$@"' "${PROCESS_TAG} ${command_name}" "$command_name" "$@"
+	fi
+}
+
 
 # 清理临时文件
 deltemp() {
@@ -595,7 +615,7 @@ getinterface() {
 	[ "$mac" == "unknown" ] && return
 
 	# 从已保存的地址中获取接口
-	interface=$(jq -r --arg ip "$ip" --arg mac "$mac" '.devices[] | select(.ip == $ip and .mac == $mac) | .interface' "$devices_json")
+	interface=$(jq -r --arg ip "$ip" --arg mac "$mac" '.devices[] | select(.ip == $ip and (.mac | ascii_downcase) == ($mac | ascii_downcase)) | .interface' "$devices_json")
 	process_and_check "$interface" && return
 
 	# 如果定义了 WLAN 接口列表，则查询每个接口
@@ -620,7 +640,7 @@ getmac() {
 	# 已保存的 MAC
 	mac=$(jq -r --arg ip "$ip" '.devices[] | select(.ip == $ip) | .mac' "$devices_json")
 	# 某些路由器中继模式，会导致 MAC 重复，如果是重复值，尝试重新获取
-	local mac_count=$(jq -r --arg mac "$mac" '.devices[] | select(.mac == $mac) | .mac' "$devices_json" | wc -l)
+	local mac_count=$(jq -r --arg mac "$mac" '.devices[] | select((.mac | ascii_downcase) == ($mac | ascii_downcase)) | .mac' "$devices_json" | wc -l)
 	[ "$mac_count" -eq 1 ] && process_and_check "$mac" && return
 
 	# DHCP
@@ -682,7 +702,7 @@ getname() {
 	}
 
 	# 已保存的主机名
-	tmp_name=$(jq -r --arg ip "$ip" --arg mac "$mac" '.devices[] | select(.ip == $ip and .mac == $mac) | .name' "$devices_json")
+	tmp_name=$(jq -r --arg ip "$ip" --arg mac "$mac" '.devices[] | select(.ip == $ip and (.mac | ascii_downcase) == ($mac | ascii_downcase)) | .name' "$devices_json")
 	[ -n "$oui_name" ] && [ -n "$tmp_name" ] && [ "$oui_name" == "$tmp_name" ] && tmp_name=""
 	process_and_check "$tmp_name" "$name_width" && return
 
@@ -760,9 +780,9 @@ nmblookup_timeout() {
 
 	{
 		if [ "$query_type" == "name" ]; then
-			result=$(nmblookup -A ${ip} 2>/dev/null | awk '/<00>/ && !/<GROUP>/ {print $1}')
+			result=$(run_with_tag nmblookup -A ${ip} 2>/dev/null | awk '/<00>/ && !/<GROUP>/ {print $1}')
 		elif [ "$query_type" == "mac" ]; then
-			result=$(nmblookup -A ${ip} 2>/dev/null | grep -oE 'MAC\s+Address\s+=\s+([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})' | awk '{print $NF}')
+			result=$(run_with_tag nmblookup -A ${ip} 2>/dev/null | grep -oE 'MAC\s+Address\s+=\s+([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})' | awk '{print $NF}')
 		fi
 		echo "$result"
 	} &
@@ -822,9 +842,17 @@ getping() {
 	interface=$(cat /proc/net/arp | grep -w "$ip" | awk '{print $6}' | grep -v "^$" | sort -u | head -n1)
 	for i in $(seq 1 "$retry_count"); do
 		# arping 应使用 br-lan 等接口，有 WiFi 的设备接口为 wlan*，重新获取
-		[ -n "$interface" ] && ip_ms=$(arping -I ${interface} -c 20 -f -w "$timeout" "$ip") 2>/dev/null
-		(! echo "$ip_ms" | grep -q "ms") && ip_ms=$(ping -c 5 -w "$timeout" "$ip" | grep -v '100% packet loss') 2>/dev/null
-		(! echo "$ip_ms" | grep -q "ms") && sleep 1
+		[ -n "$interface" ] && local arp_entry_count=$(cat /proc/net/arp | grep '0x[26]' | grep -i -w "$mac" | wc -l 2>/dev/null)
+
+		# 避免无效的 arp 条目
+		if [ -n "$arp_entry_count" ] && [ "$arp_entry_count" -le 1 ]; then
+			ip_ms=$(run_with_tag arping -I "$interface" -c 20 -f -w "$timeout" "$ip" 2>/dev/null)
+			echo "$ip_ms" | grep -q "ms" && break || ip_ms=$(run_with_tag ping -c 5 -w "$timeout" "$ip" 2>/dev/null | grep -v '100% packet loss')
+		else
+			ip_ms=$(run_with_tag ping -c 5 -w "$timeout" "$ip" 2>/dev/null | grep -v '100% packet loss')
+			echo "$ip_ms" | grep -q "ms" && break || ip neigh del "$ip" dev "$interface" 2>/dev/null # 清理无效条目
+		fi
+		sleep 1
 	done
 	unset i
 	echo "$ip_ms" | grep -q "ms"
@@ -841,27 +869,28 @@ getcpu() {
 
 # 获取SOC温度 （取所有传感器温度最大值）
 soc_temp() {
-	[ -n "$soc_code" ] && eval $(echo "$soc_code") 2>/dev/null && return 0
+	[ -n "$soc_code" ] && [ "$soc_code" != "pve" ] && eval $(echo "$soc_code") 2>/dev/null && return 0
 	getsensors() {
 		# Intel
 		local sensor_field1='["coretemp-isa-0000"]["Package id 0"]["temp1_input"]'
 		# AMD
 		local sensor_field2='["zenpower-pci-00c3"]["Tctl"]["temp1_input"]'
 		local sensor_field3='["k10temp-pci-00c3"]["Tctl"]["temp1_input"]'
-		eval "${1} sensors -j 2>/dev/null" | jq -r "
-		if .${sensor_field1} != null then
-		  .${sensor_field1}
-		elif .${sensor_field2} != null then
-		  .${sensor_field2}
-		elif .${sensor_field3} != null then
-		  .${sensor_field3}
-		else
-		  null
-		end // \"\"
+		run_with_tag ${1} sensors -j 2>/dev/null | jq -r "
+			if .${sensor_field1} != null then
+			  .${sensor_field1}
+			elif .${sensor_field2} != null then
+			  .${sensor_field2}
+			elif .${sensor_field3} != null then
+			  .${sensor_field3}
+			else
+			  null
+			end // \"\"
 		"
 	}
 
-	[ -n "$server_host" ] && local ssh_command="ssh -o StrictHostKeyChecking=yes -o BatchMode=yes -i /root/.ssh/id_rsa root@${server_host} -p ${server_port}"
+	[ -n "$server_host" ] && local ssh_command="ssh -o ConnectTimeout=10 -o ServerAliveInterval=5 -o StrictHostKeyChecking=yes -o BatchMode=yes -i /root/.ssh/id_rsa root@${server_host} -p ${server_port}"
+
 	local temperature=$(getsensors "$ssh_command" 2>/dev/null)
 	# 通用（只能取最高温度，不一定是 CPU，特殊设备自行修改）
 	# 将 grep °C 改为温度所在行的特别字符串，如 grep Core 0 等，就可以指定设备了
@@ -956,9 +985,9 @@ blackwhitelist() {
 
 	for check_mac in $mark_mac_list; do
 		# 设备在线时免打扰
-		[ -n "$mac_online_list" ] && jq -e --arg mac "$check_mac" '.devices[] | select(.mac == $mac and .status == "online") | .mac' "$devices_json" >/dev/null && return 1
+		[ -n "$mac_online_list" ] && jq -e --arg mac "$check_mac" '.devices[] | select((.mac | ascii_downcase) == ($mac | ascii_downcase) and .status == "online") | .mac' "$devices_json" >/dev/null && return 1
 		# 设备离线时免打扰
-		[ -n "$mac_offline_list" ] && jq -e --arg mac "$check_mac" '.devices[] | select(.mac == $mac and .status == "offline") | .mac' "$devices_json" >/dev/null && return 1
+		[ -n "$mac_offline_list" ] && jq -e --arg mac "$check_mac" '.devices[] | select((.mac | ascii_downcase) == ($mac | ascii_downcase) and .status == "offline") | .mac' "$devices_json" >/dev/null && return 1
 	done
 
 	unset check_mac
@@ -972,7 +1001,7 @@ geterrdevicealiases() {
 	[ "$logrow" -eq 0 ] && return
 
 	for mac in $unattended_device_aliases; do
-		[ -n "$mac" ] && local unattended_mac=$(jq -r --arg mac "$mac" '.devices[] | select(.mac == $mac and .status == "online") | .mac' "$devices_json") && break
+		[ -n "$mac" ] && local unattended_mac=$(jq -r --arg mac "$mac" '.devices[] | select((.mac | ascii_downcase) == ($mac | ascii_downcase) and .status == "online") | .mac' "$devices_json") && break
 	done
 
 	# 进入免打扰时间已经超过一小时
@@ -1209,12 +1238,12 @@ get_disk() {
 
 	# 查询远程硬盘名
 	if [ -n "$server_host" ]; then
-		local ssh_command="ssh -o StrictHostKeyChecking=yes -o BatchMode=yes -i /root/.ssh/id_rsa root@${server_host} -p ${server_port}"
-		local remote_disk_names=$($ssh_command "$(declare -f get_disk_names); get_disk_names" | tr -d '\r')
+		local ssh_command="ssh -o ConnectTimeout=10 -o ServerAliveInterval=5 -o StrictHostKeyChecking=yes -o BatchMode=yes -i /root/.ssh/id_rsa root@${server_host} -p ${server_port}"
+		local remote_disk_names=$(run_with_tag $ssh_command "$(declare -f get_disk_names); get_disk_names" | tr -d '\r')
 		local remote_disk_names=($remote_disk_names)
 		local remote_disk_tags=($(for _ in "${remote_disk_names[@]}"; do echo "remote"; done))
 		# 删除重复的直通硬盘
-		local get_host_disk_uuids=$(eval ${ssh_command} ls -l /dev/disk/by-uuid/ | awk '{print $9}')
+		local get_host_disk_uuids=$(run_with_tag $ssh_command ls -l /dev/disk/by-uuid/ | awk '{print $9}')
 		for uuid in $get_host_disk_uuids; do
 			local fstab_config=$(uci show fstab | grep -i -w "${uuid}" | sed -n 's/\(fstab\..*\)\..*/\1/p')
 			[ -n "$fstab_config" ] && local tmp_target=$(uci get ${fstab_config}.target)
@@ -1244,8 +1273,8 @@ get_disk() {
 		local file_path="${dir}/disk_info/${tmp_name}${disk_type}"
 
 		# 如果不能获取值，使用分区名重试（因为不清楚是 OpenWrt 的原因还是 smartctl 版本的原因，使用出错重试的方式） // 2024/07/10 - 未重新验证
-		eval ${tmp_command} smartctl -i -n standby "/dev/${tmp_name}" 2>/dev/null | grep -qE "$error_pattern" && {
-			local tmp_name=$(eval ${tmp_command} df -h | awk "/^\\/dev\\/${tmp_name}/ {print \$1}" | awk -F '/' '{print $NF}' | head -n1)
+		run_with_tag ${tmp_command} smartctl -i -n standby "/dev/${tmp_name}" 2>/dev/null | grep -qE "$error_pattern" && {
+			local tmp_name=$(run_with_tag ${tmp_command} df -h | awk "/^\\/dev\\/${tmp_name}/ {print \$1}" | awk -F '/' '{print $NF}' | head -n1)
 			[ -z "$tmp_name" ] && continue
 		}
 
@@ -1253,7 +1282,7 @@ get_disk() {
 		last_disk_time=$(date -r "${file_path}" +%s 2>/dev/null) || last_disk_time=0
 
 		if [ $(($(date +%s) - $last_disk_time)) -gt 86000 ]; then
-			local disk_info=$(eval ${tmp_command} smartctl -i -n standby "/dev/${tmp_name}" 2>/dev/null)
+			local disk_info=$(run_with_tag ${tmp_command} smartctl -i -n standby "/dev/${tmp_name}" 2>/dev/null)
 			[ -z "$disk_info" ] && {
 				cat /sys/block/"${tmp_name}"/device/model 2>/dev/null | grep -qE "$error_pattern" && continue
 			} ||
@@ -1263,7 +1292,7 @@ get_disk() {
 				echo "$disk_info" | grep -q "STANDBY" && {
 				echo "$disk_info" >"${file_path}"
 			} ||
-				eval ${tmp_command} smartctl -a -j /dev/${tmp_name} 2>/dev/null >${file_path}
+				run_with_tag ${tmp_command} smartctl -a -j /dev/${tmp_name} 2>/dev/null >${file_path}
 		fi
 
 		# 硬盘状态
@@ -1271,7 +1300,7 @@ get_disk() {
 			local disk_name=$(awk '/Device Model/{print $NF}' "$file_path")
 			[[ -n $disk_name && $disk_name != null && $disk_name != 0 ]] && {
 				local disk_name=$(cut_str "$disk_name" "20")
-				local disk_name="${disk_name}_$(eval ${tmp_command} lsblk -o NAME,SIZE | awk "/^${tmp_name}/ {print \$NF}")"
+				local disk_name="${disk_name}_$(run_with_tag ${tmp_command} lsblk -o NAME,SIZE | awk "/^${tmp_name}/ {print \$NF}")"
 			}
 			echo -n "${str_linefeed}${str_title_start} 硬盘名称：${disk_name}${disk_type}${str_title_end}${str_linefeed}${str_tab}硬盘休眠中" >>"$output_dir/get_disk"
 		elif [ -f "${file_path}" ]; then
@@ -1280,8 +1309,8 @@ get_disk() {
 			[ -z "$disk_name" ] && local disk_name=$(cat /sys/block/"${tmp_name}"/device/model)
 			[[ -n $disk_name && $disk_name != null && $disk_name != 0 ]] && {
 				local disk_name=$(cut_str "$disk_name" "20")
-				local disk_size=$(eval ${tmp_command} lsblk -o NAME,SIZE 2>/dev/null | awk "/^${tmp_name}/ {print \$NF}")
-				[ -z "$disk_size" ] && disk_size=$(eval ${tmp_command} df -h 2>/dev/null | awk -v tmp_disk_name="${tmp_name}" '$1 ~ "^/dev/"tmp_disk_name && !disk_found {print $2; disk_found=1}')
+				local disk_size=$(run_with_tag ${tmp_command} lsblk -o NAME,SIZE 2>/dev/null | awk "/^${tmp_name}/ {print \$NF}")
+				[ -z "$disk_size" ] && disk_size=$(run_with_tag ${tmp_command} df -h 2>/dev/null | awk -v tmp_disk_name="${tmp_name}" '$1 ~ "^/dev/"tmp_disk_name && !disk_found {print $2; disk_found=1}')
 				local disk_name="${disk_name}_${disk_size}"
 			}
 			echo -n "${str_linefeed}${str_title_start} 硬盘名称：${disk_name}${disk_type}${str_title_end}" >>"$output_dir/get_disk"
@@ -1292,10 +1321,10 @@ get_disk() {
 			local disk_time=$(jq -r .power_on_time.hours ${file_path})
 			[[ -n $disk_time && $disk_time != null ]] && echo -n "${str_linefeed}${str_tab}通电时间：${disk_time}h" >>"$output_dir/get_disk"
 			# 空间使用
-			local disk_use=$(eval ${tmp_command} lsblk -no NAME,FSUSE% "/dev/${tmp_name}" 2>/dev/null | awk '$2 != "" { gsub(/^[^a-zA-Z0-9]+/, "", $1); printf "%s: %s\n", $1, $2 }')
-			[ -z "$disk_use" ] && disk_use=$(eval ${tmp_command} df -h 2>/dev/null | awk -v part_name="${tmp_name}" '$1 ~ "^/dev/"part_name && NF > 1 {sub("/dev/", "", $1); if (!seen[$1]) { printf "%s: %s  ", $1, $5; seen[$1] = 1; }} END {print ""}')
+			local disk_use=$(run_with_tag ${tmp_command} lsblk -no NAME,FSUSE% "/dev/${tmp_name}" 2>/dev/null | awk '$2 != "" { gsub(/^[^a-zA-Z0-9]+/, "", $1); printf "%s: %s\n", $1, $2 }')
+			[ -z "$disk_use" ] && disk_use=$(run_with_tag ${tmp_command} df -h 2>/dev/null | awk -v part_name="${tmp_name}" '$1 ~ "^/dev/"part_name && NF > 1 {sub("/dev/", "", $1); if (!seen[$1]) { printf "%s: %s  ", $1, $5; seen[$1] = 1; }} END {print ""}')
 			[ -z "$disk_use" ] && [ -n "$tmp_command" ] && {
-				local uuid=$($tmp_command ls -l /dev/disk/by-uuid/ 2>/dev/null | grep "$disk" | awk '{print $9}')
+				local uuid=$(run_with_tag $tmp_command ls -l /dev/disk/by-uuid/ 2>/dev/null | grep "$disk" | awk '{print $9}')
 				local fstab_config=$(uci show fstab 2>/dev/null | grep -i -w "${uuid}" | sed -n 's/\(fstab\..*\)\..*/\1/p')
 				[ -n "$fstab_config" ] && local mount_point=$(uci get ${fstab_config}.target 2>/dev/null)
 				[ -n "$mount_point" ] && local disk_use=$(df -h 2>/dev/null | awk -v mount="$mount_point" '$NF == mount {sub("^/dev/", "", $1); printf "%s: %s\n", $1, $5}')
@@ -1359,7 +1388,7 @@ scanlocalip() {
 			# 获取一个令牌
 			read -u 5
 			{
-				ping -c 1 -W 2 "${base_ip}.${i}" >/dev/null 2>&1
+				run_with_tag ping -c 1 -W 2 "${base_ip}.${i}" >/dev/null 2>&1
 				# 释放令牌
 				echo >&5
 			} &
@@ -1384,22 +1413,22 @@ getgateway() {
 
 	if [ "$last_getgateway_time" -ge "$device_info_helper_sleeptime" ]; then
 		# 登录
-		local loginfo=$(curl -s -L "${gateway_host_url}" -c ${dir}/cookies.txt -d "${gateway_username_id}=${gateway_username}&${gateway_password_id}=${gateway_password}") 2>/dev/null
+		local loginfo=$(run_with_tag curl -s -L "${gateway_host_url}" -c ${dir}/cookies.txt -d "${gateway_username_id}=${gateway_username}&${gateway_password_id}=${gateway_password}") 2>/dev/null
 		[ -n "$loginfo" ] && local mytoken=$(echo $loginfo | sed 's/{/\n/g' | grep token | awk '/realRestart/{print $2}' | sed $'s/\'//g')
 		# 获取
-		[ -n "$mytoken" ] && local get_gateway=$(curl -s -b ${dir}/cookies.txt "${gateway_info_url}" -d 'token='$mytoken)
+		[ -n "$mytoken" ] && local get_gateway=$(run_with_tag curl -s -b ${dir}/cookies.txt "${gateway_info_url}" -d 'token='$mytoken)
 		# 重启
-		[ "$1" ] && [ "$1" == "reboot" ] && curl -s -b ${dir}/cookies.txt "${gateway_host_url}/admin/reboot" -d "token=$mytoken" >/dev/null 2>&1
+		[ "$1" ] && [ "$1" == "reboot" ] && run_with_tag curl -s -b ${dir}/cookies.txt "${gateway_host_url}/admin/reboot" -d "token=$mytoken" >/dev/null 2>&1
 		# 注销
-		[ -n "$get_gateway" ] && [ -n "$gateway_logout_url" ] && curl -s -b ${dir}/cookies.txt "${gateway_logout_url}" -d 'token='$mytoken 2>/dev/null
+		[ -n "$get_gateway" ] && [ -n "$gateway_logout_url" ] && run_with_tag curl -s -b ${dir}/cookies.txt "${gateway_logout_url}" -d 'token='$mytoken 2>/dev/null
 		[ -z "$get_gateway" ] && log_change "【info】获取光猫信息失败，可能当前用户未注销或设置错误"
 
 		local gateway_host_ip=$(echo "$gateway_host_url" | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
 		# 保存信息
-		echo "$get_gateway" | jq '
+		echo "$get_gateway" | jq --arg gateway_host_ip "$gateway_host_ip" '
 			to_entries | map(select(.value | type == "object" and has("ip"))) | map({
 				ip: .value.ip,
-				name: (if .value.devName == "" then "unknown" else .value.devName end),
+				name: (.value.devName // "unknown"),
 				mac: "unknown",
 				type: (if .key | startswith("wifi") then "WiFi" else "LAN" end),
 				parent: (if .key | startswith("wifi") then $gateway_host_ip else "" end)
@@ -1420,14 +1449,14 @@ getmiwifi() {
 	if [ "$last_getmiwifi_time" -ge "$device_info_helper_sleeptime" ]; then
 		# 登录并获取 stok
 		local miwifi_login_url="http://${miwifi_ip}/cgi-bin/luci/api/xqsystem/login"
-		local login_response=$(curl -s -X POST "$miwifi_login_url" -d "username=admin&password=${miwifi_password}")
+		local login_response=$(run_with_tag curl -s -X POST "$miwifi_login_url" -d "username=admin&password=${miwifi_password}")
 		local stok=$(echo "$login_response" | jq -r '.token')
 
 		[ -z "$stok" ] && log_change "【info】登录 MIWiFi 失败，无法获取 stok" && return 1
 
 		# 获取设备列表
 		local device_list_url="http://${miwifi_ip}/cgi-bin/luci/;stok=$stok/api/misystem/devicelist"
-		local device_list_response=$(curl -s "$device_list_url")
+		local device_list_response=$(run_with_tag curl -s "$device_list_url")
 		#local parent=$(jq -r --arg ip "$ip" '.devices[] | select(.ip == $ip) | .mac' "$devices_json")
 
 		# 保存信息
@@ -1452,18 +1481,18 @@ getopenwrt() {
 	[ -z "$openwrt_info_enable" ] && return
 	local last_openwrt_time=$(file_date "${dir}/openwrt_info")
 	if [ "$last_openwrt_time" -ge "$device_info_helper_sleeptime" ]; then
-		for op_host_ip in "$op_host_ips"; do
-			local wlan_interfaces=$(ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@$op_host_ip 'iw dev 2>/dev/null | grep Interface | awk '\''{print $2}'\''')
-			local leases_info=$(ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@$op_host_ip "cat /tmp/dhcp.leases 2>/dev/null")
-			local arp_info=$(ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@$op_host_ip "cat /proc/net/arp | grep '0x[26]' | grep -v '^169.254.' | grep -v '^$' | sort -u 2>/dev/null")
-
-			# 初始化一个空数组（bash 数组）
-			local json_array=()
+		# 初始化一个空数组（bash 数组）
+		local json_array=()
+		for op_host_ip in $op_host_ips; do
+			local wlan_interfaces=$(run_with_tag ssh -o ConnectTimeout=10 -o ServerAliveInterval=5 -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@$op_host_ip 'iw dev 2>/dev/null | grep Interface | awk '\''{print $2}'\''')
+			local leases_info=$(run_with_tag ssh -o ConnectTimeout=10 -o ServerAliveInterval=5 -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@$op_host_ip "cat /tmp/dhcp.leases 2>/dev/null")
+			local arp_info=$(run_with_tag ssh -o ConnectTimeout=10 -o ServerAliveInterval=5 -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@$op_host_ip "cat /proc/net/arp | grep '0x[26]' | grep -v '^169.254.' | grep -v '^$' | sort -u 2>/dev/null")
+			local openwrt_arp_iplist+="$(echo "$arp_info" | awk '{print $1}')"$'\n'
 
 			# 遍历每个接口
 			for iface in $wlan_interfaces; do
 				# 获取接口信息
-				local info=$(ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@$op_host_ip "iw dev $iface info 2>/dev/null")
+				local info=$(run_with_tag ssh -o ConnectTimeout=10 -o ServerAliveInterval=5 -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@$op_host_ip "iw dev $iface info 2>/dev/null")
 
 				# 获取频道和频段
 				local channel=$(echo "$info" | grep channel | awk '{print $2}')
@@ -1475,7 +1504,7 @@ getopenwrt() {
 				fi
 
 				# 获取连接的设备列表
-				local devices=$(ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@$op_host_ip "iw dev $iface station dump 2>/dev/null")
+				local devices=$(run_with_tag ssh -o ConnectTimeout=10 -o ServerAliveInterval=5 -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@$op_host_ip "iw dev $iface station dump 2>/dev/null")
 
 				# 逐行输出设备信息
 				while read -r line; do
@@ -1485,6 +1514,7 @@ getopenwrt() {
 
 						# 查找设备名称
 						local ip=$(echo "$arp_info" | awk -v mac="$mac" '$4 == mac {print $1; exit}')
+						[ -z "$ip" ] && local ip=$(jq -r --arg mac "$mac" '.devices[] | select((.mac | ascii_downcase) == ($mac | ascii_downcase)) | .ip' "$devices_json")
 						local name=$(echo "$leases_info" | awk -v mac="$mac" '$2 == mac {print $4; exit}')
 						[ -z "$ip" ] && ip="unknown"
 						[ -z "$name" ] && name="unknown"
@@ -1511,9 +1541,9 @@ getopenwrt() {
 			done
 		done
 		# 使用 jq 输出最终的 JSON 数组
-		echo "${json_array[@]}" | jq -s . > ${dir}/openwrt_info
-
+		echo "${json_array[@]}" | jq -s . > "${dir}/openwrt_info"
 		openwrt_iplist=$(jq -r '.[] | select(.ip != "unknown" and .ip != "") | .ip' "${dir}/openwrt_info")
+		openwrt_iplist+=$'\n'"$openwrt_arp_iplist"
 	else
 		unset openwrt_iplist
 	fi
@@ -1525,8 +1555,7 @@ getmikrotik() {
 	local last_getmikrotik_time=$(file_date "${dir}/mikrotik_info")
 
 	if [ "$last_getmikrotik_time" -ge "$device_info_helper_sleeptime" ]; then
-		#lease_info=$(ssh ${mikrotik_username}@${mikrotik_ip} "/ip dhcp-server lease print terse where status=bound")
-		lease_info=$(ssh ${mikrotik_username}@${mikrotik_ip} "/ip dhcp-server lease print terse")
+		lease_info=$(run_with_tag ssh -o ConnectTimeout=10 -o ServerAliveInterval=5 ${mikrotik_username}@${mikrotik_ip} "/ip dhcp-server lease print terse where status=bound")
 
 		echo "$lease_info" | awk '
 			BEGIN {
@@ -1606,7 +1635,12 @@ first() {
 	[ -n "$IP_INFO" ] && local SUBNET=$(echo $IP_INFO | cut -d'/' -f1 | cut -d'.' -f1-3)
 	[ -n "$SUBNET" ] && local IPLIST=$(cat /proc/net/arp | grep "0x2\|0x6" | awk '{print $1}' | grep -v "^169.254." | grep -v "^$" | sort -u | grep -oE "${SUBNET}\.[0-9]{1,3}") || local IPLIST=$(cat /proc/net/arp | grep "0x2\|0x6" | awk '{print $1}' | grep -v "^169.254." | grep -v "^$" | sort -u | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
 
-	local IPLIST=$(echo -e "${IPLIST}\n${gateway_iplist}\n${miwifi_iplist}\n${openwrt_iplist}\n${mikrotik_info}\n${always_check_ip_list}" | grep -v "^$" | sort -u)
+	local IPLIST+=$'\n'"$gateway_iplist"
+	local IPLIST+=$'\n'"$miwifi_iplist"
+	local IPLIST+=$'\n'"$openwrt_iplist"
+	local IPLIST+=$'\n'"$mikrotik_info"
+	local IPLIST+=$'\n'"$always_check_ip_list"
+	local IPLIST=$(echo "$IPLIST" | grep -v "^$" | sort -u)
 	for ip in $IPLIST; do
 		[ -n "$passive_mode" ] && [ "$passive_mode" -eq "1" ] && break
 		# 获取一个令牌
@@ -1640,7 +1674,7 @@ up() {
 		#jq -e --arg ip "$ip" 'any(.devices[]; .ip == $ip and (.http_access | length == 0)) or (.devices | map(select(.ip == $ip)) | length == 0)' "$devices_json" >/dev/null && local http_access=$(check_http_access "$ip")
 
 		# 如果是待二次离线检测 unknown 设备，json 文件中依然有信息，修改在线状态为 online
-		if [ "$mac" != "unknown" ] && jq -e --arg ip "$ip" --arg mac "$mac" '.devices[] | select(.ip == $ip and .mac == $mac) | .mac' "$devices_json" >/dev/null; then
+		if [ "$mac" != "unknown" ] && jq -e --arg ip "$ip" --arg mac "$mac" '.devices[] | select(.ip == $ip and (.mac | ascii_downcase) == ($mac | ascii_downcase)) | .mac' "$devices_json" >/dev/null; then
 			jq --arg ip "$ip" --arg mac "$mac" '.devices |= map(if .ip == $ip then .mac = $mac | .status = "online" else . end)' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
 		# up
 		else
@@ -1726,28 +1760,28 @@ down() {
 		local name=$(getname "$ip" "$mac")
 		local interface=$(getinterface "ip" "$mac")
 
-		if ! jq -e --arg ip "$ip" --arg mac "$mac" --arg name "$name" --arg interface "$interface" '.devices[] | select(.ip == $ip and .mac == $mac and .name == $name and .interface == $interface) | .ip' "$devices_json" >/dev/null; then
+		if ! jq -e --arg ip "$ip" --arg mac "$mac" --arg name "$name" --arg interface "$interface" '.devices[] | select(.ip == $ip and (.mac | ascii_downcase) == ($mac | ascii_downcase) and .name == $name and .interface == $interface) | .ip' "$devices_json" >/dev/null; then
 			jq --arg ip "$ip" --arg new_mac "$mac" --arg new_name "$name" --arg new_interface "$interface" '
 				.devices |= map(
-					if .ip == $ip then
-						.mac = $new_mac |
-						.name = $new_name |
+					if .ip == $ip then 
+						.mac = $new_mac | 
+						.name = $new_name | 
 						.interface = $new_interface
-					else .
+					else . 
 					end
 				)
 			' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
 		fi
 
-		# 从 miwifi_info 中读取 type 和 parent
-		[ -f "${dir}/miwifi_info" ] && {
-			local tmp_type=$(jq -r --arg ip "$ip" '.[] | select(.ip == $ip) | .type' "${dir}/miwifi_info")
-			local tmp_parent=$(jq -r --arg ip "$ip" '.[] | select(.ip == $ip) | .parent' "${dir}/miwifi_info")
-		}
-
-		[ -f "${dir}/openwrt_info" ] && [ -z "$tmp_type" ] && {
+		# 读取 type 和 parent
+		[ -f "${dir}/openwrt_info" ] && {
 			local tmp_type=$(jq -r --arg mac "$mac" '.[] | select((.mac | ascii_downcase) == ($mac | ascii_downcase)) | .type' "${dir}/openwrt_info")
 			local tmp_parent=$(jq -r --arg mac "$mac" '.[] | select((.mac | ascii_downcase) == ($mac | ascii_downcase)) | .parent' "${dir}/openwrt_info")
+		}
+
+		[ -f "${dir}/miwifi_info" ] && [ -z "$tmp_type" ] && {
+			local tmp_type=$(jq -r --arg ip "$ip" '.[] | select(.ip == $ip) | .type' "${dir}/miwifi_info")
+			local tmp_parent=$(jq -r --arg ip "$ip" '.[] | select(.ip == $ip) | .parent' "${dir}/miwifi_info")
 		}
 
 		[ -f "${dir}/gateway_info" ] && [ -z "$tmp_type" ] && {
@@ -1778,7 +1812,7 @@ current_device() {
 	local logrow=$(jq '.devices | map(select(.status == "online")) | length' "$devices_json")
 	local has_usage=0
 	[ -f "${dir}/usage.db" ] && has_usage=1
-
+	
 	[ "$logrow" -eq "0" ] && {
 		local explain="${send_content}${str_splitline}${str_title_start} 当前无在线设备${str_title_end}"
 		content="${content}${explain}${header}"
@@ -1924,10 +1958,10 @@ get_client_usage() {
 
 			[ -z "$get_client_usage_bytes" ] && get_client_usage_bytes="0"
 			if [ "$(($(usage get ${mac} bytes) - $get_client_usage_bytes))" -ge "$client_usage_max" ]; then
-				local ip=$(jq -r --arg mac "$mac" '.devices[] | select(.mac == $mac and .status == "online") | .ip' "$devices_json")
+				local ip=$(jq -r --arg mac "$mac" '.devices[] | select((.mac | ascii_downcase) == ($mac | ascii_downcase) and .status == "online") | .ip' "$devices_json")
 				local ip_name=$(getname ${ip} ${mac})
 				local tmp_usage=$(bytes_for_humans $(expr $(usage get ${mac} bytes) - ${get_client_usage_bytes}))
-				local time_up=$(jq -r --arg mac "$mac" '.devices[] | select(.mac == $mac and .status == "online") | .uptime' "$devices_json")
+				local time_up=$(jq -r --arg mac "$mac" '.devices[] | select((.mac | ascii_downcase) == ($mac | ascii_downcase) and .status == "online") | .uptime' "$devices_json")
 				local ip_total=$(usage get $mac) && [ -n "$ip_total" ] && local ip_total="${str_linefeed}${str_tab}总计流量： ${str_space}${str_space}${str_space}${str_space}${ip_total}"
 				local time1=$(date +%s)
 				local time1=$(time_for_humans $(expr ${time1} - ${time_up}))
@@ -2146,7 +2180,7 @@ monitor_logins() {
 
 		(
 			# 监听系统日志，-f 表示跟随实时日志，-p 表示日志级别为 notice
-			logread -f -p notice | while IFS= read -r line; do
+			run_with_tag logread -f -p notice | while IFS= read -r line; do
 				[ -n "$web_logged" ] && {
 					web_login_ip=$(echo "$line" | grep -i "accepted login" | awk '{print $NF}')
 					[ -n "$web_login_ip" ] && process_login "$web_login_ip" $(echo "$line" | awk '{print $4}') web_login_counts
@@ -2382,7 +2416,7 @@ login_send() {
 			log_change "${disturb_text}设备 ${login_ip} (${login_ip_attribution}) 通过 ${log_type_short} ${login_mode} 登录了路由器"
 		fi
 
-
+		
 
 		local login_content_time="${str_linefeed}${str_tab}时间：${str_space}${str_space}${str_space}${str_space}${login_time}"
 		local login_content_ip="${str_linefeed}${str_tab}设备 IP：${str_space}${str_space}${login_ip}"
@@ -2458,7 +2492,7 @@ diy_send() {
 	! jq "$type" ${3} >${tempjsonpath} && log_change "【！！！】type:{ } 字段转义变量后格式错误，请检查 type:{ } 字段内是否有特殊符号未转义或语法错误" && return 1
 
 	[ -n "$proxy_address" ] && local proxy_cmd="-x $proxy_address"
-	curl $proxy_cmd --connect-timeout 30 --max-time 60 --retry 2 -X POST -H "$content_type" -d "$data" "${diyurl}"
+	run_with_tag curl $proxy_cmd --connect-timeout 30 --max-time 60 --retry 2 -X POST -H "$content_type" -d "$data" "${diyurl}"
 	local RETVAL=$?
 
 	if [ $RETVAL -ne 0 ] || [[ -n "$4" && "$4" == "test" ]]; then

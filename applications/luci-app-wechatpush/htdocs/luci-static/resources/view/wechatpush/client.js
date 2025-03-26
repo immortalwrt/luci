@@ -40,7 +40,7 @@ return view.extend({
 						wlanMap[wlan.interface] = wlan.band;
 					});
 				}
-
+				
 				// 解析设备的接口信息
 				data.devices.forEach(function (device) {
 					if (device.type) {
@@ -354,7 +354,7 @@ return view.extend({
 				const isUnknown2 = (value2 === "unknown");
 
 				if (isUnknown1 !== isUnknown2) {
-					return direction === 'asc'
+					return direction === 'asc' 
 						// 升序时 unknown 排最后（视为最大值），降序时排最前
 						//? (isUnknown1 ? 1 : -1)
 						//: (isUnknown1 ? -1 : 1);
@@ -369,8 +369,8 @@ return view.extend({
 				const aHasValue = a.parent ? 1 : 0;
 				const bHasValue = b.parent ? 1 : 0;
 				if (aHasValue !== bHasValue) {
-					return direction === 'desc'
-						? (bHasValue - aHasValue)
+					return direction === 'desc' 
+						? (bHasValue - aHasValue) 
 						: (aHasValue - bHasValue);
 				}
 				value1 = a.parent || '';

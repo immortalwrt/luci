@@ -28,7 +28,7 @@ return view.extend({
 			/* 5s 自动刷新文字 */
 			.cbi-section small {
 				margin-left: 5px;
-				font-size: 12px;
+				font-size: 12px; 
 				color: #666; /* 深灰色文字 */
 			}
 		`;

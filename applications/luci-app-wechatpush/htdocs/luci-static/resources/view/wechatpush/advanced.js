@@ -221,7 +221,7 @@ return view.extend({
 		o.rmempty = true;
 		o.description = _('echo -e "\\n" | ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ""<br/>scp /root/.ssh/id_rsa.pub your_username@mikrotik_ip:/id_rsa.pub<br/>ssh your_username@mikrotik_ip<br/>/user ssh-keys import public-key-file=id_rsa.pub user=your_username')
 		o.depends({ device_info_helper: "mikrotik_info", '!contains': true });
-
+		
 		o = s.option(form.Value, "mikrotik_username", _('MikroTik Router Account'))
 		o.rmempty = true
 		o.depends({ device_info_helper: "mikrotik_info", '!contains': true });
