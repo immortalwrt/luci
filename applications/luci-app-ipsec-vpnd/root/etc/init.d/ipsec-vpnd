@@ -360,8 +360,8 @@ check_ipsec_interface() {
 }
 
 service_triggers() {
-	procd_add_reload_trigger "ipsec"
-	config load "ipsec"
+	procd_add_reload_trigger "ipsec-vpnd"
+	config load "ipsec-vpnd"
 	config_foreach check_ipsec_interface ipsec
 }
 
