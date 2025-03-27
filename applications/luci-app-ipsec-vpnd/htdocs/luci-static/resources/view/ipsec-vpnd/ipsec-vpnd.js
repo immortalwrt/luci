@@ -18,10 +18,10 @@ var callServiceList = rpc.declare({
 });
 
 function getServiceStatus() {
-	return L.resolveDefault(callServiceList('ipsec'), {}).then(function (res) {
+	return L.resolveDefault(callServiceList('ipsec-vpnd'), {}).then(function (res) {
 		var isRunning = false;
 		try {
-			isRunning = res['ipsec']['instances']['instance1']['running'];
+			isRunning = res['ipsec-vpnd']['instances']['instance1']['running'];
 		} catch (e) { }
 		return isRunning;
 	});
@@ -30,23 +30,16 @@ function getServiceStatus() {
 function renderStatus(isRunning) {
 	var spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
 	var renderHTML;
-	if (isRunning) {
+	if (isRunning)
 		renderHTML = spanTemp.format('green', _('IPSec VPN'), _('RUNNING'));
-	} else {
+	else
 		renderHTML = spanTemp.format('red', _('IPSec VPN'), _('NOT RUNNING'));
-	}
 
 	return renderHTML;
 }
 
 return view.extend({
-	load: function() {
-		return Promise.all([
-			uci.load('ipsec')
-		]);
-	},
-
-	render: function(data) {
+	render: function() {
 		var m, s, o;
 
 		m = new form.Map('ipsec', _('IPSec VPN Server'),
@@ -67,7 +60,7 @@ return view.extend({
 			]);
 		}
 
-		s = m.section(form.NamedSection, 'ipsec', 'service');
+		s = m.section(form.NamedSection, 'ipsec-vpnd', 'service');
 
 		o = s.option(form.Flag, 'enabled', _('Enable'));
 		o.default = o.disabled;
