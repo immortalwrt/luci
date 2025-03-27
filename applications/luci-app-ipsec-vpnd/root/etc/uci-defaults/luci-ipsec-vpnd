@@ -2,10 +2,6 @@
 
 uci -q batch <<-EOF >/dev/null
 	delete firewall.ipsecd
-	set firewall.ipsecd=include
-	set firewall.ipsecd.type=script
-	set firewall.ipsecd.path=/etc/ipsec.include
-	set firewall.ipsecd.reload=1
 	commit firewall
 EOF
 
@@ -68,6 +64,8 @@ uci -q batch <<-EOF >/dev/null
 
 	commit firewall
 EOF
+
+[ -f "/etc/config/ipsec" ] && mv "/etc/config/ipsec" "/etc/config/ipsec-vpnd"
 
 rm -f /tmp/luci-indexcache
 exit 0
