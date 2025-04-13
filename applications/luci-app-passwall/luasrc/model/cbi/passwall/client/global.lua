@@ -4,7 +4,6 @@ local datatypes = api.datatypes
 local fs = api.fs
 local has_singbox = api.finded_com("sing-box")
 local has_xray = api.finded_com("xray")
-local has_geoview = api.is_finded("geoview")
 local has_gfwlist = fs.access("/usr/share/passwall/rules/gfwlist")
 local has_chnlist = fs.access("/usr/share/passwall/rules/chnlist")
 local has_chnroute = fs.access("/usr/share/passwall/rules/chnroute")
@@ -15,9 +14,7 @@ api.set_apply_on_parse(m)
 
 local nodes_table = {}
 for k, e in ipairs(api.get_valid_nodes()) do
-	if not(e.type == "sing-box" and e.protocol == "_shunt" and not has_geoview) then  --Sing-Box分流节点缺少geoview组件时不允许使用
-		nodes_table[#nodes_table + 1] = e
-	end
+	nodes_table[#nodes_table + 1] = e
 end
 
 local normal_list = {}
@@ -168,7 +165,7 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 			local vid = v.id
 			-- shunt node type, Sing-Box or Xray
 			local type = s:taboption("Main", ListValue, vid .. "-type", translate("Type"))
-			if has_singbox and has_geoview then
+			if has_singbox then
 				type:value("sing-box", "Sing-Box")
 			end
 			if has_xray then
@@ -368,15 +365,15 @@ o:value("119.28.28.28")
 o:depends("direct_dns_mode", "tcp")
 
 o = s:taboption("DNS", Value, "direct_dns_dot", translate("Direct DNS DoT"))
-o.default = "tls://1.12.12.12"
-o:value("tls://1.12.12.12")
-o:value("tls://120.53.53.53")
-o:value("tls://36.99.170.86")
-o:value("tls://101.198.191.4")
-o:value("tls://223.5.5.5")
-o:value("tls://223.6.6.6")
-o:value("tls://2400:3200::1")
-o:value("tls://2400:3200:baba::1")
+o.default = "tls://dot.pub@1.12.12.12"
+o:value("tls://dot.pub@1.12.12.12")
+o:value("tls://dot.pub@120.53.53.53")
+o:value("tls://dot.360.cn@36.99.170.86")
+o:value("tls://dot.360.cn@101.198.191.4")
+o:value("tls://dns.alidns.com@223.5.5.5")
+o:value("tls://dns.alidns.com@223.6.6.6")
+o:value("tls://dns.alidns.com@2400:3200::1")
+o:value("tls://dns.alidns.com@2400:3200:baba::1")
 o.validate = chinadns_dot_validate
 o:depends("direct_dns_mode", "dot")
 
@@ -518,17 +515,17 @@ o:depends({singbox_dns_mode = "tcp"})
 
 ---- DoT
 o = s:taboption("DNS", Value, "remote_dns_dot", translate("Remote DNS DoT"))
-o.default = "tls://1.1.1.1"
-o:value("tls://1.0.0.1", "1.0.0.1 (CloudFlare)")
-o:value("tls://1.1.1.1", "1.1.1.1 (CloudFlare)")
-o:value("tls://8.8.4.4", "8.8.4.4 (Google)")
-o:value("tls://8.8.8.8", "8.8.8.8 (Google)")
-o:value("tls://9.9.9.9", "9.9.9.9 (Quad9)")
-o:value("tls://149.112.112.112", "149.112.112.112 (Quad9)")
-o:value("tls://94.140.14.14", "94.140.14.14 (AdGuard)")
-o:value("tls://94.140.15.15", "94.140.15.15 (AdGuard)")
-o:value("tls://208.67.222.222", "208.67.222.222 (OpenDNS)")
-o:value("tls://208.67.220.220", "208.67.220.220 (OpenDNS)")
+o.default = "tls://one.one.one.one@1.1.1.1"
+o:value("tls://one.one.one.one@1.0.0.1", "1.0.0.1 (CloudFlare)")
+o:value("tls://one.one.one.one@1.1.1.1", "1.1.1.1 (CloudFlare)")
+o:value("tls://dns.google@8.8.4.4", "8.8.4.4 (Google)")
+o:value("tls://dns.google@8.8.8.8", "8.8.8.8 (Google)")
+o:value("tls://dns.quad9.net@9.9.9.9", "9.9.9.9 (Quad9)")
+o:value("tls://dns.quad9.net@149.112.112.112", "149.112.112.112 (Quad9)")
+o:value("tls://dns.adguard.com@94.140.14.14", "94.140.14.14 (AdGuard)")
+o:value("tls://dns.adguard.com@94.140.15.15", "94.140.15.15 (AdGuard)")
+o:value("tls://dns.opendns.com@208.67.222.222", "208.67.222.222 (OpenDNS)")
+o:value("tls://dns.opendns.com@208.67.220.220", "208.67.220.220 (OpenDNS)")
 o.validate = chinadns_dot_validate
 o:depends("dns_mode", "dot")
 
@@ -606,6 +603,11 @@ o:depends({dns_shunt = "dnsmasq", tcp_proxy_mode = "proxy", chn_list = "direct"}
 if api.is_finded("smartdns") then
 	o:depends({dns_shunt = "smartdns", tcp_proxy_mode = "proxy", chn_list = "direct"})
 end
+
+o = s:taboption("DNS", Flag, "chinadns_ng_cert_verify", translate("DoT Cert verify"), translate("Verify DoT SSL cert. (May fail on some platforms!)"))
+o.default = "0"
+o:depends({direct_dns_mode = "dot"})
+o:depends({dns_mode = "dot"})
 
 o = s:taboption("DNS", Flag, "dns_redirect", translate("DNS Redirect"), translate("Force special DNS server to need proxy devices."))
 o.default = "1"
