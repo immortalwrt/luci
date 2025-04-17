@@ -28,7 +28,7 @@ nat_enable="$(uci get zerotier.sample_config.nat)"
 		echo "iifname $i counter accept comment \"!fw4: Zerotier allow inbound forward $i\"" >> "$nft_incdir/forward/zerotier.nft"
 		echo "oifname $i counter accept comment \"!fw4: Zerotier allow outbound forward $i\"" >> "$nft_incdir/forward/zerotier.nft"
 		echo "oifname $i counter masquerade comment \"!fw4: Zerotier $i outbound postrouting masq\"" >> "$nft_incdir/srcnat/zerotier.nft"
-		[ -z "$ip_segment" ] || echo "ip saddr $ip_segment counter masquerade comment \"!fw4: Zerotier $ip_segment postrouting masq\"" >> "$nft_incdir/srcnat/zerotier.nft"
+		[ -z "$ip_segment" ] || echo "$ip_segment" | while IFS= read -r line ; do echo "ip saddr $line counter masquerade comment \"!fw4: Zerotier $line postrouting masq\"" >> "$nft_incdir/srcnat/zerotier.nft"; done
 	done
 	echo "zt interface rules added!" > "/tmp/zero.log"
 	uci -q set firewall.@defaults[0].auto_includes="1"
