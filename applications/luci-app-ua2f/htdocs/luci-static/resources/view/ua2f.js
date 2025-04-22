@@ -79,6 +79,9 @@ return view.extend({
 
 		o = s.option(form.Value, 'custom_ua', _('Custom User-Agent'));
 
+		o = s.option(form.Flag, 'disable_connmark', _('Disable conntrack mark'),
+			_('This will increase compatibility with other programs that modify conntrack marks but will decrease performance.'));
+
 		o = s.option(form.Button, '_check_ua', _('Check User-Agent'));
 		o.inputtitle = _('Open website');
 		o.inputstyle = 'apply';
