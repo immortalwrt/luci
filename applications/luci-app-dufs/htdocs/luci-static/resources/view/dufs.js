@@ -91,7 +91,7 @@ return view.extend({
 		o = s.option(form.Value, 'serve_path', _('Serve path'));
 		o.placeholder = '/mnt';
 
-		o = s.option(form.Value, 'hidden', _('Hidden path'),
+		o = s.option(form.DynamicList, 'hidden', _('Hidden path'),
 			_('Hide paths from directory listings, e.g. %s.').format('<code>tmp,*.log,*.lock</code>'));
 
 		o = s.option(form.DynamicList, 'auth', _('Auth roles'),
