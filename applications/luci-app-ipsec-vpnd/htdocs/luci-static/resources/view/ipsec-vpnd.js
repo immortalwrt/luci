@@ -42,7 +42,7 @@ return view.extend({
 	render: function() {
 		var m, s, o;
 
-		m = new form.Map('ipsec', _('IPSec VPN Server'),
+		m = new form.Map('ipsec-vpnd', _('IPSec VPN Server'),
 			_('IPSec VPN connectivity using the native built-in VPN Client on iOS or Andriod (IKEv1 with PSK and Xauth)'));
 
 		s = m.section(form.TypedSection);
@@ -60,7 +60,7 @@ return view.extend({
 			]);
 		}
 
-		s = m.section(form.NamedSection, 'ipsec-vpnd', 'service');
+		s = m.section(form.NamedSection, 'ipsec', 'service');
 
 		o = s.option(form.Flag, 'enabled', _('Enable'));
 		o.default = o.disabled;
