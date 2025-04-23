@@ -1,0 +1,40 @@
+
+<script type="text/javascript">
+	//<![CDATA[
+	document.addEventListener("DOMContentLoaded", function () {
+		let monitorStartTime = Date.now();
+
+		const monitorInterval = setInterval(function () {
+			// 超过5秒后停止监控
+			if (Date.now() - monitorStartTime > 5000) {
+				clearInterval(monitorInterval);
+				return;
+			}
+
+			const rows = Array.from(document.querySelectorAll("tr.cbi-section-table-row"))
+				.filter(row => !row.classList.contains("placeholder")); // 排除无配置行
+
+			if (rows.length === 0) return;
+
+			const lastRow = rows[rows.length - 1];
+			const lastPortInput = lastRow.querySelector("input[name$='.haproxy_port']");
+
+			// 没找到最后一行的 port 输入框或 port 不是 65535，跳过
+			if (!lastPortInput || lastPortInput.value !== "65535") return;
+
+			if (rows.length === 1) {
+				lastPortInput.value = "1181";
+			} else {
+				const prevRow = rows[rows.length - 2];
+				const prevPortInput = prevRow.querySelector("input[name$='.haproxy_port']");
+				const prevValue = prevPortInput ? prevPortInput.value.trim() : "";
+				if (prevValue === "" || prevValue === "0") {
+					lastPortInput.value = "1181";
+				} else {
+					lastPortInput.value = prevValue;
+				}
+			}
+		}, 300); // 每 300ms 检查一次
+	});
+	//]]>
+</script>
