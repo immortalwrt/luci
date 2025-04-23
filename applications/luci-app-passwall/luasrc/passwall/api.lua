@@ -190,6 +190,11 @@ function base64Decode(text)
 	end
 end
 
+function base64Encode(text)
+	local result = nixio.bin.b64encode(text)
+	return result
+end
+
 --提取URL中的域名和端口(no ip)
 function get_domain_port_from_url(url)
 	local scheme, domain, port = string.match(url, "^(https?)://([%w%.%-]+):?(%d*)")
@@ -522,6 +527,8 @@ function get_valid_nodes()
 							protocol = "HY"
 						elseif protocol == "hysteria2" then
 							protocol = "HY2"
+						elseif protocol == "anytls" then
+							protocol = "AnyTLS"
 						else
 							protocol = protocol:gsub("^%l",string.upper)
 						end
@@ -566,6 +573,8 @@ function get_node_remarks(n)
 					protocol = "HY"
 				elseif protocol == "hysteria2" then
 					protocol = "HY2"
+				elseif protocol == "anytls" then
+					protocol = "AnyTLS"
 				else
 					protocol = protocol:gsub("^%l",string.upper)
 				end
@@ -1228,11 +1237,16 @@ function luci_types(id, m, s, type_name, option_prefix)
 				end
 
 				s.fields[key].cfgvalue = function(self, section)
-					if self.rewrite_option then
-						return m:get(section, self.rewrite_option)
+					-- 添加自定义 custom_cfgvalue 属性，如果有自定义的 custom_cfgvalue 函数，则使用自定义的 cfgvalue 逻辑
+					if self.custom_cfgvalue then
+						return self:custom_cfgvalue(section)
 					else
-						if self.option:find(option_prefix) == 1 then
-							return m:get(section, self.option:sub(1 + #option_prefix))
+						if self.rewrite_option then
+							return m:get(section, self.rewrite_option)
+						else
+							if self.option:find(option_prefix) == 1 then
+								return m:get(section, self.option:sub(1 + #option_prefix))
+							end
 						end
 					end
 				end

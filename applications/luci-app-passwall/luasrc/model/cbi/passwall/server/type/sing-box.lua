@@ -8,6 +8,9 @@ if not singbox_bin then
 	return
 end
 
+local local_version = api.get_app_version("sing-box")
+local version_ge_1_12_0 = api.compare_versions(local_version:match("[^v]+"), ">=", "1.12.0")
+
 local fs = api.fs
 
 local singbox_tags = luci.sys.exec(singbox_bin .. " version  | grep 'Tags:' | awk '{print $2}'")
@@ -29,6 +32,8 @@ local ss_method_list = {
 
 s.fields["type"]:value(type_name, "Sing-Box")
 
+o = s:option(Flag, _n("custom"), translate("Use Custom Config"))
+
 o = s:option(ListValue, _n("protocol"), translate("Protocol"))
 o:value("mixed", "Mixed")
 o:value("socks", "Socks")
@@ -47,10 +52,15 @@ end
 if singbox_tags:find("with_quic") then
 	o:value("hysteria2", "Hysteria2")
 end
+if version_ge_1_12_0 then
+	o:value("anytls", "AnyTLS")
+end
 o:value("direct", "Direct")
+o:depends({ [_n("custom")] = false })
 
 o = s:option(Value, _n("port"), translate("Listen Port"))
 o.datatype = "port"
+o:depends({ [_n("custom")] = false })
 
 o = s:option(Flag, _n("auth"), translate("Auth"))
 o.validate = function(self, value, t)
@@ -70,6 +80,7 @@ o:depends({ [_n("protocol")] = "http" })
 o = s:option(Value, _n("username"), translate("Username"))
 o:depends({ [_n("auth")] = true })
 o:depends({ [_n("protocol")] = "naive" })
+o:depends({ [_n("protocol")] = "anytls" })
 
 o = s:option(Value, _n("password"), translate("Password"))
 o.password = true
@@ -77,6 +88,7 @@ o:depends({ [_n("auth")] = true })
 o:depends({ [_n("protocol")] = "shadowsocks" })
 o:depends({ [_n("protocol")] = "naive" })
 o:depends({ [_n("protocol")] = "tuic" })
+o:depends({ [_n("protocol")] = "anytls" })
 
 if singbox_tags:find("with_quic") then
 	o = s:option(Value, _n("hysteria_up_mbps"), translate("Max upload Mbps"))
@@ -220,6 +232,7 @@ o:depends({ [_n("protocol")] = "http" })
 o:depends({ [_n("protocol")] = "vmess" })
 o:depends({ [_n("protocol")] = "vless" })
 o:depends({ [_n("protocol")] = "trojan" })
+o:depends({ [_n("protocol")] = "anytls" })
 
 if singbox_tags:find("with_reality_server") then
 	-- [[ REALITY部分 ]] --
@@ -229,6 +242,7 @@ if singbox_tags:find("with_reality_server") then
 	o:depends({ [_n("protocol")] = "vmess", [_n("tls")] = true })
 	o:depends({ [_n("protocol")] = "vless", [_n("tls")] = true })
 	o:depends({ [_n("protocol")] = "trojan", [_n("tls")] = true })
+	o:depends({ [_n("protocol")] = "anytls", [_n("tls")] = true })
 
 	o = s:option(Value, _n("reality_private_key"), translate("Private Key"))
 	o:depends({ [_n("reality")] = true })
@@ -250,6 +264,7 @@ end
 
 o = s:option(FileUpload, _n("tls_certificateFile"), translate("Public key absolute path"), translate("as:") .. "/etc/ssl/fullchain.pem")
 o.default = m:get(s.section, "tls_certificateFile") or "/etc/config/ssl/" .. arg[1] .. ".pem"
+if o and o:formvalue(arg[1]) then o.default = o:formvalue(arg[1]) end
 o:depends({ [_n("tls")] = true, [_n("reality")] = false })
 o:depends({ [_n("protocol")] = "naive" })
 o:depends({ [_n("protocol")] = "hysteria" })
@@ -268,6 +283,7 @@ end
 
 o = s:option(FileUpload, _n("tls_keyFile"), translate("Private key absolute path"), translate("as:") .. "/etc/ssl/private.key")
 o.default = m:get(s.section, "tls_keyFile") or "/etc/config/ssl/" .. arg[1] .. ".key"
+if o and o:formvalue(arg[1]) then o.default = o:formvalue(arg[1]) end
 o:depends({ [_n("tls")] = true, [_n("reality")] = false })
 o:depends({ [_n("protocol")] = "naive" })
 o:depends({ [_n("protocol")] = "hysteria" })
@@ -379,9 +395,11 @@ o:depends({ [_n("tcpbrutal")] = true })
 
 o = s:option(Flag, _n("bind_local"), translate("Bind Local"), translate("When selected, it can only be accessed localhost."))
 o.default = "0"
+o:depends({ [_n("custom")] = false })
 
 o = s:option(Flag, _n("accept_lan"), translate("Accept LAN Access"), translate("When selected, it can accessed lan , this will not be safe!"))
 o.default = "0"
+o:depends({ [_n("custom")] = false })
 
 local nodes_table = {}
 for k, e in ipairs(api.get_valid_nodes()) do
@@ -399,6 +417,7 @@ o:value("_socks", translate("Custom Socks"))
 o:value("_http", translate("Custom HTTP"))
 o:value("_iface", translate("Custom Interface"))
 for k, v in pairs(nodes_table) do o:value(v.id, v.remarks) end
+o:depends({ [_n("custom")] = false })
 
 o = s:option(Value, _n("outbound_node_address"), translate("Address (Support Domain Name)"))
 o:depends({ [_n("outbound_node")] = "_socks" })
@@ -421,6 +440,27 @@ o:depends({ [_n("outbound_node")] = "_http" })
 o = s:option(Value, _n("outbound_node_iface"), translate("Interface"))
 o.default = "eth1"
 o:depends({ [_n("outbound_node")] = "_iface" })
+
+o = s:option(TextValue, _n("custom_config"), translate("Custom Config"))
+o.rows = 10
+o.wrap = "off"
+o:depends({ [_n("custom")] = true })
+o.validate = function(self, value, t)
+	if value and api.jsonc.parse(value) then
+		return value
+	else
+		return nil, translate("Must be JSON text!")
+	end
+end
+o.custom_cfgvalue = function(self, section, value)
+	local config_str = m:get(section, "config_str")
+	if config_str then
+		return api.base64Decode(config_str)
+	end
+end
+o.custom_write = function(self, section, value)
+	m:set(section, "config_str", api.base64Encode(value))
+end
 
 o = s:option(Flag, _n("log"), translate("Log"))
 o.default = "1"
