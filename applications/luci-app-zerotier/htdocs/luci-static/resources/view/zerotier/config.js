@@ -73,9 +73,11 @@ return view.extend({
 		o = s.option(form.Value, 'local_conf_path', _('Local config path'),
 			_('Path of the optional file local.conf (see <a target="_blank" href="%s">documentation</a>).').format(
 				'https://docs.zerotier.com/config/#local-configuration-options'));
+		o.value('/etc/zerotier.conf');
 
 		o = s.option(form.Value, 'config_path', _('Config path'),
-				_('Persistent configuration directory (to perform other configurations such as controller mode or moons, etc.).'));
+				_('Persistent configuration directory (to keep other configurations such as controller or moons, etc.).'));
+		o.value('/etc/zerotier');
 
 		o = s.option(form.Flag, 'copy_config_path', _('Copy config path'),
 				_('Copy the contents of the persistent configuration directory to memory instead of linking it, this avoids writing to flash.'));
