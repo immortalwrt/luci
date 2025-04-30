@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2025-04-14 13:17+0000\n"
+"PO-Revision-Date: 2025-04-28 09:36+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationssqm/cs/>\n"
@@ -8,11 +8,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.11-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:133
 msgid "Advanced Configuration"
-msgstr "Pokročilá konfigurace"
+msgstr "Pokročilé nastavení"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:199
 msgid "Advanced Linklayer Options"
@@ -37,6 +37,8 @@ msgid ""
 "Advanced options will only be used as long as this box is checked (only "
 "needed if MTU > 1500)."
 msgstr ""
+"Pokročilé předvolby budou použity pouze pokud je toto zašrtnuto (potřebné "
+"pouze pokud MTU > 1500)."
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:133
 msgid "Advanced options will only be used as long as this box is checked."
@@ -71,14 +73,16 @@ msgid ""
 "Download speed (kbit/s) (ingress) set to 0 to disable ingress shaping "
 "selectively"
 msgstr ""
+"Rychlost stahování (kbit/s) (příjem) nastavte na 0 pro selektivní vypínání "
+"omezování rychlosti příchozího provozu"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:154
 msgid "ECN (egress)"
-msgstr ""
+msgstr "ECN (odchozí)"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:148
 msgid "ECN (ingress)"
-msgstr ""
+msgstr "ECN (příchozí)"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:58
 msgid "Enable SQM"
@@ -102,23 +106,27 @@ msgstr ""
 
 #: applications/luci-app-sqm/root/usr/share/rpcd/acl.d/luci-app-sqm.json:3
 msgid "Grant UCI access for luci-app-sqm"
-msgstr ""
+msgstr "Udělit UCI přístup k luci-app-sqm"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:168
 msgid "Hard limit on egress queues; leave empty for default."
 msgstr ""
+"Nepřekročitelný limit na odchozích frontách (pro použití výchozího "
+"nevyplňujte)."
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:164
 msgid "Hard limit on ingress queues; leave empty for default."
 msgstr ""
+"Nepřekročitelný limit na příchozích frontách (pro použití výchozího "
+"nevyplňujte)."
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:168
 msgid "Hard queue limit (egress)"
-msgstr ""
+msgstr "Nepřekročitelný limit fronty (výstup)"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:164
 msgid "Hard queue limit (ingress)"
-msgstr ""
+msgstr "Nepřekročitelný limit fronty (vstup)"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:142
 msgid "Ignore DSCP (ingress)"
@@ -126,7 +134,7 @@ msgstr "Ignorovat DSCP (vstup)"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:142
 msgid "Ignore DSCP markings on inbound packets"
-msgstr ""
+msgstr "Ignorovat DSCP značkování na příchozích paketech"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:89
 msgid "Interface name"
@@ -160,7 +168,7 @@ msgstr ""
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:74
 msgid "Link Layer Adaptation"
-msgstr ""
+msgstr "Přizpůsobování linkové vrstvy"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:187
 msgid "Link layer"
@@ -207,7 +215,7 @@ msgstr ""
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:193
 msgid "Per Packet Overhead (bytes)"
-msgstr ""
+msgstr "Režie na jednotlivý paket (bajtů)"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:183
 msgid "Qdisc options (egress)"
@@ -247,7 +255,7 @@ msgstr "Inteligentní správa fronty"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:136
 msgid "Squash DSCP (ingress)"
-msgstr ""
+msgstr "Squash DSCP (příchozí)"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:136
 msgid "Squash DSCP markings on inbound packets"
@@ -265,6 +273,8 @@ msgid ""
 "The SQM service seems to be disabled. Please use the button below to "
 "activate this service."
 msgstr ""
+"Zdá se, že služba SQM je zakázaná. Prosím použijte níže uvedené tlačítko pro "
+"aktivaci této služby."
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:96
 msgid "Upload speed (egress)"
@@ -274,18 +284,22 @@ msgstr "Rychlost odesílání (odesílání)"
 msgid ""
 "Upload speed (kbit/s) (egress) set to 0 to selectively disable egress shaping"
 msgstr ""
+"Rychlost odesílání (kbit/s) (odchozí) nastavena na 0 pro selektivní vypínání "
+"omezování rychlosti odchozího"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:103
 msgid "Verbosity of SQM's output into the system log."
-msgstr ""
+msgstr "Výřečnost výstupu ze SQM do systémového záznamu událostí."
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:187
 msgid "Which link layer technology to account for"
-msgstr ""
+msgstr "Pro kterou technologii linkové vrstvy účtovat"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:218
 msgid "Which linklayer adaptation mechanism to use; for testing only"
 msgstr ""
+"Který mechanizmus přizpůsobování linkové vrstvy použít – pouze pro testovací "
+"účely"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:65
 msgid ""

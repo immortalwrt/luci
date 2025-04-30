@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2025-04-14 13:17+0000\n"
+"PO-Revision-Date: 2025-04-28 09:36+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsfrps/cs/>\n"
@@ -8,11 +8,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.11-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:15
 msgid "Additional configs"
-msgstr "Další konfigurace"
+msgstr "Další nastavení"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:43
 msgid "Additional settings"
@@ -28,10 +28,13 @@ msgid ""
 "the length of this value is 0, all ports are allowed.<br />By default, this "
 "value is an empty set."
 msgstr ""
+"AllowPorts určuje sadu portů, ke kterým klienti budou moci využít proxy. "
+"Pokud je délka této hodnota 0 (nula), jsou povolené veškeré porty.<br />Ve "
+"výchozím stavu tato hodnota není vyplněná."
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:31
 msgid "Assets dir"
-msgstr ""
+msgstr "Složka obsahu"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:31
 msgid ""
@@ -39,6 +42,10 @@ msgid ""
 "resources from. If this value is \"\", assets will be loaded from the "
 "bundled executable using statik.<br />By default, this value is \"\"."
 msgstr ""
+"AssetsDir určuje lokální složku, ze které přehled načítá prostředky. Pokud "
+"je tato hodnota „“ (nevyplněná), obsah bude načítán z přibaleného "
+"spustitelného souboru pomocí statik.<br />Ve výchozím stavu je tato hodnota "
+"nevyplněná."
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:19
 msgid "Bind address"
@@ -46,13 +53,15 @@ msgstr "Adresa, na kterou navázat"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:20
 msgid "Bind port"
-msgstr "Bind port"
+msgstr "Port, na který navázat"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:19
 msgid ""
 "BindAddr specifies the address that the server binds to.<br />By default, this "
 "value is \"0.0.0.0\"."
 msgstr ""
+"BindAddr určuje, na kterou adresu má být server navázán.<br />Ve výchozím "
+"stavu je tato hodnota „0.0.0.0“ (na všechny)."
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:22
 msgid ""
@@ -60,12 +69,17 @@ msgid ""
 "is 0, the server will not listen for KCP connections.<br />By default, this "
 "value is 0."
 msgstr ""
+"BindKcpPort určuje KCP port, na kterém server očekává spojení. Pokud je "
+"hodnota 0 (nula) pak server nenaslouchá KCP spojením.<br />A toto je i "
+"výchozí chování (hodnota 0)."
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:20
 msgid ""
 "BindPort specifies the port that the server listens on.<br />By default, this "
 "value is 7000."
 msgstr ""
+"BindPort určuje, port na kterém má server očekávat spojení.<br />Ve výchozím "
+"stavu je tato hodnota 7000."
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:21
 msgid ""
@@ -73,6 +87,9 @@ msgid ""
 "is 0, the server will not listen for UDP connections.<br />By default, this "
 "value is 0"
 msgstr ""
+"BindUdpPort určuje UDP port, na kterém server očekává spojení. Pokud je tato "
+"hodnota 0 (nula), pak server nenaslouchá UDP spojením.<br />Ve výchozím "
+"stavu je tato hodnota 0"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:143
 msgid "Collecting data ..."
@@ -131,16 +148,20 @@ msgid ""
 "DashboardPwd specifies the password that the dashboard will use for login."
 "<br />By default, this value is \"admin\"."
 msgstr ""
+"DashboardPwd určuje heslo, které bude používáno přehledem pro přihlášení "
+"se.<br />Ve výchozím stavu je tato hodnota „admin“."
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:29
 msgid ""
 "DashboardUser specifies the username that the dashboard will use for login."
 "<br />By default, this value is \"admin\"."
 msgstr ""
+"DashboardUser určuje uživatelské jméno, které bude používáno přehledem pro "
+"přihlášení se.<br />Ve výchozím stavu je tato hodnota „admin“."
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:35
 msgid "Disable log color"
-msgstr ""
+msgstr "Neobarvovat záznam událostí"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:35
 msgid ""
@@ -154,7 +175,7 @@ msgstr "Proměnná prostředí"
 
 #: applications/luci-app-frps/root/usr/share/rpcd/acl.d/luci-app-frps.json:3
 msgid "Grant access to LuCI app frps"
-msgstr ""
+msgstr "Udělit přístup k LuCI aplikaci frps"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:42
 msgid ""
@@ -177,7 +198,7 @@ msgstr "Soubor se záznamem událostí"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:33
 msgid "Log level"
-msgstr "Úroveň logu"
+msgstr "Stupeň podrobnosti záznamu událostí"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:34
 msgid "Log max days"
@@ -185,7 +206,7 @@ msgstr "Zaznamenávat nejvýše dnů"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:10
 msgid "Log stderr"
-msgstr ""
+msgstr "Zaznamenávat standardní chybový výstup"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:9
 msgid "Log stdout"
@@ -231,10 +252,14 @@ msgid ""
 "OS environments pass to frp for config file template, see <a href=\"https://"
 "github.com/fatedier/frp#configuration-file-template\">frp README</a>"
 msgstr ""
+"Prostředí operačního systému, které předat frp pro šablonu souboru s "
+"nastaveními – viz <a href="
+"\"https://github.com/fatedier/frp#configuration-file-template\">frp "
+"README</a>"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:23
 msgid "Proxy bind address"
-msgstr ""
+msgstr "Adresa na kterou navázat proxy"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:23
 msgid ""
@@ -248,15 +273,15 @@ msgstr "BĚŽÍCÍ"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:13
 msgid "Respawn when crashed"
-msgstr ""
+msgstr "V případě pádu spustit znovu"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:12
 msgid "Run daemon as group"
-msgstr "Spustit démona pod skupinou"
+msgstr "Spustit proces služby s oprávněními skupiny"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:11
 msgid "Run daemon as user"
-msgstr ""
+msgstr "Spustit proces služby pod uživatelskými oprávněními"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:152
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:156
@@ -278,7 +303,7 @@ msgstr "Hostitel dílčí domény"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:38
 msgid "TCP mux"
-msgstr ""
+msgstr "TCP mux"
 
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:38
 msgid ""
@@ -344,4 +369,4 @@ msgstr ""
 #: applications/luci-app-frps/htdocs/luci-static/resources/view/frps.js:128
 #: applications/luci-app-frps/root/usr/share/luci/menu.d/luci-app-frps.json:3
 msgid "frp Server"
-msgstr ""
+msgstr "frp server"

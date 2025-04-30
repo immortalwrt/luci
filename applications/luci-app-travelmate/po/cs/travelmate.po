@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2025-04-14 13:17+0000\n"
+"PO-Revision-Date: 2025-04-28 09:36+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationstravelmate/cs/>\n"
@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.11-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:76
 msgid "-- AP Selection --"
@@ -16,15 +16,15 @@ msgstr "-- výběr přístupového bodu --"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:269
 msgid "AP QR-Codes..."
-msgstr "QR kódy AP..."
+msgstr "QR kódy přístupového bodu…"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:1037
 msgid "Add Uplink %q"
-msgstr ""
+msgstr "Přidat nadřazené %q"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:868
 msgid "Add Uplink..."
-msgstr ""
+msgstr "Přidat nadřazené…"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:295
 msgid "Additional Settings"
@@ -34,6 +34,8 @@ msgstr "Další nastavení"
 msgid ""
 "Additional trigger delay in seconds before travelmate processing begins."
 msgstr ""
+"Dodatečná prodleva spouštění (v sekundách) než začne zpracovávání v "
+"travelmate."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:439
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:994
@@ -47,7 +49,7 @@ msgstr "Ověřování se"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:539
 msgid "Auto Added Open Uplink"
-msgstr ""
+msgstr "Automaticky přidaný otevřený uplink"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:617
 msgid "Auto Login Script"
@@ -55,19 +57,24 @@ msgstr ""
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:352
 msgid "AutoAdd Open Uplinks"
-msgstr ""
+msgstr "Automaticky přidávat otevřené uplinky"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:600
 msgid ""
 "Automatically (re-)enable the uplink after <em>n</em> minutes, e.g. after "
 "failed login attempts.<br /> The default of '0' disables this feature."
 msgstr ""
+"Automaticky (znovu)povolit uplink po <em>n</em> minutách, např. po "
+"nezdařených pokusech o přihlášení.<br /> Výchozí „0“ (nula) tuto funkci "
+"vypíná."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:352
 msgid ""
 "Automatically add open uplinks like hotel captive portals to your wireless "
 "config."
 msgstr ""
+"Automaticky přidávat otevřené uplinky jako hotelové zachycovací portály do "
+"vašeho nastavení bezdrátového."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:582
 msgid ""
@@ -81,6 +88,8 @@ msgid ""
 "requires the additional configuration of <em>Wireguard</em> or <em>OpenVPN</"
 "em>."
 msgstr ""
+"Automaticky obsluhovat VPN spojení.<br /> Mějte na paměti: Tato funkce "
+"vyžaduje dodatečné nastavení <em>Wireguard</em> nebo <em>OpenVPN</em>."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:303
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:506
@@ -96,7 +105,7 @@ msgstr ""
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:314
 msgid "Captive Portal Detection"
-msgstr ""
+msgstr "Zjišťování zachycovacího portálu"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:390
 msgid "Captive Portal URL"
@@ -111,6 +120,8 @@ msgid ""
 "Check the internet availability, handle captive portal redirections and keep "
 "the uplink connection 'alive'."
 msgstr ""
+"Kontrolovat dostupnost připojení k Internetu, obsluhovat přesměrování "
+"zachycovacího portálu a udržování uplink spojení ve stavu „alive“."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:148
 msgid ""
@@ -136,7 +147,7 @@ msgstr "Limit spojení"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:517
 msgid "Connection Start"
-msgstr "Start připojení"
+msgstr "Začátek připojení"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:581
 msgid "Connection Start Expiry"
@@ -225,11 +236,13 @@ msgstr "Upravit tuto síť"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:301
 msgid "Enable the travelmate service."
-msgstr ""
+msgstr "Povolit službu travelmate."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:304
 msgid "Enable verbose debug logging in case of any processing errors."
 msgstr ""
+"Zapnout výřečné ladící zaznamenávání událostí v případě jakýchkoli chyb "
+"zpracovávání."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:272
 msgid "Enable/Disable this network"
@@ -238,7 +251,7 @@ msgstr "Zapnout/vypnout tuto síť"
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:301
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:284
 msgid "Enabled"
-msgstr "Zapnuto"
+msgstr "Povoleno"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:307
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:758
@@ -255,6 +268,8 @@ msgid ""
 "External script reference which will be called for automated captive portal "
 "logins."
 msgstr ""
+"Reference externího skriptu který bude volán pro automatizovaná přihlášení k "
+"zachycovacímu portálu."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:416
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:974
@@ -268,15 +283,17 @@ msgstr "Obecná nastavení"
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:348
 msgid "Generate a random unicast MAC address for each uplink connection."
 msgstr ""
+"Pro každé odchozí rozhraní vytvořit náhodnou MAC adresu jednosměrového "
+"vysílání."
 
 #: applications/luci-app-travelmate/root/usr/share/rpcd/acl.d/luci-app-travelmate.json:3
 msgid "Grant access to LuCI app travelmate"
-msgstr ""
+msgstr "Udělit přístup k LuCI aplikaci travelmate"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:380
 msgid ""
 "How long should travelmate wait for a successful wlan uplink connection."
-msgstr ""
+msgstr "Jak dlouho má travelmate čekat na úspěšné odchozí wlan spojení."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:435
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:991
@@ -305,7 +322,7 @@ msgstr "Průvodce rozhraním"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:283
 msgid "Interface Wizard..."
-msgstr "Průvodce nastavením rozhraní..."
+msgstr "Průvodce nastavením rozhraní…"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:254
 msgid "Last Run"
@@ -313,7 +330,7 @@ msgstr "Poslední spuštění"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:356
 msgid "Limit AutoAdd"
-msgstr ""
+msgstr "Omezit automatické přidávání"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:322
 msgid "Limit VPN processing"
@@ -321,7 +338,7 @@ msgstr "Omezit zpracovávání VPN"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:322
 msgid "Limit VPN processing to certain interfaces."
-msgstr ""
+msgstr "Omezit zpracovávání VPN na určitá rozhraní."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:356
 msgid ""
@@ -331,7 +348,7 @@ msgstr ""
 
 #: applications/luci-app-travelmate/root/usr/share/luci/menu.d/luci-app-travelmate.json:35
 msgid "Log View"
-msgstr "Zobrazení protokolu"
+msgstr "Zobrazení záznamu událostí"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:556
 msgid "MAC Address"
@@ -360,7 +377,7 @@ msgstr ""
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:339
 msgid "Net Error Check"
-msgstr ""
+msgstr "Žádná kontrola chyby"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:327
 msgid "OWE"
@@ -381,7 +398,7 @@ msgstr "Celkový časový limit"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:385
 msgid "Overall retry timeout in seconds."
-msgstr ""
+msgstr "Celkový časový limit opakovaného pokusu (v sekundách)."
 
 #: applications/luci-app-travelmate/root/usr/share/luci/menu.d/luci-app-travelmate.json:19
 msgid "Overview"
@@ -436,13 +453,15 @@ msgstr "Popis umístění soukromého klíče"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:266
 msgid "Please install the separate 'qrencode' package."
-msgstr ""
+msgstr "Nainstalujte oddělený balíček „qrencode“."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:296
 msgid ""
 "Please note: E-Mail notifications require the separate setup of the "
 "<em>msmtp</em> package.<br /><p>&#xa0;</p>"
 msgstr ""
+"Mějte na paměti: E-mailové notifikace vyžadují nastavit samostatný balíček "
+"<em>msmtp</em>.<br /><p>&#xa0;</p>"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:344
 msgid "ProActive Uplink Switch"
@@ -456,7 +475,7 @@ msgstr ""
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:438
 msgid "Profile used by 'msmtp' for travelmate notification E-Mails."
-msgstr ""
+msgstr "Profil použitý „msmtp“ pro e-maily travelmate upozornění."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:116
 msgid "QR-Code Overview"
@@ -472,7 +491,7 @@ msgstr "Vytvořit náhodnou MAC adresu"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:423
 msgid "Receiver address for travelmate notification E-Mails."
-msgstr ""
+msgstr "Adresa příjemce pro e-maily s upozorňováními z travelmate."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:279
 msgid "Remove"
@@ -487,6 +506,8 @@ msgid ""
 "Render the QR-Code of the selected Access Point to transfer the WLAN "
 "credentials to your mobile devices comfortably."
 msgstr ""
+"Vykreslit QR kód vybraného přístupového bodu pro pohodlné přenesení "
+"přihlašovacích údajů k WLAN do vašich mobilních zařízení."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:775
 msgid "Repeat Scan"
@@ -504,7 +525,7 @@ msgstr "Restartovat rozhraní"
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:307
 msgid ""
 "Restrict travelmate to a single radio or change the overall scanning order."
-msgstr ""
+msgstr "Omezit travelmate na jediné rádio nebo změnit celkové pořadí skenování."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:370
 msgid "Retry limit to connect to an uplink."
@@ -540,7 +561,7 @@ msgstr "Argumenty skriptu"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:428
 msgid "Sender address for travelmate notification E-Mails."
-msgstr ""
+msgstr "Adresa odesilatele pro e-maily s upozorňováními z travelmate."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:420
 msgid "Sends notification E-Mails after every succesful uplink connect."
@@ -556,13 +577,15 @@ msgstr "Nastavení"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:375
 msgid "Signal Quality Threshold"
-msgstr ""
+msgstr "Práh kvality signálu"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:657
 msgid ""
 "Space separated list of additional arguments passed to the Auto Login "
 "Script, i.e. username and password"
 msgstr ""
+"Mezerou oddělovaný seznam dodatečných argumentů předávaných skriptu pro "
+"automatické přihlašování – tj. uživatelské jméno a heslo"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:328
 msgid "Standard VPN Service"
@@ -576,15 +599,17 @@ msgstr "Standardní VPN rozhraní"
 msgid ""
 "Standard VPN interface which will be automatically added to new STA profiles."
 msgstr ""
+"Standardní VPN rozhraní které bude automaticky přidáno do nových STA profilů."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:328
 msgid ""
 "Standard VPN service which will be automatically added to new STA profiles."
 msgstr ""
+"Standardní VPN služba, která bude automaticky přidána do nových STA profilů."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:762
 msgid "Starting wireless scan on '"
-msgstr ""
+msgstr "Spustit sken bezdrátového na „"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:230
 msgid "Station ID"
@@ -618,11 +643,11 @@ msgstr "TTLS"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:107
 msgid "The QR-Code could not be generated!"
-msgstr ""
+msgstr "QR kód nebylo možné vytvořit!"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:34
 msgid "The firewall zone name"
-msgstr ""
+msgstr "Název zóny brány firewall"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:39
 msgid "The interface metric"
@@ -630,22 +655,25 @@ msgstr "Metriky rozhraní"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:709
 msgid "The logical vpn network interface like 'wg0'."
-msgstr ""
+msgstr "Logické rozhraní vpn sítě, jako „wg0“."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:390
 msgid ""
 "The selected URL will be used for connectivity- and captive portal checks."
 msgstr ""
+"Vybraná URL bude použito pro kontroly konektivity a zachycovacího portálu."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:408
 msgid "The selected priority will be used for travelmate processes."
-msgstr ""
+msgstr "Vybraná priorita bude použita pro procesy travelmate."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:399
 msgid ""
 "The selected user agent will be used for connectivity- and captive portal "
 "checks."
 msgstr ""
+"Vybraný uživatelský agent bude použit pro kontroly konektivity a "
+"zachycovacího portálu."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:59
 msgid "The uplink interface has been updated."
@@ -670,11 +698,11 @@ msgstr ""
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:433
 msgid "Topic for travelmate notification E-Mails."
-msgstr ""
+msgstr "Téma pro notifikační e-maily z travelmate."
 
 #: applications/luci-app-travelmate/root/usr/share/luci/menu.d/luci-app-travelmate.json:3
 msgid "Travelmate"
-msgstr ""
+msgstr "Travelmate"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:254
 msgid "Travelmate Settings"
@@ -682,7 +710,7 @@ msgstr "Nastavení pro Travelmate"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:339
 msgid "Treat missing internet availability as an error."
-msgstr ""
+msgstr "Vyhodnocovat nedostupnost Internetu jako chybu."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:365
 msgid "Trigger Delay"
@@ -719,7 +747,7 @@ msgstr "Nastavení pro VPN"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:318
 msgid "VPN connections will be managed by travelmate."
-msgstr ""
+msgstr "VPN spojení budou spravována pomocí travelmate."
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:318
 msgid "VPN processing"
@@ -729,10 +757,12 @@ msgstr "Zpracovávání VPN"
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:1012
 msgid "Validate server certificate using built-in system CA bundle"
 msgstr ""
+"Ověřit certifikát serveru pomocí vestavěného systémového balíčku certif. "
+"autorit"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:304
 msgid "Verbose Debug Logging"
-msgstr ""
+msgstr "Podrobný záznam událostí pro ladění"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:323
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/stations.js:950
@@ -872,19 +902,19 @@ msgstr "žádné"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:310
 msgid "use both radios, normal sort order (radio0 radio1)"
-msgstr ""
+msgstr "použít obě rádia – běžné pořadí řazení (radio0 radio1)"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:311
 msgid "use both radios, reverse sort order (radio1 radio0)"
-msgstr ""
+msgstr "použít obě rádia – obrácené pořadí řazení (radio1 radio0)"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:308
 msgid "use the first radio only (radio0)"
-msgstr ""
+msgstr "použít pouze první bezdrátové rozhraní (radio0)"
 
 #: applications/luci-app-travelmate/htdocs/luci-static/resources/view/travelmate/overview.js:309
 msgid "use the second radio only (radio1)"
-msgstr ""
+msgstr "použít pouze druhé bezdrátové rozhraní (radio1)"
 
 #~ msgid "Action"
 #~ msgstr "Akce"
