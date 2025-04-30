@@ -8,6 +8,9 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-base
 
+# Hardcode 'openwrt-23.05' release branch as the branch name
+PKG_GITBRANCH:=LuCI openwrt-23.05 branch
+
 LUCI_TYPE:=mod
 LUCI_BASENAME:=base
 
