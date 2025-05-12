@@ -337,10 +337,18 @@ return view.extend({
 					   minutes > 0 ? `${minutes}m ${seconds}s` :
 					   `${seconds}s`;
 			} else {
-				return days > 0 ? `${days} 天 ${hours} 小时` :
-					   hours > 0 ? `${hours} 小时 ${minutes} 分` :
-					   minutes > 0 ? `${minutes} 分 ${seconds} 秒` :
-					   `${seconds} 秒`;
+				if (days > 0) {
+					return _('%dd %dh').replace(/%d/g, match =>
+						match === '%d' ? days : hours);
+				} else if (hours > 0) {
+					return _('%dh %dm').replace(/%d/g, match =>
+						match === '%d' ? hours : minutes);
+				} else if (minutes > 0) {
+					return _('%dm %ds').replace(/%d/g, match =>
+						match === '%d' ? minutes : seconds);
+				} else {
+					return _('%ds').replace('%d', seconds);
+				}
 			}
 		}
 
@@ -432,9 +440,7 @@ return view.extend({
 		}
 
 		var container = document.createElement('div');
-		container.appendChild(document.createElement('h2')).textContent = _('当前共 ') + totalDevices + _(' 台设备在线');
-		container.appendChild(createTable());
-		container.appendChild(document.createElement('style')).textContent = style;
+		refreshContainer();
 
 		container.addEventListener('click', function (event) {
 			if (event.target.tagName === 'TH' && event.target.parentNode.rowIndex === 0) {
@@ -457,11 +463,18 @@ return view.extend({
 					direction = 'asc';
 				}
 
-				sortTable(column, direction, container);
+				sortTable(column, direction);
 			}
 		});
 
-		function sortTable(column, direction, container) {
+		function refreshContainer() {
+			container.innerHTML = '';
+			container.appendChild(document.createElement('h2')).textContent = _('Currently %s devices online').replace('%s', totalDevices);
+			container.appendChild(createTable());
+			container.appendChild(document.createElement('style')).textContent = style;
+		}
+
+		function sortTable(column, direction) {
 			devices.sort(function (a, b) {
 				return compareDevices(a, b, column, direction);
 			});
@@ -473,10 +486,7 @@ return view.extend({
 			localStorage.setItem('sortColumn', currentSortColumn);
 			localStorage.setItem('sortDirection', currentSortDirection);
 
-			container.innerHTML = '';
-			container.appendChild(document.createElement('h2')).textContent = _('当前共 ') + totalDevices + _(' 台设备在线');
-			container.appendChild(createTable());
-			container.appendChild(document.createElement('style')).textContent = style;
+			refreshContainer();
 		}
 
 		return container;

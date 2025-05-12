@@ -148,6 +148,8 @@ return view.extend({
 			_('Another channel for WeChat push, the configuration is relatively simple, and it supports multiple push methods'));
 		o.value('/usr/share/wechatpush/api/telegram.json', _('Telegram'),
 			_('Telegram Bot Push'));
+		o.value('/usr/share/wechatpush/api/msmtp.json', _('msmtp'),
+			_('To send emails using msmtp, you must manually install msmtp and configure `/etc/msmtprc`.'));
 		o.value('/usr/share/wechatpush/api/diy.json', _('Custom Push'),
 			_('By modifying the JSON file, you can use a custom API'));
 
@@ -229,6 +231,10 @@ return view.extend({
 		o.description = _('Get chat_id') + ' <a href="https://t.me/getuserIDbot" target="_blank">' + _('Click here') + '</a>' + _('<br />If you want to send to a group/channel, please create a non-Chinese group/channel (for easier chatid lookup, you can rename it later).<br />Add the bot to the group, send a message, and use https://api.telegram.org/bot token /getUpdates to obtain the chatid.');
 		o.rmempty = false;
 		o.depends('jsonpath', '/usr/share/wechatpush/api/telegram.json');
+
+		o = s.taboption('basic', form.Value, 'recipient_email', _('Recipient Email Address'));
+		o.depends('jsonpath', '/usr/share/wechatpush/api/msmtp.json');
+		o.description = _('opkg update<br />opkg install msmtp');
 
 		o = s.taboption('basic', form.TextValue, 'diy_json', _('Custom Push'));
 		o.rows = 28;
@@ -678,7 +684,7 @@ return view.extend({
 
 		o = s.taboption('disturb', form.Value, 'cpu_threshold_duration', _('When CPU temperature or load exceeds the threshold continuously for (s) seconds.'));
 		o.rmempty = false;
-		o.placeholder = '300';
+		o.default = '300';
 		o.datatype = 'and(uinteger)';
 		o.description = _('If set to 0, it\'s a single check without considering duration.');
 		o.depends({ cpu_notification: "temp", '!contains': true });
@@ -686,7 +692,7 @@ return view.extend({
 
 		o = s.taboption('disturb', form.Value, 'cpu_notification_delay', _('CPU alarm quiet time (seconds)'));
 		o.rmempty = false;
-		o.placeholder = '3600';
+		o.default = '3600';
 		o.datatype = 'and(uinteger)';
 		o.description = _('No repeat notifications within the set time after the initial push notification.');
 		o.depends({ cpu_notification: "temp", '!contains': true });
