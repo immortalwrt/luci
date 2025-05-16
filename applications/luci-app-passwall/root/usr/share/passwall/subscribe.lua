@@ -540,7 +540,7 @@ local function processData(szType, content, add_mode, add_from)
 				result.xhttp_host = info.host
 				result.xhttp_path = info.path
 			else
-				result.http_host = info.host
+				result.http_host = (info.host and info.host ~= "") and { info.host } or nil
 				result.http_path = info.path
 			end
 		end
@@ -618,9 +618,9 @@ local function processData(szType, content, add_mode, add_from)
 		result.remarks = UrlDecode(alias)
 		local info = content:sub(1, idx_sp - 1):gsub("/%?", "?")
 		local params = {}
-		if info:find("?") then
-			local find_index = info:find("?")
-			local query = split(info, "?")
+		if info:find("%?") then
+			local find_index = info:find("%?")
+			local query = split(info, "%?")
 			for _, v in pairs(split(query[2], '&')) do
 				local t = split(v, '=')
 				params[t[1]] = UrlDecode(t[2])
@@ -754,7 +754,7 @@ local function processData(szType, content, add_mode, add_from)
 						result.ws_host = params.host
 						result.ws_path = params.path
 						if result.type == "sing-box" and params.path then
-							local ws_path_dat = split(params.path, "?")
+							local ws_path_dat = split(params.path, "%?")
 							local ws_path = ws_path_dat[1]
 							local ws_path_params = {}
 							for _, v in pairs(split(ws_path_dat[2], '&')) do
@@ -772,7 +772,7 @@ local function processData(szType, content, add_mode, add_from)
 					if params.type == "http" then
 						if result.type == "sing-box" then
 							result.transport = "http"
-							result.http_host = params.host
+							result.http_host = (params.host and params.host ~= "") and { params.host } or nil
 							result.http_path = params.path
 						elseif result.type == "Xray" then
 							result.transport = "xhttp"
@@ -855,7 +855,7 @@ local function processData(szType, content, add_mode, add_from)
 			result.password = UrlDecode(Info[1])
 			local port = "443"
 			Info[2] = (Info[2] or ""):gsub("/%?", "?")
-			local query = split(Info[2], "?")
+			local query = split(Info[2], "%?")
 			local host_port = query[1]
 			local params = {}
 			for _, v in pairs(split(query[2], '&')) do
@@ -915,7 +915,7 @@ local function processData(szType, content, add_mode, add_from)
 				result.ws_host = params.host
 				result.ws_path = params.path
 				if result.type == "sing-box" and params.path then
-					local ws_path_dat = split(params.path, "?")
+					local ws_path_dat = split(params.path, "%?")
 					local ws_path = ws_path_dat[1]
 					local ws_path_params = {}
 					for _, v in pairs(split(ws_path_dat[2], '&')) do
@@ -933,7 +933,7 @@ local function processData(szType, content, add_mode, add_from)
 			if params.type == "http" then
 				if result.type == "sing-box" then
 					result.transport = "http"
-					result.http_host = params.host
+					result.http_host = (params.host and params.host ~= "") and { params.host } or nil
 					result.http_path = params.path
 				elseif result.type == "Xray" then
 					result.transport = "xhttp"
@@ -1023,7 +1023,7 @@ local function processData(szType, content, add_mode, add_from)
 			result.uuid = UrlDecode(Info[1])
 			local port = "443"
 			Info[2] = (Info[2] or ""):gsub("/%?", "?")
-			local query = split(Info[2], "?")
+			local query = split(Info[2], "%?")
 			local host_port = query[1]
 			local params = {}
 			for _, v in pairs(split(query[2], '&')) do
@@ -1062,7 +1062,7 @@ local function processData(szType, content, add_mode, add_from)
 				result.ws_host = params.host
 				result.ws_path = params.path
 				if result.type == "sing-box" and params.path then
-					local ws_path_dat = split(params.path, "?")
+					local ws_path_dat = split(params.path, "%?")
 					local ws_path = ws_path_dat[1]
 					local ws_path_params = {}
 					for _, v in pairs(split(ws_path_dat[2], '&')) do
@@ -1080,7 +1080,7 @@ local function processData(szType, content, add_mode, add_from)
 			if params.type == "http" then
 				if result.type == "sing-box" then
 					result.transport = "http"
-					result.http_host = params.host
+					result.http_host = (params.host and params.host ~= "") and { params.host } or nil
 					result.http_path = params.path
 				elseif result.type == "Xray" then
 					result.transport = "xhttp"
@@ -1236,7 +1236,7 @@ local function processData(szType, content, add_mode, add_from)
 			result.hysteria2_auth_password = UrlDecode(contents[1])
 			Info = (contents[2] or ""):gsub("/%?", "?")
 		end
-		local query = split(Info, "?")
+		local query = split(Info, "%?")
 		local host_port = query[1]
 		local params = {}
 		for _, v in pairs(split(query[2], '&')) do
@@ -1300,7 +1300,7 @@ local function processData(szType, content, add_mode, add_from)
 			end
 			Info = (contents[2] or ""):gsub("/%?", "?")
 		end
-		local query = split(Info, "?")
+		local query = split(Info, "%?")
 		local host_port = query[1]
 		local params = {}
 		for _, v in pairs(split(query[2], '&')) do
@@ -1352,7 +1352,7 @@ local function processData(szType, content, add_mode, add_from)
 			result.password = UrlDecode(Info[1])
 			local port = "443"
 			Info[2] = (Info[2] or ""):gsub("/%?", "?")
-			local query = split(Info[2], "?")
+			local query = split(Info[2], "%?")
 			local host_port = query[1]
 			local params = {}
 			for _, v in pairs(split(query[2], '&')) do

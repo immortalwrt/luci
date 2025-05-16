@@ -27,7 +27,7 @@ local function convert_geofile()
 		api.log("！！！注意：缺少 Geoview 组件，Sing-Box 分流无法启用！请在[组件更新]中更新。")
 		return
 	else
-		if api.compare_versions(api.get_app_version("geoview"), "<", "0.1.6") then
+		if api.compare_versions(api.get_app_version("geoview"), "<", "0.1.10") then
 			api.log("！！！注意：Geoview 组件版本低，Sing-Box 分流无法启用！请在[组件更新]中更新。")
 			return
 		end
@@ -194,10 +194,21 @@ function gen_outbound(flag, node, tag, proxy_table)
 
 		local v2ray_transport = nil
 
+		if node.transport == "tcp" and node.tcp_guise == "http" and (node.tcp_guise_http_host or "") ~= "" then  --模拟xray raw(tcp)传输
+			v2ray_transport = {
+				type = "http",
+				host = node.tcp_guise_http_host,
+				path = (node.tcp_guise_http_path and node.tcp_guise_http_path[1]) or "/",
+				idle_timeout = (node.http_h2_health_check == "1") and node.http_h2_read_idle_timeout or nil,
+				ping_timeout = (node.http_h2_health_check == "1") and node.http_h2_health_check_timeout or nil,
+			}
+			--不强制执行 TLS。如果未配置 TLS，将使用纯 HTTP 1.1。
+		end
+
 		if node.transport == "http" then
 			v2ray_transport = {
 				type = "http",
-				host = { node.http_host },
+				host = node.http_host or {},
 				path = node.http_path or "/",
 				idle_timeout = (node.http_h2_health_check == "1") and node.http_h2_read_idle_timeout or nil,
 				ping_timeout = (node.http_h2_health_check == "1") and node.http_h2_health_check_timeout or nil,
@@ -459,6 +470,9 @@ function gen_outbound(flag, node, tag, proxy_table)
 		if node.protocol == "anytls" then
 			protocol_table = {
 				password = (node.password and node.password ~= "") and node.password or "",
+				idle_session_check_interval = "30s",
+				idle_session_timeout = "30s",
+				min_idle_session = 5,
 				tls = tls
 			}
 		end
@@ -527,7 +541,7 @@ function gen_config_server(node)
 	if node.transport == "http" then
 		v2ray_transport = {
 			type = "http",
-			host = node.http_host,
+			host = node.http_host or {},
 			path = node.http_path or "/",
 		}
 	end
@@ -1023,7 +1037,7 @@ function gen_config(var)
 				end
 				if is_new_ut_node then
 					local ut_node = uci:get_all(appname, ut_node_id)
-					local outbound = gen_outbound(flag, ut_node, ut_node_tag)
+					local outbound = gen_outbound(flag, ut_node, ut_node_tag, { run_socks_instance = not no_run })
 					if outbound then
 						outbound.tag = outbound.tag .. ":" .. ut_node.remarks
 						table.insert(outbounds, outbound)
@@ -1439,7 +1453,7 @@ function gen_config(var)
 				sys.call(string.format("mkdir -p %s && touch %s/%s", api.TMP_IFACE_PATH, api.TMP_IFACE_PATH, node.iface))
 			end
 		else
-			local outbound = gen_outbound(flag, node)
+			local outbound = gen_outbound(flag, node, nil, { run_socks_instance = not no_run })
 			if outbound then
 				outbound.tag = outbound.tag .. ":" .. node.remarks
 				COMMON.default_outbound_tag, last_insert_outbound = set_outbound_detour(node, outbound, outbounds)
