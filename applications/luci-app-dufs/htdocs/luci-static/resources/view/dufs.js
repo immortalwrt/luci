@@ -104,7 +104,6 @@ return view.extend({
 		o = s.option(form.Flag, 'render_try_index', _('Render index or directory list'),
 			_('Serve index.html when requesting a directory, returns directory listing if not found index.html.'));
 		o.default = o.enabled;
-		o.depends('render_index', '0');
 
 		o = s.option(form.Flag, 'allow_all', _('Allow all operations'));
 
