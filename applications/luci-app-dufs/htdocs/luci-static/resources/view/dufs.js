@@ -97,6 +97,15 @@ return view.extend({
 		o = s.option(form.DynamicList, 'auth', _('Auth roles'),
 			_('Add auth roles, e.g. %s.').format('<code>user:pass@/dir1:rw,/dir2</code>'));
 
+		o = s.option(form.Flag, 'render_index', _('Render index'),
+			_('Serve index.html when requesting a directory, returns 404 if not found index.html.'));
+		o.depends('render_try_index', '0');
+
+		o = s.option(form.Flag, 'render_try_index', _('Render index or directory list'),
+			_('Serve index.html when requesting a directory, returns directory listing if not found index.html.'));
+		o.default = o.enabled;
+		o.depends('render_index', '0');
+
 		o = s.option(form.Flag, 'allow_all', _('Allow all operations'));
 
 		o = s.option(form.Flag, 'allow_upload', _('Allow upload files/folders'));
