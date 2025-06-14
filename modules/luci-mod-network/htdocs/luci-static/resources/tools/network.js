@@ -71,7 +71,7 @@ function updateDevBadge(node, dev) {
 	dom.content(node, [
 		E('img', {
 			'class': 'middle',
-			'src': L.resource('icons/%s%s.png').format(type, up ? '' : '_disabled')
+			'src': L.resource('icons/%s%s.svg').format(type, up ? '' : '_disabled')
 		}),
 		'\x0a', dev.getName()
 	]);
@@ -107,7 +107,7 @@ function updatePortStatus(node, dev) {
 	dom.content(node, [
 		E('img', {
 			'class': 'middle',
-			'src': L.resource('icons/port_%s.png').format(carrier ? 'up' : 'down')
+			'src': L.resource('icons/port_%s.svg').format(carrier ? 'up' : 'down')
 		}),
 		'\x0a', desc
 	]);
@@ -619,7 +619,7 @@ return baseclass.extend({
 		o.depends('type', 'bonding');
 
 		o = this.replaceOption(s, 'devgeneral', form.ListValue, 'policy', _('Bonding Policy'));
-		o.default = 'active-backup';
+		o.default = 'balance-rr';
 		o.value('active-backup', _('Active backup'));
 		o.value('balance-rr', _('Round robin'));
 		o.value('balance-xor', _('Transmit hash - balance-xor'));
@@ -660,7 +660,7 @@ return baseclass.extend({
 				return 'balance-alb';
 
 			default:
-				return 'active-backup';
+				return 'balance-rr';
 			}
 		};
 		o.depends('type', 'bonding');

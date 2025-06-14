@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luci-app-ddns 2.4.0-1\n"
 "POT-Creation-Date: 2016-01-30 11:07+0100\n"
-"PO-Revision-Date: 2025-02-27 19:01+0000\n"
-"Last-Translator: \"Szollosi, Balazs\" <szolloba@gmail.com>\n"
+"PO-Revision-Date: 2025-05-08 13:02+0000\n"
+"Last-Translator: hmzs <hmzs@1szer1.hu>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsddns/hu/>\n"
 "Language: hu\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10.2-rc\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:436
 msgid "\"../\" not allowed in path for Security Reason."
@@ -51,12 +51,16 @@ msgid ""
 "BusyBox's nslookup and hostip do not support TCP instead of the default UDP "
 "when sending requests to the DNS server!"
 msgstr ""
+"A BusyBox nslookup és hostip függvényei az alapértelmezett UDP helyett nem "
+"támogatják a TCP-t, amikor kéréseket küldenek a DNS-kiszolgálónak!"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:385
 msgid ""
 "BusyBox's nslookup in the current compiled version does not handle given DNS "
 "Servers correctly!"
 msgstr ""
+"A BusyBox nslookup függvénye az aktuális verzióban nem kezeli helyesen a "
+"megadott DNS-kiszolgálókat!"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:456
 msgid "CA cert bundle file"
@@ -165,6 +169,7 @@ msgstr "Dátumformátum"
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:867
 msgid "Defines the Web page to read systems IP-Address from."
 msgstr ""
+"Meghatározza azt a weboldalt, ahonnan a rendszer IP-címét be kell olvasni."
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:877
 msgid "Defines the interface to read systems IP-Address from"
@@ -220,7 +225,7 @@ msgid "Error Retry Interval"
 msgstr "Hiba újrapróbálási időköze"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:891
-#: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:900
+#: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:901
 msgid "Event Network"
 msgstr "Eseményhálózat"
 
@@ -282,7 +287,7 @@ msgstr ""
 
 #: applications/luci-app-ddns/root/usr/share/rpcd/acl.d/luci-app-ddns.json:3
 msgid "Grant access to ddns procedures"
-msgstr ""
+msgstr "Hozzáférés engedélyezése a <em>ddns</em> műveletekhez"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:333
 msgid "HTTPS not supported"
@@ -463,7 +468,7 @@ msgid "Network"
 msgstr "Hálózat"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:892
-#: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:901
+#: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:902
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:920
 msgid "Network on which the ddns-updater scripts will be started"
 msgstr "A hálózat, amelyen a DDNS-frissítő parancsfájlok el fognak indulni"
@@ -936,89 +941,3 @@ msgid "to run HTTPS without verification of server certificates (insecure)"
 msgstr ""
 "HTTPS futtatásához a kiszolgáló tanúsítványainak ellenőrzése nélkül (nem "
 "biztonságos)"
-
-#~ msgid ""
-#~ "Defines the source to read systems IP-Address from, that will be send to "
-#~ "the DDNS provider"
-#~ msgstr ""
-#~ "Meghatározza azt a forrást, amelyből a rendszerek IP-címeit olvasni kell, "
-#~ "és amelyik elküldésre kerül a DDNS-szolgáltatónak"
-
-#~ msgid ""
-#~ "BusyBox's nslookup and Wget do not support to specify the IP version to "
-#~ "use for communication with DDNS Provider!"
-#~ msgstr ""
-#~ "A BusyBox nslookup és Wget parancsai nem támogatják azt, hogy "
-#~ "meghatározza az IP verziót DDNS szolgáltatással való kommunikációra!"
-
-#~ msgid "Force IP Version not supported"
-#~ msgstr "Az IP verziójának kényszerítése nem támogatott"
-
-#~ msgid "You should install 'wget' or 'curl' or 'uclient-fetch' package."
-#~ msgstr ""
-#~ "Telepítenie kell a „wget”, a „curl” vagy az „uclient-fetch” csomagot."
-
-#~ msgid "Error Retry Counter"
-#~ msgstr "Hiba újrapróbálási számláló"
-
-#~ msgid "This is the current content of the log file in"
-#~ msgstr "Ez a naplófájl jelenlegi tartalma ebben:"
-
-#~ msgid ""
-#~ "Configure here the details for all Dynamic DNS services including this "
-#~ "LuCI application."
-#~ msgstr ""
-#~ "Itt állítsa be a részleteket az összes dinamikus DNS-szolgáltatáshoz, "
-#~ "beleértve ezt a LuCI alkalmazást is."
-
-#~ msgid "Example for IPv4: http://checkip.dyndns.com"
-#~ msgstr "Példa IPv4-re: http://checkip.dyndns.com"
-
-#~ msgid "Example for IPv6: http://checkipv6.dyndns.com"
-#~ msgstr "Példa IPv6-ra: http://checkipv6.dyndns.com"
-
-#~ msgid "For detailed information about parameter settings look here."
-#~ msgstr ""
-#~ "A paraméterbeállításokkal kapcsolatos részletes információkért nézzen ide."
-
-#~ msgid "Global Configuration"
-#~ msgstr "Globális beállítások"
-
-#~ msgid ""
-#~ "It is NOT recommended for casual users to change settings on this page."
-#~ msgstr ""
-#~ "NEM ajánlott az alkalmi felhasználóknak a beállítások megváltoztatása "
-#~ "ezen az oldalon."
-
-#~ msgid "BusyBox's nslookup and Wget do not support to specify"
-#~ msgstr "A BusyBox nslookup és Wget programjai nem támogatják a megadását"
-
-#~ msgid "BusyBox's nslookup and hostip do not support TCP"
-#~ msgstr ""
-#~ "A BusyBox nslookup és hostip programjai nem támogatják a használandó TCP "
-#~ "megadását"
-
-#~ msgid "BusyBox's nslookup in the current compiled version"
-#~ msgstr "A BusyBox nslookup programja a jelenleg lefordított verzióban"
-
-#~ msgid "Defines the Web page to read systems IP-Address from"
-#~ msgstr ""
-#~ "Meghatározza azt a weboldalt, amelyből a rendszerek IP-címeit olvasni kell"
-
-#~ msgid "Install 'ca-certificates' package or needed certificates"
-#~ msgstr ""
-#~ "Telepítse a „ca-certificates” csomagot vagy a szükséges tanúsítványokat"
-
-#~ msgid ""
-#~ "You should install 'bind-host' or 'knot-host' or 'drill' or 'hostip' "
-#~ "package,"
-#~ msgstr ""
-#~ "Telepítenie kell a „bind-host”, a „knot-host”, a „drill” vagy a „hostip” "
-#~ "csomagot,"
-
-#~ msgid ""
-#~ "Dynamic DNS allows that your router can be reached with a fixed hostname "
-#~ "while having a dynamically changing IP address."
-#~ msgstr ""
-#~ "A dinamikus DNS lehetővé teszi, hogy a routere elérhető legyen egy fix "
-#~ "host névvel akkor is ha dinamikusan változó IP címmel rendelkezik."

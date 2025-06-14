@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LuCI: privoxy\n"
 "POT-Creation-Date: 2017-12-14 16:00+0300\n"
-"PO-Revision-Date: 2025-02-15 16:12+0000\n"
-"Last-Translator: Alexander <dmitriev8925@gmail.com>\n"
+"PO-Revision-Date: 2025-06-10 20:13+0000\n"
+"Last-Translator: SnIPeRSnIPeR <feoktistovk@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsprivoxy/ru/>\n"
 "Language: ru\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.10\n"
+"X-Generator: Weblate 5.12-dev\n"
 "Project-Info: Это технический перевод, не дословный. Главное-удобный русский "
 "интерфейс, все проверялось в графическом режиме, совместим с другими apps\n"
 
@@ -22,7 +22,7 @@ msgid ""
 "untrusted page is denied."
 msgstr ""
 "URL-адрес, отображаемый на странице ошибки, который пользователи будут "
-"видеть, если доступ к ненадежной странице запрещен."
+"видеть, если доступ к ненадёжной странице запрещён."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:226
 msgid ""
@@ -81,10 +81,9 @@ msgid ""
 "proxies. Note that parent proxies can severely decrease your privacy level. "
 "Also specified here are SOCKS proxies."
 msgstr ""
-"Страница настройки маршрутизации HTTP-запросов через цепочку из нескольких "
-"прокси-серверов. Обратите внимание, что родительские прокси могут "
-"значительно снизить уровень конфиденциальности. Здесь же настройка SOCKS "
-"прокси."
+"Настройте здесь маршрутизацию HTTP-запросов через цепочку прокси-серверов. "
+"Учтите, что вышестоящие прокси могут существенно снизить уровень "
+"приватности. Здесь также настраиваются SOCKS-прокси."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:855
 msgid "Debug GIF de-animation"
@@ -114,7 +113,7 @@ msgstr "Папка не существует!"
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:557
 msgid "Disabled == Transparent Proxy Mode"
-msgstr "Отключен == Прозрачный режим прокси-сервера"
+msgstr "Отключён == Прозрачный режим прокси-сервера"
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:66
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:71
@@ -289,7 +288,7 @@ msgstr "Максимальное число обслуживаемых клие�
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:535
 msgid "Maximum size (in KB) of the buffer for content filtering."
-msgstr "Максимальный размер буфера для фильтрации содержимого (в KB)."
+msgstr "Максимальный размер буфера для фильтрации содержимого (в Кб)."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:97
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:100
@@ -527,7 +526,7 @@ msgid ""
 "This option will be removed in future releases as it has been obsoleted by "
 "the more general header taggers."
 msgstr ""
-"Этот параметр будет удален в будущих выпусках, поскольку он устарел "
+"Этот параметр будет удалён в будущих выпусках, поскольку он устарел "
 "благодаря введению основных меток заголовков."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:85
@@ -541,13 +540,13 @@ msgid ""
 "Through which SOCKS proxy (and optionally to which parent HTTP proxy) "
 "specific requests should be routed."
 msgstr ""
-"Через какой SOCKS прокси (как вариант, с каким из родительских http-прокси) "
+"Через какой SOCKS-прокси (как вариант, с каким из родительских HTTP-прокси) "
 "конкретные запросы должны быть направлены."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:610
 msgid "To which parent HTTP proxy specific requests should be routed."
 msgstr ""
-"На какой родительский прокси HTTP должны быть направлены определенные "
+"На какой родительский HTTP-прокси должны быть направлены определённые "
 "запросы."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:341
@@ -627,7 +626,7 @@ msgstr "Могут или нет подаваться pipelined запросы."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:600
 msgid "Whether or not proxy authentication through Privoxy should work."
-msgstr "Должена ли работать прокси-аутентификация через Privoxy."
+msgstr "Определяет, должна ли работать прокси-аутентификация через Privoxy."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:582
 msgid "Whether or not the web-based actions file editor may be used."
@@ -647,7 +646,7 @@ msgstr ""
 msgid ""
 "Whether the CGI interface should stay compatible with broken HTTP clients."
 msgstr ""
-"Должен ли CGI интерфейс оставаться совместимым со сломанными http-клиентами."
+"Должен ли CGI интерфейс оставаться совместимым со сломанными HTTP-клиентами."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:798
 msgid "Whether to run only one server thread."
@@ -674,6 +673,3 @@ msgstr "или выше"
 #: applications/luci-app-privoxy/luasrc/controller/privoxy.lua:89
 msgid "required"
 msgstr "требовать"
-
-#~ msgid "Syntax: target_pattern socks_proxy[:port] http_parent[:port]"
-#~ msgstr "Синтаксис: target_pattern socks_proxy[:port] http_parent[:port]"

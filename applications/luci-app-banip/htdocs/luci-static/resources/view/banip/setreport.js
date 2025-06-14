@@ -9,7 +9,7 @@
 */
 function handleAction(report, ev) {
 	if (ev === 'search') {
-		L.ui.showModal(_('IP Search'), [
+		ui.showModal(_('IP Search'), [
 			E('p', _('Search the banIP-related Sets for a specific IP.')),
 			E('div', { 'class': 'left', 'style': 'display:flex; flex-direction:column' }, [
 				E('label', { 'style': 'padding-top:.5em', 'id': 'run' }, [
@@ -36,7 +36,7 @@ function handleAction(report, ev) {
 			E('div', { 'class': 'right' }, [
 				E('button', {
 					'class': 'btn cbi-button',
-					'click': L.hideModal
+					'click': ui.hideModal
 				}, _('Cancel')),
 				' ',
 				E('button', {
@@ -82,7 +82,7 @@ function handleAction(report, ev) {
 		.forEach(key => {
 			selectOption.push(E('option', { 'value': content.nftables[key].set.name }, content.nftables[key].set.name));
 		})
-		L.ui.showModal(_('Set Content'), [
+		ui.showModal(_('Set Content'), [
 			E('p', _('List the elements of a specific banIP-related Set.')),
 			E('div', { 'class': 'left', 'style': 'display:flex; flex-direction:column' }, [
 				E('label', { 'class': 'cbi-input-select', 'style': 'padding-top:.5em', 'id': 'run' }, [
@@ -90,6 +90,18 @@ function handleAction(report, ev) {
 					E('select', { 'class': 'cbi-input-select', 'id': 'set' },
 						selectOption
 					)
+				]),
+			]),
+			E('div', { 'class': 'left', 'style': 'display:flex; flex-direction:column' }, [
+				E('label', { 'class': 'cbi-checkbox', 'style': 'padding-top:.5em' }, [
+					E('input', {
+						'class': 'cbi-checkbox',
+						'data-update': 'click change',
+						'type': 'checkbox',
+						'id': 'filter',
+						'value': 'true'
+					}),
+					E('span', { 'style': 'margin-left: .5em;' }, _('Show only Set elements with hits'))
 				]),
 			]),
 			E('div', { 'class': 'left', 'style': 'display:flex; flex-direction:column' }, [
@@ -106,16 +118,18 @@ function handleAction(report, ev) {
 			E('div', { 'class': 'right' }, [
 				E('button', {
 					'class': 'btn cbi-button',
-					'click': L.hideModal
+					'click': ui.hideModal
 				}, _('Cancel')),
 				' ',
 				E('button', {
 					'class': 'btn cbi-button-action',
 					'click': ui.createHandlerFn(this, function (ev) {
+						const checkbox = document.getElementById('filter');
+						const isChecked = checkbox.checked;
 						let set = document.getElementById('set').value;
 						if (set) {
 							document.getElementById('result').textContent = 'Collecting Set content, please wait...';
-							return L.resolveDefault(fs.exec_direct('/etc/init.d/banip', ['content', set])).then(function (res) {
+							return L.resolveDefault(fs.exec_direct('/etc/init.d/banip', ['content', set, isChecked])).then(function (res) {
 								let result = document.getElementById('result');
 								result.textContent = res.trim();
 								document.getElementById('set').value = '';
@@ -129,7 +143,7 @@ function handleAction(report, ev) {
 		document.getElementById('set').focus();
 	}
 	if (ev === 'map') {
-		let md = L.ui.showModal(null, [
+		let md = ui.showModal(null, [
 			E('div', { id: 'mapModal',
 						style: 'position: relative;' }, [
 				E('iframe', {
@@ -141,10 +155,11 @@ function handleAction(report, ev) {
 			E('div', { 'class': 'right' }, [
 				E('button', {
 					'class': 'btn cbi-button',
-					'click': function() {
-						L.hideModal();
+					'click': ui.createHandlerFn(this, function (ev) {
+						ui.hideModal();
 						sessionStorage.clear();
-					}
+						location.reload();
+					})
 				}, _('Cancel')),
 				' ',
 				E('button', {
@@ -171,20 +186,16 @@ return view.extend({
 	},
 
 	render: function (report) {
-		let content, rowSets, tblSets, notMsg, errMsg;
+		let content=[], rowSets, tblSets, notMsg, errMsg;
 
-		if (report[0]) {
+		if (report) {
 			try {
 				content = JSON.parse(report[0]);
 			} catch (e) {
-				content = "";
-				if (!errMsg) {
-					errMsg = true;
-					ui.addNotification(null, E('p', _('Unable to parse the report file!')), 'error');
-				}
+				content[0] = "";
 			}
 		} else {
-			content = "";
+			content[0] = "";
 		}
 		rowSets = [];
 		tblSets = E('table', { 'class': 'table', 'id': 'sets' }, [
@@ -194,11 +205,11 @@ return view.extend({
 				E('th', { 'class': 'th' }, _('Inbound&#160;(packets)')),
 				E('th', { 'class': 'th' }, _('Outbound&#160;(packets)')),
 				E('th', { 'class': 'th' }, _('Port&#160;/&#160;Protocol')),
-				E('th', { 'class': 'th' }, _('Elements'))
+				E('th', { 'class': 'th' }, _('Elements (max. 50)'))
 			])
 		]);
 
-		if (content[0] && content[0].sets) {
+		if (content[0].sets) {
 			let cnt1, cnt2;
 
 			Object.keys(content[0].sets).sort().forEach(function (key) {
@@ -311,9 +322,17 @@ return view.extend({
 				E('button', {
 					'class': 'btn cbi-button cbi-button-positive important',
 					'style': 'float:none',
-					'click': ui.createHandlerFn(this, function () {
-						location.reload();
-					})
+					'click': function () {
+						document.querySelectorAll('.cbi-page-actions button').forEach(function(btn) {
+							btn.disabled = true;
+						})
+						this.blur();
+						this.classList.add('spinning');
+						L.resolveDefault(fs.exec_direct('/etc/init.d/banip', ['report', 'gen']))
+							.then(function () {
+								location.reload();
+							})
+					}
 				}, [_('Refresh')]),
 			])
 		]);

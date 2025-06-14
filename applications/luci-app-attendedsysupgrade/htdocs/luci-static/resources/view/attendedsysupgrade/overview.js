@@ -338,19 +338,17 @@ return view.extend({
 							}
 						}
 						break;
-					case 400: // bad request
-					case 422: // bad package
-					case 500: // build failed
+					default:  // any error or unexpected responses
 						if (main == true) {
 							poll.remove(this.pollFn);
 							this.handleError(response, data, firmware);
-							break;
 						} else {
 							poll.remove(this.rebuilder_polls[server]);
 							document.getElementById(server).innerText = '🚫 %s'.format(
 								server
 							);
 						}
+						break;
 				}
 			});
 	},
@@ -632,7 +630,7 @@ return view.extend({
 			uci.load('attendedsysupgrade'),
 		]);
 		const data = {
-			url: uci.get_first('attendedsysupgrade', 'server', 'url'),
+			url: uci.get_first('attendedsysupgrade', 'server', 'url').replace(/\/+$/, ''),
 			branch: get_branch(promises[1].release.version),
 			revision: promises[1].release.revision,
 			efi: promises[2],
@@ -646,7 +644,12 @@ return view.extend({
 			target: promises[1].release.target,
 			version: promises[1].release.version,
 			diff_packages: true,
-			filesystem: promises[1].rootfs_type
+			filesystem: promises[1].rootfs_type,
+
+			// If the user has changed the rootfs partition size via owut,
+			// then make sure to keep new image the same size.  A null value
+			// is interpreted by the ASU server as "default".
+			rootfs_size_mb: uci.get('attendedsysupgrade', 'owut', 'rootfs_size'),
 		};
 		return [data, firmware];
 	},

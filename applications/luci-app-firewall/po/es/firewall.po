@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-30 17:00+0200\n"
-"PO-Revision-Date: 2025-03-09 19:46+0000\n"
-"Last-Translator: Franco Castillo <castillofrancodamian@gmail.com>\n"
+"PO-Revision-Date: 2025-06-08 21:03+0000\n"
+"Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsfirewall/es/>\n"
 "Language: es\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10.3-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/rules.js:48
 msgid ""
@@ -263,7 +263,7 @@ msgstr "Ayudantes de Conntrack"
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/custom.js:16
 msgid "Contents have been saved."
-msgstr "Se han guardado los contenidos."
+msgstr "El contenido ha sido guardado."
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/tools/firewall.js:700
 msgid "Continue"
@@ -361,7 +361,6 @@ msgstr "Activar protección contra inundaciones SYN"
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/rules.js:464
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/snats.js:341
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js:296
-#, fuzzy
 msgid "Enable logging"
 msgstr "Activar el registro"
 
@@ -719,15 +718,14 @@ msgid "Limits traffic matching to the specified rate."
 msgstr "Limita el tráfico que coincide con la velocidad especificada."
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/zones.js:296
-#, fuzzy
 msgid "Log matched packets on the selected tables to syslog."
 msgstr ""
-"Registra los paquetes coincidentes en las tablas seleccionadas en syslog."
+"Examinar en el registro del sistema los paquetes coincidentes en las tablas "
+"seleccionadas."
 
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/forwards.js:348
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/rules.js:464
 #: applications/luci-app-firewall/htdocs/luci-static/resources/view/firewall/snats.js:341
-#, fuzzy
 msgid "Log matched packets to syslog."
 msgstr "Registra los paquetes coincidentes en syslog."
 
@@ -1643,56 +1641,3 @@ msgstr "hasta 65536 entradas."
 #: applications/luci-app-firewall/htdocs/luci-static/resources/tools/firewall.js:339
 msgid "valid firewall mark"
 msgstr "marca de cortafuegos válida"
-
-#~ msgid "Enable logging on this zone"
-#~ msgstr "Activar registro en esta zona"
-
-#~ msgid "ipv4"
-#~ msgstr "ipv4"
-
-#~ msgid "Software based offloading for routing/NAT"
-#~ msgstr "Descarga basada en software para enrutamiento/NAT"
-
-#~ msgid ""
-#~ "Enable network address and port translation (NAT or NAPT) for outbound "
-#~ "traffic on this zone. This is typically enabled on the <em>wan</em> zone."
-#~ msgstr ""
-#~ "Habilite la dirección de red y la traducción de puertos (NAT o NAPT) para "
-#~ "el tráfico saliente en esta zona. Esto normalmente está habilitado en la "
-#~ "zona <em>wan</em>."
-
-#~ msgid ""
-#~ "Forwarded IPv4%{proto?, protocol %{proto#%{next?, }<var>%{item.name}</"
-#~ "var>}}%{mark?, mark <var%{mark.inv? data-tooltip=\"Match fwmarks except %"
-#~ "{mark.num}%{mark.mask? with mask %{mark.mask}}.\":%{mark.mask? data-"
-#~ "tooltip=\"Mask fwmark value with %{mark.mask} before compare.\"}}>%"
-#~ "{mark.val}</var>}"
-#~ msgstr ""
-#~ "Reenviar IPv4%{proto?, protocolo %{proto#%{next?, }<var>%{item.name}</"
-#~ "var>}}%{mark?, marca <var%{mark.inv? data-tooltip=\"Hacer coincidir "
-#~ "fwmarks excepto %{mark.num}%{mark.mask? con máscara %{mark.mask}}.\":%"
-#~ "{mark.mask? data-tooltip=\"Enmascarar el valor de fwmark con %{mark.mask} "
-#~ "antes de comparar.\"}}>%{mark.val}</var>}"
-
-#~ msgid ""
-#~ "Incoming IPv4%{proto?, protocol %{proto#%{next?, }%{item.types?<var "
-#~ "class=\"cbi-tooltip-container\">%{item.name}<span class=\"cbi-"
-#~ "tooltip\">ICMP with types %{item.types#%{next?, }<var>%{item}</var>}</"
-#~ "span></var>:<var>%{item.name}</var>}}}%{mark?, mark <var%{mark.inv? data-"
-#~ "tooltip=\"Match fwmarks except %{mark.num}%{mark.mask? with mask %"
-#~ "{mark.mask}}.\":%{mark.mask? data-tooltip=\"Mask fwmark value with %"
-#~ "{mark.mask} before compare.\"}}>%{mark.val}</var>}%{helper?, helper %"
-#~ "{helper.inv?<var data-tooltip=\"Match any helper except &quot;%"
-#~ "{helper.name}&quot;\">%{helper.val}</var>:<var data-tooltip=\"%"
-#~ "{helper.name}\">%{helper.val}</var>}}"
-#~ msgstr ""
-#~ "IPv4 entrante%{proto?, protocolo %{proto#%{next?, }%{item.types?<var "
-#~ "class=\"cbi-tooltip-container\">%{item.name}<span class=\"cbi-"
-#~ "tooltip\">ICMP con tipos %{item.types#%{next?, }<var>%{item}</var>}</"
-#~ "span></var>:<var>%{item.name}</var>}}}%{mark?, mark <var%{mark.inv? data-"
-#~ "tooltip=\"Hacer coincidir fwmarks excepto %{mark.num}%{mark.mask? with "
-#~ "mask %{mark.mask}}.\":%{mark.mask? data-tooltip=\"Enmascarar el valor de "
-#~ "fwmark con %{mark.mask} antes de comparar.\"}}>%{mark.val}</var>}%"
-#~ "{helper?, ayudante %{helper.inv?<var data-tooltip=\"Iguala a cualquier "
-#~ "ayudante excepto &quot;%{helper.name}&quot;\">%{helper.val}</var>:<var "
-#~ "data-tooltip=\"%{helper.name}\">%{helper.val}</var>}}"

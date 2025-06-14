@@ -57,10 +57,13 @@
 				"/etc/init.d/banip report json": [
 					"exec"
 				],
+				"/etc/init.d/banip report gen": [
+					"exec"
+				],
 				"/etc/init.d/banip search [A-Za-z0-9:.]*": [
 					"exec"
 				],
-				"/etc/init.d/banip content [A-Za-z0-9]*": [
+				"/etc/init.d/banip content [A-Za-z0-9]* *": [
 					"exec"
 				],
 				"/etc/init.d/banip status": [

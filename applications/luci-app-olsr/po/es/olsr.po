@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-10 03:41+0200\n"
-"PO-Revision-Date: 2024-09-05 13:29+0000\n"
-"Last-Translator: brodrigueznu <brodrigueznu@hotmail.com>\n"
+"PO-Revision-Date: 2025-06-09 22:30+0000\n"
+"Last-Translator: Franco Castillo <castillofrancodamian@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsolsr/es/>\n"
 "Language: es\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/mid.js:152
 msgid "Active MID announcements"
@@ -39,7 +39,7 @@ msgstr "Permitir puertas de enlace con NAT"
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:69
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:69
 msgid "Allow the selection of an outgoing IPv4 gateway with NAT"
-msgstr "Permitir seleccionar una pasarela IPv4 con NAT"
+msgstr "Permitir seleccionar una puerta de enlace IPv4 con NAT"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:81
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:81
@@ -148,7 +148,7 @@ msgid ""
 msgstr ""
 "FIBMetric controla el valor métrico de los conjuntos OLSRd. \"Plano\" "
 "significa que la métrica es siempre 2. Este es el valor preferido porque "
-"ayuda al enrutador del kernel de linux a limpiar valores antiguos. "
+"ayuda al enrutador del núcleo de Linux a limpiar valores antiguos. "
 "\"Correct\" usa como métrica el número de saltos. \"Approx\" usa la cuenta "
 "de saltos también, pero solo la actualiza si cambia el siguiente salto "
 "también. Por defecto \"flat\"."
@@ -406,10 +406,10 @@ msgid ""
 "if changed.<br /><b>WARNING:</b> This parameter should not be used together "
 "with the etx_ffeth metric!<br />Defaults to \"1.0\"."
 msgstr ""
-"Si la ruta a la pasarela actual cambia su ETX de se multiplica por este "
-"valor antes de compararse con el nuevo. El parámetro debe estar entre 0.1 y "
-"1.0, pero debería aproximarse a 1.0 si se cambia.<br /><b>AVISO:</b> No debe "
-"usarse junto con la métrica etx_ffeth!<br />Por defecto es 1.0."
+"Si la ruta a la puerta de enlace actual cambia su ETX de se multiplica por "
+"este valor antes de compararse con el nuevo. El parámetro debe estar entre "
+"0.1 y 1.0, pero debería aproximarse a 1.0 si se cambia.<br /><b>AVISO:</b> "
+"No debe usarse junto con la métrica etx_ffeth!<br />Por defecto es 1.0."
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:93
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:93
@@ -607,8 +607,8 @@ msgid ""
 "configured on port 9090, and accepts connections from \"127.0.0.1\"."
 msgstr ""
 "Asegúrate de que OLSRd se está ejecutando, el complemento \"jsoninfo\" esté "
-"cargado, configurado en el puerto 9090, y acepta las conexiones desde \"127.0"
-".0.1\"."
+"cargado, configurado en el puerto 9090, y acepta las conexiones desde "
+"\"127.0.0.1\"."
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/routes.js:182
 msgid "Metric"
@@ -786,7 +786,7 @@ msgstr "Declaraciones de múltiples interfaces conocidas"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/smartgw.js:129
 msgid "Overview of smart gateways in this network"
-msgstr "Pasarelas inteligentes en esta red"
+msgstr "Puertas de enlace inteligentes en esta red"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdplugins.js:47
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdplugins6.js:45
@@ -1035,9 +1035,9 @@ msgid ""
 "length is 64 bits. Default is \"::/0\" (no prefix)."
 msgstr ""
 "Prefijo IPv6 a mostrar a clientes del enlace. Puede hacer que un cliente "
-"cambio su dirección IPv6 para usar la pasarela sin ningún tipo de traducción "
-"de dirección. La longitud máxima del prefijo es 64 bits. Por defecto es "
-"\"::/0\" (sin prefijo)."
+"cambio su dirección IPv6 para usar la puerta de enlace sin ningún tipo de "
+"traducción de dirección. La longitud máxima del prefijo es 64 bits. Por "
+"defecto es \"::/0\" (sin prefijo)."
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:286
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:280
@@ -1181,108 +1181,3 @@ msgstr "arriba"
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/interfaces.js:155
 msgid "yes"
 msgstr "Sí"
-
-#~ msgid "Can only be a valid IPv4 or IPv6 address or 'default'"
-#~ msgstr "Sólo puede ser una dirección IPv4 o IPv6 válidas o \"por defecto\""
-
-#~ msgid "Can only be a valid IPv6 address or 'default'"
-#~ msgstr "Solo puede ser una dirección IPv6 válida o 'predeterminada'"
-
-#~ msgid "Configuration"
-#~ msgstr "Configuración"
-
-#~ msgid ""
-#~ "Could not get any data. Make sure the jsoninfo plugin is installed and "
-#~ "allows connections from localhost."
-#~ msgstr ""
-#~ "No pude obtener datos. Asegúrese de que el plugin jsoninfo está instalado "
-#~ "y permite conexiones desde localhost."
-
-#~ msgid "Download Config"
-#~ msgstr "Configuración de descarga"
-
-#~ msgid "HNA6 Announcements"
-#~ msgstr "Anuncios HNA6"
-
-#~ msgid "Hide IPv4"
-#~ msgstr "Ocultar IPv4"
-
-#~ msgid "Hide IPv6"
-#~ msgstr "Ocultar IPv6"
-
-#~ msgid "Invalid Value for LQMult-Value. Must be between 0.01 and 1.0."
-#~ msgstr "Valor no válido para LQMult-Value. Debe ser entre 0,01 y 1,0."
-
-#~ msgid ""
-#~ "Invalid Value for LQMult-Value. You must use a decimal number between "
-#~ "0.01 and 1.0 here."
-#~ msgstr ""
-#~ "Valor no válido para LQMult-Value. Debe usar un número decimal entre 0,01 "
-#~ "y 1,0."
-
-#~ msgid ""
-#~ "LQMult requires two values (IP address or 'default' and multiplicator) "
-#~ "separated by space."
-#~ msgstr ""
-#~ "LQMult precisa dos valores (dirección IP o \"por defecto\" y "
-#~ "multiplicador) separados por un espacio."
-
-#~ msgid "Links per node (average)"
-#~ msgstr "Media de enlaces por nodo"
-
-#~ msgid "Links total"
-#~ msgstr "Enlaces totales"
-
-#~ msgid ""
-#~ "Make sure that OLSRd is running, the \"jsoninfo\" plugin is loaded, "
-#~ "configured on port 9090 and accepts connections from \"127.0.0.1\"."
-#~ msgstr ""
-#~ "Asegúrese de que OLSRd funciona y de que el plugin \"jsoninfo\" está "
-#~ "cargado, configurado en el puerto 9090 y que acepta conexiones desde "
-#~ "127.0.0.1."
-
-#~ msgid "Neighbors"
-#~ msgstr "Vecinos"
-
-#~ msgid "Nodes"
-#~ msgstr "Nodos"
-
-#~ msgid "Overview"
-#~ msgstr "Visión general"
-
-#~ msgid "Show IPv4"
-#~ msgstr "Mostrar IPv4"
-
-#~ msgid "Show IPv6"
-#~ msgstr "Mostrar IPv6"
-
-#~ msgid "SmartGateway is not configured on this system."
-#~ msgstr "SmartGateway no está configurado."
-
-#~ msgid "Version"
-#~ msgstr "Versión"
-
-#~ msgid "infinite"
-#~ msgstr "infinito"
-
-#~ msgid "Status"
-#~ msgstr "Estado"
-
-#~ msgid ""
-#~ "Make sure that OLSRd is running, the \"txtinfo\" plugin is loaded, "
-#~ "configured on port 2006 and accepts connections from \"127.0.0.1\"."
-#~ msgstr ""
-#~ "Asegúrese de que OLSRd se está ejecutando, que el plugin \"txtinfo\" esté "
-#~ "cargado, configurado en el puerto 2006 y que acepta conexiones desde "
-#~ "127.0.0.1."
-
-#~ msgid ""
-#~ "Multiply routes with the factor given here. Allowed values are between "
-#~ "0.01 and 1. It is only used when LQ-Level is greater than 0. Examples:"
-#~ "<br />reduce LQ to 192.168.0.1 by half: 192.168.0.1 0.5<br />reduce LQ to "
-#~ "all nodes on this interface by 20%: default 0.8"
-#~ msgstr ""
-#~ "Multiplicar rutas por este factor. Valores entre 0,01 y 1. Sólo se usa si "
-#~ "el nivel de CA es mayor que 0. Ejemplos:<br />reducir CE a la mitad a "
-#~ "192.168.0.1: \"192.168.0.1 0.5\"<br />reducir CE a todos los nodos en "
-#~ "esta interfaz el 20%: \"default 0.8\""

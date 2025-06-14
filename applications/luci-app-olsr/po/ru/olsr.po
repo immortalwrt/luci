@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LuCI: olsr\n"
 "POT-Creation-Date: 2013-09-06 09:58+0200\n"
-"PO-Revision-Date: 2025-05-02 07:28+0000\n"
-"Last-Translator: Maksim_220 Кабанов <law820314@gmail.com>\n"
+"PO-Revision-Date: 2025-06-10 20:13+0000\n"
+"Last-Translator: SnIPeRSnIPeR <feoktistovk@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsolsr/ru/>\n"
 "Language: ru\n"
@@ -31,7 +31,7 @@ msgstr "Активные объявления хост-сети (HNA)"
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:128
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:126
 msgid "Advanced Settings"
-msgstr "Дополнительные настройки"
+msgstr "Расширенные настройки"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:69
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:69
@@ -41,7 +41,7 @@ msgstr "Разрешить шлюзы с NAT"
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:69
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:69
 msgid "Allow the selection of an outgoing IPv4 gateway with NAT"
-msgstr "Разрешить выбор исходящего IPv4 шлюза с NAT"
+msgstr "Разрешить выбор исходящего IPv4-шлюза с NAT"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:81
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:81
@@ -304,7 +304,7 @@ msgstr ""
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface.js:38
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface6.js:38
 msgid "IP Addresses"
-msgstr "IP адреса"
+msgstr "IP-адреса"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:130
 msgid ""
@@ -461,7 +461,7 @@ msgstr "Значения по умолчанию для интерфейсов"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:130
 msgid "Internet protocol"
-msgstr "Интернет протокол"
+msgstr "Интернет-протокол"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:139
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:133
@@ -552,9 +552,9 @@ msgstr ""
 "Алгоритм LQ (только для уровня LQ, равного 2).<br /><b>etx_float</b>: ETX с "
 "плавающей точкой и экспоненциальным старением.<br /><b>etx_fpm</b> : тоже "
 "что и etx_float, но с целочисленной арифметикой.<br /><b>etx_ff</b> : ETX "
-"freifunk, использует весь трафик OLSR для расчета ETX.<br /><b>etx_ffeth</"
-"b>: несовместимый вариант etx_ff, разрешающий Ethernet-соединения с ETX 0.1."
-"<br />По умолчанию 'etx_ff'"
+"freifunk, использует весь трафик OLSR для расчёта ETX.<br /><b>etx_ffeth</b>:"
+" несовместимый вариант etx_ff, разрешающий Ethernet-соединения с ETX 0.1.<br "
+"/>По умолчанию 'etx_ff'"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:172
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:166
@@ -688,7 +688,7 @@ msgstr "Маска сети"
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface.js:50
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface6.js:50
 msgid "Network"
-msgstr "Сетевое подключение"
+msgstr "Сеть"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdhna.js:22
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdhna.js:38
@@ -849,7 +849,7 @@ msgstr ""
 "Разрешать имена хостов на страницах состояния. Не используйте данную "
 "функцию, если у вас публичный IP-адрес и нестабильный DNS. В противном "
 "случае загрузка страниц состояния может происходить очень медленно.<br />В "
-"этом случае отключите ее здесь."
+"этом случае отключите её здесь."
 
 #: applications/luci-app-olsr/root/usr/share/luci/menu.d/luci-app-olsr-frontend.json:18
 msgid "Routes"
@@ -885,9 +885,9 @@ msgid ""
 "during the uptime of olsrd. Default is ::, which triggers usage of the IP of "
 "the first interface."
 msgstr ""
-"Задает основной IP-адрес (IP-адрес инициатора) маршрутизатора. Этот IP "
-"НИКОГДА не изменится во время работы olsrd. По умолчанию используется "
-"значение ::, которое запускает использование IP-адреса первого интерфейса."
+"Задает основной IP-адрес (originator IP) маршрутизатора. Этот IP НИКОГДА не "
+"изменится во время работы olsrd. По умолчанию используется значение ::, "
+"которое запускает использование IP-адреса первого интерфейса."
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/neighbors.js:547
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/routes.js:301
@@ -994,8 +994,8 @@ msgstr ""
 "Routing. Как таковой он позволяет осуществлять ячеистую маршрутизацию для "
 "любого сетевого оборудования. Он работает на любой wifi-карте, "
 "поддерживающей режим ad-hoc, и, конечно, на любом ethernet-устройстве. Для "
-"получения справки и документации посетите сайт <a href=\"http://www.olsr."
-"org\">olsrd.org</a>."
+"получения справки и документации посетите сайт <a href=\"http://"
+"www.olsr.org\">olsrd.org</a>."
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface.js:18
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface6.js:18
@@ -1161,8 +1161,8 @@ msgid ""
 "setting is \"both\"."
 msgstr ""
 "Какой вид внешнего соединения экспортируется другим узлам Mesh сети. "
-"Определение внешнего соединения происходит при наличии в локальном HNA6 ::"
-"ffff:0:0/96 или 2000::/3. Значение по умолчанию 'оба'."
+"Определение внешнего соединения происходит при наличии в локальном "
+"HNA6 ::ffff:0:0/96 или 2000::/3. Значение по умолчанию 'оба'."
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:244
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:238
@@ -1193,89 +1193,3 @@ msgstr "вверх"
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/interfaces.js:155
 msgid "yes"
 msgstr "да"
-
-#~ msgid "Can only be a valid IPv4 or IPv6 address or 'default'"
-#~ msgstr "Допускается только IPv4 или IPv6 адрес или 'по умолчанию'"
-
-#~ msgid "Can only be a valid IPv6 address or 'default'"
-#~ msgstr "Допускается только IPv6 адрес или 'по умолчанию'"
-
-#~ msgid "Configuration"
-#~ msgstr "Конфигурация"
-
-#~ msgid ""
-#~ "Could not get any data. Make sure the jsoninfo plugin is installed and "
-#~ "allows connections from localhost."
-#~ msgstr ""
-#~ "Не удалось получить данные. Убедитесь, что плагин 'jsoninfo' установлен и "
-#~ "разрешает соединения с localhost."
-
-#~ msgid "Download Config"
-#~ msgstr "Загрузить config файл"
-
-#~ msgid "HNA6 Announcements"
-#~ msgstr "Объявления HNA6"
-
-#~ msgid "Hide IPv4"
-#~ msgstr "Скрыть IPv4"
-
-#~ msgid "Hide IPv6"
-#~ msgstr "Скрыть IPv6"
-
-#~ msgid "Invalid Value for LQMult-Value. Must be between 0.01 and 1.0."
-#~ msgstr ""
-#~ "Недопустимое значение для LQMult-Value. Должно быть между '0,01' и '1,0'."
-
-#~ msgid ""
-#~ "Invalid Value for LQMult-Value. You must use a decimal number between "
-#~ "0.01 and 1.0 here."
-#~ msgstr ""
-#~ "Недопустимое значение для LQMult-Value. Вы должны использовать десятичное "
-#~ "число между '0,01' и '1,0'."
-
-#~ msgid ""
-#~ "LQMult requires two values (IP address or 'default' and multiplicator) "
-#~ "separated by space."
-#~ msgstr ""
-#~ "LQMult требует двух значений (IP-адрес или 'default' и множитель), "
-#~ "разделенных пробелом."
-
-#~ msgid "Links per node (average)"
-#~ msgstr "Кол-во соединений на узел (среднее)"
-
-#~ msgid "Links total"
-#~ msgstr "Общее кол-во соединений"
-
-#~ msgid ""
-#~ "Make sure that OLSRd is running, the \"jsoninfo\" plugin is loaded, "
-#~ "configured on port 9090 and accepts connections from \"127.0.0.1\"."
-#~ msgstr ""
-#~ "Удостоверьтесь, что демон OLSRd работает, плагин 'txtinfo' загружен, "
-#~ "настроен на порт 9090 и принимает соединения от '127.0.0.1'."
-
-#~ msgid "Neighbors"
-#~ msgstr "Соседние узлы"
-
-#~ msgid "Nodes"
-#~ msgstr "Узлы"
-
-#~ msgid "Overview"
-#~ msgstr "Обзор"
-
-#~ msgid "Show IPv4"
-#~ msgstr "Показать IPv4"
-
-#~ msgid "Show IPv6"
-#~ msgstr "Показать IPv6"
-
-#~ msgid "SmartGateway is not configured on this system."
-#~ msgstr "SmartGW (смарт-шлюз) не настроен на этой системе."
-
-#~ msgid "Version"
-#~ msgstr "Версия"
-
-#~ msgid "infinite"
-#~ msgstr "бесконечно"
-
-#~ msgid "Status"
-#~ msgstr "Состояние"

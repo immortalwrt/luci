@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luci-app-ddns 2.4.0-1\n"
 "POT-Creation-Date: 2016-01-30 11:07+0100\n"
-"PO-Revision-Date: 2025-04-25 05:53+0000\n"
+"PO-Revision-Date: 2025-05-12 14:57+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsddns/cs/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.11.1-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:436
 msgid "\"../\" not allowed in path for Security Reason."
@@ -21,7 +21,7 @@ msgstr "\".. /\"není v cestě povoleno z bezpečnostních důvodů."
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:776
 msgid "A.k.a. the TOKEN at e.g. afraid.org"
-msgstr ""
+msgstr "Neboli Token na např. afraid.org"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:472
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:540
@@ -225,7 +225,7 @@ msgid "Error Retry Interval"
 msgstr "Interval opakování chyby"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:891
-#: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:900
+#: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:901
 msgid "Event Network"
 msgstr "Síť události"
 
@@ -285,7 +285,7 @@ msgstr "Globální nastavení"
 
 #: applications/luci-app-ddns/root/usr/share/rpcd/acl.d/luci-app-ddns.json:3
 msgid "Grant access to ddns procedures"
-msgstr "Povolit přístup k procedurám DDNS"
+msgstr "Udělit přístup k procedurám DDNS"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:333
 msgid "HTTPS not supported"
@@ -468,7 +468,7 @@ msgid "Network"
 msgstr "Síť"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:892
-#: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:901
+#: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:902
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:920
 msgid "Network on which the ddns-updater scripts will be started"
 msgstr "Síť, na které budou spuštěny skripty ddns-updater"
@@ -894,7 +894,7 @@ msgstr "cURL bez podpory proxy"
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:527
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:655
 msgid "custom"
-msgstr "Uživatelsky určené"
+msgstr "uživatelsky určené"
 
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:1051
 msgid "days"
@@ -931,81 +931,3 @@ msgstr "sekundy/sekund"
 #: applications/luci-app-ddns/htdocs/luci-static/resources/view/ddns/overview.js:806
 msgid "to run HTTPS without verification of server certificates (insecure)"
 msgstr "k použití HTTPS bez ověření serverových certifikátů (nedůvěryhodné)"
-
-#~ msgid "Checking the service support..."
-#~ msgstr "Ověřování podpory služeb..."
-
-#~ msgid ""
-#~ "Defines the source to read systems IP-Address from, that will be send to "
-#~ "the DDNS provider"
-#~ msgstr ""
-#~ "Definuje zdroj pro zjištění systémových IP adres, který bude odeslán "
-#~ "poskytovateli DDNS"
-
-#~ msgid ""
-#~ "BusyBox's nslookup and Wget do not support to specify the IP version to "
-#~ "use for communication with DDNS Provider!"
-#~ msgstr ""
-#~ "Verze programů nslookup a wget, které jsou součástí balíčku BusyBox, "
-#~ "nepodporují specifikaci verze IP pro komunikaci s poskytovatelem DDNS!"
-
-#~ msgid "Force IP Version not supported"
-#~ msgstr "Vynucená verze IP není podporována"
-
-#~ msgid "You should install 'wget' or 'curl' or 'uclient-fetch' package."
-#~ msgstr ""
-#~ "Měli byste nainstalovat balíček 'wget' nebo 'curl' nebo 'uclient-fetch'."
-
-#~ msgid "Error Retry Counter"
-#~ msgstr "Čítač opakování chyb"
-
-#~ msgid "This is the current content of the log file in"
-#~ msgstr "Toto je aktuální obsah souboru protokolu v"
-
-#~ msgid ""
-#~ "Configure here the details for all Dynamic DNS services including this "
-#~ "LuCI application."
-#~ msgstr ""
-#~ "Zde nastavte podrobnosti pro všechny dynamické služby DNS včetně této "
-#~ "aplikace LuCI."
-
-#~ msgid "For detailed information about parameter settings look here."
-#~ msgstr "Podrobné informace o nastavení parametrů najdete zde."
-
-#~ msgid "Global Configuration"
-#~ msgstr "Globální nastavení"
-
-#~ msgid ""
-#~ "It is NOT recommended for casual users to change settings on this page."
-#~ msgstr ""
-#~ "Pro příležitostné uživatele NENÍ doporučeno měnit nastavení na této "
-#~ "stránce."
-
-#~ msgid "BusyBox's nslookup and Wget do not support to specify"
-#~ msgstr "Nástroje nslookup a wget pro BusyBox nepodporuje specifikaci"
-
-#~ msgid "BusyBox's nslookup and hostip do not support TCP"
-#~ msgstr "Nástroje nslookup a hostip pro BusyBox nepodporují použití TCP"
-
-#~ msgid "BusyBox's nslookup in the current compiled version"
-#~ msgstr "Nástroj nslookup pro BusyBox v aktuální kompilované verzi"
-
-#~ msgid "Defines the Web page to read systems IP-Address from"
-#~ msgstr "Definuje webovou stránku pro zjištění systémové IP adresy z"
-
-#~ msgid "Install 'ca-certificates' package or needed certificates"
-#~ msgstr "Nainstalujte balíček 'ca-certificates' nebo potřebné certifikáty"
-
-#~ msgid ""
-#~ "You should install 'bind-host' or 'knot-host' or 'drill' or 'hostip' "
-#~ "package,"
-#~ msgstr ""
-#~ "Měli byste nainstalovat balíček 'bind-host' nebo 'knot-host' nebo 'drill' "
-#~ "nebo 'hostip',"
-
-#~ msgid ""
-#~ "Dynamic DNS allows that your router can be reached with a fixed hostname "
-#~ "while having a dynamically changing IP address."
-#~ msgstr ""
-#~ "Dynamické DNS umožňuje, aby mohl být váš router dostupný pod pevným "
-#~ "hostname, zatímco se jeho IP adresa dynamicky mění."

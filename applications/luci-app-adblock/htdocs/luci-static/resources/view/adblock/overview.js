@@ -12,19 +12,28 @@
 	button handling
 */
 function handleAction(ev) {
-	if (ev !== 'stop' &&
-		document.getElementById('status') &&
-		document.getElementById('status').textContent.substring(0, 6) === 'paused') {
-		ev = 'resume';
-	}
 	if (ev === 'restart' || ev === 'reload') {
-		let map = document.querySelector('.cbi-map');
+		const map = document.querySelector('.cbi-map');
 		return dom.callClassMethod(map, 'save')
 			.then(L.bind(ui.changes.apply, ui.changes))
 			.then(function () {
+				document.querySelectorAll('.cbi-page-actions button').forEach(function (btn) {
+					btn.disabled = true;
+					btn.blur();
+				});
 				return fs.exec_direct('/etc/init.d/adblock', [ev]);
 			})
 	} else {
+		if (ev !== 'stop') {
+			document.querySelectorAll('.cbi-page-actions button').forEach(function (btn) {
+				btn.disabled = true;
+				btn.blur();
+			});
+			if (document.getElementById('status') &&
+				document.getElementById('status').textContent.substring(0, 6) === 'paused') {
+				ev = 'resume';
+			}
+		}
 		return fs.exec_direct('/etc/init.d/adblock', [ev]);
 	}
 }
@@ -38,7 +47,6 @@ return view.extend({
 			uci.load('adblock')
 		]);
 	},
-
 	render: function (result) {
 		let m, s, o;
 
@@ -50,13 +58,17 @@ return view.extend({
 		*/
 		pollData: poll.add(function () {
 			return L.resolveDefault(fs.read_direct('/var/run/adb_runtime.json'), 'null').then(function (res) {
-				var status = document.getElementById('status');
+				const status = document.getElementById('status');
+				const buttons = document.querySelectorAll('.cbi-page-actions button');
 				try {
 					var info = JSON.parse(res);
 				} catch (e) {
 					status.textContent = '-';
 					poll.stop();
 					if (status.classList.contains('spinning')) {
+						buttons.forEach(function (btn) {
+							btn.disabled = false;
+						})
 						status.classList.remove('spinning');
 					}
 					ui.addNotification(null, E('p', _('Unable to parse the runtime information!')), 'error');
@@ -69,6 +81,9 @@ return view.extend({
 						}
 					} else {
 						if (status.classList.contains("spinning")) {
+							buttons.forEach(function (btn) {
+								btn.disabled = false;
+							})
 							status.classList.remove("spinning");
 							if (document.getElementById('btn_suspend')) {
 								if (status.textContent.substring(0, 6) === 'paused') {
@@ -87,6 +102,9 @@ return view.extend({
 					status.textContent = '-';
 					poll.stop();
 					if (status.classList.contains('spinning')) {
+						buttons.forEach(function (btn) {
+							btn.disabled = false;
+						})
 						status.classList.remove('spinning');
 					}
 				}
@@ -109,10 +127,6 @@ return view.extend({
 				var backend = document.getElementById('backend');
 				if (backend && info) {
 					backend.textContent = info.dns_backend || '-';
-				}
-				var utils = document.getElementById('utils');
-				if (utils && info) {
-					utils.textContent = info.run_utils || '-';
 				}
 				var ifaces = document.getElementById('ifaces');
 				if (ifaces && info) {
@@ -159,10 +173,6 @@ return view.extend({
 				E('div', { 'class': 'cbi-value' }, [
 					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('DNS Backend')),
 					E('div', { 'class': 'cbi-value-field', 'id': 'backend', 'style': 'margin-bottom:-5px;color:#37c;' }, '-')
-				]),
-				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('Run Utils')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'utils', 'style': 'margin-bottom:-5px;color:#37c;' }, '-')
 				]),
 				E('div', { 'class': 'cbi-value' }, [
 					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('Run Interfaces')),
@@ -282,12 +292,19 @@ return view.extend({
 		o = s.taboption('additional', form.Flag, 'adb_debug', _('Verbose Debug Logging'), _('Enable verbose debug logging in case of any processing errors.'));
 		o.rmempty = false;
 
-		o = s.taboption('additional', form.Flag, 'adb_nice', _('Low Priority Service'), _('Reduce the priority of the adblock background processing to take fewer resources from the system.'));
-		o.enabled = '10';
+		o = s.taboption('additional', form.ListValue, 'adb_nicelimit', _('Nice Level'), _('The selected priority will be used for adblock background processing.'));
+		o.value('-20', _('Highest Priority'));
+		o.value('-10', _('High Priority'));
+		o.value('0', _('Normal Priority'));
+		o.value('10', _('Less Priority'));
+		o.value('19', _('Least Priority'));
+		o.default = '0';
+		o.placeholder = _('-- default --');
+		o.create = true;
+		o.optional = true;
 		o.rmempty = true;
 
-		o = s.taboption('additional', form.Value, 'adb_tmpbase', _('Base Temp Directory'), _('Base temp directory for all adblock related runtime operations, \
-			e.g. downloading, sorting, merging etc.'));
+		o = s.taboption('additional', form.Value, 'adb_basedir', _('Base Directory'), _('Base working directory during adblock processing.'));
 		o.placeholder = '/tmp';
 		o.rmempty = true;
 
@@ -408,6 +425,10 @@ return view.extend({
 		o.rmempty = true;
 
 		o = s.taboption('adv_report', form.Flag, 'adb_represolve', _('Resolve IPs'), _('Resolve reporting IP addresses by using reverse DNS (PTR) lookups.'));
+		o.rmempty = true;
+
+		o = s.taboption('adv_report', form.Flag, 'adb_map', _('GeoIP Map'), _('Enable a GeoIP map that shows the geographical location of the blocked domains. This requires external requests to get the map tiles and geolocation data.'));
+		o.optional = true;
 		o.rmempty = true;
 
 		/*
@@ -545,31 +566,31 @@ return view.extend({
 				E('button', {
 					'class': 'btn cbi-button cbi-button-negative important',
 					'style': 'float:none;margin-right:.4em;',
-					'click': ui.createHandlerFn(this, function () {
+					'click': function () {
 						return handleAction('stop');
-					})
+					}
 				}, [_('Stop')]),
 				E('button', {
 					'class': 'btn cbi-button cbi-button-apply important',
 					'style': 'float:none;margin-right:.4em;',
 					'id': 'btn_suspend',
-					'click': ui.createHandlerFn(this, function () {
+					'click': function () {
 						return handleAction('suspend');
-					})
+					}
 				}, [_('Suspend')]),
 				E('button', {
 					'class': 'btn cbi-button cbi-button-positive important',
 					'style': 'float:none;margin-right:.4em;',
-					'click': ui.createHandlerFn(this, function () {
+					'click': function () {
 						return handleAction('reload');
-					})
+					}
 				}, [_('Save & Reload')]),
 				E('button', {
 					'class': 'btn cbi-button cbi-button-positive important',
 					'style': 'float:none',
-					'click': ui.createHandlerFn(this, function () {
+					'click': function () {
 						handleAction('restart');
-					})
+					}
 				}, [_('Save & Restart')])
 			])
 		});
