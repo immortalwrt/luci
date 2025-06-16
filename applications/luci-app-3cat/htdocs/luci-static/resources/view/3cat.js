@@ -61,7 +61,7 @@ return view.extend({
 		o.value('udp', _('UDP'));
 		o.rmempty = false;
 
-		o = s.option(form.ListValue, 'ip_version', _('IP version'),
+		o = s.option(form.ListValue, 'ip_prefer', _('IP version'),
 			_('If the destination address is a hostname, this option controls which IP version to use.'));
 		o.value('', _('Default'));
 		o.value('46', _('Prefer IPv4'));
