@@ -9,6 +9,7 @@
 'require rpc';
 'require uci';
 'require view';
+'require tools.widgets as widgets';
 
 var callServiceList = rpc.declare({
 	object: 'service',
@@ -134,9 +135,23 @@ return view.extend({
 			_('Allow forward traffic from/to the ZeroTier network.'));
 		o.editable = true;
 
+		o = s.option(widgets.DeviceSelect, 'fw_forward_ifaces', _('Forward interfaces'),
+			_('Leave empty for all.'));
+		o.multiple = true;
+		o.noaliases = true;
+		o.depends('fw_allow_forward', '1');
+		o.modalonly = true;
+
 		o = s.option(form.Flag, 'fw_allow_masq', _('Masquerading'),
 			_('Enable network address and port translation (NAT) for outbound traffic for this network.'));
 		o.editable = true;
+
+		o = s.option(widgets.DeviceSelect, 'fw_masq_ifaces', _('Masquerade interfaces'),
+			_('Leave empty for all.'));
+		o.multiple = true;
+		o.noaliases = true;
+		o.depends('fw_allow_masq', '1');
+		o.modalonly = true;
 
 		return m.render();
 	}
