@@ -501,6 +501,7 @@ function gen_config_server(node)
 	if node.tls == "1" and node.reality == "1" then
 		tls.certificate_path = nil
 		tls.key_path = nil
+		tls.server_name = node.reality_handshake_server
 		tls.reality = {
 			enabled = true,
 			private_key = node.reality_private_key,
@@ -911,7 +912,6 @@ function gen_config(var)
 	local dns_cache = var["-dns_cache"]
 	local dns_socks_address = var["-dns_socks_address"]
 	local dns_socks_port = var["-dns_socks_port"]
-	local tags = var["-tags"]
 	local no_run = var["-no_run"]
 
 	local dns_domain_rules = {}
