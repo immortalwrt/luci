@@ -6,7 +6,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-passwall
-PKG_VERSION:=25.6.1
+PKG_VERSION:=25.6.28
 PKG_RELEASE:=1
 
 PKG_CONFIG_DEPENDS:= \
@@ -19,6 +19,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Shadowsocks_Rust_Server \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Libev_Client \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Libev_Server \
+	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Shadow_TLS \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Simple_Obfs \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_SingBox \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Trojan_Plus \
@@ -47,6 +48,7 @@ LUCI_DEPENDS:=+coreutils +coreutils-base64 +coreutils-nohup +curl \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Libev_Client:shadowsocksr-libev-ssr-local \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Libev_Client:shadowsocksr-libev-ssr-redir \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Libev_Server:shadowsocksr-libev-ssr-server \
+	+PACKAGE_$(PKG_NAME)_INCLUDE_Shadow_TLS:shadow-tls \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Simple_Obfs:simple-obfs \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_SingBox:sing-box \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Trojan_GO:trojan-go \
@@ -100,6 +102,11 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Libev_Client
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Libev_Server
 	bool "Include ShadowsocksR Libev Server"
+	default n
+
+config PACKAGE_$(PKG_NAME)_INCLUDE_Shadow_TLS
+	bool "Include Shadow-TLS"
+	depends on aarch64||arm||x86_64
 	default n
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_Simple_Obfs

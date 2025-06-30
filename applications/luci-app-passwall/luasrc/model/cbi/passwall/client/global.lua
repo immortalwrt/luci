@@ -434,7 +434,7 @@ if api.is_finded("smartdns") then
 	o:value("https://8.8.8.8/dns-query")
 	o:value("https://9.9.9.9/dns-query")
 	o:value("https://208.67.222.222/dns-query")
-	o:value("https://dns.adguard.com/dns-query,176.103.130.130")
+	o:value("https://dns.adguard.com/dns-query,94.140.14.14")
 	o:value("https://doh.libredns.gr/dns-query,116.202.176.26")
 	o:value("https://doh.libredns.gr/ads,116.202.176.26")
 	o:depends({ dns_shunt = "smartdns", smartdns_dns_mode = "socks" })
@@ -458,21 +458,6 @@ if api.is_finded("smartdns") then
 			t = { value }
 		end
 		return DynamicList.write(self, section, t)
-	end
-	function o.validate(self, value) --禁止私有IP
-		if type(value) == "table" then
-			for _, v in ipairs(value) do
-				if v:match("127%.0%.0%.") or
-				   v:match("192%.168%.") or
-				   v:match("10%.") or
-				   v:match("172%.1[6-9]%.") or
-				   v:match("172%.2[0-9]%.") or
-				   v:match("172%.3[0-1]%.") then
-					return nil, translatef("Private IPs are not allowed: %s", v)
-				end
-			end
-		end
-		return value
 	end
 end
 
@@ -573,8 +558,7 @@ o.description = translate("Notify the DNS server when the DNS query is notified,
 o.datatype = "ipaddr"
 o:depends({dns_mode = "sing-box"})
 o:depends({dns_mode = "xray"})
-o:depends("smartdns_dns_mode", "sing-box")
-o:depends("smartdns_dns_mode", "xray")
+o:depends("dns_shunt", "smartdns")
 
 o = s:taboption("DNS", Flag, "remote_fakedns", "FakeDNS", translate("Use FakeDNS work in the shunt domain that proxy."))
 o.default = "0"
