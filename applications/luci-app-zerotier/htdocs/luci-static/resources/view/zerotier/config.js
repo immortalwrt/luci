@@ -108,7 +108,6 @@ return view.extend({
 		o = s.option(form.Value, 'id', _('Network ID'));
 		o.rmempty = false;
 		o.width = '20%';
-		o.editable = true;
 
 		o = s.option(form.Flag, 'allow_managed', _('Allow managed IP/route'),
 			_('Allow ZeroTier to set IP addresses and routes (local/private ranges only).'));
