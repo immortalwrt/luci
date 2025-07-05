@@ -24,7 +24,7 @@ local ss_method_list = {
 local security_list = { "none", "auto", "aes-128-gcm", "chacha20-poly1305", "zero" }
 
 local header_type_list = {
-	"none", "srtp", "utp", "wechat-video", "dtls", "wireguard"
+	"none", "srtp", "utp", "wechat-video", "dtls", "wireguard", "dns"
 }
 
 local xray_version = api.get_app_version("xray")
@@ -152,7 +152,10 @@ local pi = s:option(Value, _n("probeInterval"), translate("Probe Interval"))
 pi:depends({ [_n("balancingStrategy")] = "leastPing" })
 pi:depends({ [_n("balancingStrategy")] = "leastLoad" })
 pi.default = "1m"
-pi.description = translate("The interval between initiating probes. The time format is numbers + units, such as '10s', '2h45m', and the supported time units are <code>ns</code>, <code>us</code>, <code>ms</code>, <code>s</code>, <code>m</code>, <code>h</code>, which correspond to nanoseconds, microseconds, milliseconds, seconds, minutes, and hours, respectively.")
+pi.placeholder = "1m"
+pi.description = translate("The interval between initiating probes.") .. "<br>" ..
+		translate("The time format is numbers + units, such as '10s', '2h45m', and the supported time units are <code>s</code>, <code>m</code>, <code>h</code>, which correspond to seconds, minutes, and hours, respectively.") .. "<br>" ..
+		translate("When the unit is not filled in, it defaults to seconds.")
 
 if api.compare_versions(xray_version, ">=", "1.8.12") then
 	ucpu:depends({ [_n("protocol")] = "_balancing" })
@@ -459,9 +462,12 @@ o:depends({ [_n("tcp_guise")] = "http" })
 
 -- [[ mKCP部分 ]]--
 
-o = s:option(ListValue, _n("mkcp_guise"), translate("Camouflage Type"), translate('<br />none: default, no masquerade, data sent is packets with no characteristics.<br />srtp: disguised as an SRTP packet, it will be recognized as video call data (such as FaceTime).<br />utp: packets disguised as uTP will be recognized as bittorrent downloaded data.<br />wechat-video: packets disguised as WeChat video calls.<br />dtls: disguised as DTLS 1.2 packet.<br />wireguard: disguised as a WireGuard packet. (not really WireGuard protocol)'))
+o = s:option(ListValue, _n("mkcp_guise"), translate("Camouflage Type"), translate('<br />none: default, no masquerade, data sent is packets with no characteristics.<br />srtp: disguised as an SRTP packet, it will be recognized as video call data (such as FaceTime).<br />utp: packets disguised as uTP will be recognized as bittorrent downloaded data.<br />wechat-video: packets disguised as WeChat video calls.<br />dtls: disguised as DTLS 1.2 packet.<br />wireguard: disguised as a WireGuard packet. (not really WireGuard protocol)<br />dns: Disguising traffic as DNS requests.'))
 for a, t in ipairs(header_type_list) do o:value(t) end
 o:depends({ [_n("transport")] = "mkcp" })
+
+o = s:option(Value, _n("mkcp_domain"), translate("Camouflage Domain"), translate("Use it together with the DNS disguised type. You can fill in any domain."))
+o:depends({ [_n("mkcp_guise")] = "dns" })
 
 o = s:option(Value, _n("mkcp_mtu"), translate("KCP MTU"))
 o.default = "1350"
