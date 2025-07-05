@@ -264,11 +264,16 @@ function curl_direct(url, file, args)
 end
 
 function curl_auto(url, file, args)
-	local return_code, result = curl_proxy(url, file, args)
-	if not return_code or return_code ~= 0 then
-		return_code, result = curl_direct(url, file, args)
+	local localhost_proxy = uci:get(appname, "@global[0]", "localhost_proxy") or "1"
+	if localhost_proxy == "1" then
+		return curl_base(url, file, args) -- 当路由器本机开启代理时，采用passwall规则进行访问
+	else
+		local return_code, result = curl_proxy(url, file, args)
+		if not return_code or return_code ~= 0 then
+			return_code, result = curl_direct(url, file, args)
+		end
+		return return_code, result
 	end
-	return return_code, result
 end
 
 function url(...)
@@ -282,8 +287,9 @@ function url(...)
 	return require "luci.dispatcher".build_url(url)
 end
 
-function trim(s)
-	return (s:gsub("^%s*(.-)%s*$", "%1"))
+function trim(text)
+	if not text or text == "" then return "" end
+	return text:match("^%s*(.-)%s*$")
 end
 
 -- 分割字符串
@@ -866,7 +872,7 @@ local function auto_get_arch()
 		arch = "rockchip"
 	end
 
-	return util.trim(arch)
+	return trim(arch)
 end
 
 function parseURL(url)
@@ -1030,7 +1036,7 @@ function to_download(app_name, url, size)
 
 	sys.call("/bin/rm -f /tmp/".. app_name .."_download.*")
 
-	local tmp_file = util.trim(util.exec("mktemp -u -t ".. app_name .."_download.XXXXXX"))
+	local tmp_file = trim(util.exec("mktemp -u -t ".. app_name .."_download.XXXXXX"))
 
 	if size then
 		local kb1 = get_free_space("/tmp")
@@ -1093,7 +1099,7 @@ function to_extract(app_name, file, subfix)
 		return {code = 1, error = i18n.translatef("%s not enough space.", "/tmp")}
 	end
 
-	local tmp_dir = util.trim(util.exec("mktemp -d -t ".. app_name .."_extract.XXXXXX"))
+	local tmp_dir = trim(util.exec("mktemp -d -t ".. app_name .."_extract.XXXXXX"))
 
 	local output = {}
 
@@ -1315,4 +1321,34 @@ function get_std_domain(domain)
 		end
 	end
 	return domain
+end
+
+function format_go_time(input)
+	input = input and trim(input)
+	local N = 0
+	if input and input:match("^%d+$") then
+		N = tonumber(input)
+	elseif input and input ~= "" then
+		for value, unit in input:gmatch("(%d+)%s*([hms])") do
+			value = tonumber(value)
+			if unit == "h" then
+				N = N + value * 3600
+			elseif unit == "m" then
+				N = N + value * 60
+			elseif unit == "s" then
+				N = N + value
+			end
+		end
+	end
+	if N <= 0 then
+		return "0s"
+	end
+	local result = ""
+	local h = math.floor(N / 3600)
+	local m = math.floor(N % 3600 / 60)
+	local s = N % 60
+	if h > 0 then result = result .. h .. "h" end
+	if m > 0 then result = result .. m .. "m" end
+	if s > 0 or result == "" then result = result .. s .. "s" end
+	return result
 end
