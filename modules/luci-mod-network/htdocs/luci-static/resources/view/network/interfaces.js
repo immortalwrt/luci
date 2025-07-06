@@ -35,11 +35,11 @@ function render_iface(dev, alias) {
 	    up   = dev ? dev.isUp() : false;
 
 	return E('span', { class: 'cbi-tooltip-container' }, [
-		E('img', { 'class' : 'middle', 'src': L.resource('icons/%s%s.png').format(
+		E('img', { 'class' : 'middle', 'src': L.resource('icons/%s%s.svg').format(
 			alias ? 'alias' : type,
 			up ? '' : '_disabled') }),
 		E('span', { 'class': 'cbi-tooltip ifacebadge large' }, [
-			E('img', { 'src': L.resource('icons/%s%s.png').format(
+			E('img', { 'src': L.resource('icons/%s%s.svg').format(
 				type, up ? '' : '_disabled') }),
 			L.itemlist(E('span', { 'class': 'left' }), [
 				_('Type'),      dev ? dev.getTypeI18n() : null,
@@ -103,7 +103,7 @@ function render_modal_status(node, ifc) {
 
 	dom.content(node, [
 		E('img', {
-			'src': L.resource('icons/%s%s.png').format(dev ? dev.getType() : 'ethernet', ifc.isUp() ? '' : '_disabled'),
+			'src': L.resource('icons/%s%s.svg').format(dev ? dev.getType() : 'ethernet', ifc.isUp() ? '' : '_disabled'),
 			'title': dev ? dev.getTypeI18n() : _('Not present')
 		}),
 		ifc ? render_status(E('span'), ifc, true) : E('em', _('Interface not present or not connected yet.'))
@@ -298,7 +298,7 @@ return view.extend({
 				var dev = ifc.getDevice();
 				dom.content(stat, [
 					E('img', {
-						'src': L.resource('icons/%s%s.png').format(dev ? dev.getType() : 'ethernet', ifc.isUp() ? '' : '_disabled'),
+						'src': L.resource('icons/%s%s.svg').format(dev ? dev.getType() : 'ethernet', ifc.isUp() ? '' : '_disabled'),
 						'title': dev ? dev.getTypeI18n() : _('Not present')
 					}),
 					render_status(E('span'), ifc, true)
@@ -1295,7 +1295,7 @@ return view.extend({
 					'data-network': section_id
 				}, [
 					E('img', {
-						'src': L.resource('icons/ethernet_disabled.png'),
+						'src': L.resource('icons/ethernet_disabled.svg'),
 						'style': 'width:16px; height:16px'
 					}),
 					E('br'), E('small', '?')
@@ -1405,7 +1405,7 @@ return view.extend({
 			var isNew = (uci.get('network', s.section, 'name') == null),
 			    dev = getDevice(s.section);
 
-			nettools.addDeviceOptions(s, dev, isNew);
+			nettools.addDeviceOptions(s, dev, isNew, rtTables);
 		};
 
 		s.handleModalCancel = function(map /*, ... */) {
@@ -1478,6 +1478,9 @@ return view.extend({
 			case 'veth':
 				return 'veth';
 
+			case 'vrf':
+				return 'vrf';
+
 			case 'wifi':
 			case 'alias':
 			case 'switch':
@@ -1512,6 +1515,9 @@ return view.extend({
 
 			case 'veth':
 				return _('Virtual Ethernet');
+
+			case 'vrf':
+				return _('Virtual Routing and Forwarding (VRF)');
 
 			default:
 				return _('Network device');
@@ -1573,6 +1579,17 @@ return view.extend({
 			_('ULA for IPv6 is analogous to IPv4 private network addressing.') + ' ' +
 			_('This prefix is randomly generated at first install.'));
 		o.datatype = 'cidr6';
+
+		const l3mdevhelp1 = _('%s services running on this device in the default VRF context (ie., not bound to any VRF device) shall work across all VRF domains.');
+		const l3mdevhelp2 = _('Off means VRF traffic will be handled exclusively by sockets bound to VRFs.');
+
+		o = s.option(form.Flag, 'tcp_l3mdev', _('TCP Layer 3 Master Device (tcp_l3mdev) accept'),
+			l3mdevhelp1.format('TCP') + '<br/>' +
+			l3mdevhelp2);
+
+		o = s.option(form.Flag, 'udp_l3mdev', _('UDP Layer 3 Master Device (udp_l3mdev) accept'),
+			l3mdevhelp1.format('UDP') + '<br/>' +
+			l3mdevhelp2);
 
 		o = s.option(form.ListValue, 'packet_steering', _('Packet Steering'), _('Enable packet steering across CPUs. May help or hinder network speed.'));
 		o.value('0', _('Disabled'));
