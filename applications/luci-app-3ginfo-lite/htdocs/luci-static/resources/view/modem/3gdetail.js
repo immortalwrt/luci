@@ -548,7 +548,7 @@ simDialog: baseclass.extend({
 				}
 					
 					var icon, wicon, ticon, t;
-					var wicon = L.resource('icons/loading.gif');
+					var wicon = L.resource('icons/loading.svg');
 					var ticon = L.resource('icons/ctime.png');
 
 					var p = (json.signal);

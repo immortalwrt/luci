@@ -13,7 +13,7 @@ function act_manual_unlock_test_<%=stream_id_name%>(btn, type)
 		if (manual_<%=stream_id_name%>_type_legend && manual_<%=stream_id_name%>_type_output)
 		{
 			manual_<%=stream_id_name%>_type_output.innerHTML =
-				'<img src="<%=resource%>/icons/loading.gif" alt="<%:Loading%>" style="vertical-align:middle" /> ' +
+				'<img src="<%=resource%>/icons/loading.svg" alt="<%:Loading%>" style="vertical-align:middle" /> ' +
 				'<%:Waiting for command to complete...%>';
 
 			manual_<%=stream_id_name%>_type_legend.parentNode.style.display = 'block';
@@ -46,7 +46,7 @@ function act_all_proxies_test_<%=stream_id_name%>(btn, type)
 		if (all_<%=stream_id_name%>_legend && all_<%=stream_id_name%>_output)
 		{
 			all_<%=stream_id_name%>_output.innerHTML =
-				'<img src="<%=resource%>/icons/loading.gif" alt="<%:Loading%>" style="vertical-align:middle" /> ' +
+				'<img src="<%=resource%>/icons/loading.svg" alt="<%:Loading%>" style="vertical-align:middle" /> ' +
 				'<%:Waiting for command to complete...%>';
 
 			all_<%=stream_id_name%>_legend.parentNode.style.display = 'block';
