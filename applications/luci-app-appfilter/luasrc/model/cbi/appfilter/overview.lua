@@ -19,7 +19,7 @@ s = m:section(TypedSection, "global", translate("Basic Settings"))
 s:option(Flag, "enable", translate("Enable App Filter"), translate(""))
 s.anonymous = true
 
-o=s:option(ListValue, "work_mode", translate("Work Mode"),translate("")) 
+o=s:option(ListValue, "work_mode", translate("Work Mode"),translate(""))
 o.default=0
 o:value(0, translate("Gateway Mode"))
 o:value(1,translate("Bypass Mode"))
@@ -28,7 +28,7 @@ local rule_count = 0
 local version = ""
 
 
--- s = m:section(TypedSection, "appfilter", translate("App Filter Rules"), 
+-- s = m:section(TypedSection, "appfilter", translate("App Filter Rules"),
 -- translate("If there is no app you want, you can add the app by updating the app feature file"))
 -- s.anonymous = true
 -- s.addremove = false

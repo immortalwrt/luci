@@ -42,7 +42,7 @@ local display_str = "<style>" ..
                     ".item-style { margin-top:15px;}" ..
                     "</style>" ..
                     "<div class='item-style'>" ..
-                        "<span class='label-style'>"..translate("Current version")..":</span> " .. version .. 
+                        "<span class='label-style'>"..translate("Current version")..":</span> " .. version ..
                     "</div>" ..
                     "<div class='item-style'>" ..
                         "<span class='label-style'>"..translate("Feature format")..":</span> " ..format ..

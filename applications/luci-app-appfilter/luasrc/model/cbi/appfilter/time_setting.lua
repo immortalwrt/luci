@@ -18,7 +18,7 @@ s = m:section(TypedSection, "time", translate("Time Setting"),translate("The sec
 s.anonymous = true
 
 
-o=s:option(ListValue, "time_mode", translate("Time Mode"),translate("")) 
+o=s:option(ListValue, "time_mode", translate("Time Mode"),translate(""))
 o.default=0
 o:value(0,translate("Blacklist mode"))
 o:value(1,translate("Whitelist mode"))
