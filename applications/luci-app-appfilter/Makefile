@@ -4,10 +4,10 @@
 
 include $(TOPDIR)/rules.mk
 
-LUCI_TITLE:=Open App Filter Module
+LUCI_TITLE:=LuCI support for OAF
 LUCI_DEPENDS:=+appfilter +luci-compat
 
-PKG_VERSION:=6.1.1
+PKG_VERSION:=6.1.2
 PKG_RELEASE:=1
 
 include ../../luci.mk
