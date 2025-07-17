@@ -135,7 +135,7 @@ end
 ---- Haproxy Port
 o = s:option(Value, "haproxy_port", translate("Haproxy Port"))
 o.datatype = "port"
-o.default = 65535
+o.default = 1181
 o.rmempty = false
 
 ---- Node Weight
