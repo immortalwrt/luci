@@ -22,11 +22,10 @@ return view.extend({
 		s.addbtntitle = _('Add schedule');
 
 		o = s.option(form.Flag, 'enabled', _('Enable'));
-		o.editable = true;
 		o.rmempty = false;
 		o.width = '10%';
 
-		o = s.option(form.ListValue, 'week', _('Week'));
+		o = s.option(form.Value, 'week', _('Week'));
 		o.value('*', _('Every day'));
 		o.value('1', _('Monday'));
 		o.value('2', _('Tuesday'));
@@ -35,37 +34,39 @@ return view.extend({
 		o.value('5', _('Friday'));
 		o.value('6', _('Saturday'));
 		o.value('0', _('Sunday'));
+		o.default = '*';
+		o.rmempty = false;
+		o.width = '18%';
+		o.renderWidget = function(/* ... */) {
+			let dl = form.Value.prototype.renderWidget.apply(this, arguments);
+			dl?.style?.setProperty('min-width', '100%');
+			return dl;
+		}
 		o.validate = function(section_id, value) {
 			if (!value?.match(/^(\*|[0-6](-[0-6])?)(\/[1-9][0-9]*)?(,(\*|[0-6](-[0-6])?)(\/[1-9][0-9]*)?)*$/))
 				return _('Expecting: %s').format(_('valid week value'));
 			return true;
 		}
-		o.default = '*';
-		o.editable = true;
-		o.rmempty = false;
-		o.width = '18%';
 
 		o = s.option(form.Value, 'hour', _('Hour'));
+		o.rmempty = false;
+		o.width = '18%';
 		o.validate = function(section_id, value) {
 			if (!value?.match(/^(\*|(1?[0-9]|2[0-3])(-(1?[0-9]|2[0-3]))?)(\/[1-9][0-9]*)?(,(\*|(1?[0-9]|2[0-3])(-(1?[0-9]|2[0-3]))?)(\/[1-9][0-9]*)?)*$/))
 				return _('Expecting: %s').format(_('valid hour value'));
 			return true;
 		}
-		o.editable = true;
-		o.rmempty = false;
-		o.width = '18%';
 
 		o = s.option(form.Value, 'minute', _('Minute'));
+		o.rmempty = false;
+		o.width = '18%';
 		o.validate = function(section_id, value) {
 			if (!value?.match(/^(\*|[1-5]?[0-9](-[1-5]?[0-9])?)(\/[1-9][0-9]*)?(,(\*|[1-5]?[0-9](-[1-5]?[0-9])?)(\/[1-9][0-9]*)?)*$/))
 				return _('Expecting: %s').format(_('valid minute value'));
 			return true;
 		}
-		o.editable = true;
-		o.rmempty = false;
-		o.width = '18%';
 
-		o = s.option(form.ListValue, 'month', _('Month'));
+		o = s.option(form.Value, 'month', _('Month'));
 		o.value('*', _('Every month'));
 		o.value('1', _('January'));
 		o.value('2', _('February'));
@@ -79,15 +80,19 @@ return view.extend({
 		o.value('10', _('October'));
 		o.value('11', _('November'));
 		o.value('12', _('December'));
+		o.default = '*';
+		o.rmempty = false;
+		o.width = '18%';
+		o.renderWidget = function(/* ... */) {
+			let dl = form.Value.prototype.renderWidget.apply(this, arguments);
+			dl?.style?.setProperty('min-width', '100%');
+			return dl;
+		}
 		o.validate = function(section_id, value) {
 			if (!value?.match(/^(\*|([1-9]|1[0-2]?)(-([1-9]|1[0-2]?))?)(\/[1-9][0-9]*)?(,(\*|([1-9]|1[0-2]?)(-([1-9]|1[0-2]?))?)(\/[1-9][0-9]*)?)*$/))
 				return _('Expecting: %s').format(_('valid month value'));
 			return true;
 		}
-		o.default = '*';
-		o.editable = true;
-		o.rmempty = false;
-		o.width = '18%';
 
 		o = s.option(form.Value, 'day', _('Day of month'));
 		o.validate = function(section_id, value) {
@@ -96,7 +101,6 @@ return view.extend({
 			return true;
 		}
 		o.default = '*';
-		o.editable = true;
 		o.rmempty = false;
 		o.width = '18%';
 
