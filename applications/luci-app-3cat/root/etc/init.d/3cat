@@ -58,7 +58,7 @@ start_instance() {
 				json_add_object ""
 				json_add_string type rule
 				json_add_string src "*"
-				json_add_string dest_port "$dest_port"
+				json_add_string dest_port "$listen_port"
 				json_add_string proto "$protocol"
 				json_add_string target ACCEPT
 				json_close_object
