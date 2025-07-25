@@ -1085,7 +1085,8 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 				'class': 'create-item-input',
 				'readonly': this.options.readonly ? '' : null,
 				'maxlength': this.options.maxlength,
-				'placeholder': this.options.custom_placeholder || this.options.placeholder
+				'placeholder': this.options.custom_placeholder || this.options.placeholder,
+				'inputmode': 'text',
 			});
 
 			if (this.options.datatype || this.options.validate)
