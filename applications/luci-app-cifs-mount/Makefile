@@ -7,6 +7,8 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=LuCI for SMB/CIFS Mount
 LUCI_DEPENDS:=+kmod-fs-cifs
 
+PKG_PROVIDES:=luci-app-cifs
+
 define Package/luci-app-cifs-mount/conffiles
 /etc/config/cifs-mount
 endef
