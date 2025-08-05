@@ -429,6 +429,18 @@ function is_ipv6(val)
 	return false
 end
 
+function is_local_ip(ip)
+	ip = tostring(ip or ""):lower()
+	ip = ip:gsub("^[%w%d]+://", "")   -- 去掉协议头
+		:gsub("/.*$", "")          -- 去掉路径
+		:gsub("^%[", ""):gsub("%]$", "") -- 去掉IPv6方括号
+		:gsub(":%d+$", "")         -- 去掉端口
+	return ip:match("^127%.") or ip:match("^10%.") or
+		ip:match("^172%.1[6-9]%.") or ip:match("^172%.2[0-9]%.") or
+		ip:match("^172%.3[0-1]%.") or ip:match("^192%.168%.") or
+		ip == "::1" or ip:match("^f[cd]") or ip:match("^fe[89ab]")
+end
+
 function is_ipv6addrport(val)
 	if is_ipv6(val) then
 		local address, port = val:match('%[(.*)%]:([^:]+)$')
@@ -518,7 +530,8 @@ function get_valid_nodes()
 				e["node_type"] = "special"
 				nodes[#nodes + 1] = e
 			end
-			if e.port and e.address then
+			local port = e.port or e.hysteria_hop or e.hysteria2_hop
+			if port and e.address then
 				local address = e.address
 				if is_ip(address) or datatypes.hostname(address) then
 					local type = e.type
@@ -540,6 +553,8 @@ function get_valid_nodes()
 							protocol = "HY2"
 						elseif protocol == "anytls" then
 							protocol = "AnyTLS"
+						elseif protocol == "ssh" then
+							protocol = "SSH"
 						else
 							protocol = protocol:gsub("^%l",string.upper)
 						end
@@ -549,7 +564,8 @@ function get_valid_nodes()
 					if is_ipv6(address) then address = get_ipv6_full(address) end
 					e["remark"] = "%s：[%s]" % {type, e.remarks}
 					if show_node_info == "1" then
-						e["remark"] = "%s：[%s] %s:%s" % {type, e.remarks, address, e.port}
+						port = port:gsub(":", "-")
+						e["remark"] = "%s：[%s] %s:%s" % {type, e.remarks, address, port}
 					end
 					e.node_type = "normal"
 					nodes[#nodes + 1] = e
@@ -586,6 +602,8 @@ function get_node_remarks(n)
 					protocol = "HY2"
 				elseif protocol == "anytls" then
 					protocol = "AnyTLS"
+				elseif protocol == "ssh" then
+					protocol = "SSH"
 				else
 					protocol = protocol:gsub("^%l",string.upper)
 				end
@@ -601,8 +619,10 @@ end
 function get_full_node_remarks(n)
 	local remarks = get_node_remarks(n)
 	if #remarks > 0 then
-		if n.address and n.port then
-			remarks = remarks .. " " .. n.address .. ":" .. n.port
+		local port = n.port or n.hysteria_hop or n.hysteria2_hop
+		if n.address and port then
+			port = port:gsub(":", "-")
+			remarks = remarks .. " " .. n.address .. ":" .. port
 		end
 	end
 	return remarks
