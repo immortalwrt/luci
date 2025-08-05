@@ -29,13 +29,25 @@ local has_singbox = api.finded_com("sing-box")
 local has_xray = api.finded_com("xray")
 local has_hysteria2 = api.finded_com("hysteria")
 local allowInsecure_default = nil
-local ss_type_default = uci:get(appname, "@global_subscribe[0]", "ss_type") or "shadowsocks-libev"
-local trojan_type_default = uci:get(appname, "@global_subscribe[0]", "trojan_type") or "trojan-plus"
-local vmess_type_default = uci:get(appname, "@global_subscribe[0]", "vmess_type") or "xray"
-local vless_type_default = uci:get(appname, "@global_subscribe[0]", "vless_type") or "xray"
-local hysteria2_type_default = uci:get(appname, "@global_subscribe[0]", "hysteria2_type") or "hysteria2"
+-- 取节点使用core类型（节点订阅页面未设置时，自动取默认）
+local function get_core(field, candidates)
+	local v = uci:get(appname, "@global_subscribe[0]", field)
+	if not v or v == "" then
+		for _, c in ipairs(candidates) do
+			if c[1] then return c[2] end
+		end
+	end
+	return v
+end
+local ss_type_default = get_core("ss_type", {{has_ss,"shadowsocks-libev"},{has_ss_rust,"shadowsocks-rust"},{has_singbox,"sing-box"},{has_xray,"xray"}})
+local trojan_type_default = get_core("trojan_type", {{has_trojan_plus,"trojan-plus"},{has_singbox,"sing-box"},{has_xray,"xray"}})
+local vmess_type_default = get_core("vmess_type", {{has_xray,"xray"},{has_singbox,"sing-box"}})
+local vless_type_default = get_core("vless_type", {{has_xray,"xray"},{has_singbox,"sing-box"}})
+local hysteria2_type_default = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{has_singbox,"sing-box"}})
+----
 local domain_strategy_default = uci:get(appname, "@global_subscribe[0]", "domain_strategy") or ""
 local domain_strategy_node = ""
+local preproxy_node_group, to_node_group, chain_node_type = "", "", ""
 -- 判断是否过滤节点关键字
 local filter_keyword_mode_default = uci:get(appname, "@global_subscribe[0]", "filter_keyword_mode") or "0"
 local filter_keyword_discard_list_default = uci:get(appname, "@global_subscribe[0]", "filter_discard_list") or {}
@@ -280,7 +292,7 @@ do
 			if node.balancing_node then
 				for k, node in pairs(node.balancing_node) do
 					currentNodes[#currentNodes + 1] = {
-						log = false,
+						log = true,
 						node = node,
 						currentNode = node and uci:get_all(appname, node) or nil,
 						remarks = node,
@@ -328,7 +340,7 @@ do
 			if node.urltest_node then
 				for k, node in pairs(node.urltest_node) do
 					currentNodes[#currentNodes + 1] = {
-						log = false,
+						log = true,
 						node = node,
 						currentNode = node and uci:get_all(appname, node) or nil,
 						remarks = node,
@@ -1036,8 +1048,8 @@ local function processData(szType, content, add_mode, add_from)
 			end
 
 			result.encryption = params.encryption or "none"
-
-			result.flow = params.flow or nil
+			result.flow = params.flow and params.flow:gsub("-udp443", "") or nil
+			result.alpn = params.alpn
 
 			if result.type == "sing-box" and (result.transport == "mkcp" or result.transport == "xhttp" or result.transport == "splithttp") then
 				log("跳过节点:" .. result.remarks .."，因Sing-Box不支持" .. szType .. "协议的" .. result.transport .. "传输方式，需更换Xray。")
@@ -1191,7 +1203,7 @@ local function processData(szType, content, add_mode, add_from)
 
 			result.encryption = params.encryption or "none"
 
-			result.flow = params.flow or nil
+			result.flow = params.flow and params.flow:gsub("-udp443", "") or nil
 
 			result.tls = "0"
 			if params.security == "tls" or params.security == "reality" then
@@ -1269,7 +1281,6 @@ local function processData(szType, content, add_mode, add_from)
 		else
 			result.address = host_port
 		end
-		result.protocol = params.protocol
 		result.hysteria_obfs = params.obfsParam
 		result.hysteria_auth_type = "string"
 		result.hysteria_auth_password = params.auth
@@ -1452,9 +1463,12 @@ local function processData(szType, content, add_mode, add_from)
 				result.address = host_port
 			end
 			result.tls = "0"
+			if (not params.security or params.security == "") and params.sni and params.sni ~= "" then
+				params.security = "tls"
+			end
 			if params.security == "tls" or params.security == "reality" then
 				result.tls = "1"
-				result.tls_serverName = (params.sni and params.sni ~= "") and params.sni or params.host
+				result.tls_serverName = params.sni
 				result.alpn = params.alpn
 				if params.fp and params.fp ~= "" then
 					result.utls = "1"
@@ -1566,7 +1580,9 @@ local function select_node(nodes, config, parentConfig)
 		if config.currentNode[".name"] then
 			for index, node in pairs(nodes) do
 				if node[".name"] == config.currentNode[".name"] then
-					log('更新【' .. config.remarks .. '】匹配节点：' .. node.remarks)
+					if config.log == nil or config.log == true then
+						log('更新【' .. config.remarks .. '】匹配节点：' .. node.remarks)
+					end
 					server = node[".name"]
 					break
 				end
@@ -1710,6 +1726,16 @@ local function update_node(manual)
 					if kkk == "type" and vvv == "sing-box" then
 						uci:set(appname, cfgid, "domain_strategy", domain_strategy_node)
 					end
+					-- 订阅组链式代理
+					if chain_node_type ~= "" and kkk == "type" and vvv == chain_node_type then
+						if preproxy_node_group ~="" then
+							uci:set(appname, cfgid, "chain_proxy", "1")
+							uci:set(appname, cfgid, "preproxy_node", preproxy_node_group)
+						elseif to_node_group ~= "" then
+							uci:set(appname, cfgid, "chain_proxy", "2")
+							uci:set(appname, cfgid, "to_node", to_node_group)
+						end
+					end
 				end
 			end
 		end
@@ -1734,6 +1760,9 @@ local function update_node(manual)
 
 		for _, config in pairs(CONFIG) do
 			if config.currentNodes and #config.currentNodes > 0 then
+				if config.remarks and config.currentNodes[1].log ~= false then
+					log('----【' .. config.remarks .. '】----')
+				end
 				for kk, vv in pairs(config.currentNodes) do
 					select_node(nodes, vv, config)
 				end
@@ -1909,6 +1938,22 @@ local execute = function()
 			else
 				domain_strategy_node = domain_strategy_default
 			end
+
+			-- 订阅组链式代理
+			local function valid_chain_node(node)
+				if not node then return "" end
+				local cp = uci:get(appname, node, "chain_proxy") or ""
+				local am = uci:get(appname, node, "add_mode") or "0"
+				chain_node_type = (cp == "" and am ~= "2") and (uci:get(appname, node, "type") or "") or ""
+				if chain_node_type ~= "Xray" and chain_node_type ~= "sing-box" then
+					chain_node_type = ""
+					return ""
+				end
+				return node
+			end
+			preproxy_node_group = (value.chain_proxy == "1") and valid_chain_node(value.preproxy_node) or ""
+			to_node_group = (value.chain_proxy == "2") and valid_chain_node(value.to_node) or ""
+
 			local ua = value.user_agent
 			local access_mode = value.access_mode
 			local result = (not access_mode) and "自动" or (access_mode == "direct" and "直连访问" or (access_mode == "proxy" and "通过代理" or "自动"))

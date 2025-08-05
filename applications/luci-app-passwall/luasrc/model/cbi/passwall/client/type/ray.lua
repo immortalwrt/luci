@@ -58,7 +58,8 @@ for k, e in ipairs(api.get_valid_nodes()) do
 		nodes_table[#nodes_table + 1] = {
 			id = e[".name"],
 			remark = e["remark"],
-			type = e["type"]
+			type = e["type"],
+			chain_proxy = e["chain_proxy"]
 		}
 	end
 	if e.protocol == "_balancing" then
@@ -302,7 +303,7 @@ o = s:option(ListValue, _n("security"), translate("Encrypt Method"))
 for a, t in ipairs(security_list) do o:value(t) end
 o:depends({ [_n("protocol")] = "vmess" })
 
-o = s:option(Value, _n("encryption"), translate("Encrypt Method"))
+o = s:option(Value, _n("encryption"), translate("Encrypt Method") .. " (encryption)")
 o.default = "none"
 o:value("none")
 o:depends({ [_n("protocol")] = "vless" })
@@ -331,6 +332,7 @@ o.default = ""
 o:value("", translate("Disable"))
 o:value("xtls-rprx-vision")
 o:depends({ [_n("protocol")] = "vless", [_n("tls")] = true, [_n("transport")] = "raw" })
+o:depends({ [_n("protocol")] = "vless", [_n("tls")] = true, [_n("transport")] = "xhttp" })
 
 o = s:option(Flag, _n("tls"), translate("TLS"))
 o.default = 0
@@ -385,6 +387,13 @@ o:depends({ [_n("ech")] = true })
 o.validate = function(self, value)
 	return api.trim(value:gsub("[\r\n]", ""))
 end
+
+o = s:option(ListValue, _n("ech_ForceQuery"), translate("ECH Query Policy"), translate("Controls the policy used when performing DNS queries for ECH configuration."))
+o.default = "none"
+o:value("none")
+o:value("half")
+o:value("full")
+o:depends({ [_n("ech")] = true })
 
 -- [[ REALITY部分 ]] --
 o = s:option(Value, _n("reality_publicKey"), translate("Public Key"))
@@ -688,7 +697,7 @@ o = s:option(ListValue, _n("to_node"), translate("Landing Node"), translate("Onl
 o:depends({ [_n("chain_proxy")] = "2" })
 
 for k, v in pairs(nodes_table) do
-	if v.type == "Xray" and v.id ~= arg[1] then
+	if v.type == "Xray" and v.id ~= arg[1] and (not v.chain_proxy or v.chain_proxy == "") then
 		s.fields[_n("preproxy_node")]:value(v.id, v.remark)
 		s.fields[_n("to_node")]:value(v.id, v.remark)
 	end
