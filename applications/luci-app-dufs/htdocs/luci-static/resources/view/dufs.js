@@ -5,7 +5,7 @@
 'require uci';
 'require view';
 
-var callServiceList = rpc.declare({
+const callServiceList = rpc.declare({
 	object: 'service',
 	method: 'list',
 	params: ['name'],
@@ -14,7 +14,7 @@ var callServiceList = rpc.declare({
 
 function getServiceStatus() {
 	return L.resolveDefault(callServiceList('dufs'), {}).then(function (res) {
-		var isRunning = false;
+		let isRunning = false;
 		try {
 			isRunning = res['dufs']['instances']['dufs']['running'];
 		} catch (e) { }
@@ -23,11 +23,11 @@ function getServiceStatus() {
 }
 
 function renderStatus(isRunning, port, path) {
-	var spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
-	var renderHTML;
+	let spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
+	let renderHTML;
 	if (isRunning) {
-		var dufsURL = '//' + window.location.hostname + ':' + port + '/' + path.replace(/^\//, '');
-		var button = String.format('&#160;<a class="btn cbi-button" href="%s" target="_blank" rel="noreferrer noopener">%s</a>',
+		let dufsURL = '//' + window.location.hostname + ':' + port + '/' + path.replace(/^\//, '');
+		let button = String.format('&#160;<a class="btn cbi-button" href="%s" target="_blank" rel="noreferrer noopener">%s</a>',
 			dufsURL, _('Open Web Interface'));
 		renderHTML = spanTemp.format('green', _('Dufs'), _('RUNNING')) + button;
 	} else {
@@ -38,26 +38,26 @@ function renderStatus(isRunning, port, path) {
 }
 
 return view.extend({
-	load: function() {
+	load() {
 		return Promise.all([
 			uci.load('dufs')
 		]);
 	},
 
-	render: function(data) {
-		var m, s, o;
-		var webport = uci.get(data[0], 'config', 'port') || '5244';
-		var webpath = uci.get(data[0], 'config', 'path_prefix') || '/';
+	render(data) {
+		let m, s, o;
+		let webport = uci.get(data[0], 'config', 'port') || '5244';
+		let webpath = uci.get(data[0], 'config', 'path_prefix') || '/';
 
 		m = new form.Map('dufs', _('Dufs'),
 			_('Dufs is a distinctive utility file server that supports static serving, uploading, searching, accessing control, webdav...'));
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
-		s.render = function () {
-			poll.add(function () {
-				return L.resolveDefault(getServiceStatus()).then(function (res) {
-					var view = document.getElementById('service_status');
+		s.render = function() {
+			poll.add(function() {
+				return L.resolveDefault(getServiceStatus()).then(function(res) {
+					let view = document.getElementById('service_status');
 					view.innerHTML = renderStatus(res, webport, webpath);
 				});
 			});
