@@ -8,7 +8,7 @@
 'require view';
 
 return view.extend({
-	render: function () {
+	render() {
 		let m, s, o;
 
 		m = new form.Map('autoreboot', _('Scheduled Reboot'),

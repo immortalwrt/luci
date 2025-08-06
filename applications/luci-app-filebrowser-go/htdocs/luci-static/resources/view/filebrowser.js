@@ -5,7 +5,7 @@
 'require uci';
 'require view';
 
-var callServiceList = rpc.declare({
+const callServiceList = rpc.declare({
 	object: 'service',
 	method: 'list',
 	params: ['name'],
@@ -13,8 +13,8 @@ var callServiceList = rpc.declare({
 });
 
 function getServiceStatus() {
-	return L.resolveDefault(callServiceList('filebrowser'), {}).then(function (res) {
-		var isRunning = false;
+	return L.resolveDefault(callServiceList('filebrowser'), {}).then(function(res) {
+		let isRunning = false;
 		try {
 			isRunning = res['filebrowser']['instances']['instance1']['running'];
 		} catch (e) { }
@@ -23,10 +23,10 @@ function getServiceStatus() {
 }
 
 function renderStatus(isRunning, port) {
-	var spanTemp = '<span style="color:%s"><strong>%s %s</strong></span>';
-	var renderHTML;
+	let spanTemp = '<span style="color:%s"><strong>%s %s</strong></span>';
+	let renderHTML;
 	if (isRunning) {
-		var button = String.format('&#160;<a class="btn cbi-button" href="http://%s:%s" target="_blank" rel="noreferrer noopener">%s</a>',
+		let button = String.format('&#160;<a class="btn cbi-button" href="http://%s:%s" target="_blank" rel="noreferrer noopener">%s</a>',
 			window.location.hostname, port, _('Open Web Interface'));
 		renderHTML = spanTemp.format('green', _('FileBrowser'), _('RUNNING')) + button;
 	} else {
@@ -37,29 +37,29 @@ function renderStatus(isRunning, port) {
 }
 
 return view.extend({
-	load: function() {
+	load() {
 		return uci.load('filebrowser');
 	},
 
-	render: function(data) {
-		var m, s, o;
-		var webport = (uci.get(data, 'config', 'listen_port') || '8989');
+	render(data) {
+		let m, s, o;
+		let webport = (uci.get(data, 'config', 'listen_port') || '8989');
 
 		m = new form.Map('filebrowser', _('FileBrowser'),
 			_('FileBrowser provides a file managing interface within a specified directory and it can be used to upload, delete, preview, rename and edit your files..'));
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
-		s.render = function () {
-			poll.add(function () {
-				return L.resolveDefault(getServiceStatus()).then(function (res) {
-					var view = document.getElementById('service_status');
+		s.render = function() {
+			poll.add(function() {
+				return L.resolveDefault(getServiceStatus()).then(function(res) {
+					let view = document.getElementById('service_status');
 					view.innerHTML = renderStatus(res, webport);
 				});
 			});
 
 			return E('div', { class: 'cbi-section', id: 'status_bar' }, [
-					E('p', { id: 'service_status' }, _('Collecting data...'))
+				E('p', { id: 'service_status' }, _('Collecting data...'))
 			]);
 		}
 

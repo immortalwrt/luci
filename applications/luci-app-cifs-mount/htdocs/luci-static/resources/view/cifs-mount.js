@@ -9,14 +9,14 @@
 'require view';
 
 return view.extend({
-	load: function() {
+	load() {
 		return Promise.all([
 			L.resolveDefault(fs.stat('/sbin/block'), null),
 			L.resolveDefault(fs.stat('/etc/config/fstab'), null),
 		]);
 	},
 
-	render: function (stats) {
+	render(stats) {
 		let m, s, o;
 
 		m = new form.Map('cifs-mount', _('Mount SMB/CIFS NetShare'));

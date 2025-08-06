@@ -15,7 +15,7 @@ return network.registerProtocol('minieap', {
 	},
 
 	renderFormOptions: function(s) {
-		var dev = this.getL2Device() || this.getDevice(), o;
+		let dev = this.getL2Device() || this.getDevice(), o;
 
 		// remove firewall tab, add rjv3 tab
 		try {

@@ -16,7 +16,7 @@ return view.extend({
 		]);
 	},
 
-	render: function (data) {
+	render(data) {
 		let m, s, o;
 		let hosts = fwtool.transformHostHints(null, data[0]?.hosts);
 
@@ -47,7 +47,7 @@ return view.extend({
 
 		o = s.option(form.Value, 'dest_addr', _('Destination address'));
 		if (hosts && hosts.length > 0)
-			for (var i = 0; i < hosts[0].length; i++)
+			for (let i = 0; i < hosts[0].length; i++)
 				o.value(hosts[0][i], hosts[1][hosts[0][i]]);
 		o.datatype = 'or(hostname, ipaddr)';
 		o.rmempty = false;

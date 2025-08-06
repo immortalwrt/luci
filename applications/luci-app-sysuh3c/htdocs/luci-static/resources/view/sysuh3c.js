@@ -12,7 +12,7 @@
 
 'require tools.widgets as widgets';
 
-var callServiceList = rpc.declare({
+const callServiceList = rpc.declare({
 	object: 'service',
 	method: 'list',
 	params: ['name'],
@@ -20,7 +20,7 @@ var callServiceList = rpc.declare({
 });
 
 function getServiceStatus() {
-	return L.resolveDefault(callServiceList('sysuh3c'), {}).then(function (res) {
+	return L.resolveDefault(callServiceList('sysuh3c'), {}).then(function(res) {
 		let isRunning = false;
 		try {
 			isRunning = res['sysuh3c']['instances']['instance1']['running'];
@@ -41,24 +41,24 @@ function renderStatus(isRunning) {
 }
 
 return view.extend({
-	render: function() {
-		var m, s, o;
+	render() {
+		let m, s, o;
 
 		m = new form.Map('sysuh3c', _('SYSU H3C Client'),
 			_('Configure SYSU H3C 802.1x client.'));
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
-		s.render = function () {
-			poll.add(function () {
-				return L.resolveDefault(getServiceStatus()).then(function (res) {
+		s.render = function() {
+			poll.add(function() {
+				return L.resolveDefault(getServiceStatus()).then(function(res) {
 					let view = document.getElementById('service_status');
 					view.innerHTML = renderStatus(res);
 				});
 			});
 
 			return E('div', { class: 'cbi-section', id: 'status_bar' }, [
-					E('p', { id: 'service_status' }, _('Collecting data…'))
+				E('p', { id: 'service_status' }, _('Collecting data…'))
 			]);
 		}
 

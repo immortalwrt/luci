@@ -3,14 +3,14 @@
 'require form';
 'require network';
 
-var callFileList = rpc.declare({
+const callFileList = rpc.declare({
 	object: 'file',
 	method: 'list',
 	params: [ 'path' ],
 	expect: { entries: [] },
 	filter: function(list, params) {
-		var rv = [];
-		for (var i = 0; i < list.length; i++)
+		let rv = [];
+		for (let i = 0; i < list.length; i++)
 			if (list[i].name.match(/^cdc-wdm/))
 				rv.push(params.path + list[i].name);
 		return rv.sort();
@@ -52,14 +52,14 @@ return network.registerProtocol('quectel', {
 	},
 
 	renderFormOptions: function(s) {
-		var dev = this.getL3Device() || this.getDevice(), o;
+		let dev = this.getL3Device() || this.getDevice(), o;
 
 		o = s.taboption('general', form.Value, '_modem_device', _('Modem device'));
 		o.ucioption = 'device';
 		o.rmempty = false;
 		o.load = function(section_id) {
 			return callFileList('/dev/').then(L.bind(function(devices) {
-				for (var i = 0; i < devices.length; i++)
+				for (let i = 0; i < devices.length; i++)
 					this.value(devices[i]);
 				return form.Value.prototype.load.apply(this, [section_id]);
 			}, this));

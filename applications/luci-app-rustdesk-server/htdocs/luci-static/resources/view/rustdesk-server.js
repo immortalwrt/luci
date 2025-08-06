@@ -14,7 +14,7 @@ const callServiceList = rpc.declare({
 });
 
 function getServiceStatus() {
-	return L.resolveDefault(callServiceList('rustdesk-server'), {}).then(function (res) {
+	return L.resolveDefault(callServiceList('rustdesk-server'), {}).then(function(res) {
 		const status = {
 			hbbs: res?.['rustdesk-server']?.['instances']?.['hbbs']?.['running'],
 			hbbr: res?.['rustdesk-server']?.['instances']?.['hbbr']?.['running']
@@ -38,16 +38,16 @@ function renderStatus(status) {
 }
 
 return view.extend({
-	render: function() {
+	render() {
 		let m, s, o;
 
 		m = new form.Map('rustdesk-server', _('RustDesk Server'));
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
-		s.render = function () {
-			poll.add(function () {
-				return L.resolveDefault(getServiceStatus()).then(function (res) {
+		s.render = function() {
+			poll.add(function() {
+				return L.resolveDefault(getServiceStatus()).then(function(res) {
 					const stats = renderStatus(res);
 					const srvs = [ 'hbbr_status', 'hbbs_status' ];
 					for (let i in srvs) {

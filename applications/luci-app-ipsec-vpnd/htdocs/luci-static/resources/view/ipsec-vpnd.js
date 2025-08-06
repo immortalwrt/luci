@@ -10,7 +10,7 @@
 'require uci';
 'require view';
 
-var callServiceList = rpc.declare({
+const callServiceList = rpc.declare({
 	object: 'service',
 	method: 'list',
 	params: ['name'],
@@ -18,8 +18,8 @@ var callServiceList = rpc.declare({
 });
 
 function getServiceStatus() {
-	return L.resolveDefault(callServiceList('ipsec-vpnd'), {}).then(function (res) {
-		var isRunning = false;
+	return L.resolveDefault(callServiceList('ipsec-vpnd'), {}).then(function(res) {
+		let isRunning = false;
 		try {
 			isRunning = res['ipsec-vpnd']['instances']['instance1']['running'];
 		} catch (e) { }
@@ -28,8 +28,8 @@ function getServiceStatus() {
 }
 
 function renderStatus(isRunning) {
-	var spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
-	var renderHTML;
+	let spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
+	let renderHTML;
 	if (isRunning)
 		renderHTML = spanTemp.format('green', _('IPSec VPN'), _('RUNNING'));
 	else
@@ -39,24 +39,24 @@ function renderStatus(isRunning) {
 }
 
 return view.extend({
-	render: function() {
-		var m, s, o;
+	render() {
+		let m, s, o;
 
 		m = new form.Map('ipsec-vpnd', _('IPSec VPN Server'),
 			_('IPSec VPN connectivity using the native built-in VPN Client on iOS or Andriod (IKEv1 with PSK and Xauth)'));
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
-		s.render = function () {
-			poll.add(function () {
-				return L.resolveDefault(getServiceStatus()).then(function (res) {
-					var view = document.getElementById('service_status');
+		s.render = function() {
+			poll.add(function() {
+				return L.resolveDefault(getServiceStatus()).then(function(res) {
+					let view = document.getElementById('service_status');
 					view.innerHTML = renderStatus(res);
 				});
 			});
 
 			return E('div', { class: 'cbi-section', id: 'status_bar' }, [
-					E('p', { id: 'service_status' }, _('Collecting data...'))
+				E('p', { id: 'service_status' }, _('Collecting data...'))
 			]);
 		}
 
