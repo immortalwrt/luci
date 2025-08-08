@@ -58,6 +58,10 @@ return view.extend({
 		o.default = 'bing';
 		o.rmempty = false;
 
+		o = s.option(form.Value, 'use_api_key', _('API key'), _('Specify API key for Unsplash or Wallhaven.'));
+		o.depends('online_wallpaper', 'unsplash');
+		o.depends('online_wallpaper', 'wallhaven');
+
 		o = s.option(form.ListValue, 'mode', _('Theme mode'));
 		o.value('normal', _('Follow system'));
 		o.value('light', _('Light mode'));
