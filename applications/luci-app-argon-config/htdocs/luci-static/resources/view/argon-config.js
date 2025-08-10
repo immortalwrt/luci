@@ -57,10 +57,54 @@ return view.extend({
 		o.value('wallhaven', _('Wallhaven'));
 		o.default = 'bing';
 		o.rmempty = false;
+        o.cfgvalue = function(section_id) {
+            let value = uci.get('argon', section_id, 'online_wallpaper');
+            if (!value) return 'bing';
+            // 分割存储的值，返回wallpaper来源
+            return value.split('_')[0];
+        }
+        o.write = function(section_id, value) {
+            // 获取collection_id的值
+            let collectionId = this.map.lookupOption('collection_id', section_id)[0].formvalue(section_id);
+            // 如果有collection_id，则合并存储
+            if (collectionId && (value === 'unsplash' || value === 'wallhaven')) {
+                value = value + '_' + collectionId;
+            }
+            uci.set('argon', section_id, 'online_wallpaper', value);
+        }
+
+		o = s.option(form.Value, 'collection_id', _('Collection ID'), _('Collection ID for Unsplash or Wallhaven.'));
+		o.depends('online_wallpaper', 'unsplash');
+		o.depends('online_wallpaper', 'wallhaven');
+        o.datatype = 'uinteger';
+        o.rmempty = true;
+        o.cfgvalue = function(section_id) {
+            let value = uci.get('argon', section_id, 'online_wallpaper');
+            if (!value || !value.includes('_')) return '';
+            // 分割存储的值，返回collection_id
+            return value.split('_')[1];
+        }
+        o.write = function(section_id, value) {
+            // 获取online_wallpaper的值
+            let online_wallpaper = this.map.lookupOption('online_wallpaper', section_id)[0].formvalue(section_id);
+            // 如果有collection_id，则合并存储
+            if (value && (online_wallpaper === 'unsplash' || online_wallpaper === 'wallhaven')) {
+                online_wallpaper = online_wallpaper + '_' + value;
+            }
+            uci.set('argon', section_id, 'online_wallpaper', online_wallpaper);
+        }
 
 		o = s.option(form.Value, 'use_api_key', _('API key'), _('Specify API key for Unsplash or Wallhaven.'));
 		o.depends('online_wallpaper', 'unsplash');
 		o.depends('online_wallpaper', 'wallhaven');
+
+		o = s.option(form.ListValue, 'use_exact_resolution', _('Resolutions Tag'),
+            _('Use exact resolution or atleast 1080P for Wallhaven.'));
+		o.value('0', _('Atleast'));
+		o.value('1', _('Exact'));
+		o.default = '1';
+        o.depends('online_wallpaper', 'wallhaven');
+		o.rmempty = true;
 
 		o = s.option(form.ListValue, 'mode', _('Theme mode'));
 		o.value('normal', _('Follow system'));
