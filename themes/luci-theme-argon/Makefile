@@ -15,6 +15,7 @@ PKG_RELEASE:=20250722
 LUCI_MINIFY_CSS:=0
 
 define Package/luci-theme-argon/conffiles
+/etc/config/argon
 /www/luci-static/argon/background/
 endef
 
