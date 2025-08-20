@@ -7,7 +7,7 @@
 
 /*
 	Copyright 2021-2024 Rafał Wabik - IceG - From eko.one.pl forum
-	
+
 	Licensed to the GNU General Public License v3.0.
 */
 
@@ -86,7 +86,7 @@ return view.extend({
 				E('tr', { 'class': 'tr' }, [
 					E('td', { 'class': 'td left', 'style': 'overflow:initial' }, [
 						E('label', { 'class': 'cbi-value-title' },
-							_("USB debug information")						
+							_("USB debug information")
 						),
 						E('p'),
 						E('label', { 'class': 'cbi-value-title' },
@@ -103,7 +103,7 @@ return view.extend({
 
 					E('td', { 'class': 'td left', 'style': 'overflow:initial' }, [
 						E('label', { 'class': 'cbi-value-title' },
-							_("Check availability of ttyX ports.")						
+							_("Check availability of ttyX ports.")
 						),
 						E('p'),
 						E('label', { 'class': 'cbi-value-title' },
@@ -120,7 +120,7 @@ return view.extend({
 
 					E('td', { 'class': 'td left' }, [
 						E('label', { 'class': 'cbi-value-title' },
-							_("Check data read by the 3ginfo scripts.")						
+							_("Check data read by the 3ginfo scripts.")
 						),
 						E('p'),
 						E('label', { 'class': 'cbi-value-title' },
