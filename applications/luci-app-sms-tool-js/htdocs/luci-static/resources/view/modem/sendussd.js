@@ -7,21 +7,22 @@
 'require view';
 
 /*
-	Copyright 2022-2024 Rafał Wabik - IceG - From eko.one.pl forum
+	Copyright 2022-2025 Rafał Wabik - IceG - From eko.one.pl forum
 
 	Licensed to the GNU General Public License v3.0.
 */
 
-
 return view.extend({
 	handleCommand: function(exec, args) {
-		var buttons = document.querySelectorAll('.cbi-button');
+		let buttons = document.querySelectorAll('.cbi-button');
 
-		for (var i = 0; i < buttons.length; i++)
+		for (let i = 0; i < buttons.length; i++)
 			buttons[i].setAttribute('disabled', 'true');
 
 		return fs.exec(exec, args).then(function(res) {
-			var out = document.querySelector('.atcommand-output');
+			let out = document.querySelector('.ussdcommand-output');
+			let fullhistory = document.getElementById('history-full')?.checked;
+			let reversereplies = document.getElementById('reverse-replies')?.checked;
 			out.style.display = '';
 
 			res.stdout = res.stdout?.replace(/^(?=\n)$|^\s*|\s*$|\n\n+/gm, "") || '';
@@ -30,8 +31,8 @@ return view.extend({
 			if (res.stdout === undefined || res.stderr === undefined || res.stderr.includes('undefined') || res.stdout.includes('undefined')) {
 				return;
 			} else {
-				var cut = res.stderr;
-				if ( cut.length > 1 ) {
+				let cut = res.stderr;
+				if ( cut.length > 2 ) {
 					if (cut.includes('error: 0'))
 						res.stdout = _('Phone/Modem failure.');
 					if (cut.includes('error: 1'))
@@ -158,12 +159,24 @@ return view.extend({
 						res.stdout = _('Selection failure – emergency calls only (Specific Modem Sierra).');
 					if (cut.includes('error: 772'))
 						res.stdout = _('SIM powered down.');
-					dom.content(out, [ res.stderr || '', ' > '+res.stdout || '' ]);
-				} else {
-					dom.content(out, [ res.stdout || '', res.stderr || '' ]);
-				}
+					    dom.content(out, [ res.stderr || '', res.stdout ? ' > ' + res.stdout : '' ]);
+				    } else {
+						if ( fullhistory ) {
+    						    const ussdreply = (res.stdout + res.stderr).replace(/^\s*\n+/g, '');
+							    let ussdv = document.getElementById('cmdvalue');
+							    ussdv.value = '';
+							    document.getElementById('cmdvalue').focus();
+    							if (reversereplies) {
+        							out.innerText = ussdreply + (out.innerText.trim() ? '\n\n' + out.innerText : '');
+    							} else {
+        							out.innerText += '\n\n' + res.stdout + res.stderr;
+				            		out.innerText = out.innerText.replace(/^\s*\n+/g, '');
+						        }
+				        } else {
+				            	dom.content(out, [ res.stdout || '', res.stderr || '' ]);
+				        }
+				    }
 			}
-
 		}).catch(function(err) {
 			if (res.stdout === undefined || res.stderr === undefined || res.stderr.includes('undefined') || res.stdout.includes('undefined')) {
 				return;
@@ -171,23 +184,21 @@ return view.extend({
 				ui.addNotification(null, E('p', [ err ]));
 			}
 		}).finally(function() {
-			for (var i = 0; i < buttons.length; i++)
+			for (let i = 0; i < buttons.length; i++)
 				buttons[i].removeAttribute('disabled');
-
 		});
 	},
 
 	handleGo: function(ev) {
-
-		var port, ussd = document.getElementById('cmdvalue').value;
-		var sections = uci.sections('sms_tool_js');
-		var port = sections[0].ussdport;
-		var get_ussd = sections[0].ussd;
-		var get_pdu = sections[0].pdu;
+		let ussd = document.getElementById('cmdvalue').value;
+		let sections = uci.sections('sms_tool_js');
+		let port = sections[0].ussdport;
+		let get_ussd = sections[0].ussd;
+		let get_pdu = sections[0].pdu;
 		let get_coding = sections[0].coding;
 		let tool_args = [];
 
-		if ( ussd.length < 2 ) {
+		if ( ussd.length < 1 ) {
 			ui.addNotification(null, E('p', _('Please specify the code to send')), 'info');
 			return false;
 		}
@@ -210,26 +221,54 @@ return view.extend({
 	},
 
 	handleClear: function(ev) {
-		var out = document.querySelector('.atcommand-output');
+		let out = document.querySelector('.ussdcommand-output');
+		out.style.display = '';
 		out.style.display = 'none';
 
-		var ov = document.getElementById('cmdvalue');
+		let fullhistory = document.getElementById('history-full')?.checked;
+
+		if ( fullhistory ) {
+		dom.content(out, [ '' ]);
+		}
+
+		let ov = document.getElementById('cmdvalue');
 		ov.value = '';
 
 		document.getElementById('cmdvalue').focus();
 	},
 
-	handleCopy: function(ev) {
-		var out = document.querySelector('.atcommand-output');
-		out.style.display = 'none';
+	handleClearOut: function(ev) {
+		let out = document.querySelector('.ussdcommand-output');
+		let fullhistory = document.getElementById('history-full')?.checked;
 
-		var ov = document.getElementById('cmdvalue');
+		if ( fullhistory ) {
+			out.style.display = '';
+			out.style.display = 'none';
+			dom.content(out, [ '' ]);
+			document.getElementById("reverse-replies").disabled = false;
+			document.getElementById("reverse-replies").checked = true;
+		} else {
+			document.getElementById("reverse-replies").disabled = true;
+			document.getElementById("reverse-replies").checked = false;
+		}
+	},
+
+	handleCopy: function(ev) {
+		let out = document.querySelector('.ussdcommand-output');
+		let fullhistory = document.getElementById('history-full')?.checked;
+
+		if ( !fullhistory ) {
+		out.style.display = 'none';
+		}
+
+		let ov = document.getElementById('cmdvalue');
 		ov.value = '';
-		var x = document.getElementById('tk').value;
+		let x = document.getElementById('tk').value;
 		ov.value = x;
 	},
 
 	load: function() {
+
 		return Promise.all([
 			L.resolveDefault(fs.read_direct('/etc/modem/ussdcodes.user'), null),
 			uci.load('sms_tool_js')
@@ -238,7 +277,7 @@ return view.extend({
 
 	render: function (loadResults) {
 
-	var info = _('User interface for sending USSD codes using sms-tool. More information about the sms-tool on the %seko.one.pl forum%s.').format('<a href="https://eko.one.pl/?p=openwrt-sms_tool" target="_blank">', '</a>');
+	let info = _('User interface for sending USSD codes using sms-tool. More information about the sms-tool on the %seko.one.pl forum%s.').format('<a href="https://eko.one.pl/?p=openwrt-sms_tool" target="_blank">', '</a>');
 
 		return E('div', { 'class': 'cbi-map', 'id': 'map' }, [
 				E('h2', {}, [ _('USSD Codes') ]),
@@ -256,12 +295,13 @@ return view.extend({
 										'mousedown': ui.createHandlerFn(this, 'handleCopy')
 									},
 									(loadResults[0] || "").trim().split("\n").map(function(cmd) {
-										var fields = cmd.split(/;/);
-										var name = fields[0];
-										var code = fields[1];
-									return E('option', { 'value': code }, name ) })
+                                        let fields = cmd.split(/;/);
+                                        let name = fields[0];
+                                        let code = fields[1] || fields[0];
+                                        return E('option', { 'value': code }, name );
+                                    })
 								)
-							]) 
+							])
 						]),
 						E('div', { 'class': 'cbi-value' }, [
 							E('label', { 'class': 'cbi-value-title' }, [ _('Code to send') ]),
@@ -273,14 +313,15 @@ return view.extend({
 								'data-tooltip': _('Press [Enter] to send the code, press [Delete] to delete the code'),
 								'keydown': function(ev) {
 									if (ev.keyCode === 13) {
-										var execBtn = document.getElementById('execute');
-										if (execBtn)
+										let execBtn = document.getElementById('execute');
+										if (execBtn) {
 											execBtn.click();
+											}
 									}
 									if (ev.keyCode === 46) {
-										var del = document.getElementById('cmdvalue');
+										let del = document.getElementById('cmdvalue');
 										if (del) {
-											var ov = document.getElementById('cmdvalue');
+											let ov = document.getElementById('cmdvalue');
 											ov.value = '';
 											document.getElementById('cmdvalue').focus();
 										}
@@ -292,6 +333,32 @@ return view.extend({
 
 					])
 				]),
+			E('div', { 'class': 'right' }, [
+				E('label', { 'class': 'cbi-checkbox' }, [
+					E('input', {
+						'id': 'history-full',
+						'click': ui.createHandlerFn(this, 'handleClearOut'),
+						'data-tooltip': _('Check this option if you need to use the menu built on USSD codes'),
+						'type': 'checkbox',
+						'name': 'showhistory',
+						'disabled': null
+					}), ' ',
+					E('label', { 'for': 'history-full' }), ' ',
+					_('Keep the previous reply when sending a new USSD code.')
+				]),
+				'\xa0\xa0\xa0',
+				E('label', { 'class': 'cbi-checkbox' }, [
+					E('input', {
+						'id': 'reverse-replies',
+						'data-tooltip': _('View new reply from top'),
+						'type': 'checkbox',
+						'name': 'reversereplies',
+						'disabled': true
+					}), ' ',
+					E('label', { 'for': 'reverse-replies' }), ' ',
+					_('Turn over the replies.')
+				])
+			]),
 				E('hr'),
 				E('div', { 'class': 'right' }, [
 					E('button', {
@@ -307,7 +374,7 @@ return view.extend({
 					}, [ _('Send code') ]),
 				]),
 				E('p', _('Reply')),
-				E('pre', { 'class': 'atcommand-output', 'style': 'display:none; border: 1px solid var(--border-color-medium); border-radius: 5px; font-family: monospace' }),
+				E('pre', { 'class': 'ussdcommand-output', 'style': 'display:none; border: 1px solid var(--border-color-medium); border-radius: 5px; font-family: monospace' }),
 
 			]);
 	},

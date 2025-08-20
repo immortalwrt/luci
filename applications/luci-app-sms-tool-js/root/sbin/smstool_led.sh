@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright 2023 Rafał Wabik (IceG) - From eko.one.pl forum
+# Copyright 2023-2025 Rafał Wabik (IceG) - From eko.one.pl forum
 # Licensed to the GNU General Public License v3.0.
 
 	DEV=$(uci -q get sms_tool_js.@sms_tool_js[0].readport)
