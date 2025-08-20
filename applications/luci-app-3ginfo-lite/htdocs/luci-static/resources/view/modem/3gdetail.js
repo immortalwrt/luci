@@ -10,10 +10,10 @@
 'require tools.widgets as widgets';
 
 /*
-	Copyright 2021-2024 Rafał Wabik - IceG - From eko.one.pl forum
-	
+	Copyright 2021-2025 Rafał Wabik - IceG - From eko.one.pl forum
+
 	Licensed to the GNU General Public License v3.0.
-	
+
 	Thanks to https://github.com/koshev-msk for the initial progress bar calculation for rssi/rsrp/rsrq/sinnr.
 */
 
@@ -22,22 +22,22 @@ var pg = document.querySelector('#csq')
 var vn = parseInt(v) || 0;
 var mn = parseInt(m) || 100;
 var pc = Math.floor((100 / mn) * vn);
-		if (vn >= 20 && vn <= 31 ) 
+		if (vn >= 20 && vn <= 31 )
 			{
 			pg.firstElementChild.style.background = 'lime';
 			var tip = _('Very good');
 			};
-		if (vn >= 14 && vn <= 19) 
+		if (vn >= 14 && vn <= 19)
 			{
 			pg.firstElementChild.style.background = 'yellow';
 			var tip = _('Good');
 			};
-		if (vn >= 10 && vn <= 13) 
+		if (vn >= 10 && vn <= 13)
 			{
 			pg.firstElementChild.style.background = 'darkorange';
 			var tip = _('Weak');
 			};
-		if (vn <= 9 && vn >= 1) 
+		if (vn <= 9 && vn >= 1)
 			{
 			pg.firstElementChild.style.background = 'red';
 			var tip = _('Very weak');
@@ -54,22 +54,22 @@ var mn = parseInt(m) || 100;
 if (vn > -50) { vn = -50 };
 if (vn < -110) { vn = -110 };
 var pc =  Math.floor(100*(1-(-50 - vn)/(-50 - mn)));
-		if (vn > -70) 
+		if (vn > -70)
 			{
 			pg.firstElementChild.style.background = 'lime';
 			var tip = _('Very good');
 			};
-		if (vn >= -85 && vn <= -70) 
+		if (vn >= -85 && vn <= -70)
 			{
 			pg.firstElementChild.style.background = 'yellow';
 			var tip = _('Good');
 			};
-		if (vn >= -100 && vn <= -86) 
+		if (vn >= -100 && vn <= -86)
 			{
 			pg.firstElementChild.style.background = 'darkorange';
 			var tip = _('Weak');
 			};
-		if (vn < -100) 
+		if (vn < -100)
 			{
 			pg.firstElementChild.style.background = 'red';
 			var tip = _('Very weak');
@@ -87,22 +87,22 @@ var mn = parseInt(m) || 100;
 if (vn > -50) { vn = -50 };
 if (vn < -140) { vn = -140 };
 var pc =  Math.floor(120*(1-(-50 - vn)/(-70 - mn)));
-		if (vn >= -80 ) 
+		if (vn >= -80 )
 			{
 			pg.firstElementChild.style.background = 'lime';
 			var tip = _('Very good');
 			};
-		if (vn >= -90 && vn <= -79) 
+		if (vn >= -90 && vn <= -79)
 			{
 			pg.firstElementChild.style.background = 'yellow';
 			var tip = _('Good');
 			};
-		if (vn >= -100 && vn <= -89) 
+		if (vn >= -100 && vn <= -89)
 			{
 			pg.firstElementChild.style.background = 'darkorange';
 			var tip = _('Weak');
 			};
-		if (vn < -100) 
+		if (vn < -100)
 			{
 			pg.firstElementChild.style.background = 'red';
 			var tip = _('Very weak');
@@ -118,7 +118,7 @@ var pg = document.querySelector('#sinr')
 var vn = parseInt(v) || 0;
 var mn = parseInt(m) || 100;
 var pc = Math.floor(100-(100*(1-((mn - vn)/(mn - 40)))));
-		if (vn > 20 ) 
+		if (vn > 20 )
 			{
 			pg.firstElementChild.style.background = 'lime';
 			var tip = _('Excellent');
@@ -128,12 +128,12 @@ var pc = Math.floor(100-(100*(1-((mn - vn)/(mn - 40)))));
 			pg.firstElementChild.style.background = 'yellow';
 			var tip = _('Good');
 			};
-		if (vn > 0 && vn <= 12) 
+		if (vn > 0 && vn <= 12)
 			{
 			pg.firstElementChild.style.background = 'darkorange';
 			var tip = _('Mid cell');
 			};
-		if (vn <= 0) 
+		if (vn <= 0)
 			{
 			pg.firstElementChild.style.background = 'red';
 			var tip = _('Cell edge');
@@ -150,22 +150,22 @@ var vn = parseInt(v) || 0;
 var mn = parseInt(m) || 100;
 var pc = Math.floor(115-(100/mn)*vn);
 if (vn > 0) { vn = 0; };
-		if (vn >= -10 ) 
+		if (vn >= -10 )
 			{
 			pg.firstElementChild.style.background = 'lime';
 			var tip = _('Excellent');
 			};
-		if (vn >= -15 && vn <= -9) 
+		if (vn >= -15 && vn <= -9)
 			{
 			pg.firstElementChild.style.background = 'yellow';
 			var tip = _('Good');
 			};
-		if (vn >= -20 && vn <= -14) 
+		if (vn >= -20 && vn <= -14)
 			{
 			pg.firstElementChild.style.background = 'darkorange';
 			var tip = _('Mid cell');
 			};
-		if (vn < -20) 
+		if (vn < -20)
 			{
 			pg.firstElementChild.style.background = 'red';
 			var tip = _('Cell edge');
@@ -242,7 +242,7 @@ function checkOperatorName(t) {
     var f = {};
 
     for (var i = 0; i < w.length; i++) {
-        var wo = w[i].toLowerCase(); 
+        var wo = w[i].toLowerCase();
         if (!f.hasOwnProperty(wo)) {
             f[wo] = i;
         }
@@ -302,7 +302,7 @@ modemDialog: baseclass.extend({
 									return E('option', { 'value': code }, name ) })
 
 								)
-							]) 
+							])
 						]),
 						)
 					),
@@ -457,7 +457,7 @@ simDialog: baseclass.extend({
 
 
 	formdata: { threeginfo: {} },
-	
+
 	load: function() {
 		return L.resolveDefault(fs.exec_direct('/usr/share/3ginfo-lite/3ginfo.sh', [ 'json' ]));
 	},
@@ -484,29 +484,29 @@ simDialog: baseclass.extend({
 		var json = JSON.parse(data);
 
 			if(!json.hasOwnProperty('error')){
-				
-				if (json.registration == 'SIM not inserted' || json.registration == '-') { 
+
+				if (json.registration == 'SIM not inserted' || json.registration == '-') {
 					ui.addNotification(null, E('p', _('Problem with registering to the network, check the SIM card.')), 'info');
 				}
-				if (json.registration == 'SIM PIN required') { 
+				if (json.registration == 'SIM PIN required') {
 					ui.addNotification(null, E('p', _('SIM PIN required')), 'info');
 				}
-				if (json.registration == 'SIM PUK required') { 
+				if (json.registration == 'SIM PUK required') {
 					ui.addNotification(null, E('p', _('SIM PUK required')), 'info');
 				}
-				if (json.registration == 'SIM failure') { 
+				if (json.registration == 'SIM failure') {
 					ui.addNotification(null, E('p', _('SIM failure')), 'info');
 				}
-				if (json.registration == 'SIM busy') { 
+				if (json.registration == 'SIM busy') {
 					ui.addNotification(null, E('p', _('SIM busy')), 'info');
 				}
-				if (json.registration == 'SIM wrong') { 
+				if (json.registration == 'SIM wrong') {
 					ui.addNotification(null, E('p', _('SIM wrong')), 'info');
 				}
-				if (json.registration == 'SIM PIN2 required') { 
+				if (json.registration == 'SIM PIN2 required') {
 					ui.addNotification(null, E('p', _('SIM PIN2 required')), 'info');
 				}
-				if (json.registration == 'SIM PUK2 required') { 
+				if (json.registration == 'SIM PUK2 required') {
 					ui.addNotification(null, E('p', _('SIM PUK2 required')), 'info');
 				}
 				if (json.signal == '0' || json.signal == '' || json.signal == '-') {
@@ -546,9 +546,9 @@ simDialog: baseclass.extend({
 					L.hideModal();
 					}
 				}
-					
+
 					var icon, wicon, ticon, t;
-					var wicon = L.resource('icons/loading.svg');
+					var wicon = L.resource('icons/loading.gif');
 					var ticon = L.resource('icons/ctime.png');
 
 					var p = (json.signal);
@@ -585,7 +585,7 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('operator')) {
 						var view = document.getElementById("operator");
-						if (!json.operator_name.length > 1) { 
+						if (!json.operator_name.length > 1) {
 						view.textContent = '-';
 						}
 						else {
@@ -595,7 +595,7 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('location')) {
 						var viewloc = document.getElementById("location");
-						if (!json.location.length > 2) { 
+						if (!json.location.length > 2) {
 						viewloc.style.display = 'none';
 						}
 						else {
@@ -607,31 +607,31 @@ simDialog: baseclass.extend({
 					if (document.getElementById('sim')) {
 						var view = document.getElementById("sim");
 						var sv = document.getElementById("simv");
-						if (json.registration == '') { 
+						if (json.registration == '') {
 						view.textContent = '-';
 						}
 						else {
 						sv.style.visibility = "visible";
 						view.textContent = json.registration;
-						if (json.registration == '0') { 
+						if (json.registration == '0') {
 							view.textContent = _('Not registered');
 						}
-						if (json.registration == '1') { 
+						if (json.registration == '1') {
 							view.textContent = _('Registered');
 						}
-						if (json.registration == '2') { 
+						if (json.registration == '2') {
 							view.textContent = _('Searching..');
 						}
-						if (json.registration == '3') { 
+						if (json.registration == '3') {
 							view.textContent = _('Registering denied');
 						}
-						if (json.registration == '5') { 
+						if (json.registration == '5') {
 							view.textContent = _('Registered (roaming)');
 						}
-						if (json.registration == '6') { 
+						if (json.registration == '6') {
 							view.textContent = _('Registered, only SMS');
 						}
-						if (json.registration == '7') { 
+						if (json.registration == '7') {
 							view.textContent = _('Registered (roaming), only SMS');
 						}
 					}
@@ -639,7 +639,7 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('mode')) {
 						var view = document.getElementById("mode");
-						if (!json.mode.length > 1) { 
+						if (!json.mode.length > 1) {
 						view.textContent = '-';
 						}
 						else {
@@ -649,7 +649,7 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('modem')) {
 						var view = document.getElementById("modem");
-						if (!json.modem.length > 1) { 
+						if (!json.modem.length > 1) {
 						view.textContent = '-';
 						}
 						else {
@@ -659,7 +659,7 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('fw')) {
 						var view = document.getElementById("fw");
-						if (!json.firmware.length > 1) { 
+						if (!json.firmware.length > 1) {
 						view.textContent = '-';
 						}
 						else {
@@ -669,7 +669,7 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('cport')) {
 						var view = document.getElementById("cport");
-						if (!json.cport.length > 1) { 
+						if (!json.cport.length > 1) {
 						view.textContent = '-';
 						}
 						else {
@@ -679,7 +679,7 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('protocol')) {
 						var view = document.getElementById("protocol");
-						if (!json.protocol.length > 1) { 
+						if (!json.protocol.length > 1) {
 						view.textContent = '-';
 						}
 						else {
@@ -691,7 +691,7 @@ simDialog: baseclass.extend({
 						var view = document.getElementById("temp");
 						var viewn = document.getElementById("tempn");
 						var t = json.mtemp;
-						if (!t.length > 1 && t.includes(' ') || t == '' || t == '-') { 
+						if (!t.length > 1 && t.includes(' ') || t == '' || t == '-') {
 						viewn.style.display = 'none';
 						}
 						else {
@@ -701,11 +701,11 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('csq')) {
 						var view = document.getElementById("csq");
-						if (json.signal == 0 || json.signal == '') {
+						if (json.signal == 0 || json.signal == '-') {
 						view.style.visibility = 'hidden';
 						}
 						else {
-						if (json.csq == '') { 
+						if (json.csq == '') {
 						view.textContent = '-';
 						}
 						else {
@@ -716,15 +716,15 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('rssi')) {
 						var view = document.getElementById("rssi");
-						if (json.rssi == '') { 
+						if (json.rssi == '-') {
 						view.style.visibility = 'hidden';
 						}
 						else {
 							view.style.visibility = 'visible';
 							var z = json.rssi;
-							if (z.includes('dBm')) { 
+							if (z.includes('dBm')) {
 							var rssi_min = -110;
-							rssi_bar(json.rssi, rssi_min);	
+							rssi_bar(json.rssi, rssi_min);
 							}
 							else {
 							var rssi_min = -110;
@@ -735,13 +735,13 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('rsrp')) {
 						var view = document.getElementById('rsrp');
-						if (json.rsrp == '') { 
+						if (json.rsrp == '-') {
 						view.style.visibility = 'hidden';
 						}
 						else {
 							view.style.visibility = 'visible';
 							var z = json.rsrp;
-							if (z.includes('dBm')) { 
+							if (z.includes('dBm')) {
 							var rsrp_min = -140;
 							rsrp_bar(json.rsrp, rsrp_min);
 
@@ -755,13 +755,13 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('sinr')) {
 						var view = document.getElementById("sinr");
-						if (json.sinr == '') { 
+						if (json.sinr == '-') {
 						view.style.visibility = 'hidden';
 						}
 						else {
 							view.style.visibility = 'visible';
 							var z = json.sinr;
-							if (z.includes('dB')) { 
+							if (z.includes('dB')) {
 							view.textContent = json.sinr;
 							}
 							else {
@@ -773,13 +773,13 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('rsrq')) {
 						var view = document.getElementById("rsrq");
-						if (json.rsrq == '') { 
+						if (json.rsrq == '-') {
 						view.style.visibility = 'hidden';
 						}
 						else {
 							view.style.visibility = 'visible';
 							var z = json.rsrq;
-							if (z.includes('dB')) { 
+							if (z.includes('dB')) {
 							view.textContent = json.rsrq;
 							}
 							else {
@@ -791,7 +791,7 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('mccmnc')) {
 						var view = document.getElementById("mccmnc");
-						if (json.operator_mcc == '' & json.operator_mnc == '') { 
+						if (json.operator_mcc == '-' & json.operator_mnc == '-') {
 						view.textContent = '-';
 						}
 						else {
@@ -802,11 +802,11 @@ simDialog: baseclass.extend({
 					if (document.getElementById('lac')) {
 						var view = document.getElementById("lac");
 						var viewn = document.getElementById("lacn");
-						if (json.lac_dec.length < 2 || json.lac_hex.length < 2) { 
+						if (json.lac_dec.length < 2 || json.lac_hex.length < 2) {
 						viewn.style.display = "none";
 						}
 						else {
-							if (json.lac_dec == '' || json.lac_hex == '') { 
+							if (json.lac_dec == '' || json.lac_hex == '') {
 							var lc = json.lac_dec   + ' ' + json.lac_hex;
 							var ld = lc.split(' ').join('');
 							view.textContent = ld;
@@ -837,7 +837,7 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('cid')) {
 						var view = document.getElementById("cid");
-						if (json.cid_dec == '' || json.cid_hex == '') { 
+						if (json.cid_dec == '' || json.cid_hex == '') {
 						var cc = json.cid_hex   + ' ' + json.cid_dec;
 						var cd = cc.split(' ').join('');
 						view.textContent = cd;
@@ -849,11 +849,11 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('pband')) {
 						var view = document.getElementById("pband");
-						if (json.pband == '') { 
+						if (json.pband == '-') {
 						view.textContent = '-';
 						}
 						else {
-							if (json.pci.length > 0 && json.earfcn.length > 0) { 
+							if (json.pci.length > 0 && json.earfcn.length > 0) {
 								view.textContent = json.pband + ' | ' + json.pci + ' ' + json.earfcn;
 							}
 							else {
@@ -864,11 +864,11 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('s1band')) {
 						var view = document.getElementById("s1band");
-						if (json.s1band == '') { 
+						if (json.s1band == '-') {
 						view.textContent = '-';
 						}
 						else {
-							if (json.s1pci.length > 0 && json.s1earfcn.length > 0) { 
+							if (json.s1pci.length > 0 && json.s1earfcn.length > 0) {
 								view.textContent = json.s1band + ' | ' + json.s1pci + ' ' + json.s1earfcn;
 							}
 							else {
@@ -876,14 +876,14 @@ simDialog: baseclass.extend({
 							}
 						}
 					}
-					
+
 					if (document.getElementById('s2band')) {
 						var view = document.getElementById("s2band");
-						if (json.s2band == '') { 
+						if (json.s2band == '-') {
 						view.textContent = '-';
 						}
 						else {
-							if (json.s2pci.length > 0 && json.s2earfcn.length > 0) { 
+							if (json.s2pci.length > 0 && json.s2earfcn.length > 0) {
 								view.textContent = json.s2band + ' | ' + json.s2pci + ' ' + json.s2earfcn;
 							}
 							else {
@@ -891,14 +891,14 @@ simDialog: baseclass.extend({
 							}
 						}
 					}
-					
+
 					if (document.getElementById('s3band')) {
 						var view = document.getElementById("s3band");
-						if (json.s3band == '') { 
+						if (json.s3band == '-') {
 						view.textContent = '-';
 						}
 						else {
-							if (json.s3pci.length > 0 && json.s3earfcn.length > 0) { 
+							if (json.s3pci.length > 0 && json.s3earfcn.length > 0) {
 								view.textContent = json.s3band + ' | ' + json.s3pci + ' ' + json.s3earfcn;
 							}
 							else {
@@ -906,14 +906,14 @@ simDialog: baseclass.extend({
 							}
 						}
 					}
-					
+
 					if (document.getElementById('s4band')) {
 						var view = document.getElementById("s4band");
-						if (json.s4band == '') { 
+						if (json.s4band == '-') {
 						view.textContent = '-';
 						}
 						else {
-							if (json.s4pci.length > 0 && json.s4earfcn.length > 0) { 
+							if (json.s4pci.length > 0 && json.s4earfcn.length > 0) {
 								view.textContent = json.s4band + ' | ' + json.s4pci + ' ' + json.s4earfcn;
 							}
 							else {
@@ -922,15 +922,15 @@ simDialog: baseclass.extend({
 						}
 					}
 					});
-				});	
+				});
 
 				}
-			}	
+			}
 
 		} catch (err) {
 				ui.addNotification(null, E('p', _('Error: ') + err.message), 'error');
 				}
-		}		
+		}
 
 		var info = _('More information about the 3ginfo on the %seko.one.pl forum%s.').format('<a href="https://eko.one.pl/?p=openwrt-3ginfo" target="_blank">', '</a>');
 		m = new form.JSONMap(this.formdata, _('3ginfo-lite'), info);
@@ -981,7 +981,7 @@ simDialog: baseclass.extend({
 							'click': ui.createHandlerFn(this, function() {
 									return upSIMDialog.show();
 							}),
-							
+
 						}, [
 							E('div', { 'class': 'ifacebox-body' }, [
 							E('div', { 'class': 'cbi-tooltip-container' }, [
@@ -1151,7 +1151,7 @@ simDialog: baseclass.extend({
 
 			if (searchsite.includes('btsearch')) {
 			//http://www.btsearch.pl/szukaj.php?mode=std&search=CellID
-			
+
 				var id_dec = json.cid_dec;
 				var id_hex = json.cid_hex;
 				var id_dec_conv = parseInt(id_hex, 16);

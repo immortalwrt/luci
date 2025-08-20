@@ -1,7 +1,5 @@
-# Quectel RG500Q-EA
-# Quectel RG502Q-EA
-# Quectel RM500Q-GL
-# Quectel RM502Q-AE
+# Quectel RM520N-GL
+# Quectel RM521F-GL
 
 O=$(sms_tool -d $DEVICE at "at+qtemp")
 
@@ -12,7 +10,7 @@ if [ -z "$REG" ] || [ "x$MODE_NUM" = "x11" ]; then
 	O=$(sms_tool -d $DEVICE at "at+c5greg=2;+c5greg?")
 
 	# C5GREG
-	eval $(echo "$O" | busybox awk -F[,] '/^\+C5GREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";TAC_HEX=\"%X\";CID_HEX=\"%s\";TAC_DEC=\"%d\";MODE_NUM=\"%d\"", $2, "0x"$3, $4, "0x"$3, $5}')
+	eval $(echo "$O" | awk -F[,] '/^\+C5GREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";TAC_HEX=\"%X\";CID_HEX=\"%s\";TAC_DEC=\"%d\";MODE_NUM=\"%d\"", $2, "0x"$3, $4, "0x"$3, $5}')
 	case "$T" in
 		0*) REG="0";;
 		1*) REG="1";;
@@ -52,7 +50,6 @@ case "$MODE_NUM" in
 			if echo "$O" | grep -q -i "+QCAINFO.*PCC.*LTE"; then
 
 					OTS=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.0f\n", 0.2*$1*10 - 20}')
-#					OTS=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs)
 					SINR=$OTS
 
 					TDX=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $14}')
@@ -63,7 +60,6 @@ case "$MODE_NUM" in
 					MODE="LTE-A |"
 
 						OTS=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.0f\n", 0.2*$1*10 - 20}')
-#						OTS=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs)
 						SINR=$OTS
 
 						TDX=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $14}')
@@ -137,7 +133,6 @@ if [ "x$MODE_NUM" = "x7" ]; then
 		TAC_DEC=$(printf "%d" "0x$T")
 		TAC_HEX="$T"
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.0f\n", 0.2*$1*10 - 20}')
-#		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs)
 		SINR="$T"
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
 		case $T in
@@ -229,7 +224,6 @@ if [ "x$MODE_NUM" = "x13" ]; then
 			TAC_HEX=$T
 
 			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $16}' | awk '{printf "%.0f\n", 0.2*$1*10 - 20}')
-#			T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs)
 			SINR="$T"
 			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $10}')
 			case $T in
@@ -259,7 +253,6 @@ if [ "x$MODE_NUM" = "x13" ]; then
 				T_DEC=$(printf "%d" "0x$T")
 				T_HEX="$T"
 				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
-#				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs)
 				SINR="$T"
 				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
 				case $T in
@@ -366,7 +359,7 @@ if [ -n "$T" ]; then
 					*) ;;
 					esac
 				fi
-				
+
 				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $7}' | xargs)
 				if [ -n "$T5" ]; then
 					case $IDX in
@@ -377,13 +370,13 @@ if [ -n "$T" ]; then
 					*) ;;
 					esac
 				fi
-				
+
 				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $10}' | xargs)
 #				[ -n "$T5" ] && addon $((POS + 5)) "(S${IDX}) RSSI" "$T5 dBm"
-				
+
 				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $8}' | xargs)
 #				[ -n "$T5" ] && addon $((POS + 6)) "(S${IDX}) RSRP" "$T5 dBm"
-				
+
 				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $9}' | xargs)
 #				[ -n "$T5" ] && addon $((POS + 7)) "(S${IDX}) RSRQ" "$T5 dB"
 				;;
@@ -419,7 +412,7 @@ if [ -n "$T" ]; then
 						*) ;;
 						esac
 					fi
-				
+
 				if [ "x$MODE_NUM" = "x11" ]; then
 					T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $7}' | xargs)
 					if [ -n "$T5" ] && [ "$T5" != "-" ]; then
@@ -431,7 +424,7 @@ if [ -n "$T" ]; then
 				                *) ;;
 			                esac
 		            		fi
-					
+
 					T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $8}')
 #					[ -n "$T5" ] && [ "$T5" != "-" ] && addon $((POS + 6)) "(S${IDX}) RSRP" "$T5 dBm"
 					T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $9}')
@@ -478,7 +471,7 @@ fi
 
 fi
 
-MODE=$(echo $MODE | sed 's,/,+,' | sed 's,LTE B,LTE | B,' | sed 's,LTE_A,LTE-A,' | sed 's,LTE-A B,LTE-A | B,')
+MODE=$(echo $MODE | sed 's,/,+,'| sed 's,LTE B,LTE | B,')
 
 if [ "${LAC_DEC}" = "0" ]; then
 	LAC_DEC="-"
@@ -524,16 +517,14 @@ if [ -n "$NR_D" ]; then
 fi
 
 # Protocol
-# DRIVER=QMI_WWAN & DRIVER=CDC_MBIM & DRIVER=CDC_ETHER
-PV=$(cat /sys/kernel/debug/usb/devices 2>/dev/null)
-PVCUT=$(echo $PV | awk -F 'Vendor=2c7c ProdID=0800' '{print $2}' | cut -c-1220)
-if echo "$PVCUT" | grep -q "Driver=qmi_wwan"
-then
-    PROTO="qmi"
-elif echo "$PVCUT" | grep -q "Driver=cdc_mbim"
-then
-    PROTO="mbim"
-elif echo "$PVCUT" | grep -q "Driver=cdc_ether"
-then
-    PROTO="ecm"
+# DRIVER=QMI_WWAN & DRIVER=CDC_MBIM
+if [ -d "/sys/class/mhi_uci_q" ]; then
+    if ls /sys/class/mhi_uci_q/mhi_QMI0 > /dev/null 2>&1; then
+        PROTO="qmi"
+    elif ls /sys/class/mhi_uci_q/mhi_MBIM* > /dev/null 2>&1; then
+        PROTO="mbim"
+    else
+        # Fallback - assume qmi if MHI exists but no specific match
+        PROTO="qmi"
+    fi
 fi
