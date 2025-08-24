@@ -189,7 +189,7 @@ local get_parted_info = function(device)
         partition_temp["name"] = device.."p"..partition_temp["number"]
       end
       if partition_temp["number"] > 0 and partition_temp["fs"] == "" and d.command.lsblk then
-        partition_temp["fs"] = luci.util.exec(d.command.lsblk .. " /dev/"..device.. tostring(partition_temp["number"]) .. " -no fstype"):match("([^%s]+)") or ""
+        partition_temp["fs"] = (luci.util.exec(d.command.lsblk .. " /dev/" .. partition_temp["name"] .. " -no fstype") or ""):match("([^%s]+)") or ""
       end
       partition_temp["fs"] = partition_temp["fs"] == "" and "raw" or partition_temp["fs"]
       partition_temp["sec_start"] = partition_temp["sec_start"] and partition_temp["sec_start"]:sub(1,-2)
@@ -460,10 +460,10 @@ d.get_format_cmd = function()
     ext2 = { cmd = "mkfs.ext2", option = "-F -E lazy_itable_init=1" },
     ext3 = { cmd = "mkfs.ext3", option = "-F -E lazy_itable_init=1" },
     ext4 = { cmd = "mkfs.ext4", option = "-F -E lazy_itable_init=1" },
-    fat32 = { cmd = "mkfs.vfat", option = "-F" },
-    exfat = { cmd = "mkexfat", option = "-f" },
+    fat32 = { cmd = "mkfs.fat", option = "-F 32" },
+    exfat = { cmd = "mkfs.exfat", option = "" },
     hfsplus = { cmd = "mkhfs", option = "-f" },
-    ntfs = { cmd = "mkntfs", option = "-f" },
+    ntfs = { cmd = "mkfs.ntfs", option = "-f" },
     swap = { cmd = "mkswap", option = "" },
     btrfs = { cmd = "mkfs.btrfs", option = "-f" }
   }
