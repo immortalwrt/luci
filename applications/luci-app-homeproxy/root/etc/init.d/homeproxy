@@ -149,6 +149,9 @@ start_service() {
 		procd_set_param command "$PROG"
 		procd_append_param command run --config "$RUN_DIR/sing-box-c.json"
 
+		# QUIC-GO GSO is broken on kernel 6.6 currently
+		uname -r | grep -Eq "^6\.6" && procd_set_param env "QUIC_GO_DISABLE_GSO"="true"
+
 		if [ -x "/sbin/ujail" ] && [ "$routing_mode" != "custom" ] && ! grep -Eq '"type": "(wireguard|tun)"' "$RUN_DIR/sing-box-c.json"; then
 			procd_add_jail "sing-box-c" log procfs
 			procd_add_jail_mount "$RUN_DIR/sing-box-c.json"
@@ -189,6 +192,9 @@ start_service() {
 
 		procd_set_param command "$PROG"
 		procd_append_param command run --config "$RUN_DIR/sing-box-s.json"
+
+		# QUIC-GO GSO is broken on kernel 6.6 currently
+		uname -r | grep -Eq "^6\.6" && procd_set_param env "QUIC_GO_DISABLE_GSO"="true"
 
 		if [ -x "/sbin/ujail" ]; then
 			procd_add_jail "sing-box-s" log procfs
@@ -244,7 +250,7 @@ start_service() {
 	[ "$outbound_node" = "nil" ] || utpl -S "$HP_DIR/scripts/firewall_post.ut" > "$RUN_DIR/fw4_post.nft"
 	fw4 reload >"/dev/null" 2>&1
 
-	log "$(sing-box version | awk 'NR==1{print $1,$3}') started."
+	log "sing-box $(sing-box version -n) started."
 }
 
 stop_service() {
