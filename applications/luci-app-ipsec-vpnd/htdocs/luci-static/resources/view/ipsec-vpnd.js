@@ -18,10 +18,10 @@ const callServiceList = rpc.declare({
 });
 
 function getServiceStatus() {
-	return L.resolveDefault(callServiceList('ipsec-vpnd'), {}).then(function(res) {
+	return L.resolveDefault(callServiceList('ipsec'), {}).then(function(res) {
 		let isRunning = false;
 		try {
-			isRunning = res['ipsec-vpnd']['instances']['instance1']['running'];
+			isRunning = res['ipsec']['instances']['instance1']['running'];
 		} catch (e) { }
 		return isRunning;
 	});
