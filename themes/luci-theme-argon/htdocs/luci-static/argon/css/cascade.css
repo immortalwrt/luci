@@ -1377,6 +1377,16 @@ footer > a {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 2px 0 rgba(0, 0, 0, 0.12);
   text-shadow: none;
 }
+.modal.alert-message {
+  position: static;
+  width: 90%;
+  min-width: 270px;
+  max-width: 600px;
+  left: auto;
+  top: auto;
+  transform: none;
+  margin: 5em auto;
+}
 .alert.error,
 .alert-message.error {
   background-color: var(--warning);
@@ -1405,6 +1415,14 @@ footer > a {
   margin-left: 0;
   margin-right: 0;
   margin-top: 0rem;
+}
+
+.container .alert,
+.container .alert-message.error {
+  position: relative;
+  top: 0;
+  transform:translate(-50%, 0);
+  width: 100%;
 }
 .lg {
   margin: 0;
