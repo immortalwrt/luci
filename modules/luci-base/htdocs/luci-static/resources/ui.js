@@ -1094,6 +1094,7 @@ var UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 				'maxlength': this.options.maxlength,
 				'placeholder': this.options.custom_placeholder || this.options.placeholder,
 				'inputmode': 'text',
+				'enterkeyhint': 'done'
 			});
 
 			if (this.options.datatype || this.options.validate)
