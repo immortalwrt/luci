@@ -46,7 +46,8 @@ return view.extend({
 		let webport = (uci.get(data, 'config', 'listen_port') || '8989');
 
 		m = new form.Map('filebrowser', _('FileBrowser'),
-			_('FileBrowser provides a file managing interface within a specified directory and it can be used to upload, delete, preview, rename and edit your files..'));
+			_('FileBrowser provides a file managing interface within a specified directory and it can be used to upload, delete, preview, rename and edit your files..') + '<br />'+
+			_('Default login username is %s and password is %s.').format('<code>admin</code>', '<code>admin</code>'));
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
