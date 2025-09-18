@@ -149,8 +149,9 @@ return view.extend({
 		o.inputstyle = 'apply';
 		o.inputtitle = _('Save current settings');
 		o.onclick = function() {
-			ui.changes.apply(true);
-			return this.map.save(null, true);
+			return this.map.save(null, true).then(() => {
+				ui.changes.apply(true);
+			});
 		}
 
 		s = m.section(form.TypedSection, null, _('Upload background (available space: %1024.2mB)')
@@ -165,8 +166,8 @@ return view.extend({
 		o.inputtitle = _('Upload...');
 		o.onclick = function(ev, section_id) {
 			let file = '/tmp/argon_background.tmp';
-			return ui.uploadFile(file, ev.target).then(function(res) {
-				return L.resolveDefault(callRenameArgon(res.name), {}).then(function(ret) {
+			return ui.uploadFile(file, ev.target).then((res) => {
+				return L.resolveDefault(callRenameArgon(res.name), {}).then((ret) => {
 					if (ret.result === 0)
 						return location.reload();
 					else {
@@ -175,7 +176,7 @@ return view.extend({
 					}
 				});
 			})
-			.catch(function(e) { ui.addNotification(null, E('p', e.message)); });
+			.catch((e) => { ui.addNotification(null, E('p', e.message)); });
 		};
 		o.modalonly = true;
 
@@ -190,16 +191,16 @@ return view.extend({
 				])
 			);
 
-			cbi_update_table(tbl, data[2].map(L.bind(function(file) {
+			cbi_update_table(tbl, data[2].map(L.bind((file) => {
 				return [
 					file.name,
 					new Date(file.mtime * 1000).toLocaleString(),
 					String.format('%1024.2mB', file.size),
 					E('button', {
 						'class': 'btn cbi-button cbi-button-remove',
-						'click': ui.createHandlerFn(this, function() {
+						'click': ui.createHandlerFn(this, () => {
 							return L.resolveDefault(callRemoveArgon(file.name), {})
-							.then(function() { return location.reload(); });
+							.then(() => { return location.reload(); });
 						})
 					}, [ _('Delete') ])
 				];
