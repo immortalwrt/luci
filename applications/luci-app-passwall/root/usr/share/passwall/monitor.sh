@@ -2,9 +2,7 @@
 
 CONFIG=passwall
 TMP_PATH=/tmp/etc/$CONFIG
-TMP_BIN_PATH=$TMP_PATH/bin
 TMP_SCRIPT_FUNC_PATH=$TMP_PATH/script_func
-TMP_ID_PATH=$TMP_PATH/id
 LOCK_FILE_DIR=/tmp/lock
 LOCK_FILE=${LOCK_FILE_DIR}/${CONFIG}_script.lock
 
@@ -42,7 +40,7 @@ while [ "$ENABLED" -eq 1 ]; do
 			eval $(echo "nohup ${cmd} 2>&1 &") >/dev/null 2>&1 &
 		fi
 	done
-	
+
 	rm -f $LOCK_FILE
 	sleep 58s
 done

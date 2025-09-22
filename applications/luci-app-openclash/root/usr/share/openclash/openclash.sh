@@ -3,6 +3,9 @@
 . /usr/share/openclash/ruby.sh
 . /usr/share/openclash/openclash_ps.sh
 . /usr/share/openclash/log.sh
+. /lib/functions/procd.sh
+. /usr/share/openclash/openclash_curl.sh
+. /usr/share/openclash/uci.sh
 
 set_lock() {
    exec 889>"/tmp/lock/openclash_subs.lock" 2>/dev/null
@@ -11,39 +14,25 @@ set_lock() {
 
 del_lock() {
    flock -u 889 2>/dev/null
-   rm -rf "/tmp/lock/openclash_subs.lock"
+   rm -rf "/tmp/lock/openclash_subs.lock" 2>/dev/null
 }
+
+set_lock
 
 LOGTIME=$(echo $(date "+%Y-%m-%d %H:%M:%S"))
 LOG_FILE="/tmp/openclash.log"
 CFG_FILE="/tmp/yaml_sub_tmp_config.yaml"
 CRON_FILE="/etc/crontabs/root"
-CONFIG_PATH=$(uci -q get openclash.config.config_path)
-servers_update=$(uci -q get openclash.config.servers_update)
-dns_port=$(uci -q get openclash.config.dns_port)
-enable_redirect_dns=$(uci -q get openclash.config.enable_redirect_dns)
-disable_masq_cache=$(uci -q get openclash.config.disable_masq_cache)
-default_resolvfile=$(uci -q get openclash.config.default_resolvfile)
-en_mode=$(uci -q get openclash.config.en_mode)
-china_ip_route=$(uci -q get openclash.config.china_ip_route)
-disable_udp_quic=$(uci -q get openclash.config.disable_udp_quic)
-ipv6_enable=$(uci -q get openclash.config.ipv6_enable)
-router_self_proxy=$(uci -q get openclash.config.router_self_proxy || echo 1)
-DNSPORT=$(uci -q get dhcp.@dnsmasq[0].port)
-DNSMASQ_CONF_DIR=$(uci -q get dhcp.@dnsmasq[0].confdir || echo '/tmp/dnsmasq.d')
-DNSMASQ_CONF_DIR=${DNSMASQ_CONF_DIR%*/}
-custom_china_domain_dns_server=$(uci -q get openclash.config.custom_china_domain_dns_server || echo "114.114.114.114")
+CONFIG_PATH=$(uci_get_config "config_path")
+servers_update=$(uci_get_config "servers_update")
+router_self_proxy=$(uci_get_config "router_self_proxy" || echo 1)
 FW4=$(command -v fw4)
 CLASH="/etc/openclash/clash"
-CLASH_CONFIG="/tmp"
-
-
-if [ -z "$DNSPORT" ]; then
-   DNSPORT=$(netstat -nlp |grep -E '127.0.0.1:.*dnsmasq' |awk -F '127.0.0.1:' '{print $2}' |awk '{print $1}' |head -1 || echo 53)
-fi
+CLASH_CONFIG="/etc/openclash"
 restart=0
 only_download=0
-set_lock
+
+inc_job_counter
 
 urlencode() {
    if [ "$#" -eq 1 ]; then
@@ -51,12 +40,7 @@ urlencode() {
    fi
 }
 
-kill_watchdog() {
-   watchdog_pids=$(unify_ps_pids "openclash_watchdog.sh")
-   for watchdog_pid in $watchdog_pids; do
-      kill -9 "$watchdog_pid" >/dev/null 2>&1
-   done
-   
+kill_streaming_unlock() {
    streaming_unlock_pids=$(unify_ps_pids "openclash_streaming_unlock.lua")
    for streaming_unlock_pid in $streaming_unlock_pids; do
       kill -9 "$streaming_unlock_pid" >/dev/null 2>&1
@@ -67,7 +51,7 @@ config_test()
 {
    if [ -f "$CLASH" ]; then
       LOG_OUT "Config File Download Successful, Test If There is Any Errors..."
-      test_info=$(nohup $CLASH -t -d $CLASH_CONFIG -f "$CFG_FILE")
+      test_info=$($CLASH -t -d $CLASH_CONFIG -f "$CFG_FILE")
       local IFS=$'\n'
       for i in $test_info; do
          if [ -n "$(echo "$i" |grep "configuration file")" ]; then
@@ -87,18 +71,23 @@ config_test()
 
 config_download()
 {
+LOG_OUT "Tip: Config File【$name】Downloading User-Agent【$sub_ua】..."
 if [ -n "$subscribe_url_param" ]; then
    if [ -n "$c_address" ]; then
-      curl -SsL --connect-timeout 30 -m 60 --speed-time 30 --speed-limit 1 --retry 2 -H 'User-Agent: Clash' "$c_address""$subscribe_url_param" -o "$CFG_FILE" 2>&1 | awk -v time="$(date "+%Y-%m-%d %H:%M:%S")" -v file="$CFG_FILE" '{print time "【" file "】Download Failed:【"$0"】"}' >> "$LOG_FILE"
+      LOG_INFO "Tip: Config File【$name】Downloading URL【$c_address$subscribe_url_param】..."
+      DOWNLOAD_URL="${c_address}${subscribe_url_param}"
+      DOWNLOAD_PARAM="$sub_ua"
    else
-      curl -SsL --connect-timeout 30 -m 60 --speed-time 30 --speed-limit 1 --retry 2 -H 'User-Agent: Clash' https://api.dler.io/sub"$subscribe_url_param" -o "$CFG_FILE" 2>&1 | awk -v time="$(date "+%Y-%m-%d %H:%M:%S")" -v file="$CFG_FILE" '{print time "【" file "】Download Failed:【"$0"】"}' >> "$LOG_FILE"
-      if [ "$?" -ne 0 ]; then
-         curl -SsL --connect-timeout 30 -m 60 --speed-time 30 --speed-limit 1 --retry 2 -H 'User-Agent: Clash' https://subconverter.herokuapp.com/sub"$subscribe_url_param" -o "$CFG_FILE" 2>&1 | awk -v time="$(date "+%Y-%m-%d %H:%M:%S")" -v file="$CFG_FILE" '{print time "【" file "】Download Failed:【"$0"】"}' >> "$LOG_FILE"
-      fi
+      LOG_INFO "Tip: Config File【$name】Downloading URL【https://api.dler.io/sub$subscribe_url_param】..."
+      DOWNLOAD_URL="https://api.dler.io/sub${subscribe_url_param}"
+      DOWNLOAD_PARAM="$sub_ua"
    fi
 else
-   curl -SsL --connect-timeout 30 -m 60 --speed-time 30 --speed-limit 1 --retry 2 -H 'User-Agent: Clash' "$subscribe_url" -o "$CFG_FILE" 2>&1 | awk -v time="$(date "+%Y-%m-%d %H:%M:%S")" -v file="$CFG_FILE" '{print time "【" file "】Download Failed:【"$0"】"}' >> "$LOG_FILE"
+   LOG_INFO "Tip: Config File【$name】Downloading URL【$subscribe_url】..."
+   DOWNLOAD_URL="${subscribe_url}"
+   DOWNLOAD_PARAM="$sub_ua"
 fi
+DOWNLOAD_FILE_CURL "$DOWNLOAD_URL" "$CFG_FILE" "$DOWNLOAD_PARAM"
 }
 
 config_cus_up()
@@ -119,44 +108,63 @@ config_cus_up()
 	      LOG_OUT "Config File【$name】is Replaced Successfully, Start Picking Nodes..."	      
 	      ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
 	      begin
+            threads = [];
 	         Value = YAML.load_file('$CONFIG_FILE');
 	         if Value.has_key?('proxies') and not Value['proxies'].to_a.empty? then
 	            Value['proxies'].reverse.each{
 	            |x|
-	            if not '$key_match_param'.empty? then
-	               if not /$key_match_param/i =~ x['name'] then
-	                  Value['proxies'].delete(x)
-	                  Value['proxy-groups'].each{
-	                     |g|
-	                     g['proxies'].reverse.each{
-	                        |p|
-	                        if p == x['name'] then
-	                           g['proxies'].delete(p)
-	                        end
-	                     }
-	                  }
-	               end
-	            end;
-	            if not '$key_ex_match_param'.empty? then
-	               if /$key_ex_match_param/i =~ x['name'] then
-	                  if Value['proxies'].include?(x) then
-	                     Value['proxies'].delete(x)
-	                     Value['proxy-groups'].each{
-	                        |g|
-	                        g['proxies'].reverse.each{
-	                           |p|
-	                           if p == x['name'] then
-	                              g['proxies'].delete(p)
-	                           end
-	                        }
-	                     }
-	                  end
-	               end
-	            end;
-	            }
+                  if not '$key_match_param'.empty? then
+                     threads << Thread.new {
+                        if not /$key_match_param/i =~ x['name'] then
+                           Value['proxies'].delete(x)
+                           Value['proxy-groups'].each{
+                              |g|
+                              g['proxies'].reverse.each{
+                                 |p|
+                                 if p == x['name'] then
+                                    g['proxies'].delete(p)
+                                 end;
+                              };
+                           };
+                        end;
+                     };
+                  end;
+                  if not '$key_ex_match_param'.empty? then
+                     threads << Thread.new {
+                        if /$key_ex_match_param/i =~ x['name'] then
+                           if Value['proxies'].include?(x) then
+                              Value['proxies'].delete(x)
+                              Value['proxy-groups'].each{
+                                 |g|
+                                 g['proxies'].reverse.each{
+                                    |p|
+                                    if p == x['name'] then
+                                       g['proxies'].delete(p)
+                                    end;
+                                 };
+                              };
+                           end;
+                        end;
+                     };
+                  end;
+	            };
 	         end;
+            if Value.key?('proxy-providers') and not Value['proxy-providers'].nil? then
+               Value['proxy-providers'].values.each do
+                  |i|
+                  threads << Thread.new {
+                     if not '$key_match_param'.empty? then
+                        i['filter'] = '(?i)$key_match_param';
+                     end;
+                     if not '$key_ex_match_param'.empty? then
+                        i['exclude-filter'] = '(?i)$key_ex_match_param';
+                     end;
+                  };
+               end;
+            end;
+            threads.each(&:join);
 	      rescue Exception => e
-	         puts '${LOGTIME} Error: Filter Proxies Failed,【' + e.message + '】'
+	         YAML.LOG('Error: Filter Proxies Failed,【' + e.message + '】');
 	      ensure
 	         File.open('$CONFIG_FILE','w') {|f| YAML.dump(Value, f)};
 	      end" 2>/dev/null >> $LOG_FILE
@@ -250,205 +258,17 @@ config_error()
 change_dns()
 {
    if pidof clash >/dev/null; then
-      if [ "$enable_redirect_dns"  = "1" ]; then
-         uci -q del dhcp.@dnsmasq[-1].server
-         uci -q add_list dhcp.@dnsmasq[0].server=127.0.0.1#"$dns_port"
-         uci -q delete dhcp.@dnsmasq[0].resolvfile
-         uci -q set dhcp.@dnsmasq[0].noresolv=1
-         [ "$disable_masq_cache" -eq 1 ] && {
-            uci -q set dhcp.@dnsmasq[0].cachesize=0
-         }
-         uci commit dhcp
-      fi
-
-      if [ -z "$(echo "$en_mode" |grep "redir-host")" ] && [ "$china_ip_route" -eq 1 ] && [ "$enable_redirect_dns" != "2" ]; then
-         cat "/etc/openclash/accelerated-domains.china.conf" |awk -v dns="${custom_china_domain_dns_server}" -F '/' '!/^$/&&!/^#/{print $1"/"$2"/"dns}' >${DNSMASQ_CONF_DIR}/dnsmasq_accelerated-domains.china.conf 2>/dev/null
-         for i in `awk '!/^$/&&!/^#/&&!/(^([1-9]|1[0-9]|1[1-9]{2}|2[0-4][0-9]|25[0-5])\.)(([0-9]{1,2}|1[1-9]{2}|2[0-4][0-9]|25[0-5])\.){2}([1-9]|[1-9][0-9]|1[0-9]{2}|2[0-5][0-9]|25[0-4])((\/[0-9][0-9])?)$/{printf("%s\n",$0)}' /etc/openclash/custom/openclash_custom_chnroute_pass.list`
-         do
-            sed -i "/server=\/${i}\//d" ${DNSMASQ_CONF_DIR}/dnsmasq_accelerated-domains.china.conf 2>/dev/null
-         done 2>/dev/null
-      fi
-
-      /etc/init.d/dnsmasq restart >/dev/null 2>&1
-
-      if [ -n "$FW4" ]; then
-         for nft in "nat_output" "mangle_output"; do
-            local handles=$(nft -a list chain inet fw4 ${nft} |grep -E "openclash|OpenClash" |grep -v "OpenClash DNS Hijack" |awk -F '# handle ' '{print$2}')
-            for handle in $handles; do
-               nft delete rule inet fw4 ${nft} handle ${handle}
-            done
-         done >/dev/null 2>&1
-         echo "$nat_output_rules" |while read line
-         do
-            if [ -n "$(echo "$line" |grep "OpenClash DNS Hijack")" ]; then
-               continue
-            fi
-            nft add rule inet fw4 nat_output ${line}
-         done >/dev/null 2>&1
-         echo "$mangle_output_rules" |while read line
-         do
-            if [ -n "$(echo "$line" |grep "OpenClash DNS Hijack")" ]; then
-               continue
-            fi
-            nft add rule inet fw4 mangle_output ${line}
-         done >/dev/null 2>&1
-
-         if [ "$enable_redirect_dns" = "2" ]; then
-            if [ "$router_self_proxy" = 1 ]; then
-               nft add rule inet fw4 nat_output position 0 tcp dport 53 ip daddr {127.0.0.1} meta skuid != 65534 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-               nft add rule inet fw4 nat_output position 0 udp dport 53 ip daddr {127.0.0.1} meta skuid != 65534 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-            fi
-            if [ "$ipv6_enable" -eq 1 ]; then
-               if [ "$router_self_proxy" = 1 ]; then
-                  nft add rule inet fw4 nat_output position 0 meta nfproto {ipv6} tcp dport 53 ip daddr {::/0} meta skuid != 65534 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-                  nft add rule inet fw4 nat_output position 0 meta nfproto {ipv6} udp dport 53 ip daddr {::/0} meta skuid != 65534 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-               fi
-            fi
-         fi
-         if [ -z "$(echo "$en_mode" |grep "redir-host")" ] && [ "$china_ip_route" -eq 1 ] && [ "$enable_redirect_dns" != "2" ]; then
-            LOG_OUT "Tip: Bypass the China IP May Cause the Dnsmasq Load For a Long Time After Restart in FAKE-IP Mode, Hijack the DNS to Core Untill the Dnsmasq Works Well..."
-            nft insert rule inet fw4 dstnat position 0 tcp dport 53 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-            nft insert rule inet fw4 dstnat position 0 udp dport 53 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-            nft 'add chain inet fw4 nat_output { type nat hook output priority -1; }' 2>/dev/null
-            nft add rule inet fw4 nat_output position 0 tcp dport 53 meta skuid != 65534 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-            nft add rule inet fw4 nat_output position 0 udp dport 53 meta skuid != 65534 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-            nft add rule inet fw4 nat_output position 0 tcp dport 12353 meta skuid != 65534 counter redirect to "$DNSPORT" comment \"OpenClash DNS Hijack\" 2>/dev/null
-            nft add rule inet fw4 nat_output position 0 udp dport 12353 meta skuid != 65534 counter redirect to "$DNSPORT" comment \"OpenClash DNS Hijack\" 2>/dev/null
-            if [ "$ipv6_enable" -eq 1 ]; then
-               nft insert rule inet fw4 dstnat position 0 meta nfproto {ipv6} tcp dport 53 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-               nft insert rule inet fw4 dstnat position 0 meta nfproto {ipv6} udp dport 53 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-               nft 'add chain inet fw4 nat_output { type nat hook output priority -1; }' 2>/dev/null
-               nft add rule inet fw4 nat_output position 0 meta nfproto {ipv6} tcp dport 53 meta skuid != 65534 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-               nft add rule inet fw4 nat_output position 0 meta nfproto {ipv6} udp dport 53 meta skuid != 65534 counter redirect to "$dns_port" comment \"OpenClash DNS Hijack\" 2>/dev/null
-               nft add rule inet fw4 nat_output position 0 meta nfproto {ipv6} tcp dport 12353 meta skuid != 65534 counter redirect to "$DNSPORT" comment \"OpenClash DNS Hijack\" 2>/dev/null
-               nft add rule inet fw4 nat_output position 0 meta nfproto {ipv6} udp dport 12353 meta skuid != 65534 counter redirect to "$DNSPORT" comment \"OpenClash DNS Hijack\" 2>/dev/null
-            fi
-         fi
-      else
-         iptables -t nat -D OUTPUT -j openclash_output >/dev/null 2>&1
-         iptables -t mangle -D OUTPUT -j openclash_output >/dev/null 2>&1
-         ip6tables -t mangle -D OUTPUT -j openclash_output >/dev/null 2>&1
-         iptables -t nat -A OUTPUT -j openclash_output >/dev/null 2>&1
-         iptables -t mangle -A OUTPUT -j openclash_output >/dev/null 2>&1
-         ip6tables -t mangle -A OUTPUT -j openclash_output >/dev/null 2>&1
-         if [ "$enable_redirect_dns" = "2" ]; then
-            if [ "$router_self_proxy" = 1 ]; then
-               iptables -t nat -I OUTPUT -p udp --dport 53 -d 127.0.0.1 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-               iptables -t nat -I OUTPUT -p tcp --dport 53 -d 127.0.0.1 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-            fi
-            if [ "$ipv6_enable" -eq 1 ]; then
-               if [ "$router_self_proxy" = 1 ]; then
-                  ip6tables -t nat -I OUTPUT -p udp --dport 53 -d ::/0 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-                  ip6tables -t nat -I OUTPUT -p tcp --dport 53 -d ::/0 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-               fi
-            fi
-         fi
-         if [ -z "$(echo "$en_mode" |grep "redir-host")" ] && [ "$china_ip_route" -eq 1 ] && [ "$enable_redirect_dns" != "2" ]; then
-            LOG_OUT "Tip: Bypass the China IP May Cause the Dnsmasq Load For a Long Time After Restart in FAKE-IP Mode, Hijack the DNS to Core Untill the Dnsmasq Works Well..."
-            iptables -t nat -I PREROUTING -p udp --dport 53 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-            iptables -t nat -I PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-            iptables -t nat -I OUTPUT -p udp --dport 53 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-            iptables -t nat -I OUTPUT -p tcp --dport 53 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-            iptables -t nat -I OUTPUT -p udp --dport 12353 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$DNSPORT" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-            iptables -t nat -I OUTPUT -p tcp --dport 12353 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$DNSPORT" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-            if [ "$ipv6_enable" -eq 1 ]; then
-               ip6tables -t nat -I PREROUTING -p udp --dport 53 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-               ip6tables -t nat -I PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-               ip6tables -t nat -I OUTPUT -p udp --dport 53 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-               ip6tables -t nat -I OUTPUT -p tcp --dport 53 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$dns_port" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-               ip6tables -t nat -I OUTPUT -p udp --dport 12353 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$DNSPORT" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-               ip6tables -t nat -I OUTPUT -p tcp --dport 12353 -m owner ! --uid-owner 65534 -j REDIRECT --to-ports "$DNSPORT" -m comment --comment "OpenClash DNS Hijack" 2>/dev/null
-            fi
-         fi
-      fi
-      [ "$(unify_ps_status "openclash_watchdog.sh")" -eq 0 ] && [ "$(unify_ps_prevent)" -eq 0 ] && nohup /usr/share/openclash/openclash_watchdog.sh &
+      /etc/init.d/openclash reload "restore" >/dev/null 2>&1
+      procd_send_signal "openclash" "openclash-watchdog" CONT
    fi
-}
-
-field_name_check()
-{
-   #检查field名称（不兼容旧写法）
-   ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
-      Value = YAML.load_file('$CFG_FILE');
-      if Value.key?('Proxy') or Value.key?('Proxy Group') or Value.key?('Rule') or Value.key?('rule-provider') then
-         if Value.key?('Proxy') then
-            Value['proxies'] = Value['Proxy']
-            Value.delete('Proxy')
-            puts '${LOGTIME} Warning: Proxy is no longer used. Auto replaced by proxies'
-         end
-         if Value.key?('Proxy Group') then
-            Value['proxy-groups'] = Value['Proxy Group']
-            Value.delete('Proxy Group')
-            puts '${LOGTIME} Warning: Proxy Group is no longer used. Auto replaced by proxy-groups'
-         end
-         if Value.key?('Rule') then
-            Value['rules'] = Value['Rule']
-            Value.delete('Rule')
-            puts '${LOGTIME} Warning: Rule is no longer used. Auto replaced by rules'
-         end
-         if Value.key?('rule-provider') then
-            Value['rule-providers'] = Value['rule-provider']
-            Value.delete('rule-provider')
-             puts '${LOGTIME} Warning: rule-provider is no longer used. Auto replaced by rule-providers'
-         end;
-         File.open('$CFG_FILE','w') {|f| YAML.dump(Value, f)};
-      end;
-   " 2>/dev/null >> $LOG_FILE
 }
 
 config_download_direct()
 {
    if pidof clash >/dev/null && [ "$router_self_proxy" = 1 ]; then
-      kill_watchdog
-      if [ "$enable_redirect_dns" -eq 1 ]; then
-         uci -q del_list dhcp.@dnsmasq[0].server=127.0.0.1#"$dns_port"
-         if [ -n "$default_resolvfile" ]; then
-            uci -q set dhcp.@dnsmasq[0].resolvfile="$default_resolvfile"
-         elif [ -s "/tmp/resolv.conf.d/resolv.conf.auto" ] && [ -n "$(grep "nameserver" /tmp/resolv.conf.d/resolv.conf.auto)" ]; then
-            uci -q set dhcp.@dnsmasq[0].resolvfile=/tmp/resolv.conf.d/resolv.conf.auto
-         elif [ -s "/tmp/resolv.conf.auto" ] && [ -n "$(grep "nameserver" /tmp/resolv.conf.auto)" ]; then
-            uci -q set dhcp.@dnsmasq[0].resolvfile=/tmp/resolv.conf.auto
-         else
-            rm -rf /tmp/resolv.conf.auto 2>/dev/null
-            touch /tmp/resolv.conf.auto 2>/dev/null
-            cat >> "/tmp/resolv.conf.auto" <<-EOF
-# Interface lan
-nameserver 114.114.114.114
-nameserver 119.29.29.29
-EOF
-            uci -q set dhcp.@dnsmasq[0].resolvfile=/tmp/resolv.conf.auto
-         fi
-         uci -q set dhcp.@dnsmasq[0].noresolv=0
-         uci -q delete dhcp.@dnsmasq[0].cachesize
-         uci commit dhcp
-         rm -rf ${DNSMASQ_CONF_DIR}/dnsmasq_accelerated-domains.china.conf >/dev/null 2>&1
-         /etc/init.d/dnsmasq restart >/dev/null 2>&1
-      fi
-      if [ -n "$FW4" ]; then
-         nat_output_rules=$(nft -a list chain inet fw4 nat_output |grep -E "openclash|OpenClash" |awk -F '# handle ' '{print$1}' |sed 's/^[ \t]*//g')
-         mangle_output_rules=$(nft -a list chain inet fw4 mangle_output |grep -E "openclash|OpenClash" |awk -F '# handle ' '{print$1}' |sed 's/^[ \t]*//g')
-         for nft in "nat_output" "mangle_output"; do
-            local handles=$(nft -a list chain inet fw4 ${nft} |grep -E "openclash|OpenClash" |awk -F '# handle ' '{print$2}')
-            for handle in $handles; do
-               nft delete rule inet fw4 ${nft} handle ${handle}
-            done
-         done >/dev/null 2>&1
-      else
-         iptables -t nat -D OUTPUT -j openclash_output >/dev/null 2>&1
-         iptables -t mangle -D OUTPUT -j openclash_output >/dev/null 2>&1
-         ip6tables -t mangle -D OUTPUT -j openclash_output >/dev/null 2>&1
-         for ipt in "iptables -nvL OUTPUT -t nat" "iptables -nvL OUTPUT -t mangle" "ip6tables -nvL OUTPUT -t mangle" "ip6tables -nvL OUTPUT -t nat"; do
-            for comment in "OpenClash DNS Hijack"; do
-               local lines=$($ipt |sed 1,2d |sed -n "/${comment}/=" 2>/dev/null |sort -rn)
-               if [ -n "$lines" ]; then
-                  for line in $lines; do
-                     $(echo "$ipt" |awk -v OFS=" " '{print $1,$4,$5}' |sed 's/[ ]*$//g') -D $(echo "$ipt" |awk '{print $3}') $line
-                  done
-               fi
-            done
-         done >/dev/null 2>&1
-      fi
-      
+      kill_streaming_unlock
+      procd_send_signal "openclash" "openclash-watchdog" STOP
+      /etc/init.d/openclash reload "revert" >/dev/null 2>&1
       sleep 3
 
       config_download
@@ -468,7 +288,7 @@ EOF
          begin
          YAML.load_file('$CFG_FILE');
          rescue Exception => e
-         puts '${LOGTIME} Error: Unable To Parse Config File,【' + e.message + '】'
+         YAML.LOG('Error: Unable To Parse Config File,【' + e.message + '】');
          system 'rm -rf ${CFG_FILE} 2>/dev/null'
          end
          " 2>/dev/null >> $LOG_FILE
@@ -482,15 +302,9 @@ EOF
             change_dns
             config_error
          elif ! "$(ruby_read "$CFG_FILE" ".key?('proxies')")" && ! "$(ruby_read "$CFG_FILE" ".key?('proxy-providers')")" ; then
-            field_name_check
-            if ! "$(ruby_read "$CFG_FILE" ".key?('proxies')")" && ! "$(ruby_read "$CFG_FILE" ".key?('proxy-providers')")" ; then
-               LOG_OUT "Error: Updated Config【$name】Has No Proxy Field, Update Exit..."
-               change_dns
-               config_error
-            else
-               change_dns
-               config_su_check
-            fi
+            LOG_OUT "Error: Updated Config【$name】Has No Proxy Field, Update Exit..."
+            change_dns
+            config_error
          else
             change_dns
             config_su_check
@@ -506,7 +320,7 @@ EOF
 
 server_key_match()
 {
-	 local key_match key_word
+	local key_match key_word
 	 
    if [ -n "$(echo "$1" |grep "^ \{0,\}$")" ] || [ -n "$(echo "$1" |grep "^\t\{0,\}$")" ]; then
 	    return
@@ -544,9 +358,22 @@ server_key_match()
    fi
 }
 
+convert_custom_param()
+{
+   if ! (echo "$1" | grep -qE "^\w+=.+$") then
+      return
+   fi
+   local p_name="${1%%=*}" p_value="${1#*=}"
+   if [ -z "$append_custom_params" ]; then
+      append_custom_params="&${p_name}=$(urlencode "$p_value")"
+   else
+      append_custom_params="${append_custom_params}\`$(urlencode "$p_value")"
+   fi
+}
+
 sub_info_get()
 {
-   local section="$1" subscribe_url template_path subscribe_url_param template_path_encode key_match_param key_ex_match_param c_address de_ex_keyword
+   local section="$1" subscribe_url template_path subscribe_url_param template_path_encode key_match_param key_ex_match_param c_address de_ex_keyword sub_ua append_custom_params
    config_get_bool "enabled" "$section" "enabled" "1"
    config_get "name" "$section" "name" ""
    config_get "sub_convert" "$section" "sub_convert" ""
@@ -563,9 +390,16 @@ sub_info_get()
    config_get "rule_provider" "$section" "rule_provider" ""
    config_get "custom_template_url" "$section" "custom_template_url" ""
    config_get "de_ex_keyword" "$section" "de_ex_keyword" ""
+   config_get "sub_ua" "$section" "sub_ua" "clash.meta"
    
    if [ "$enabled" -eq 0 ]; then
-      return
+      if [ -n "$2" ]; then
+         if [ "$2" != "$CONFIG_FILE" ] && [ "$2" != "$name" ]; then
+            return
+         fi
+      else
+         return
+      fi
    fi
    
    if [ -z "$address" ]; then
@@ -593,7 +427,7 @@ sub_info_get()
       BACKPACK_FILE="/etc/openclash/backup/$name.yaml"
    fi
 
-   if [ -n "$2" ] && [ "$2" != "$CONFIG_FILE" ]; then
+   if [ -n "$2" ] && [ "$2" != "$CONFIG_FILE" ] && [ "$2" != "$name" ]; then
       return
    fi
    
@@ -626,10 +460,11 @@ sub_info_get()
          template_path=$custom_template_url
       fi
       if [ -n "$template_path" ]; then
+         config_list_foreach "$section" "custom_params" convert_custom_param
          template_path_encode=$(urlencode "$template_path")
-         [ -n "$key_match_param" ] && key_match_param="(?i)$(urlencode "$key_match_param")"
-         [ -n "$key_ex_match_param" ] && key_ex_match_param="(?i)$(urlencode "$key_ex_match_param")"
-         subscribe_url_param="?target=clash&new_name=true&url=$subscribe_url&config=$template_path_encode&include=$key_match_param&exclude=$key_ex_match_param&emoji=$emoji&list=false&sort=$sort$udp&scv=$skip_cert_verify&append_type=$node_type&fdn=true$rule_provider"
+         [ -n "$key_match_param" ] && key_match_param="$(urlencode "(?i)$key_match_param")"
+         [ -n "$key_ex_match_param" ] && key_ex_match_param="$(urlencode "(?i)$key_ex_match_param")"
+         subscribe_url_param="?target=clash&new_name=true&url=$subscribe_url&config=$template_path_encode&include=$key_match_param&exclude=$key_ex_match_param&emoji=$emoji&list=false&sort=$sort$udp&scv=$skip_cert_verify&append_type=$node_type&fdn=true$rule_provider$append_custom_params"
          c_address="$convert_address"
       else
          subscribe_url=$address
@@ -641,7 +476,6 @@ sub_info_get()
    LOG_OUT "Start Updating Config File【$name】..."
 
    config_download
-
    if [ "${PIPESTATUS[0]}" -eq 0 ] && [ -s "$CFG_FILE" ]; then
       #prevent ruby unexpected error
       sed -i -E 's/protocol-param: ([^,'"'"'"''}( *#)\n\r]+)/protocol-param: "\1"/g' "$CFG_FILE" 2>/dev/null
@@ -649,6 +483,7 @@ sub_info_get()
       config_test
       if [ $? -ne 0 ]; then
          LOG_OUT "Error: Config File Tested Faild, Please Check The Log Infos!"
+         LOG_OUT "Error: Config File【$name】Subscribed Failed, Trying to Download Without Agent..."
          config_download_direct
          return
       fi
@@ -656,7 +491,7 @@ sub_info_get()
       begin
       YAML.load_file('$CFG_FILE');
       rescue Exception => e
-      puts '${LOGTIME} Error: Unable To Parse Config File,【' + e.message + '】'
+      YAML.LOG('Error: Unable To Parse Config File,【' + e.message + '】');
       system 'rm -rf ${CFG_FILE} 2>/dev/null'
       end
       " 2>/dev/null >> $LOG_FILE
@@ -668,13 +503,8 @@ sub_info_get()
          LOG_OUT "Config File Format Validation Failed, Trying To Download Without Agent..."
          config_download_direct
       elif ! "$(ruby_read "$CFG_FILE" ".key?('proxies')")" && ! "$(ruby_read "$CFG_FILE" ".key?('proxy-providers')")" ; then
-         field_name_check
-         if ! "$(ruby_read "$CFG_FILE" ".key?('proxies')")" && ! "$(ruby_read "$CFG_FILE" ".key?('proxy-providers')")" ; then
             LOG_OUT "Error: Updated Config【$name】Has No Proxy Field, Trying To Download Without Agent..."
             config_download_direct
-         else
-            config_su_check
-         fi
       else
          config_su_check
       fi
@@ -690,18 +520,5 @@ config_foreach sub_info_get "config_subscribe" "$1"
 uci -q delete openclash.config.config_update_path
 uci commit openclash
 
-if [ "$restart" -eq 1 ] && [ "$(unify_ps_prevent)" -eq 0 ] && [ "$(find /tmp/lock/ |grep -v "openclash.lock" |grep -c "openclash")" -le 1 ]; then
-   /etc/init.d/openclash restart >/dev/null 2>&1 &
-elif [ "$restart" -eq 0 ] && [ "$(unify_ps_prevent)" -eq 0 ] && [ "$(find /tmp/lock/ |grep -v "openclash.lock" |grep -c "openclash")" -le 1 ] && [ "$(uci -q get openclash.config.restart)" -eq 1 ]; then
-   /etc/init.d/openclash restart >/dev/null 2>&1 &
-   uci -q set openclash.config.restart=0
-   uci -q commit openclash
-elif [ "$restart" -eq 1 ] && [ "$(unify_ps_prevent)" -eq 0 ] && [ "$(find /tmp/lock/ |grep -v "openclash.lock" |grep -c "openclash")" -gt 1 ]; then
-   uci -q set openclash.config.restart=1
-   uci -q commit openclash
-else
-   sed -i '/openclash.sh/d' $CRON_FILE 2>/dev/null
-   [ "$(uci -q get openclash.config.auto_update)" -eq 1 ] && [ "$(uci -q get openclash.config.config_auto_update_mode)" -ne 1 ] && echo "0 $(uci -q get openclash.config.auto_update_time) * * $(uci -q get openclash.config.config_update_week_time) /usr/share/openclash/openclash.sh" >> $CRON_FILE
-   /etc/init.d/cron restart
-fi
+dec_job_counter_and_restart "$restart"
 del_lock

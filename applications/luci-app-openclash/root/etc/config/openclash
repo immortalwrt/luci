@@ -12,7 +12,6 @@ config openclash 'config'
 	option auto_update '0'
 	option auto_update_time '0'
 	option cn_port '9090'
-	option dashboard_password '123456'
 	option dashboard_forward_ssl '0'
 	option rule_source '0'
 	option enable_custom_dns '0'
@@ -21,7 +20,7 @@ config openclash 'config'
 	option enable_custom_clash_rules '0'
 	option other_rule_auto_update '0'
 	option core_version '0'
-	option en_mode 'redir-host'
+	option en_mode 'fake-ip'
 	option enable_redirect_dns '1'
 	option servers_if_update '0'
 	option disable_masq_cache '1'
@@ -32,7 +31,7 @@ config openclash 'config'
 	option enable_udp_proxy '1'
 	option disable_udp_quic '1'
 	option lan_ac_mode '0'
-	option operation_mode 'redir-host'
+	option operation_mode 'fake-ip'
 	option enable_rule_proxy '0'
 	option redirect_dns '0'
 	option cachesize_dns '0'
@@ -48,7 +47,6 @@ config openclash 'config'
 	option custom_host '0'
 	option custom_name_policy '0'
 	option append_wan_dns '0'
-	option stream_domains_prefetch '0'
 	option stream_auto_select '0'
 	option bypass_gateway_compatible '0'
 	option github_address_mod '0'
@@ -57,22 +55,41 @@ config openclash 'config'
 	option delay_start '0'
 	option router_self_proxy '1'
 	option release_branch 'master'
-	option enable_meta_core '0'
+	option smart_enable '0'
 	option dashboard_type 'Official'
-	option yacd_type 'Official'
+	option yacd_type 'Meta'
 	option append_default_dns '0'
+	option enable_respect_rules '0'
 	option geo_custom_url 'https://testingcf.jsdelivr.net/gh/alecthw/mmdb_china_ip_list@release/lite/Country.mmdb'
 	option geosite_custom_url 'https://testingcf.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat'
 	option geoip_custom_url 'https://testingcf.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat'
+	option geoasn_custom_url 'https://testingcf.jsdelivr.net/gh/xishang0128/geoip@release/GeoLite2-ASN.mmdb'
 	option chnr_custom_url 'https://ispip.clang.cn/all_cn.txt'
 	option chnr6_custom_url 'https://ispip.clang.cn/all_cn_ipv6.txt'
-	option cndomain_custom_url 'https://testingcf.jsdelivr.net/gh/felixonmars/dnsmasq-china-list@master/accelerated-domains.china.conf'
 	
+config dns_servers
+	option type 'udp'
+	option ip '114.114.114.114'
+	option enabled '1'
+	option group 'default'
+
+config dns_servers
+	option type 'udp'
+	option ip '119.29.29.29'
+	option enabled '1'
+	option group 'default'
+
 config dns_servers
 	option group 'nameserver'
 	option type 'udp'
 	option ip '114.114.114.114'
 	option enabled '1'
+
+config dns_servers
+	option type 'udp'
+	option ip '223.5.5.5'
+	option enabled '1'
+	option group 'default'
 
 config dns_servers
 	option group 'nameserver'
@@ -105,88 +122,130 @@ config dns_servers
 	option enabled '1'
 
 config dns_servers
-	option type 'https'
+	option enabled '0'
 	option group 'fallback'
-	option ip 'dns.cloudflare.com/dns-query'
-	option enabled '1'
+	option ip '9.9.9.9'
+	option type 'udp'
 
 config dns_servers
-	option group 'fallback'
-	option ip 'dns.google'
-	option port '853'
-	option type 'tls'
 	option enabled '0'
+	option group 'fallback'
+	option ip '149.112.112.112'
+	option type 'udp'
 
 config dns_servers
-	option group 'fallback'
-	option type 'https'
-	option ip '1.1.1.1/dns-query'
 	option enabled '0'
+	option group 'fallback'
+	option ip '2620:fe::fe'
+	option type 'udp'
 
 config dns_servers
-	option group 'fallback'
-	option ip '1.1.1.1'
-	option port '853'
-	option type 'tls'
 	option enabled '0'
+	option group 'fallback'
+	option ip '2620:fe::9'
+	option type 'udp'
 
 config dns_servers
 	option enabled '0'
 	option group 'fallback'
 	option ip '8.8.8.8'
-	option port '853'
+	option type 'udp'
+
+config dns_servers
+	option enabled '0'
+	option group 'fallback'
+	option ip '8.8.4.4'
+	option type 'udp'
+
+config dns_servers
+	option enabled '0'
+	option group 'fallback'
+	option ip '2001:4860:4860::8888'
+	option type 'udp'
+
+config dns_servers
+	option enabled '0'
+	option group 'fallback'
+	option ip '2001:4860:4860::8844'
+	option type 'udp'
+
+config dns_servers
+	option enabled '0'
+	option group 'fallback'
+	option ip '2001:da8::666'
+	option type 'udp'
+
+config dns_servers
+	option enabled '0'
+	option group 'fallback'
+	option ip 'dns.quad9.net'
 	option type 'tls'
 
 config dns_servers
-	option type 'udp'
-	option group 'fallback'
-	option ip '2001:4860:4860::8888'
-	option port '53'
 	option enabled '0'
+	option group 'fallback'
+	option ip 'dns.google'
+	option type 'tls'
 
 config dns_servers
-	option type 'udp'
-	option group 'fallback'
-	option ip '2001:4860:4860::8844'
-	option port '53'
 	option enabled '0'
+	option group 'fallback'
+	option ip '1.1.1.1'
+	option type 'tls'
 
 config dns_servers
-	option type 'udp'
-	option group 'fallback'
-	option ip '2001:da8::666'
-	option port '53'
 	option enabled '0'
-
-config dns_servers
-	option group 'fallback'
-	option type 'https'
-	option ip 'public.dns.iij.jp/dns-query'
-	option enabled '1'
-
-config dns_servers
-	option group 'fallback'
-	option type 'https'
-	option ip 'jp.tiar.app/dns-query'
-	option enabled '0'
-
-config dns_servers
-	option group 'fallback'
-	option type 'https'
-	option ip 'jp.tiarap.org/dns-query'
-	option enabled '0'
-
-config dns_servers
 	option group 'fallback'
 	option ip 'jp.tiar.app'
 	option type 'tls'
-	option enabled '0'
 
 config dns_servers
+	option enabled '0'
 	option group 'fallback'
 	option ip 'dot.tiar.app'
 	option type 'tls'
+
+config dns_servers
 	option enabled '0'
+	option group 'fallback'
+	option ip 'dns.quad9.net/dns-query'
+	option type 'https'
+
+config dns_servers
+	option enabled '1'
+	option group 'fallback'
+	option ip 'dns.google/dns-query'
+	option type 'https'
+
+config dns_servers
+	option enabled '1'
+	option group 'fallback'
+	option ip 'dns.cloudflare.com/dns-query'
+	option type 'https'
+
+config dns_servers
+	option enabled '0'
+	option group 'fallback'
+	option ip '1.1.1.1/dns-query'
+	option type 'https'
+
+config dns_servers
+	option enabled '0'
+	option group 'fallback'
+	option ip 'public.dns.iij.jp/dns-query'
+	option type 'https'
+
+config dns_servers
+	option enabled '0'
+	option group 'fallback'
+	option ip 'jp.tiar.app/dns-query'
+	option type 'https'
+
+config dns_servers
+	option enabled '0'
+	option group 'fallback'
+	option ip 'jp.tiarap.org/dns-query'
+	option type 'https'
 
 config dns_servers
 	option enabled '0'
@@ -201,7 +260,7 @@ config dns_servers
 	option type 'https'
 
 config dns_servers
-	option enabled '1'
+	option enabled '0'
 	option group 'fallback'
 	option ip 'dns.oszx.co/dns-query'
 	option type 'https'
@@ -227,5 +286,12 @@ config dns_servers
 config dns_servers
 	option enabled '0'
 	option group 'fallback'
-	option type 'https'
 	option ip 'doh.mullvad.net/dns-query'
+	option type 'https'
+
+config config_overwrite
+	option name 'default'
+	option type 'file'
+	option param 'EN_KEY1=URL1;EN_KEY12=URL2;EN_KEY13=URL3'
+	option order '0'
+	option enable '0'

@@ -9,8 +9,26 @@ local dns_host = "www.instagram.com"
 %>
 
 <style>
+:root[data-darkmode="true"] .diag-style {
+    background-color: #404040;
+}
+
+:root[data-darkmode="true"] #diag-rc-output > pre {
+	background-color: #404040;
+	color: #ffffff;
+}
+
+:root[data-darkmode="true"] #dns-rc-output > pre {
+	background-color: #404040;
+	color: #ffffff;
+}
+
+.diag-style {
+	background-color: #f5f5f5;
+}
+
 #diag-rc-output > pre {
-    background-color: #f5f5f5;
+    background-color: #ffffff;
     display: block;
     padding: 8.5px;
     margin: 0 0 18px;
@@ -23,7 +41,7 @@ local dns_host = "www.instagram.com"
 }
 
 #dns-rc-output > pre {
-    background-color: #f5f5f5;
+    background-color: #ffffff;
     display: block;
     padding: 8.5px;
     margin: 0 0 18px;
@@ -39,7 +57,12 @@ local dns_host = "www.instagram.com"
 
 
 <script type="text/javascript">//<![CDATA[
-
+	setTimeout(function(){
+		if (isDarkBackground(document.body)) {
+			document.documentElement.setAttribute('data-darkmode', 'true');
+		};
+	}, 1000);
+	
 	function show_diag_info(addr)
 	{
 		var addr = addr;
@@ -77,7 +100,7 @@ local dns_host = "www.instagram.com"
 		if (legend && output)
 		{
 			output.innerHTML =
-				'<img src="<%=resource%>/icons/loading.gif" alt="<%:Loading%>" style="vertical-align:middle" /> ' +
+				'<img src="<%=resource%>/icons/loading.svg" onerror="this.onerror=null;this.src=\'<%=resource%>/icons/loading.gif\'" alt="<%:Loading%>" style="vertical-align:middle" /> ' +
 				'<%:Waiting for command to complete...%>';
 
 			legend.parentNode.style.display = 'block';
@@ -120,7 +143,7 @@ local dns_host = "www.instagram.com"
 		if (legend && output)
 		{
 			output.innerHTML =
-				'<img src="<%=resource%>/icons/loading.gif" alt="<%:Loading%>" style="vertical-align:middle" /> ' +
+				'<img src="<%=resource%>/icons/loading.svg" onerror="this.onerror=null;this.src=\'<%=resource%>/icons/loading.gif\'" alt="<%:Loading%>" style="vertical-align:middle" /> ' +
 				'<%:Waiting for command to complete...%>';
 
 			legend.parentNode.style.display = 'block';
@@ -157,7 +180,7 @@ local dns_host = "www.instagram.com"
 		if (legend && output)
 		{
 			output.innerHTML =
-				'<img src="<%=resource%>/icons/loading.gif" alt="<%:Loading%>" style="vertical-align:middle" /> ' +
+				'<img src="<%=resource%>/icons/loading.svg" onerror="this.onerror=null;this.src=\'<%=resource%>/icons/loading.gif\'" alt="<%:Loading%>" style="vertical-align:middle" /> ' +
 				'<%:Waiting for command to complete...%>';
 
 			legend.parentNode.style.display = 'block';
@@ -181,36 +204,36 @@ local dns_host = "www.instagram.com"
 //]]></script>
 
 <form>
-	<fieldset>
-		<div style="width:33%; float: left; text-align: center;">
-			<%:Connection Test (Current Browser)%>&nbsp;&nbsp;&nbsp;&nbsp;
+	<fieldset class="diag-style">
+		<div style="width:33%; float: left; text-align: center; white-space: nowrap;">
+			<%:Connection Test%>&nbsp;&nbsp;&nbsp;&nbsp;
 			<input type="text" value="<%=diag_host%>" name="diag" />
 			<input type="button" value="<%:Click to Test%>" class="btn cbi-button cbi-button-apply" onclick="update_status(this.form.diag)" />
 		</div>
-		<div style="width:33%; float: left; text-align: center;">
-			<%:DNS Test (Clash Response)%>&nbsp;&nbsp;&nbsp;&nbsp;
+		<div style="width:33%; float: left; text-align: center; white-space: nowrap;">
+			<%:DNS Test%>&nbsp;&nbsp;&nbsp;&nbsp;
 			<input type="text" value="<%=dns_host%>" name="dns_host" />
 			<input type="button" value="<%:Click to Test%>" class="btn cbi-button cbi-button-apply" onclick="diag_dns(this.form.dns_host)" />
 		</div>
-		<div style="width:33%; float: left; text-align: center;">
+		<div style="width:33%; float: left; text-align: center; white-space: nowrap;">
 			<%:Generate Logs%>&nbsp;&nbsp;&nbsp;&nbsp;
 			<input type="button" value="<%:Click to Generate%>" class="btn cbi-button cbi-button-apply" onclick="gen_debug_logs(this)" />
 		</div>
 	</fieldset>
 
-	<fieldset style="display:none">
+	<fieldset class="diag-style" style="display:none">
 		<legend id="diag-rc-legend"><%:Collecting data...%></legend>
 		<br />
 		<span id="diag-rc-output"></span>
 	</fieldset>
 
-	<fieldset style="display:none">
+	<fieldset class="diag-style" style="display:none">
 		<legend id="dns-rc-legend"><%:Collecting data...%></legend>
 		<br />
 		<span id="dns-rc-output"></span>
 	</fieldset>
 	
-	<fieldset style="display:none">
+	<fieldset class="diag-style" style="display:none">
 		<legend id="debug-rc-legend"><%:Collecting data...%></legend>
 		<br />
 		<span id="debug-rc-output"></span>

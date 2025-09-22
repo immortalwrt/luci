@@ -1,6 +1,7 @@
 #!/bin/bash
 . /lib/functions.sh
 . /usr/share/openclash/log.sh
+. /usr/share/openclash/uci.sh
 
 set_lock() {
    exec 887>"/tmp/lock/openclash_groups_set.lock" 2>/dev/null
@@ -15,10 +16,10 @@ del_lock() {
 set_lock
 GROUP_FILE="/tmp/yaml_groups.yaml"
 CFG_FILE="/etc/config/openclash"
-servers_update=$(uci -q get openclash.config.servers_update)
-CONFIG_FILE=$(uci -q get openclash.config.config_path)
+servers_update=$(uci_get_config "servers_update")
+CONFIG_FILE=$(uci_get_config "config_path")
 CONFIG_NAME=$(echo "$CONFIG_FILE" |awk -F '/' '{print $5}' 2>/dev/null)
-UPDATE_CONFIG_FILE=$(uci -q get openclash.config.config_update_path)
+UPDATE_CONFIG_FILE=$(uci_get_config "config_update_path")
 UPDATE_CONFIG_NAME=$(echo "$UPDATE_CONFIG_FILE" |awk -F '/' '{print $5}' 2>/dev/null)
 
 if [ -n "$UPDATE_CONFIG_FILE" ]; then
@@ -52,7 +53,7 @@ set_groups()
       return
    fi
 
-   if [ "$1" = "all" ] || [[ "$3" =~ ${1} ]]; then
+   if [ "$1" = "all" ] || [[ "$3" =~ ${1} ]] || [ -n "$(echo ${3} |grep -Eo ${1})" ]; then
       set_group=1
       add_for_this=1
       echo "      - \"${2}\"" >>$GROUP_FILE
@@ -76,7 +77,7 @@ set_relay_groups()
    fi
 
    if [ -n "$server_relay_num" ]; then
-      if [[ "$3" =~ ${server_group_name} ]] || [ "$server_group_name" = "all" ]; then
+      if [[ "$3" =~ ${server_group_name} ]] || [ -n "$(echo ${3} |grep -Eo ${server_group_name})" ] || [ "$server_group_name" = "all" ]; then
          set_group=1
          add_for_this=1
          echo "$server_relay_num #      - \"${2}\"" >>/tmp/relay_server
@@ -89,6 +90,7 @@ yml_servers_add()
 {
    
    local section="$1"
+   local enabled config name relay_groups
    add_for_this=0
    config_get_bool "enabled" "$section" "enabled" "1"
    config_get "config" "$section" "config" ""
@@ -139,7 +141,7 @@ add_other_group()
       return
    fi
 
-   if [ "$2" = "all" ] || [[ "$name" =~ ${2} ]]; then
+   if [ "$2" = "all" ] || [[ "$name" =~ ${2} ]] || [ -n "$(echo ${name} |grep -Eo ${2})" ]; then
       set_group=1
       echo "      - ${name}" >>$GROUP_FILE
    fi
@@ -152,9 +154,33 @@ set_other_groups()
       return
    fi
 
-   if [ "$1" = "DIRECT" ] || [ "$1" = "REJECT" ]; then
+   if [[ "$1" =~ "DIRECT" ]] || [ -n "$(echo ${1} |grep 'DIRECT')" ]; then
       set_group=1
-      echo "      - ${1}" >>$GROUP_FILE
+      echo "      - DIRECT" >>$GROUP_FILE
+      return
+   fi
+
+   if [[ "$1" =~ "REJECT" ]] || [ -n "$(echo ${1} |grep 'REJECT')" ]; then
+      set_group=1
+      echo "      - REJECT" >>$GROUP_FILE
+      return
+   fi
+
+   if [[ "$1" =~ "REJECT-DROP" ]] || [ -n "$(echo ${1} |grep 'REJECT-DROP')" ]; then
+      set_group=1
+      echo "      - REJECT-DROP" >>$GROUP_FILE
+      return
+   fi
+
+   if [[ "$1" =~ "PASS" ]] || [ -n "$(echo ${1} |grep 'PASS')" ]; then
+      set_group=1
+      echo "      - PASS" >>$GROUP_FILE
+      return
+   fi
+
+   if [[ "$1" =~ "GLOBAL" ]] || [ -n "$(echo ${1} |grep 'GLOBAL')" ]; then
+      set_group=1
+      echo "      - GLOBAL" >>$GROUP_FILE
       return
    fi
 
@@ -165,6 +191,7 @@ set_other_groups()
 set_proxy_provider()
 {
    local section="$1"
+   local enabled config name
    add_for_this=0
    config_get_bool "enabled" "$section" "enabled" "1"
    config_get "config" "$section" "config" ""
@@ -180,7 +207,7 @@ set_proxy_provider()
       if [ -z "$3" ]; then
          config_list_foreach "$section" "groups" set_provider_groups "$name" "$2"
       fi
-      
+ 
       if [ -n "$if_game_group" ] && [ -z "$(ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "Value = YAML.load_file('$CONFIG_FILE'); Value['proxy-providers'].keys.each{|x| if x.eql?('$name') then puts x end}" 2>/dev/null)" ]; then
          /usr/share/openclash/yml_proxys_set.sh "$name" "proxy-provider"
       fi
@@ -192,17 +219,16 @@ set_provider_groups()
    if [ -z "$1" ]; then
       return
    fi
-   
+
    if [ "$add_for_this" -eq 1 ]; then
       return
    fi
 
-   if [[ "$3" =~ ${1} ]] || [ "$1" = "all" ]; then
+   if [[ "$3" =~ ${1} ]] || [ -n "$(echo ${3} |grep -Eo ${1})" ] || [ "$1" = "all" ]; then
       set_proxy_provider=1
       add_for_this=1
       echo "      - ${2}" >>$GROUP_FILE
    fi
-
 }
 
 #创建策略组
@@ -210,6 +236,7 @@ yml_groups_set()
 {
 
    local section="$1"
+   local enabled config type name disable_udp strategy old_name test_url test_interval tolerance policy_filter strategy_smart uselightgbm collectdata policy_priority
    config_get_bool "enabled" "$section" "enabled" "1"
    config_get "config" "$section" "config" ""
    config_get "type" "$section" "type" ""
@@ -220,9 +247,11 @@ yml_groups_set()
    config_get "test_url" "$section" "test_url" ""
    config_get "test_interval" "$section" "test_interval" ""
    config_get "tolerance" "$section" "tolerance" ""
-   config_get "interface_name" "$section" "interface_name" ""
-   config_get "routing_mark" "$section" "routing_mark" ""
    config_get "policy_filter" "$section" "policy_filter" ""
+   config_get "strategy_smart" "$section" "strategy_smart" ""
+   config_get "uselightgbm" "$section" "uselightgbm" ""
+   config_get "collectdata" "$section" "collectdata" ""
+   config_get "policy_priority" "$section" "policy_priority" ""
 
    if [ "$enabled" = "0" ]; then
       return
@@ -244,14 +273,10 @@ yml_groups_set()
       return
    fi
    
-   if [ -z "$test_url" ] || [ -z "$test_interval" ] && [ "$type" != "select" ] && [ "$type" != "relay" ]; then
-      return
-   fi
-   
    #游戏策略组存在时判断节点是否存在
    if [ -n "$if_game_group" ] && [ -n "$(grep "^$if_game_group$" /tmp/Proxy_Group)" ]; then
       config_foreach yml_servers_add "servers" "$name" "$type" "check" #加入服务器节点
-      config_foreach set_proxy_provider "proxy-provider" "$group_name" "check" #加入代理集
+      config_foreach set_proxy_provider "proxy-provider" "$name" "check" #加入代理集
       return
    fi
    
@@ -259,16 +284,8 @@ yml_groups_set()
    
    echo "  - name: $name" >>$GROUP_FILE
    echo "    type: $type" >>$GROUP_FILE
-   if [ "$type" = "load-balance" ]; then
-      [ -n "$strategy" ] && {
-           echo "    strategy: $strategy" >>$GROUP_FILE
-      }
-   fi
-   [ -n "$disable_udp" ] && {
-      echo "    disable-udp: $disable_udp" >>$GROUP_FILE
-   }
-   group_name="$name"
-   echo "    proxies: $group_name" >>$GROUP_FILE
+
+   echo "    proxies: $name" >>$GROUP_FILE
    
    #名字变化时处理规则部分
    if [ "$name" != "$old_name" ] && [ -n "$old_name" ]; then
@@ -287,28 +304,45 @@ yml_groups_set()
    
    if [ "$type" = "relay" ] && [ -s "/tmp/relay_server" ]; then
       cat /tmp/relay_server |sort -k 1 |awk -F '#' '{print $2}' > /tmp/relay_server.list 2>/dev/null
-      sed -i "/^ \{0,\}proxies: ${group_name}/r/tmp/relay_server.list" "$GROUP_FILE" 2>/dev/null
+      sed -i "/^ \{0,\}proxies: ${name}/r/tmp/relay_server.list" "$GROUP_FILE" 2>/dev/null
       rm -rf /tmp/relay_server 2>/dev/null
    fi
 
-   echo "    use: $group_name" >>$GROUP_FILE
+   echo "    use: $name" >>$GROUP_FILE
    
-   config_foreach set_proxy_provider "proxy-provider" "$group_name" #加入代理集
+   config_foreach set_proxy_provider "proxy-provider" "$name" #加入代理集
 
+   #Prevent the un support symbol name
+   name=$(echo "$name" |sed 's/\//\\\//g' 2>/dev/null)
    if [ "$set_group" -eq 1 ]; then
-      sed -i "/^ \{0,\}proxies: ${group_name}/c\    proxies:" $GROUP_FILE
+      sed -i "/^ \{0,\}proxies: ${name}/c\    proxies:" $GROUP_FILE
    else
-      sed -i "/proxies: ${group_name}/d" $GROUP_FILE 2>/dev/null
+      sed -i "/proxies: ${name}/d" $GROUP_FILE 2>/dev/null
    fi
    
    if [ "$set_proxy_provider" -eq 1 ]; then
-      sed -i "/^ \{0,\}use: ${group_name}/c\    use:" $GROUP_FILE
+      sed -i "/^ \{0,\}use: ${name}/c\    use:" $GROUP_FILE
    else
-      sed -i "/use: ${group_name}/d" $GROUP_FILE 2>/dev/null
+      sed -i "/use: ${name}/d" $GROUP_FILE 2>/dev/null
    fi
    
+   if [ "$set_group" -eq 0 ] && [ "$set_proxy_provider" -eq 0 ]; then
+      echo "    proxies:" >>$GROUP_FILE
+      echo "      - DIRECT" >>$GROUP_FILE
+   fi
+
+   if [ "$type" = "load-balance" ]; then
+      [ -n "$strategy" ] && {
+           echo "    strategy: $strategy" >>$GROUP_FILE
+      }
+   fi
+
+   [ -n "$disable_udp" ] && {
+      echo "    disable-udp: $disable_udp" >>$GROUP_FILE
+   }
+
    [ -n "$test_url" ] && {
-        echo "    url: $test_url" >>$GROUP_FILE
+      echo "    url: $test_url" >>$GROUP_FILE
    }
    [ -n "$test_interval" ] && {
       echo "    interval: \"$test_interval\"" >>$GROUP_FILE
@@ -325,10 +359,25 @@ yml_groups_set()
    [ -n "$routing_mark" ] && {
       echo "    routing-mark: \"$routing_mark\"" >>$GROUP_FILE
    }
+   
+   if [ "$type" = "smart" ]; then
+      [ -n "$strategy_smart" ] && {
+         echo "    strategy: $strategy_smart" >>$GROUP_FILE
+      }
+      [ -n "$uselightgbm" ] && {
+         echo "    uselightgbm: $uselightgbm" >>$GROUP_FILE
+      }
+      [ -n "$collectdata" ] && {
+         echo "    collectdata: $collectdata" >>$GROUP_FILE
+      }
+      [ -n "$policy_priority" ] && {
+         echo "    policy-priority: \"$policy_priority\"" >>$GROUP_FILE
+      }
+   fi
 }
 
-create_config=$(uci -q get openclash.config.create_config)
-servers_if_update=$(uci -q get openclash.config.servers_if_update)
+create_config=$(uci_get_config "create_config")
+servers_if_update=$(uci_get_config "servers_if_update")
 if_game_group="$1"
 if [ "$create_config" = "0" ] || [ "$servers_if_update" = "1" ] || [ -n "$if_game_group" ]; then
    /usr/share/openclash/yml_groups_name_get.sh

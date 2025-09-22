@@ -1,23 +1,28 @@
 local api = require "luci.passwall.api"
-local appname = api.appname
+local appname = "passwall"
 local sys = api.sys
 local datatypes = api.datatypes
 
 m = Map(appname)
+api.set_apply_on_parse(m)
 
 -- [[ Other Settings ]]--
 s = m:section(TypedSection, "global_other")
 s.anonymous = true
 
-o = s:option(MultiValue, "nodes_ping", " ")
-o:value("auto_ping", translate("Auto Ping"), translate("This will automatically ping the node for latency"))
-o:value("tcping", translate("Tcping"), translate("This will use tcping replace ping detection of node"))
-o:value("info", translate("Show server address and port"), translate("Show server address and port"))
+o = s:option(ListValue, "auto_detection_time", translate("Automatic detection delay"))
+o:value("0", translate("Close"))
+o:value("icmp", "Ping")
+o:value("tcping", "TCP Ping")
+
+o = s:option(Flag, "show_node_info", translate("Show server address and port"))
+o.default = "0"
 
 -- [[ Add the node via the link ]]--
 s:append(Template(appname .. "/node_list/link_add_node"))
 
-local nodes_ping = m:get("@global_other[0]", "nodes_ping") or ""
+local auto_detection_time = m:get("@global_other[0]", "auto_detection_time") or "0"
+local show_node_info = m:get("@global_other[0]", "show_node_info") or "0"
 
 -- [[ Node List ]]--
 s = m:section(TypedSection, "nodes")
@@ -56,16 +61,67 @@ function s.remove(e, t)
 			m:set(s[".name"], "udp_node", "default")
 		end
 	end)
+	m.uci:foreach(appname, "nodes", function(s)
+		if s["preproxy_node"] == t then
+			m:del(s[".name"], "preproxy_node")
+			m:del(s[".name"], "chain_proxy")
+		end
+		if s["to_node"] == t then
+			m:del(s[".name"], "to_node")
+			m:del(s[".name"], "chain_proxy")
+		end
+		local list_name = s["urltest_node"] and "urltest_node" or (s["balancing_node"] and "balancing_node")
+		if list_name then
+			local nodes = m.uci:get_list(appname, s[".name"], list_name)
+			if nodes then
+				local changed = false
+				local new_nodes = {}
+				for _, node in ipairs(nodes) do
+					if node ~= t then
+						table.insert(new_nodes, node)
+					else
+						changed = true
+					end
+				end
+				if changed then
+					m.uci:set_list(appname, s[".name"], list_name, new_nodes)
+				end
+			end
+		end
+		if s["fallback_node"] == t then
+			m:del(s[".name"], "fallback_node")
+		end
+	end)
+	m.uci:foreach(appname, "subscribe_list", function(s)
+		if s["preproxy_node"] == t then
+			m:del(s[".name"], "preproxy_node")
+			m:del(s[".name"], "chain_proxy")
+		end
+		if s["to_node"] == t then
+			m:del(s[".name"], "to_node")
+			m:del(s[".name"], "chain_proxy")
+		end
+	end)
+	if (m:get(t, "add_mode") or "0") == "2" then
+		local add_from = m:get(t, "add_from") or ""
+		if add_from ~= "" then
+			m.uci:foreach(appname, "subscribe_list", function(s)
+				if s["remark"] == add_from then
+					m:del(s[".name"], "md5")
+				end
+			end)
+		end
+	end
 	TypedSection.remove(e, t)
-	local new_node = "nil"
+	local new_node = ""
 	local node0 = m:get("@nodes[0]") or nil
 	if node0 then
 		new_node = node0[".name"]
 	end
-	if (m:get("@global[0]", "tcp_node") or "nil") == t then
+	if (m:get("@global[0]", "tcp_node") or "") == t then
 		m:set('@global[0]', "tcp_node", new_node)
 	end
-	if (m:get("@global[0]", "udp_node") or "nil") == t then
+	if (m:get("@global[0]", "udp_node") or "") == t then
 		m:set('@global[0]', "udp_node", new_node)
 	end
 end
@@ -94,26 +150,44 @@ o.cfgvalue = function(t, n)
 	local remarks = m:get(n, "remarks") or ""
 	local type = m:get(n, "type") or ""
 	str = str .. string.format("<input type='hidden' id='cbid.%s.%s.type' value='%s'/>", appname, n, type)
-	if type == "V2ray" or type == "Xray" then
+	if type == "sing-box" or type == "Xray" then
 		local protocol = m:get(n, "protocol")
 		if protocol == "_balancing" then
 			protocol = translate("Balancing")
+		elseif protocol == "_urltest" then
+			protocol = "URLTest"
 		elseif protocol == "_shunt" then
 			protocol = translate("Shunt")
 		elseif protocol == "vmess" then
 			protocol = "VMess"
 		elseif protocol == "vless" then
 			protocol = "VLESS"
+		elseif protocol == "shadowsocks" then
+			protocol = "SS"
+		elseif protocol == "shadowsocksr" then
+			protocol = "SSR"
+		elseif protocol == "wireguard" then
+			protocol = "WG"
+		elseif protocol == "hysteria" then
+			protocol = "HY"
+		elseif protocol == "hysteria2" then
+			protocol = "HY2"
+		elseif protocol == "anytls" then
+			protocol = "AnyTLS"
+		elseif protocol == "ssh" then
+			protocol = "SSH"
 		else
 			protocol = protocol:gsub("^%l",string.upper)
 		end
+		if type == "sing-box" then type = "Sing-Box" end
 		type = type .. " " .. protocol
 	end
 	local address = m:get(n, "address") or ""
-	local port = m:get(n, "port") or ""
+	local port = m:get(n, "port") or m:get(n, "hysteria_hop") or m:get(n, "hysteria2_hop") or ""
 	str = str .. translate(type) .. "：" .. remarks
 	if address ~= "" and port ~= "" then
-		if nodes_ping:find("info") then
+		port = port:gsub(":", "-")
+		if show_node_info == "1" then
 			if datatypes.ip6addr(address) then
 				str = str .. string.format("（[%s]:%s）", address, port)
 			else
@@ -127,23 +201,38 @@ o.cfgvalue = function(t, n)
 end
 
 ---- Ping
-o = s:option(DummyValue, "ping")
+o = s:option(DummyValue, "ping", "Ping")
 o.width = "8%"
 o.rawhtml = true
 o.cfgvalue = function(t, n)
 	local result = "---"
-	if not nodes_ping:find("auto_ping") then
-		result = string.format('<span class="ping"><a href="javascript:void(0)" onclick="javascript:ping_node(\'%s\',this)">Ping</a></span>', n)
+	if auto_detection_time ~= "icmp" then
+		result = string.format('<span class="ping"><a href="javascript:void(0)" onclick="javascript:ping_node(\'%s\', this, \'icmp\')">%s</a></span>', n, translate("Test"))
 	else
 		result = string.format('<span class="ping_value" cbiid="%s">---</span>', n)
 	end
 	return result
 end
 
-o = s:option(DummyValue, "_url_test")
+---- TCP Ping
+o = s:option(DummyValue, "tcping", "TCPing")
+o.width = "8%"
 o.rawhtml = true
 o.cfgvalue = function(t, n)
-	return string.format('<input type="button" class="cbi-button" value="%s" onclick="javascript:urltest_node(\'%s\',this)"', translate("Availability test"), n)
+	local result = "---"
+	if auto_detection_time ~= "tcping" then
+		result = string.format('<span class="ping"><a href="javascript:void(0)" onclick="javascript:ping_node(\'%s\', this, \'tcping\')">%s</a></span>', n, translate("Test"))
+	else
+		result = string.format('<span class="tcping_value" cbiid="%s">---</span>', n)
+	end
+	return result
+end
+
+o = s:option(DummyValue, "_url_test", translate("URL Test"))
+o.width = "8%"
+o.rawhtml = true
+o.cfgvalue = function(t, n)
+	return string.format('<span class="ping"><a href="javascript:void(0)" onclick="javascript:urltest_node(\'%s\', this)">%s</a></span>', n, translate("Test"))
 end
 
 m:append(Template(appname .. "/node_list/node_list"))

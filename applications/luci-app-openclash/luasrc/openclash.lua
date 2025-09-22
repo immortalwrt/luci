@@ -29,6 +29,8 @@ local os    = require "os"
 local ltn12 = require "luci.ltn12"
 local fs	= require "nixio.fs"
 local nutil = require "nixio.util"
+local uci = require "luci.model.uci".cursor()
+local SYS  = require "luci.sys"
 
 local type  = type
 local string  = string
@@ -245,8 +247,11 @@ unlink = fs.unlink
 readlink = fs.readlink
 
 function filename(str)
+	if not str then
+		return nil
+	end
 	local idx = str:match(".+()%.%w+$")
-	if(idx) then
+	if idx then
 		return str:sub(1, idx-1)
 	else
 		return str
@@ -255,10 +260,76 @@ end
 
 function filesize(e)
 	local t=0
-	local a={' KB',' MB',' GB',' TB'}
+	local a={' KB',' MB',' GB',' TB',' PB'}
+	if e < 0 then
+        e = -e
+    end
 	repeat
 		e=e/1024
 		t=t+1
 	until(e<=1024)
-	return string.format("%.1f",e)..a[t]
+	return string.format("%.1f",e)..a[t] or "0.0 KB"
+end
+
+function lanip()
+	local lan_int_name = uci:get("openclash", "@overwrite[0]", "lan_interface_name") or uci:get("openclash", "config", "lan_interface_name") or "0"
+	local lan_ip
+	if lan_int_name == "0" then
+		lan_ip = SYS.exec("uci -q get network.lan.ipaddr 2>/dev/null |awk -F '/' '{print $1}' 2>/dev/null |tr -d '\n'")
+	else
+		lan_ip = SYS.exec(string.format("ip address show %s 2>/dev/null | grep -w 'inet' 2>/dev/null | grep -Eo 'inet [0-9\.]+' | awk '{print $2}' | head -1 | tr -d '\n'", lan_int_name))
+	end
+	if not lan_ip or lan_ip == "" then
+		lan_ip = SYS.exec("ip address show $(uci -q -p /tmp/state get network.lan.ifname || uci -q -p /tmp/state get network.lan.device) | grep -w 'inet'  2>/dev/null | grep -Eo 'inet [0-9\.]+' | awk '{print $2}' | head -1 | tr -d '\n'")
+	end
+	if not lan_ip or lan_ip == "" then
+		lan_ip = SYS.exec("ip addr show 2>/dev/null | grep -w 'inet' | grep 'global' | grep 'brd' | grep -Eo 'inet [0-9\.]+' | awk '{print $2}' | head -n 1 | tr -d '\n'")
+	end
+	return lan_ip
+end
+
+function find_case_insensitive_path(path)
+    local dir = dirname(path)
+    local base = basename(path)
+    local files = dir and fs.dir(dir)
+    if not files then
+        return nil
+    end
+
+    for f in files do
+        if f:lower() == base:lower() then
+            return dir .. "/" .. f
+        end
+    end
+    return nil
+end
+
+function get_resourse_mtime(path)
+    local real_path = path
+    if not fs.access(path) then
+        local found = find_case_insensitive_path(path)
+        if found then
+            real_path = found
+        else
+            return "File Not Exist"
+        end
+    end
+    local file = fs.readlink(real_path) or real_path
+    local model_version = os.date("%Y-%m-%d %H:%M:%S", mtime(real_path))
+    if model_version and model_version ~= "" then
+        return model_version
+    else
+        return "Unknown"
+    end
+end
+
+function uci_get_config(section, key)
+	local val
+	if section == "config" then
+    	val = uci:get("openclash", "@overwrite[0]", key)
+	end
+    if val == nil then
+    	val = uci:get("openclash", section, key)
+    end
+    return val
 end

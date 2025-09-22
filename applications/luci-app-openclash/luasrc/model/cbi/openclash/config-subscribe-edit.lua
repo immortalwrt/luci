@@ -59,7 +59,7 @@ end
 
 local sub_path = "/tmp/dler_sub"
 local info, token, get_sub, sub_info
-local token = uci:get("openclash", "config", "dler_token")
+local token = fs.uci_get_config("config", "dler_token")
 if token then
 	get_sub = string.format("curl -sL -H 'Content-Type: application/json' --connect-timeout 2 -d '{\"access_token\":\"%s\"}' -X POST https://dler.cloud/api/v1/managed/clash -o %s", token, sub_path)
 	if not nixio.fs.access(sub_path) then
@@ -82,7 +82,16 @@ if token then
 		fs.unlink(sub_path)
 	end
 end
-	
+
+---- UA
+o = s:option(Value, "sub_ua", "User-Agent")
+o.description = font_red..bold_on..translate("Used for Downloading Subscriptions, Defaults to Clash")..bold_off..font_off
+o:value("clash.meta")
+o:value("clash-verge/v1.5.1")
+o:value("Clash")
+o.default = "clash.meta"
+o.rmempty = true
+
 ---- subconverter
 o = s:option(Flag, "sub_convert", translate("Subscribe Convert Online"))
 o.description = translate("Convert Subscribe Online With Template")
@@ -94,11 +103,9 @@ o.rmempty     = true
 o.description = font_red..bold_on..translate("Note: There is A Risk of Privacy Leakage in Online Convert")..bold_off..font_off
 o:depends("sub_convert", "1")
 o:value("https://api.dler.io/sub", translate("api.dler.io")..translate("(Default)"))
-o:value("https://subconverter.herokuapp.com/sub", translate("subconverter.herokuapp.com")..translate("(Default)"))
-o:value("https://v.id9.cc/sub", translate("v.id9.cc")..translate("(Support Vless By Pinyun)"))
-o:value("https://sub.id9.cc/sub", translate("sub.id9.cc"))
 o:value("https://api.wcc.best/sub", translate("api.wcc.best"))
 o.default = "https://api.dler.io/sub"
+o.placeholder = "https://api.dler.io/sub"
 
 ---- Template
 o = s:option(ListValue, "template", translate("Template Name"))
@@ -167,6 +174,12 @@ o.rmempty     = false
 o:value("false", translate("Disable"))
 o:value("true", translate("Enable"))
 o.default = "false"
+o:depends("sub_convert", "1")
+
+---- custom params
+o = s:option(DynamicList, "custom_params", translate("Custom Params"))
+o.description = font_red..bold_on..translate("eg: \"rename=match@replace\" , \"rename=\\s+([2-9])[xX]@ (HIGH:$1)\"")..bold_off..font_off
+o.rmempty     = false
 o:depends("sub_convert", "1")
 
 ---- key

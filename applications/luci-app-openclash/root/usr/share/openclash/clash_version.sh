@@ -1,4 +1,6 @@
 #!/bin/bash
+. /usr/share/openclash/openclash_curl.sh
+. /usr/share/openclash/uci.sh
 
 set_lock() {
    exec 884>"/tmp/lock/openclash_clash_version.lock" 2>/dev/null
@@ -7,39 +9,31 @@ set_lock() {
 
 del_lock() {
    flock -u 884 2>/dev/null
-   rm -rf "/tmp/lock/openclash_clash_version.lock"
+   rm -rf "/tmp/lock/openclash_clash_version.lock" 2>/dev/null
 }
+
+set_lock
 
 TIME=$(date "+%Y-%m-%d-%H")
 CHTIME=$(date "+%Y-%m-%d-%H" -r "/tmp/clash_last_version" 2>/dev/null)
-LAST_OPVER="/tmp/clash_last_version"
-RELEASE_BRANCH=$(uci -q get openclash.config.release_branch || echo "master")
-github_address_mod=$(uci -q get openclash.config.github_address_mod || echo 0)
-LOG_FILE="/tmp/openclash.log"
-set_lock
+DOWNLOAD_FILE="/tmp/clash_last_version"
+RELEASE_BRANCH=$(uci_get_config "release_branch" || echo "master")
+github_address_mod=$(uci_get_config "github_address_mod" || echo 0)
+if [ -n "$1" ]; then
+   github_address_mod="$1"
+fi
 
 if [ "$TIME" != "$CHTIME" ]; then
    if [ "$github_address_mod" != "0" ]; then
       if [ "$github_address_mod" == "https://cdn.jsdelivr.net/" ] || [ "$github_address_mod" == "https://fastly.jsdelivr.net/" ] || [ "$github_address_mod" == "https://testingcf.jsdelivr.net/" ]; then
-         curl -SsL -m 60 "$github_address_mod"gh/vernesong/OpenClash@core/"$RELEASE_BRANCH"/core_version -o $LAST_OPVER 2>&1 | awk -v time="$(date "+%Y-%m-%d %H:%M:%S")" -v file="$LAST_OPVER" '{print time "【" file "】Download Failed:【"$0"】"}' >> "$LOG_FILE"
-      elif [ "$github_address_mod" == "https://raw.fastgit.org/" ]; then
-         curl -SsL -m 60 https://raw.fastgit.org/vernesong/OpenClash/core/"$RELEASE_BRANCH"/core_version -o $LAST_OPVER 2>&1 | awk -v time="$(date "+%Y-%m-%d %H:%M:%S")" -v file="$LAST_OPVER" '{print time "【" file "】Download Failed:【"$0"】"}' >> "$LOG_FILE"
+         DOWNLOAD_URL="${github_address_mod}gh/vernesong/OpenClash@core/${RELEASE_BRANCH}/core_version"
       else
-         curl -SsL -m 60 "$github_address_mod"https://raw.githubusercontent.com/vernesong/OpenClash/core/"$RELEASE_BRANCH"/core_version -o $LAST_OPVER 2>&1 | awk -v time="$(date "+%Y-%m-%d %H:%M:%S")" -v file="$LAST_OPVER" '{print time "【" file "】Download Failed:【"$0"】"}' >> "$LOG_FILE"
+         DOWNLOAD_URL="${github_address_mod}https://raw.githubusercontent.com/vernesong/OpenClash/core/${RELEASE_BRANCH}/core_version"
       fi
    else
-      curl -SsL -m 60 https://raw.githubusercontent.com/vernesong/OpenClash/core/"$RELEASE_BRANCH"/core_version -o $LAST_OPVER 2>&1 | awk -v time="$(date "+%Y-%m-%d %H:%M:%S")" -v file="$LAST_OPVER" '{print time "【" file "】Download Failed:【"$0"】"}' >> "$LOG_FILE"
+      DOWNLOAD_URL="https://raw.githubusercontent.com/vernesong/OpenClash/core/${RELEASE_BRANCH}/core_version"
    fi
-   
-   if [ "${PIPESTATUS[0]}" -ne 0 ] || [ -n "$(cat $LAST_OPVER |grep '<html>')" ]; then
-      curl -SsL -m 60 --retry 2 https://ftp.jaist.ac.jp/pub/sourceforge.jp/storage/g/o/op/openclash/"$RELEASE_BRANCH"/core_version -o $LAST_OPVER 2>&1 | awk -v time="$(date "+%Y-%m-%d %H:%M:%S")" -v file="$LAST_OPVER" '{print time "【" file "】Download Failed:【"$0"】"}' >> "$LOG_FILE"
-      curl_status=${PIPESTATUS[0]}
-   else
-      curl_status=0
-   fi
-   
-   if [ "$curl_status" -ne 0 ] ; then
-      rm -rf $LAST_OPVER
-   fi
+
+   DOWNLOAD_FILE_CURL "$DOWNLOAD_URL" "$DOWNLOAD_FILE"
 fi
 del_lock

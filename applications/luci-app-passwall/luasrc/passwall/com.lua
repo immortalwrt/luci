@@ -1,67 +1,52 @@
 local _M = {}
 
 local function gh_release_url(self)
-	return "https://api.github.com/repos/" .. self.repo .. "/releases/latest"
+	--return "https://api.github.com/repos/" .. self.repo .. "/releases/latest"
+	return "https://github.com/xiaorouji/openwrt-passwall-packages/releases/download/api-cache/" .. string.lower(self.name) .. "-release-api.json"
 end
 
 local function gh_pre_release_url(self)
-	return "https://api.github.com/repos/" .. self.repo .. "/releases?per_page=1"
+	--return "https://api.github.com/repos/" .. self.repo .. "/releases?per_page=1"
+	return "https://github.com/xiaorouji/openwrt-passwall-packages/releases/download/api-cache/" .. string.lower(self.name) .. "-pre-release-api.json"
 end
 
-_M.brook = {
-	name = "Brook",
-	repo = "txthinking/brook",
-	get_url = gh_release_url,
-	cmd_version = "-v | awk '{print $3}'",
-	zipped = false,
-	default_path = "/usr/bin/brook",
-	match_fmt_str = "linux_%s$",
-	file_tree = {}
+-- 排序顺序定义
+_M.order = {
+	"geoview",
+	"chinadns-ng",
+	"xray",
+	"sing-box",
+	"hysteria"
 }
 
 _M.hysteria = {
 	name = "Hysteria",
 	repo = "HyNetwork/hysteria",
 	get_url = gh_release_url,
-	cmd_version = "-v | awk '{print $3}'",
+	cmd_version = "version | awk '/^Version:/ {print $2}'",
+	remote_version_str_replace = "app/",
 	zipped = false,
 	default_path = "/usr/bin/hysteria",
 	match_fmt_str = "linux%%-%s$",
 	file_tree = {
 		armv6 = "arm",
-		armv7 = "arm"
+		armv7 = "arm",
+		mipsel = "mipsle"
 	}
 }
 
-_M["trojan-go"] = {
-	name = "Trojan-Go",
-	repo = "p4gefau1t/trojan-go",
+_M["sing-box"] = {
+	name = "Sing-Box",
+	repo = "SagerNet/sing-box",
 	get_url = gh_release_url,
-	cmd_version = "-version | awk '{print $2}' | sed -n 1P",
+	cmd_version = "version | awk '{print $3}' | sed -n 1P",
 	zipped = true,
-	default_path = "/usr/bin/trojan-go",
-	match_fmt_str = "linux%%-%s%%.zip",
-	file_tree = {
-		aarch64 = "armv8",
-		armv8   = "armv8",
-		mips    = "mips%-hardfloat",
-		mipsel  = "mipsle%-hardfloat"
-	}
-}
-
-_M.v2ray = {
-	name = "V2ray",
-	repo = "v2fly/v2ray-core",
-	get_url = gh_pre_release_url,
-	cmd_version = "version | awk '{print $2}' | sed -n 1P",
-	zipped = true,
-	default_path = "/usr/bin/v2ray",
+	zipped_suffix = "tar.gz",
+	default_path = "/usr/bin/sing-box",
 	match_fmt_str = "linux%%-%s",
 	file_tree = {
-		x86_64 = "64",
-		x86    = "32",
-		mips   = "mips32",
-		mipsel = "mips32le"
+		x86_64 = "amd64",
+		mips64el = "mips64le"
 	}
 }
 
@@ -69,11 +54,17 @@ _M.xray = {
 	name = "Xray",
 	repo = "XTLS/Xray-core",
 	get_url = gh_pre_release_url,
-	cmd_version = _M.v2ray.cmd_version,
+	cmd_version = "version | awk '{print $2}' | sed -n 1P",
 	zipped = true,
 	default_path = "/usr/bin/xray",
-	match_fmt_str = _M.v2ray.match_fmt_str,
-	file_tree = _M.v2ray.file_tree
+	match_fmt_str = "linux%%-%s",
+	file_tree = {
+		x86_64 = "64",
+		x86    = "32",
+		mips   = "mips32",
+		mipsel = "mips32le",
+		mips64el = "mips64le"
+	}
 }
 
 _M["chinadns-ng"] = {
@@ -83,16 +74,35 @@ _M["chinadns-ng"] = {
 	cmd_version = "-V | awk '{print $2}'",
 	zipped = false,
 	default_path = "/usr/bin/chinadns-ng",
-	match_fmt_str = "%s$",
+	match_fmt_str = "%s",
 	file_tree = {
-		x86_64  = "x86_64",
-		x86     = "i686",
-		mipsel  = "mipsel",
-		aarch64 = "aarch64",
-		armv5   = "arm%-eabi",
-		armv6   = "armv6%-eabihf",
-		armv7   = "armv7l%-eabihf",
-		armv8   = "aarch64"
+		x86_64  = "wolfssl@x86_64.*x86_64@",
+		x86     = "wolfssl@i386.*i686",
+		mips    = "wolfssl@mips%-.*mips32%+soft_float@",
+		mips64  = "wolfssl@mips64%-.*mips64%+soft_float@",
+		mipsel  = "wolfssl@mipsel.*mips32%+soft_float@",
+		mips64el = "wolfssl@mips64el%-.*mips64%+soft_float@",
+		aarch64 = "wolfssl_noasm@aarch64.*v8a",
+		rockchip = "wolfssl@aarch64.*v8a",
+		armv5   = "wolfssl@arm.*v5te",
+		armv6   = "wolfssl@arm.*v6t2",
+		armv7   = "wolfssl@arm.*eabihf.*v7a",
+		armv8   = "wolfssl_noasm@aarch64.*v8a",
+		riscv64 = "wolfssl@riscv64.*"
+	}
+}
+
+_M.geoview = {
+	name = "Geoview",
+	repo = "snowie2000/geoview",
+	get_url = gh_release_url,
+	cmd_version = '-version 2>/dev/null | awk \'NR==1 && $1=="Geoview" {print $2}\'',
+	zipped = false,
+	default_path = "/usr/bin/geoview",
+	match_fmt_str = "linux%%-%s",
+	file_tree = {
+		mipsel = "mipsle",
+		mips64el = "mips64le"
 	}
 }
 
