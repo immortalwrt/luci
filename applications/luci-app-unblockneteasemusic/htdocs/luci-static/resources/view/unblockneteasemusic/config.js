@@ -101,6 +101,7 @@ return view.extend({
 			_('留空以使用默认音源。'));
 		o.value('bilibili', _('Bilibili 音乐'));
 		o.value('bilivideo', _('Bilibili 音乐 (bilivideo)'));
+		o.value('bodian', _('波点音乐'));
 		o.value('joox', _('JOOX 音乐'));
 		o.value('kugou', _('酷狗音乐'));
 		o.value('kuwo', _('酷我音乐'));
@@ -137,7 +138,7 @@ return view.extend({
 
 		o = s.option(form.Value, 'youtube_key', _('Youtube API Key'),
 			_('API Key 申请地址：https://developers.google.com/youtube/v3/getting-started#before-you-start'));
-
+		o.password = true;
 		o.depends({'music_source': 'youtube', '!contains': true});
 
 		o = s.option(form.Flag, 'follow_source_order', _('顺序查询'),
