@@ -6,7 +6,14 @@
 # 读取设置文件
 get_config() {
 	while [[ "$*" != "" ]]; do
-		eval "${1}='$(uci get wechatpush.config.$1 2>/dev/null)'"
+		[[ "$1" == "lang" ]] && {
+			lang=$(uci get luci.main.lang 2>/dev/null)
+			if [ -z "$lang" ] || [[ "$lang" == "auto" ]]; then
+				lang=$(echo "${LANG:-${LANGUAGE:-${LC_ALL:-${LC_MESSAGES:-zh_cn}}}}" | awk -F'[ .@]' '{print tolower($1)}' | sed 's/-/_/' 2>/dev/null)
+			fi
+		} || {
+			eval "${1}='$(uci get wechatpush.config.$1 2>/dev/null)'"
+		}
 		shift
 	done
 }
@@ -36,7 +43,7 @@ wait_and_cat() {
 # 初始化设置信息
 read_config() {
 	get_config \
-		"enable" "lite_enable" "device_name" "proxy_address" "sleeptime" "oui_data" "reset_regularly" "debuglevel" \
+		"enable" "lite_enable" "device_name" "proxy_address" "sleeptime" "oui_data" "reset_regularly" "debuglevel" "lang" \
 		"jsonpath" "sckey" "sc3key" "sc3uid" "sc3tags" "corpid" "userid" "agentid" "corpsecret" "mediapath" "wxpusher_apptoken" "wxpusher_uids" "wxpusher_topicIds" "pushplus_token" "tg_token" "chat_id" "recipient_email" \
 		"get_ipv4_mode" "ipv4_interface" "get_ipv6_mode" "ipv6_interface" \
 		"device_notification" "cpu_notification" "cpu_load_threshold" "temperature_threshold" \
@@ -61,10 +68,17 @@ read_config() {
 	(echo "$device_info_helper" | grep -q "mikrotik_info") && mikrotik_info_enable="true"
 	(echo "$device_info_helper" | grep -q "openwrt_info") && openwrt_info_enable="true"
 	op_host_ips=$(echo "$op_host_ips" | sed 's/ /\n/g') 2>/dev/null
-	for str_version in "wrtbwmon" "iputils-arping" "curl" "iw"; do
-		eval $(echo ${str_version:0:2}"_version")=$(opkg list-installed | grep -w ^${str_version} | awk '{print $3}') 2>/dev/null
-	done
-	(opkg list-installed | grep -w -q "^firewall4") && nftables_version="true"
+	if [ -x "/usr/bin/apk" ]; then
+		for str_version in "wrtbwmon" "iputils-arping" "curl" "iw"; do
+			eval $(echo ${str_version:0:2}"_version")=$(apk list | grep -w ^${str_version} | grep 'installed' | awk '{print $1}' | awk -F ${str_version}"-" '{print $2}') 2>/dev/null
+		done
+		(apk list | grep -w -q "^firewall4" | grep 'installed') && nftables_version="true"
+	else
+		for str_version in "wrtbwmon" "iputils-arping" "curl" "iw"; do
+			eval $(echo ${str_version:0:2}"_version")=$(opkg list-installed | grep -w ^${str_version} | awk '{print $3}') 2>/dev/null
+		done
+		(opkg list-installed | grep -w -q "^firewall4") && nftables_version="true"
+	fi
 	devices_json="${dir}/devices.json"
 	tmp_devices_json="${dir}/devices.json.tmp"
 	tempjsonpath="${dir}/temp.json"
@@ -83,7 +97,6 @@ read_config() {
 	mark_mac_list=$(echo "$mark_mac_list" | sed 's/ /\n/g' | sed 's/-/ /') 2>/dev/null
 	ipv4_urllist=$(cat /usr/share/wechatpush/api/ipv4.list) 2>/dev/null
 	ipv6_urllist=$(cat /usr/share/wechatpush/api/ipv6.list) 2>/dev/null
-	lang=$(echo "${LANG:-${LANGUAGE:-${LC_ALL:-${LC_MESSAGES:-zh_cn}}}}" | awk -F'[ .@]' '{print tolower($1)}' | sed 's/-/_/') 2>/dev/null
 	[ -z "$get_ipv4_mode" ] && get_ipv4_mode=0
 	[ -z "$get_ipv6_mode" ] && get_ipv6_mode=0
 	[ -z "$sleeptime" ] && sleeptime="60"
@@ -127,7 +140,7 @@ init() {
 	[ -z "$ip_version" ] && log_change "[ERROR] $(translate "Cannot get iputils-arping version, please confirm if plugin is running properly")"
 	[ -z "$cu_version" ] && log_change "[ERROR] $(translate "Cannot get curl version, please confirm if plugin is running properly")"
 
-	[ -n "$jsonpath" ] && [ -z "${sckey}${sc3key}${sc3uid}${sc3tags}${tg_token}${pushplus_token}${corpid}${wxpusher_apptoken}${wxpusher_uids}${wxpusher_topicIds}" -a "${jsonpath}" != "/usr/share/wechatpush/api/diy.json" ] && log_change "[ERROR] $(translate "Please fill in the correct API key")" && return 1
+	[ -n "$jsonpath" ] && [ -z "${sckey}${sc3key}${sc3uid}${sc3tags}${tg_token}${pushplus_token}${corpid}${wxpusher_apptoken}${wxpusher_uids}${wxpusher_topicIds}${recipient_email}" -a "${jsonpath}" != "/usr/share/wechatpush/api/diy.json" ] && log_change "[ERROR] $(translate "Please fill in the correct API key")" && return 1
 
 	local interfacelist=$(getinterfacelist) && [ -z "$interfacelist" ] && log_change "[WARN] $(translate "Multiple interfaces detected or configuration error, may not get interface uptime information, please confirm if plugin is running properly")"
 
@@ -289,10 +302,11 @@ main() {
 			fi
 		}
 		[ $1 == "getip" ] && {
-			get_config "get_ipv4_mode" "ipv4_interface" "get_ipv6_mode" "ipv6_interface"
+			get_config "get_ipv4_mode" "ipv4_interface" "get_ipv6_mode" "ipv6_interface" "lang"
 			ipv4_urllist=$(cat /usr/share/wechatpush/api/ipv4.list) 2>/dev/null
 			ipv6_urllist=$(cat /usr/share/wechatpush/api/ipv6.list) 2>/dev/null
 			output_dir="${dir}/json_output" && mkdir -p "$output_dir"
+			devices_json="${dir}/devices.json"
 			ip_changes getip && exit $?
 		}
 		silent_run read_config
@@ -404,7 +418,7 @@ process_and_check() {
 	[ -z "$1" ] && return 1
 	local value=$(echo "$1" | tr -d '\n\r' | awk '$1=$1' | sed 's/_/ /g' | grep -v "^$" | sort -u | head -n1)
 	[ "$value" == "unknown" ] && value=""
-	[ -n "$value" ] && [ -n "$2" ] && echo $(cut_str "$value" "$2") && return 0
+	[ -n "$value" ] && [ -n "$2" ] && echo "$(cut_str "$value" "$2")" && return 0
 	[ -n "$value" ] && echo "$value" && return 0
 	return 1
 }
@@ -622,7 +636,7 @@ getip() {
 		local ipv4_URL
 		while IFS= read -r ipv4_URL; do
 			[ -n "$ipv4_interface" ] && local tmp_hostIP=$(eval "curl --connect-timeout 2 -m 2 -k -s -4 --interface ${ipv4_interface} -m 5 ${ipv4_URL}") || local tmp_hostIP=$(eval "curl --connect-timeout 2 -m 2 -k -s -4 -m 5 ${ipv4_URL}")
-			[ -z "$tmp_hostIP" ] && log_change "[DEBUG] $(translate "Failed to get IP, current API: %s & %s" "$ipv4_URL" "$ipv4_interface")"
+			#[ -z "$tmp_hostIP" ] && log_change "[DEBUG] $(translate "Failed to get IP, current API: %s & %s" "$ipv4_URL" "$ipv4_interface")"
 			local tmp_hostIP=$(echo $tmp_hostIP | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -n1)
 			[ -n "$tmp_hostIP" ] && local tmp_hostIP="{\"IP\":\"${tmp_hostIP}\", \"URL\":\"${ipv4_URL}\"}" && break
 		done <<<"$sorted_ipv4_urllist"
@@ -638,7 +652,7 @@ getip() {
 		local ipv6_URL
 		while IFS= read -r ipv6_URL; do
 			[ -n "$ipv6_interface" ] && local tmp_hostIPv6=$(eval "curl --connect-timeout 2 -m 2 -k -s -6 --interface ${ipv6_interface} -m 5 ${ipv6_URL}") || local tmp_hostIPv6=$(eval "curl --connect-timeout 2 -m 2 -k -s -6 -m 5 ${ipv6_URL}")
-			[ -z "$tmp_hostIPv6" ] && log_change "[DEBUG] $(translate "Failed to get IPv6, current API: %s & %s" "$ipv6_URL" "$ipv6_interface")"
+			#[ -z "$tmp_hostIPv6" ] && log_change "[DEBUG] $(translate "Failed to get IPv6, current API: %s & %s" "$ipv6_URL" "$ipv6_interface")"
 			local tmp_hostIPv6=$(echo $tmp_hostIPv6 | grep -oE "([\da-fA-F0-9]{1,4}(:{1,2})){1,15}[\da-fA-F0-9]{1,4}" | head -n1)
 			[ -n "$tmp_hostIPv6" ] && local tmp_hostIP="{\"IP\":\"${tmp_hostIPv6}\", \"URL\":\"${ipv6_URL}\"}" && break
 		done <<<"$sorted_ipv6_urllist"
@@ -797,7 +811,7 @@ getinterfaceuptime() {
 # 查询 IP 归属地
 get_ip_attribution() {
 	ip="$1"
-	jq -e --arg ip "$ip" '.devices[] | select(.ip == $ip) | .ip' "$devices_json" >/dev/null && echo "本地局域网" && return
+	jq -e --arg ip "$ip" '.devices[] | select(.ip == $ip)' "$devices_json" >/dev/null 2>&1 && echo "本地局域网" && return
 	local ip_attribution_urls=$(cat /usr/share/wechatpush/api/ip_attribution.list)
 	local sorted_attribution_urls=$(echo "$ip_attribution_urls" | awk 'BEGIN {srand()} {print rand() "\t" $0}' | sort -k1,1n | cut -f2-)
 	local ip_attribution_url
@@ -888,9 +902,9 @@ getping() {
 		# 避免无效的 arp 条目
 		if [ -n "$arp_entry_count" ] && [ "$arp_entry_count" -le 1 ]; then
 			ip_ms=$(run_with_tag arping -I "$interface" -c 20 -f -w "$timeout" "$ip" 2>/dev/null)
-			echo "$ip_ms" | grep -q "ms" && break || ip_ms=$(run_with_tag ping -c 5 -w "$timeout" "$ip" 2>/dev/null | grep -v '100% packet loss')
+			echo "$ip_ms" | grep -q "ms" && break || ip_ms=$(run_with_tag ping -c 5 -w 3 "$ip" 2>/dev/null | grep -v '100% packet loss')
 		else
-			ip_ms=$(run_with_tag ping -c 5 -w "$timeout" "$ip" 2>/dev/null | grep -v '100% packet loss')
+			ip_ms=$(run_with_tag ping -c 5 -w 3 "$ip" 2>/dev/null | grep -v '100% packet loss')
 			echo "$ip_ms" | grep -q "ms" && break || ip neigh del "$ip" dev "$interface" 2>/dev/null # 清理无效条目
 		fi
 		sleep 1
@@ -1212,7 +1226,7 @@ check_cpu_load() {
 					log_change "[WARN] $(translate "CPU temperature too high: %s" "$cpu_temp")"
 
 					local cpu_overload_duration=$(time_for_humans $(($(date +%s) - $temp_last_overload_time)))
-					local content="${content}\
+					content="${content}\
 ${str_splitline}\
 ${str_title_start}$(translate "CPU Temperature Alert")${str_title_end}\
 ${str_linefeed}${str_tab} - $(translate "CPU temperature has exceeded threshold for %s" "$cpu_overload_duration")\
@@ -1248,7 +1262,7 @@ ${str_linefeed}${str_tab} - $(translate "Current temperature: %s℃" "$cpu_temp"
 					log_change "${disturb_text} $(translate "CPU load too high: %s" "${cpu_load}")"
 
 					local cpu_load_duration=$(time_for_humans $(($(date +%s) - $cpu_last_overload_time)))
-					local content="${content}\
+					content="${content}\
 ${str_splitline}\
 ${str_title_start}$(translate "CPU Load Alert")${str_title_end}\
 ${str_linefeed}${str_tab} - $(translate "CPU load has exceeded threshold for %s" "$cpu_load_duration")\
@@ -1496,7 +1510,7 @@ getgateway() {
 		echo "$get_gateway" | jq --arg gateway_host_ip "$gateway_host_ip" '
 			to_entries | map(select(.value | type == "object" and has("ip"))) | map({
 				ip: .value.ip,
-				name: (.value.devName // "unknown"),
+				name: (if .value.model != "" then .value.model else .value.devName end // "unknown"),
 				mac: "unknown",
 				type: (if .key | startswith("wifi") then "WiFi" else "LAN" end),
 				parent: (if .key | startswith("wifi") then $gateway_host_ip else "" end)
@@ -2644,31 +2658,31 @@ diy_send() {
 
 	if [[ "$diyurl" =~ ^https?:// ]]; then
 		[ -n "$proxy_address" ] && local proxy_cmd="-x $proxy_address"
-		run_with_tag curl $proxy_cmd --connect-timeout 30 --max-time 60 --retry 2 -X POST -H "$content_type" -d "$data" "${diyurl}"
+		local curl_response=$(run_with_tag curl $proxy_cmd --connect-timeout 30 --max-time 60 --retry 2 -X POST -H "$content_type" -d "$data" "${diyurl}")
 	else
 		local command=$(jq -r '.command' ${3}) && local command=$(eval echo ${command})
-		run_with_tag jq -r "$command" "$data" | eval "$diyurl"
+		local curl_response=$(run_with_tag jq -r "$command" "$data" | eval "$diyurl")
 	fi
 	local RETVAL=$?
 
 	if [ $RETVAL -ne 0 ] || [[ -n "$4" && "$4" == "test" ]]; then
 		[ $RETVAL -ne 0 ] && log_change "[ERROR] $(translate "Network or URL error, push failed, curl returned %s, please check the following debug information" "$RETVAL")"
 		[ -n "$4" ] && log_change "[DEBUG] $(translate "Push test enabled, current curl return value is %s" "$RETVAL")"
+		log_change "[INFO] Response:  $curl_response"
 
 		echo '{"url":"'${diyurl}'","content_type":"'${content_type}'","type":'$(jq "$type" ${3})'}' >${dir}/debug_send_json
 		echo -e "${send_title}" "${send_content}" >${dir}/debug_send_content
 		cat ${tempjsonpath} >${dir}/debug_send_data
 
-		! jq -r '.' ${dir}/debug_send_json && log_change "[ERROR] $(translate "Format error after variable substitution, please check %s for unescaped special characters or syntax errors" "$dir")"
+		! jq -r '.' ${dir}/debug_send_json && log_change "[ERROR] $(translate "Format error after variable substitution, please check %s for unescaped special characters or syntax errors" "${dir}/debug_send_json")"
 
-		log_change "[DEBUG] $(translate "JSON file saved to: %s" "$dir")"
-		log_change "[DEBUG] $(translate "Push content preview saved to: %s" "$dir")"
-		log_change "[DEBUG] $(translate "If no message received, please check %s or use the following command to test manually" "$dir")"
+		log_change "[DEBUG] $(translate "JSON file saved to: %s" "${dir}/debug_send_json")"
+		log_change "[DEBUG] $(translate "Push content preview saved to: %s" "${dir}/debug_send_content")"
+		log_change "[DEBUG] $(translate "If no message received, please check %s or use the following command to test manually" "${dir}/debug_send_data")"
 		log_change "[DEBUG] curl -X POST -H \"$content_type\" -d \"@${dir}/debug_send_data\" \"${diyurl}\""
-		return 1
-	else
-		return 0
+		[ $RETVAL -ne 0 ] && return 1
 	fi
+	return 0
 }
 
 # ------------------------------------
