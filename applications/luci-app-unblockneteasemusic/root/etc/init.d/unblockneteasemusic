@@ -238,10 +238,6 @@ stop_service() {
 	rm -f "$RUN_DIR/run.log"
 }
 
-service_stopped() {
-	procd_set_config_changed firewall
-}
-
 reload_service() {
 	stop
 	start

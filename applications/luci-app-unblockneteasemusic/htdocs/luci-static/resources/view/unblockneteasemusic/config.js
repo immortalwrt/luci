@@ -21,7 +21,7 @@ var callServiceList = rpc.declare({
 });
 
 function getServiceStatus() {
-	return L.resolveDefault(callServiceList('unblockneteasemusic'), {}).then(function (res) {
+	return L.resolveDefault(callServiceList('unblockneteasemusic'), {}).then(function(res) {
 		var isRunning = false;
 		try {
 			isRunning = res['unblockneteasemusic']['instances']['unblockneteasemusic']['running'];
@@ -33,11 +33,10 @@ function getServiceStatus() {
 function renderStatus(isRunning) {
 	var spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
 	var renderHTML;
-	if (isRunning) {
+	if (isRunning)
 		renderHTML = spanTemp.format('green', _('UnblockNeteaseMusic'), _('运行中'));
-	} else {
+	else
 		renderHTML = spanTemp.format('red', _('UnblockNeteaseMusic'), _('未运行'));
-	}
 
 	return renderHTML;
 }
@@ -78,16 +77,16 @@ return view.extend({
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
-		s.render = function () {
-			poll.add(function () {
-				return L.resolveDefault(getServiceStatus()).then(function (res) {
+		s.render = function() {
+			poll.add(function() {
+				return L.resolveDefault(getServiceStatus()).then(function(res) {
 					var view = document.getElementById('service_status');
 					view.innerHTML = renderStatus(res);
 				});
 			});
 
 			return E('div', { class: 'cbi-section', id: 'status_bar' }, [
-					E('p', { id: 'service_status' }, _('收集数据中...'))
+				E('p', { id: 'service_status' }, _('收集数据中...'))
 			]);
 		}
 
@@ -253,7 +252,7 @@ return view.extend({
 		o.depends('advanced_mode', '1');
 
 		o = s.option(form.ListValue, 'hijack_ways', _('劫持方法'),
-			 _('如果使用 Hosts 劫持，监听端口将固定为 80/443，请注意更改您的 webUI 端口。'));
+			_('如果使用 Hosts 劫持，监听端口将固定为 80/443，请注意更改您的 webUI 端口。'));
 		o.value('dont_hijack', _('不开启劫持'));
 		o.value('use_ipset', _('使用 NFTSet 劫持'));
 		o.value('use_hosts', _('使用 Hosts 劫持'));
