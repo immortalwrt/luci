@@ -6,9 +6,9 @@ PKG_RELEASE:=2
 
 PKG_LICENSE:=GPLv2
 PKG_MAINTAINER:=Sense <sensec@gmail.com>
+
 LUCI_TITLE:=LuCI Support for XLNetAcc
-LUCI_DEPENDS:=+jshn +wget-ssl +openssl-util
-LUCI_PKGARCH:=all
+LUCI_DEPENDS:=+luci-compat +jshn +wget-ssl +openssl-util
 LUCI_DESCRIPTION=LuCI Support for XLNetAcc.
 
 include ../../luci.mk

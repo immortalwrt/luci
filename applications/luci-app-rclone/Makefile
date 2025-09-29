@@ -9,7 +9,7 @@ PKG_VERSION:=1.4.1
 PKG_RELEASE:=4
 
 LUCI_TITLE:=LuCI support for Rclone
-LUCI_DEPENDS:=+rclone-config \
+LUCI_DEPENDS:=+luci-compat +rclone-config \
               +PACKAGE_$(PKG_NAME)_INCLUDE_rclone-webui:rclone-webui-react \
               +PACKAGE_$(PKG_NAME)_INCLUDE_rclone-ng:rclone-ng
 
