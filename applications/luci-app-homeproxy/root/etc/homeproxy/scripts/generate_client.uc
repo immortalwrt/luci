@@ -379,13 +379,12 @@ config.log = {
 };
 
 /* NTP */
-config.ntp = {
-	enabled: true,
-	server: ntp_server,
-	detour: 'direct-out',
-	/* TODO: disable this until we have sing-box 1.12 */
-	/* domain_resolver: 'default-dns', */
-};
+if (!isEmpty(ntp_server))
+	config.ntp = {
+		enabled: true,
+		server: ntp_server,
+		detour: 'direct-out',
+	};
 
 /* DNS start */
 /* Default settings */
@@ -406,15 +405,7 @@ config.dns = {
 			address: 'rcode://refused'
 		}
 	],
-	rules: [
-	        /* TODO: remove this once we have sing-box 1.12 */
-	        /* NTP domain must be resolved by default DNS */
-		{
-			domain: ntp_server,
-			action: 'route',
-			server: 'default-dns'
-		}
-	],
+	rules: [],
 	strategy: dns_default_strategy,
 	disable_cache: strToBool(dns_disable_cache),
 	disable_expire: strToBool(dns_disable_cache_expire),
@@ -433,6 +424,13 @@ if (!isEmpty(main_node)) {
 		detour: 'main-out'
 	});
 	config.dns.final = 'main-dns';
+
+	if (!isEmpty(ntp_server))
+		push(config.dns.rules, {
+			domain: ntp_server,
+			action: 'route',
+			server: 'default-dns'
+		});
 
 	/* Avoid DNS loop */
 	push(config.dns.rules, {
