@@ -18,8 +18,6 @@ return view.extend({
 		s.addbtntitle = _('Add instance');
 
 		o = s.option(form.Flag, 'enabled', _('Enable'));
-		o.default = o.disabled;
-		o.rmempty = false;
 
 		o = s.option(form.DynamicList, 'address', _('Bind address'));
 		o.datatype = 'ipaddrport(1)';
@@ -33,37 +31,35 @@ return view.extend({
 		o = s.option(form.Value, 'threads', _('Worker threads'),
 			_('Leave 0 or <em>empty</em> to auto detect.'));
 		o.datatype = 'uinteger';
-		o.default = '0';
+		o.placeholder = '0';
 
 		o = s.option(form.Flag, 'bind_to_cpu', _('Bind threads to CPUs'));
-		o.default = o.disabled;
 
 		o = s.option(form.Flag, 'drop_slow_clients', _('Disconnect slow clients'));
-		o.default = o.disabled;
 
 		o = s.option(form.Value, 'precache_size', _('Pre cache size'));
 		o.datatype = 'uinteger';
-		o.default = '4096';
+		o.placeholder = '4096';
 
 		o = s.option(form.Value, 'ring_buffer_size', _('Ring buffer size'),
 			_('Stream receive ring buffer size.'));
 		o.datatype = 'uinteger';
-		o.default = '1024';
+		o.placeholder = '4096';
 
 		o = s.option(form.Value, 'multicast_recv_buffer_size', _('Receive buffer size'),
 			_('Multicast receive socket buffer size.'));
 		o.datatype = 'uinteger';
-		o.default = '512';
+		o.placeholder = '512';
 
 		o = s.option(form.Value, 'multicast_recv_timeout', _('Receive timeout'),
 			_('Multicast receive timeout.'));
 		o.datatype = 'uinteger';
-		o.default = '2';
+		o.placeholder = '2';
 
 		o = s.option(form.Value, 'rejoin_time', _('IGMP/MLD rejoin time'),
 			_('Do IGMP/MLD leave+join every X seconds. Leave <em>0</em> to disable.'));
 		o.datatype = 'uinteger';
-		o.default = '0';
+		o.placeholder = '0';
 
 		return m.render();
 	}
