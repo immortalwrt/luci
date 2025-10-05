@@ -28,6 +28,18 @@ return view.extend({
 		o.nocreate = true;
 		o.optional = true;
 
+		o = s.option(form.ListValue, 'loglevel', _('Log level'),
+			_('syslog severity level.'));
+		o.value('0', _('Emergency'));
+		o.value('1', _('Alert'));
+		o.value('2', _('Critical'));
+		o.value('3', _('Error'));
+		o.value('4', _('Warning'));
+		o.value('5', _('Notice'));
+		o.value('6', _('Info'));
+		o.value('7', _('Debug'));
+		o.default = '0';
+
 		o = s.option(form.Value, 'threads', _('Worker threads'),
 			_('Leave 0 or <em>empty</em> to auto detect.'));
 		o.datatype = 'uinteger';
