@@ -44,7 +44,12 @@ export function conntrack_list(callback) {
 		etcpr.close();
 	}
 
-	const nfct = open('/proc/net/nf_conntrack', 'r');
+	let nfct;
+	const s = stat(`/proc/net/nf_conntrack`);
+	if (s?.type != 'file')
+		nfct = popen('/usr/sbin/conntrack -L -o extended 2>/dev/null && /usr/sbin/conntrack -L -f ipv6 -o extended 2>/dev/null');
+	else
+		nfct = open('/proc/net/nf_conntrack', 'r');
 	let connt;
 
 	if (nfct) {
