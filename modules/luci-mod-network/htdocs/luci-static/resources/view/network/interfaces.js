@@ -1024,7 +1024,7 @@ return view.extend({
 					so.depends({ dhcpv6: 'hybrid', master: '0' });
 
 					so = ss.taboption('ipv6', form.DynamicList, 'domain', _('Announce DNS domains'),
-						_('Specifies a fixed list of DNS search domains to announce via DHCPv6. If left unspecified, the local device DNS search domain will be announced.'));
+						_('Specifies a fixed list of DNS search domains to announce via DHCPv6.'));
 					so.datatype = 'hostname';
 					so.depends('ra', 'server');
 					so.depends({ ra: 'hybrid', master: '0' });
@@ -1110,11 +1110,6 @@ return view.extend({
 				if (has_peerdns(protoval))
 					o.depends('peerdns', '0');
 				o.datatype = 'ipaddr';
-
-				o = nettools.replaceOption(s, 'advanced', form.DynamicList, 'dns_search', _('DNS search domains'));
-				if (protoval != 'static')
-					o.depends('peerdns', '0');
-				o.datatype = 'hostname';
 
 				o = nettools.replaceOption(s, 'advanced', form.Value, 'dns_metric', _('DNS weight'), _('The DNS server entries in the local resolv.conf are primarily sorted by the weight specified here'));
 				o.datatype = 'uinteger';
@@ -1659,6 +1654,11 @@ return view.extend({
 			_('ULA for IPv6 is analogous to IPv4 private network addressing.') + ' ' +
 			_('This prefix is randomly generated at first install.'));
 		o.datatype = 'cidr6';
+
+		o = s.option(form.Value, 'dhcp_default_duid', _('Default DUID'),
+			_('The default <abbr title="DHCP Unique Identifier">DUID</abbr> for this device, used when acting as a DHCP server or client. The client identifier can be overridden on a per-interface basis.') + '<br />' +
+			_('This identifier is randomly generated the first time the device is booted.'));
+		o.datatype = 'and(rangelength(6,260),hexstring)';
 
 		const l3mdevhelp1 = _('%s services running on this device in the default VRF context (ie., not bound to any VRF device) shall work across all VRF domains.');
 		const l3mdevhelp2 = _('Off means VRF traffic will be handled exclusively by sockets bound to VRFs.');
