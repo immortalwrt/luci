@@ -75,7 +75,7 @@ return view.extend({
 		unpack_imagebuilder:     [ 40, _('Setting Up ImageBuilder')],
 	},
 
-	request_hash: '',
+	request_hash: new Map(),
 	sha256_unsigned: '',
 
 	applyPackageChanges: async function(package_info) {
@@ -224,9 +224,6 @@ return view.extend({
 	},
 
 	handle202: function (response) {
-		response = response.json();
-		this.request_hash = response.request_hash;
-
 		if ('queue_position' in response) {
 			ui.showModal(_('Queued...'), [
 				E(
@@ -251,21 +248,84 @@ return view.extend({
 		}
 	},
 
-	handleError: function (response, data, firmware) {
+	handleError: function (response, data, firmware, request_hash) {
 		response = response.json();
 		const request_data = {
 			...data,
-			request_hash: this.request_hash,
+			request_hash: request_hash,
 			sha256_unsigned: this.sha256_unsigned,
 			...firmware
 		};
 		let body = [
-			E('p', {}, _('Server response: %s').format(response.detail)),
+			E('p', {}, [
+				_('First check '),
+				E(
+					'a',
+					{ href: 'https://forum.openwrt.org/t/luci-attended-sysupgrade-support-thread/230552' },
+					_('this forum thread')
+				),
+				_('.  If you don\'t find a solution there, report all of the information below.')
+			]),
+
 			E(
-				'a',
-				{ href: 'https://forum.openwrt.org/t/luci-attended-sysupgrade-support-thread/230552' },
-				_('Please report the error message and request')
+				'button',
+				{
+					class: 'btn cbi-button cbi-button-positive important',
+					click: ui.createHandlerFn(this, function () {
+						// No translations in here as it's intended for the forum.
+						var text =
+							'Server response: %s'.format(response.detail)
+							+ '\n\n'
+							+ '`--version-to %s --device %s:%s`'.format(
+								request_data.version,
+								request_data.target,
+								request_data.profile,
+							  )
+							+ '\n\n'
+							+ '[details="Request Data"]\n'
+							+ '```\n'
+							+ JSON.stringify({ ...request_data }, null, 4) + '\n'
+							+ '```\n'
+							+ '[/details]\n'
+						;
+						if (response.stdout) {
+							text = text +
+								'[details="STDOUT"]\n'
+								+ '```\n'
+								+ response.stdout + '\n'
+								+ '```\n'
+								+ '[/details]\n'
+							;
+						}
+						if (response.stderr) {
+							text = text +
+								'[details="STDERR"]\n'
+								+ '```\n'
+								+ response.stderr + '\n'
+								+ '```\n'
+								+ '[/details]\n'
+							;
+						}
+
+						navigator.clipboard.writeText(text);
+
+						ui.showModal(_('Data copied!'), [
+							E('p', {}, [
+								_('Paste the contents of the clipboard to '),
+								E(
+									'a',
+									{ href: 'https://forum.openwrt.org/t/luci-attended-sysupgrade-support-thread/230552' },
+									_('this forum thread')
+								),
+							]),
+							E('div', { class: 'btn', click: ui.hideModal }, _('Close')),
+						]);
+					}),
+				},
+				_('Copy error data to clipboard')
 			),
+
+			E('p', {}, _('Server response: %s').format(response.detail)),
 			E('p', {}, _('Request Data:')),
 			E('pre', {}, JSON.stringify({ ...request_data }, null, 4)),
 		];
@@ -293,13 +353,14 @@ return view.extend({
 		let request_url = `${server}/api/v1/build`;
 		let method = 'POST';
 		let local_content = content;
+		const request_hash = this.request_hash.get(server);
 
 		/**
 		 * If `request_hash` is available use a GET request instead of
 		 * sending the entire object.
 		 */
-		if (this.request_hash && main == true) {
-			request_url += `/${this.request_hash}`;
+		if (request_hash) {
+			request_url += `/${request_hash}`;
 			local_content = {};
 			method = 'GET';
 		}
@@ -309,11 +370,13 @@ return view.extend({
 			.then((response) => {
 				switch (response.status) {
 					case 202:
+						response = response.json();
+
+						this.request_hash.set(server, response.request_hash);
+
 						if (main) {
 							this.handle202(response);
 						} else {
-							response = response.json();
-
 							let view = document.getElementById(server);
 							view.innerText = `⏳	(${
 								this.steps[response.imagebuilder_status][0]
@@ -341,7 +404,7 @@ return view.extend({
 					default:  // any error or unexpected responses
 						if (main == true) {
 							poll.remove(this.pollFn);
-							this.handleError(response, data, firmware);
+							this.handleError(response, data, firmware, request_hash);
 						} else {
 							poll.remove(this.rebuilder_polls[server]);
 							document.getElementById(server).innerText = '🚫 %s'.format(
@@ -441,7 +504,7 @@ return view.extend({
 	},
 
 	handleCheck: function (data, firmware) {
-		this.request_hash = '';
+		this.request_hash.clear();
 		let { url, revision, advanced_mode, branch } = data;
 		let { version, target, profile, packages } = firmware;
 		let candidates = [];
