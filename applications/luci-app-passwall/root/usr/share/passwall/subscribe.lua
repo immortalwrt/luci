@@ -449,13 +449,33 @@ local function get_subscribe_info(cfgid, value)
 	end
 end
 
+-- 设置 ss 协议实现类型
+local function set_ss_implementation(result)
+	if ss_type_default == "shadowsocks-libev" and has_ss then
+		result.type = "SS"
+	elseif ss_type_default == "shadowsocks-rust" and has_ss_rust then
+		result.type = 'SS-Rust'
+	elseif ss_type_default == "xray" and has_xray then
+		result.type = 'Xray'
+		result.protocol = 'shadowsocks'
+		result.transport = 'raw'
+	elseif ss_type_default == "sing-box" and has_singbox then
+		result.type = 'sing-box'
+		result.protocol = 'shadowsocks'
+	else
+		log("跳过 SS 节点，因未适配到 SS 核心程序，或未正确设置节点使用类型。")
+		return nil
+	end
+	return result
+end
+
 -- 处理数据
-local function processData(szType, content, add_mode, add_from)
-	--log(content, add_mode, add_from)
+local function processData(szType, content, add_mode, group)
+	--log(content, add_mode, group)
 	local result = {
 		timeout = 60,
 		add_mode = add_mode, --0为手动配置,1为导入,2为订阅
-		add_from = add_from
+		group = group
 	}
 	--ssr://base64(host:port:protocol:method:obfs:base64pass/?obfsparam=base64param&protoparam=base64param&remarks=base64remarks&group=base64group&udpport=0&uot=0)
 	if szType == 'ssr' then
@@ -602,21 +622,8 @@ local function processData(szType, content, add_mode, add_from)
 			return nil
 		end
 	elseif szType == "ss" then
-		if ss_type_default == "shadowsocks-libev" and has_ss then
-			result.type = "SS"
-		elseif ss_type_default == "shadowsocks-rust" and has_ss_rust then
-			result.type = 'SS-Rust'
-		elseif ss_type_default == "xray" and has_xray then
-			result.type = 'Xray'
-			result.protocol = 'shadowsocks'
-			result.transport = 'raw'
-		elseif ss_type_default == "sing-box" and has_singbox then
-			result.type = 'sing-box'
-			result.protocol = 'shadowsocks'
-		else
-			log("跳过 SS 节点，因未适配到 SS 核心程序，或未正确设置节点使用类型。")
-			return nil
-		end
+		result = set_ss_implementation(result)
+		if not result then return nil end
 
 		--SS-URI = "ss://" userinfo "@" hostname ":" port [ "/" ] [ "?" plugin ] [ "#" tag ]
 		--userinfo = websafe-base64-encode-utf8(method  ":" password)
@@ -1069,7 +1076,8 @@ local function processData(szType, content, add_mode, add_from)
 		end
 
 	elseif szType == "ssd" then
-		result.type = "SS"
+		result = set_ss_implementation(result)
+		if not result then return nil end
 		result.address = content.server
 		result.port = content.port
 		result.password = content.password
@@ -1539,14 +1547,14 @@ local function curl(url, file, ua, mode)
 	return tonumber(result)
 end
 
-local function truncate_nodes(add_from)
+local function truncate_nodes(group)
 	for _, config in pairs(CONFIG) do
 		if config.currentNodes and #config.currentNodes > 0 then
 			local newNodes = {}
 			local removeNodesSet = {}
 			for k, v in pairs(config.currentNodes) do
 				if v.currentNode and v.currentNode.add_mode == "2" then
-					if (not add_from) or (add_from and add_from == v.currentNode.add_from) then
+					if (not group) or (group:lower() == (v.currentNode.group or ""):lower()) then
 						removeNodesSet[v.currentNode[".name"]] = true
 					end
 				end
@@ -1561,7 +1569,7 @@ local function truncate_nodes(add_from)
 			end
 		else
 			if config.currentNode and config.currentNode.add_mode == "2" then
-				if (not add_from) or (add_from and add_from == config.currentNode.add_from) then
+				if (not group) or (group:lower() == (config.currentNode.group or ""):lower()) then
 					if config.delete then
 						config.delete(config)
 					elseif config.set then
@@ -1573,13 +1581,13 @@ local function truncate_nodes(add_from)
 	end
 	uci:foreach(appname, "nodes", function(node)
 		if node.add_mode == "2" then
-			if (not add_from) or (add_from and add_from == node.add_from) then
+			if (not group) or (group:lower() == (node.group or ""):lower()) then
 				uci:delete(appname, node['.name'])
 			end
 		end
 	end)
 	uci:foreach(appname, "subscribe_list", function(o)
-		if (not add_from) or add_from == o.remark then
+		if (not group) or (group:lower() == (o.remark or ""):lower()) then
 			uci:delete(appname, o['.name'], "md5")
 		end
 	end)
@@ -1714,13 +1722,13 @@ local function update_node(manual)
 
 	local group = {}
 	for _, v in ipairs(nodeResult) do
-		group[v["remark"]] = true
+		group[v["remark"]:lower()] = true
 	end
 
 	if manual == 0 and next(group) then
 		uci:foreach(appname, "nodes", function(node)
 			-- 如果未发现新节点或手动导入的节点就不要删除了...
-			if node.add_mode == "2" and (node.add_from and group[node.add_from] == true) then
+			if node.add_mode == "2" and (node.group and group[node.group:lower()] == true) then
 				uci:delete(appname, node['.name'])
 			end
 		end)
@@ -1734,7 +1742,9 @@ local function update_node(manual)
 				if type(vvv) == "table" and next(vvv) ~= nil then
 					uci:set_list(appname, cfgid, kkk, vvv)
 				else
-					uci:set(appname, cfgid, kkk, vvv)
+					if kkk ~= "group" or vvv ~= "default" then
+						uci:set(appname, cfgid, kkk, vvv)
+					end
 					-- sing-box 域名解析策略
 					if kkk == "type" and vvv == "sing-box" then
 						uci:set(appname, cfgid, "domain_strategy", domain_strategy_node)
@@ -1797,7 +1807,7 @@ local function update_node(manual)
 	luci.sys.call("/etc/init.d/" .. appname .. " restart > /dev/null 2>&1 &")
 end
 
-local function parse_link(raw, add_mode, add_from, cfgid)
+local function parse_link(raw, add_mode, group, cfgid)
 	if raw and #raw > 0 then
 		local nodes, szType
 		local node_list = {}
@@ -1829,21 +1839,21 @@ local function parse_link(raw, add_mode, add_from, cfgid)
 		end
 
 		for _, v in ipairs(nodes) do
-			if v and not string.match(v, "^%s*$") then
+			if v and (szType == 'ssd' or not string.match(v, "^%s*$")) then
 				xpcall(function ()
 					local result
 					if szType == 'ssd' then
-						result = processData(szType, v, add_mode, add_from)
+						result = processData(szType, v, add_mode, group)
 					elseif not szType then
 						local node = api.trim(v)
 						local dat = split(node, "://")
 						if dat and dat[1] and dat[2] then
 							if dat[1] == 'vmess' or dat[1] == 'ssr' then
 								local link = api.trim(dat[2]:gsub("#.*$", ""))
-								result = processData(dat[1], base64Decode(link), add_mode, add_from)
+								result = processData(dat[1], base64Decode(link), add_mode, group)
 							else
 								local link = dat[2]:gsub("&amp;", "&"):gsub("%s*#%s*", "#")  -- 一些奇葩的链接用"&amp;"当做"&"，"#"前后带空格
-								result = processData(dat[1], link, add_mode, add_from)
+								result = processData(dat[1], link, add_mode, group)
 							end
 						end
 					else
@@ -1874,14 +1884,14 @@ local function parse_link(raw, add_mode, add_from, cfgid)
 		end
 		if #node_list > 0 then
 			nodeResult[#nodeResult + 1] = {
-				remark = add_from,
+				remark = group,
 				list = node_list
 			}
 		end
-		log('成功解析【' .. add_from .. '】节点数量: ' .. #node_list)
+		log('成功解析【' .. group .. '】节点数量: ' .. #node_list)
 	else
 		if add_mode == "2" then
-			log('获取到的【' .. add_from .. '】订阅内容为空，可能是订阅地址无效，或是网络问题，请诊断！')
+			log('获取到的【' .. group .. '】订阅内容为空，可能是订阅地址无效，或是网络问题，请诊断！')
 		end
 	end
 end
@@ -2031,7 +2041,7 @@ if arg[1] then
 		local f = assert(io.open("/tmp/links.conf", 'r'))
 		local raw = f:read('*all')
 		f:close()
-		parse_link(raw, "1", "导入")
+		parse_link(raw, "1", arg[2])
 		update_node(1)
 		luci.sys.call("rm -f /tmp/links.conf")
 	elseif arg[1] == "truncate" then
