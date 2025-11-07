@@ -3,8 +3,11 @@ name: Test Formalities
 on:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  build:
+  formalities:
     name: Test Formalities
     runs-on: ubuntu-latest
     strategy:
