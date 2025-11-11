@@ -281,6 +281,11 @@ select[multiple="multiple"] {
   width: 100%;
 }
 
+#mwan3-service-status > .alert-message {
+  left: 0.5rem;
+  transform: none;
+}
+
 .lg {
   margin: 0;
   padding: 0 !important;
@@ -1087,11 +1092,10 @@ td>table>tbody>tr>td,
 }
 
 .cbi-input-file {
-  appearance: none;
+  appearance: auto !important;
 
-  // 去掉选择文件按钮
   &::-webkit-file-upload-button {
-    display: none;
+    display: inline-block !important;
   }
 }
 
