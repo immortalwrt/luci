@@ -49,8 +49,15 @@ jobs:
           echo "Building $PACKAGES"
           echo "PACKAGES=$PACKAGES" >> $GITHUB_ENV
 
+      - name: Remove unused Android SDK, .NET, Swift, GHC
+        run: |
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/share/swift
+
       - name: Build
-        uses: immortalwrt/gh-action-sdk@v6
+        uses: immortalwrt/gh-action-sdk@v7
         env:
           ARCH: ${{ matrix.arch }}-${{ env.BRANCH }}
           FEEDNAME: packages_ci
@@ -60,7 +67,7 @@ jobs:
         run: cp bin/packages/${{ matrix.arch }}/packages_ci/* . || true
 
       - name: Store packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.arch }}-packages
           path: |
@@ -68,7 +75,7 @@ jobs:
             *.apk
 
       - name: Store logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.arch }}-logs
           path: logs/
