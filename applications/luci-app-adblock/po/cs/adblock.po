@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2025-11-05 00:02+0000\n"
+"PO-Revision-Date: 2025-11-09 14:30+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsadblock/cs/>\n"
@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.14.1-dev\n"
+"X-Generator: Weblate 5.15-dev\n"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:302
 msgid "-- default --"
@@ -49,10 +49,6 @@ msgstr "Aktivní kanály"
 #: applications/luci-app-adblock/root/usr/share/luci/menu.d/luci-app-adblock.json:3
 msgid "Adblock"
 msgstr "Blokování reklamy Adblock"
-
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/logread.js:4
-msgid "Adblock Log"
-msgstr "Záznam událostí z Adblock"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:47
 msgid "Add Allowlist Domain"
@@ -573,6 +569,10 @@ msgstr "Střední"
 msgid "Nice Level"
 msgstr ""
 
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/logtemplate.js:23
+msgid "No %s related logs yet!"
+msgstr "Zatím žádné záznamy událostí, související s %s!"
+
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:400
 msgid "No GeoIP Map data!"
 msgstr "Žádná data GeoIP mapy!"
@@ -816,6 +816,10 @@ msgid "The selected priority will be used for adblock background processing."
 msgstr ""
 "Vybraná priorita bude použita pro zpracovávání blokování reklam na pozadí."
 
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/logtemplate.js:30
+msgid "The syslog output, pre-filtered for messages related to: %s"
+msgstr "Výstup ze syslog – předfiltrované ohledně zpráv souvisejících s: %s"
+
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:253
 msgid ""
 "The top level domain compression removes thousands of needless host entries "
@@ -952,6 +956,10 @@ msgstr "dnsmasq"
 msgid "kresd"
 msgstr "kresd"
 
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/logtemplate.js:17
+msgid "logread not found on system."
+msgstr "nástroj logread nebyl v systému nalezen."
+
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:164
 msgid "max. result set size"
 msgstr "max. velikost výsledné sady"
@@ -971,6 +979,9 @@ msgstr "smartdns"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:336
 msgid "unbound"
 msgstr "unbound"
+
+#~ msgid "Adblock Log"
+#~ msgstr "Záznam událostí z Adblock"
 
 #~ msgid "GeoIP Map is not enabled!"
 #~ msgstr "GeoIP mapa není zapnutá!"

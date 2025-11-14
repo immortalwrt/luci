@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2025-10-25 02:36+0000\n"
-"Last-Translator: Franco Castillo <castillofrancodamian@gmail.com>\n"
+"PO-Revision-Date: 2025-11-11 08:51+0000\n"
+"Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsadblock/es/>\n"
 "Language: es\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.1-dev\n"
+"X-Generator: Weblate 5.15-dev\n"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:302
 #, fuzzy
@@ -53,10 +53,6 @@ msgstr "Fuentes activas"
 #: applications/luci-app-adblock/root/usr/share/luci/menu.d/luci-app-adblock.json:3
 msgid "Adblock"
 msgstr "Adblock"
-
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/logread.js:4
-msgid "Adblock Log"
-msgstr "Registro de Adblock"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:47
 msgid "Add Allowlist Domain"
@@ -560,7 +556,6 @@ msgstr ""
 "Lista de utilidades de descarga compatibles y totalmente preconfiguradas."
 
 #: applications/luci-app-adblock/root/usr/share/luci/menu.d/luci-app-adblock.json:59
-#, fuzzy
 msgid "Log View"
 msgstr "Vista del registro"
 
@@ -579,6 +574,10 @@ msgstr "Media"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:295
 msgid "Nice Level"
 msgstr "Buen nivel"
+
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/logtemplate.js:23
+msgid "No %s related logs yet!"
+msgstr "¡Aún no hay registros relacionados con %s!"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:400
 msgid "No GeoIP Map data!"
@@ -833,6 +832,10 @@ msgstr ""
 "La prioridad seleccionada será usada para el procesamiento en segundo plano "
 "de adblock."
 
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/logtemplate.js:30
+msgid "The syslog output, pre-filtered for messages related to: %s"
+msgstr "La salida de syslog, prefiltrada para mensajes relacionados con: %s"
+
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:253
 msgid ""
 "The top level domain compression removes thousands of needless host entries "
@@ -969,6 +972,10 @@ msgstr "Dnsmasq"
 msgid "kresd"
 msgstr "kresd"
 
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/logtemplate.js:17
+msgid "logread not found on system."
+msgstr "logread no encontrado en el sistema."
+
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:164
 msgid "max. result set size"
 msgstr "tamaño máx. del conjunto de resultados"
@@ -988,6 +995,9 @@ msgstr "smartdns"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:336
 msgid "unbound"
 msgstr "unbound"
+
+#~ msgid "Adblock Log"
+#~ msgstr "Registro de Adblock"
 
 #~ msgid "GeoIP Map is not enabled!"
 #~ msgstr "¡El mapa GeoIP no está activado!"
