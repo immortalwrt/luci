@@ -155,6 +155,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 					serverName = node.tls_serverName,
 					allowInsecure = (node.tls_allowInsecure == "1") and true or false,
 					fingerprint = (node.type == "Xray" and node.utls == "1" and node.fingerprint and node.fingerprint ~= "") and node.fingerprint or nil,
+					pinnedPeerCertificateChainSha256 = node.tls_chain_fingerprint and { node.tls_chain_fingerprint } or nil,
 					echConfigList = (node.ech == "1") and node.ech_config or nil,
 					echForceQuery = (node.ech == "1") and (node.ech_ForceQuery or "none") or nil
 				} or nil,
@@ -177,9 +178,10 @@ function gen_outbound(flag, node, tag, proxy_table)
 									end
 									return r
 								end)() or {"/"},
-							headers = {
-								Host = node.tcp_guise_http_host or {}
-							}
+							headers = (node.tcp_guise_http_host or node.tcp_guise_http_user_agent) and {
+								Host = node.tcp_guise_http_host,
+								["User-Agent"] = node.tcp_guise_http_user_agent and {node.tcp_guise_http_user_agent} or nil
+							} or nil
 						} or nil
 					}
 				} or nil,
@@ -199,7 +201,10 @@ function gen_outbound(flag, node, tag, proxy_table)
 				} or nil,
 				wsSettings = (node.transport == "ws") and {
 					path = node.ws_path or "/",
-					host = node.ws_host or nil,
+					headers = (node.ws_host or node.ws_user_agent) and {
+						Host = node.ws_host,
+						["User-Agent"] = node.ws_user_agent
+					} or nil,
 					maxEarlyData = tonumber(node.ws_maxEarlyData) or nil,
 					earlyDataHeaderName = (node.ws_earlyDataHeaderName) and node.ws_earlyDataHeaderName or nil,
 					heartbeatPeriod = tonumber(node.ws_heartbeatPeriod) or nil
@@ -214,7 +219,10 @@ function gen_outbound(flag, node, tag, proxy_table)
 				} or nil,
 				httpupgradeSettings = (node.transport == "httpupgrade") and {
 					path = node.httpupgrade_path or "/",
-					host = node.httpupgrade_host
+					host = node.httpupgrade_host,
+					headers =  node.httpupgrade_user_agent and {
+						["User-Agent"] = node.httpupgrade_user_agent
+					} or nil
 				} or nil,
 				xhttpSettings = (node.transport == "xhttp") and {
 					mode = node.xhttp_mode or "auto",
@@ -222,7 +230,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 					host = node.xhttp_host,
 					-- 如果包含 "extra" 节，取 "extra" 内的内容，否则直接赋值给 extra
 					extra = node.xhttp_extra and (function()
-							local success, parsed = pcall(jsonc.parse, node.xhttp_extra)
+							local success, parsed = pcall(jsonc.parse, api.base64Decode(node.xhttp_extra))
 							if success then
 								return parsed.extra or parsed
 							else
@@ -580,6 +588,8 @@ function gen_config(var)
 	local direct_dns_udp_server = var["-direct_dns_udp_server"]
 	local direct_dns_tcp_server = var["-direct_dns_tcp_server"]
 	local direct_dns_query_strategy = var["-direct_dns_query_strategy"]
+	local remote_dns_udp_server = var["-remote_dns_udp_server"]
+	local remote_dns_udp_port = var["-remote_dns_udp_port"]
 	local remote_dns_tcp_server = var["-remote_dns_tcp_server"]
 	local remote_dns_tcp_port = var["-remote_dns_tcp_port"]
 	local remote_dns_doh_url = var["-remote_dns_doh_url"]
@@ -1175,7 +1185,7 @@ function gen_config(var)
 		end
 	end
 
-	if remote_dns_tcp_server and remote_dns_tcp_port then
+	if (remote_dns_udp_server and remote_dns_udp_port) or (remote_dns_tcp_server and remote_dns_tcp_port) then
 		if not routing then
 			routing = {
 				domainStrategy = "IPOnDemand",
@@ -1230,8 +1240,13 @@ function gen_config(var)
 		local _remote_dns = {
 			--tag = "dns-global-remote",
 			queryStrategy = (remote_dns_query_strategy and remote_dns_query_strategy ~= "") and remote_dns_query_strategy or "UseIPv4",
-			address = "tcp://" .. remote_dns_tcp_server .. ":" .. tonumber(remote_dns_tcp_port) or 53
 		}
+		if remote_dns_udp_server then
+			_remote_dns.address = remote_dns_udp_server
+			_remote_dns.port = tonumber(remote_dns_udp_port) or 53
+		else
+			_remote_dns.address = "tcp://" .. remote_dns_tcp_server .. ":" .. tonumber(remote_dns_tcp_port) or 53
+		end
 
 		local _remote_dns_host
 		if remote_dns_doh_url and remote_dns_doh_host then
@@ -1309,8 +1324,8 @@ function gen_config(var)
 				protocol = "dokodemo-door",
 				tag = "dns-in",
 				settings = {
-					address = remote_dns_tcp_server,
-					port = tonumber(remote_dns_tcp_port),
+					address = remote_dns_udp_server or remote_dns_tcp_server,
+					port = tonumber(remote_dns_udp_port) or tonumber(remote_dns_tcp_port),
 					network = "tcp,udp"
 				}
 			})
@@ -1322,9 +1337,9 @@ function gen_config(var)
 					tag = dns_outbound_tag
 				} or nil,
 				settings = {
-					address = remote_dns_tcp_server,
-					port = tonumber(remote_dns_tcp_port),
-					network = "tcp",
+					address = remote_dns_udp_server or remote_dns_tcp_server,
+					port = tonumber(remote_dns_udp_port) or tonumber(remote_dns_tcp_port),
+					network = remote_dns_udp_server and "udp" or "tcp",
 					nonIPQuery = "drop"
 				}
 			})

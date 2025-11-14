@@ -9,11 +9,16 @@ if not arg[1] or not m:get(arg[1]) then
 	luci.http.redirect(m.redirect)
 end
 
+m:append(Template(appname .. "/cbi/nodes_multivalue_com"))
+if api.is_js_luci() then
+	m:append(Template(appname .. "/cbi/nodes_listvalue_com"))
+end
+
 s = m:section(NamedSection, arg[1], "nodes", "")
 s.addremove = false
 s.dynamic = false
 
-o = s:option(DummyValue, "passwall", " ")
+o = s:option(DummyValue, "passwall", "　")
 o.rawhtml  = true
 o.template = "passwall/node_list/link_share_man"
 o.value = arg[1]
@@ -61,7 +66,7 @@ if api.is_finded("ipt2socks") then
 
 	s.fields["type"]:value("Socks", translate("Socks"))
 
-	o = s:option(ListValue, _n("del_protocol")) --始终隐藏，用于删除 protocol
+	o = s:option(ListValue, _n("del_protocol"), "　") --始终隐藏，用于删除 protocol
 	o:depends({ [_n("__hide")] = "1" })
 	o.rewrite_option = "protocol"
 
