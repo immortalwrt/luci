@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2025-11-09 07:23+0000\n"
+"PO-Revision-Date: 2025-11-17 20:58+0000\n"
 "Last-Translator: nKsyn <e.nksyn@gmail.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/openwrt/luci/zh_Hans/>\n"
@@ -84,8 +84,9 @@ msgid ""
 "%s services running on this device in the default VRF context (ie., not "
 "bound to any VRF device) shall work across all VRF domains."
 msgstr ""
-"开启后，在默认 VRF 上下文（即未绑定到任何 VRF 设备）运行的 %s 服务，<abbr "
-"title=\"可接受来自所有 VRF 的连接请求\">能在所有 VRF 域中使用</abbr>。"
+"开启时，此设备上在默认 VRF 上下文（即未绑定到任何 VRF 设备）中运行的 %s 服务"
+"，<abbr title=\"可接受来自所有 VRF 的连接请求\">能在所有 VRF 域中使用</abbr>"
+"。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dns.js:696
 msgid "%s uses a human-readable encoding of hex-and-colons"
@@ -805,7 +806,7 @@ msgstr "未连接"
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:682
 #: modules/luci-base/htdocs/luci-static/resources/tools/widgets.js:686
 msgid "Absent Interface"
-msgstr "接口缺失"
+msgstr "接口不存在"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dns.js:622
 msgid "Accept DNS queries only from hosts whose address is on a local subnet."
@@ -1067,7 +1068,7 @@ msgstr "额外的 HOSTS 文件"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:544
 msgid "Additional options to send to the below match tags."
-msgstr "发送到匹配下方标签主机的附加 DHCP 选项。"
+msgstr "发送到匹配下方标签的客户端的附加 DHCP 选项。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dns.js:686
 msgid "Additional servers file"
@@ -1293,7 +1294,7 @@ msgstr "始终开启（kernel：default-on）"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:557
 msgid ""
 "Always send the chosen DHCP options. Sometimes needed, with e.g. PXELinux."
-msgstr "始终发送所选的 DHCP 选项。有些时候需要，比如对 PXELinux。"
+msgstr "强制发送 DHCP 选项。有些时候需要，例如使用 PXELinux 时。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1009
 msgid ""
@@ -1815,7 +1816,7 @@ msgstr "开机自动连接"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1024
 msgid "Bring up the bridge interface even if no ports are attached"
-msgstr "即使没有接口附加到网桥，也启动它"
+msgstr "即使没有接口附加到网桥，也要启动该网桥"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:631
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:868
@@ -1885,7 +1886,7 @@ msgstr "调用失败"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dns.js:857
 msgid "Can be hinted by adding 4 or 6 to the name."
-msgstr "可以通过添加 4 或 6 到名称暗示是 IPv4 或 IPv6。"
+msgstr "可以在名称后加上 4 或 6 来体现是 IPv4 或 IPv6。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dns.js:641
 msgid ""
@@ -2024,7 +2025,7 @@ msgstr "链钩 \"%h\""
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4818
 msgid "Changes"
-msgstr "更改数"
+msgstr "更改"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:5082
 msgid ""
@@ -2068,7 +2069,7 @@ msgstr "在挂载前检查文件系统"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2247
 msgid "Check this option to delete the existing networks from this radio."
-msgstr "选中此选项以从无线中删除现有网络。"
+msgstr "选中此选项会删除此无线网络适配器上的现有无线网络配置。"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:110
 msgid "Checking archive…"
@@ -2091,8 +2092,8 @@ msgid ""
 "fill out the <em>custom</em> field to define a new zone and attach the "
 "interface to it."
 msgstr ""
-"为此接口分配所属的防火墙区域，选择<em>未指定</em>可将该接口移出已关联的区域，"
-"或者填写<em>创建</em>栏来创建一个新的区域，并将当前接口与之建立关联。"
+"为此接口分配所属的防火墙区域，选择 <em>未指定</em> 可将该接口移出已关联的区域"
+"，或者填写 <em>自定义</em> 栏来创建一个新的区域，并将当前接口与之建立关联。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1070
 msgid ""
@@ -3212,18 +3213,16 @@ msgid ""
 "Drop all gratuitous ARP frames, for example if there’s a known good ARP "
 "proxy on the network and such frames need not be used or in the case of "
 "802.11, must not be used to prevent attacks."
-msgstr ""
-"丢弃所有免费 ARP 帧。如果网络上有一个已知可靠的 ARP 代理，则无需使用此类帧，"
-"在 802.11 无线网络中，则需要禁用此类帧以防止攻击。"
+msgstr "丢弃所有免费 ARP 帧。如果网络中存在已知可靠的 ARP 代理，则无需使用此类帧；在 "
+"802.11 无线网络中，则需要禁用此类帧以防止攻击。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1198
 msgid ""
 "Drop all unsolicited neighbor advertisements, for example if there’s a known "
 "good NA proxy on the network and such frames need not be used or in the case "
 "of 802.11, must not be used to prevent attacks."
-msgstr ""
-"丢弃所有非请求邻居通告。如果网络中存在已知可靠的 NA 代理，那么无需使用此类"
-"帧；在 802.11 无线网络中，则需要禁用此类帧以防止攻击。"
+msgstr "丢弃所有非请求邻居通告。如果网络中存在已知可靠的 NA 代理，则无需使用此类帧；"
+"在 802.11 无线网络中，则需要禁用此类帧以防止攻击。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1176
 msgid "Drop gratuitous ARP"
@@ -3231,11 +3230,11 @@ msgstr "丢弃免费 ARP"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1252
 msgid "Drop layer 2 multicast frames containing IPv4 unicast packets."
-msgstr "丢弃包含 IPv4 单播数据包的 layer 2 组播帧。"
+msgstr "丢弃包含 IPv4 单播数据包的二层组播帧。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1256
 msgid "Drop layer 2 multicast frames containing IPv6 unicast packets."
-msgstr "丢弃包含 IPv6 单播数据包的 layer 2 组播帧。"
+msgstr "丢弃包含 IPv6 单播数据包的二层组播帧。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1252
 msgid "Drop nested IPv4 unicast"
@@ -5831,7 +5830,7 @@ msgstr "无效的服务器 URL"
 #: modules/luci-base/ucode/template/sysauth.ut:12
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:32
 msgid "Invalid username and/or password! Please try again."
-msgstr "无效的用户名和/或密码！请重试。"
+msgstr "无效的用户名或密码！请重试。"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/heartbeat.js:13
 msgid "Invert blinking"
@@ -5881,7 +5880,7 @@ msgstr "加入网络"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1980
 msgid "Join Network: Wireless Scan"
-msgstr "加入网络：搜索无线"
+msgstr "加入网络：搜索无线网络"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2281
 msgid "Joining Network: %q"
@@ -6225,9 +6224,7 @@ msgstr "链路监控模式"
 msgid ""
 "List of IP sets to populate with the IPs of DNS lookup results of the FQDNs "
 "also specified here."
-msgstr ""
-"用于存储根据域名（FQDN）进行 DNS 查找后获得的 IP 地址的 IP 集列表也在这里定"
-"义。"
+msgstr "IP 集列表用于存储域名（FQDN）进行 DNS 查找后获得的 IP 地址。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1705
 msgid ""
@@ -7260,7 +7257,7 @@ msgstr "邻居报告"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1179
 msgid "Neighbour cache validity"
-msgstr "邻近缓存有效性"
+msgstr "邻居缓存有效期"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dns.js:852
 msgid "Netfilter table name"
@@ -7754,7 +7751,7 @@ msgstr "关"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1689
 msgid ""
 "Off means VRF traffic will be handled exclusively by sockets bound to VRFs."
-msgstr "如不启用， VRF 内的流量将只能由绑定到该 VRF 的套接字处理。"
+msgstr "未开启时， VRF 内的流量只能由绑定到该 VRF 的套接字处理。"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/timer.js:18
 msgid "Off-State Delay"
@@ -7824,7 +7821,7 @@ msgstr "一个或多个必选项值为空！"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:551
 msgid "Only DHCP Clients with this tag are sent this boot option."
-msgstr "仅具备此标签的 DHCP 客户端会被发送此 boot 选项。"
+msgstr "仅向具备此标签的 DHCP 客户端发送此 boot 选项。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:488
 msgid "Only accept replies via"
@@ -9625,9 +9622,8 @@ msgid ""
 "Root directory for files served via TFTP. <em>Enable TFTP server</em> and "
 "<em>TFTP server root</em> turn on the TFTP server and serve files from "
 "<em>TFTP server root</em>."
-msgstr ""
-"通过 TFTP 传送的文件的根目录。 <em>启用 TFTP 服务器</em> 和 <em>TFTP 服务器根"
-"目录</em> 打开 TFTP 服务器并从 <em>TFTP 服务器根目录提供文件</em>。"
+msgstr "通过 TFTP 传送的文件的根目录。TFTP 服务器将从 <em>TFTP 服务器根目录</em> 向客"
+"户端提供文件。"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:298
 msgid "Root preparation"
@@ -9992,8 +9988,7 @@ msgstr "将接口设置为 NDP 代理外部从属设备。默认为关闭。"
 msgid ""
 "Set interface properties regardless of the link carrier (If set, carrier "
 "sense events do not invoke hotplug handlers)."
-msgstr ""
-"不论接口的链路状态如何,强制接口处于连接状态 (如果勾选,链路状态变更将不再触发"
+msgstr "无论接口的链路状态如何,强制接口处于连接状态 (如果勾选,链路状态变化将不再触发"
 "接口热插拔事件处理)。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:404
@@ -10278,9 +10273,7 @@ msgid ""
 "Specifies the devices to attach to this VRF. In order to attach wireless "
 "networks, choose the associated interface as network in the wireless "
 "settings."
-msgstr ""
-"明确附加到这个 VRF 的设备。为了附加无线网络，在无线设置中选择关联接口作为网"
-"络。"
+msgstr "指定关联到此 VRF 的设备。如需关联无线网络，在无线网络配置中关联此设备。"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:293
 msgid "Specifies the directory the device is attached to"
@@ -10462,7 +10455,7 @@ msgstr "稳定"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1183
 msgid "Stale neighbour cache timeout"
-msgstr "过时的邻近缓存超时"
+msgstr "过时邻居缓存超时"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1711
 msgid "Standard: none"
@@ -10497,7 +10490,7 @@ msgstr "开始应用配置…"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1978
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/channel_analysis.js:489
 msgid "Starting wireless scan..."
-msgstr "正在启动无线扫描…"
+msgstr "正在扫描无线网络…"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:109
 #: modules/luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json:89
@@ -10729,7 +10722,7 @@ msgstr "系统在恢复 (initramfs) 模式下运行。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1691
 msgid "TCP Layer 3 Master Device (tcp_l3mdev) accept"
-msgstr "本机作为 TCP 第三层主设备"
+msgstr "TCP 第三层主设备（tcp_l3mdev_accept）"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:73
 msgctxt "nft tcp option maxseg size"
@@ -10767,7 +10760,7 @@ msgstr "发送"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:183
 msgid "TX Power"
-msgstr "信号传输功率"
+msgstr "发射功率"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:250
 msgid "TX Rate"
@@ -11429,7 +11422,7 @@ msgstr "没有待应用的更改"
 msgid ""
 "There is no password set on this router. Please configure a root password to "
 "protect the web interface."
-msgstr "尚未设置密码。请为 root 用户设置密码以保护主机。"
+msgstr "尚未设置密码。请设置管理员密码以保护此设备。"
 
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/6rd.js:49
 msgid "This IPv4 address of the relay"
@@ -11561,7 +11554,7 @@ msgstr "此页面显示所有可用物理接口的带宽使用情况。"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/wireless.js:342
 msgid ""
 "This page displays the wireless metrics for each available radio interface."
-msgstr "此页面展示每个可用无线电接口的无线指标。"
+msgstr "此页面展示无线接口的信号指标。"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1680
 msgid "This prefix is randomly generated at first install."
@@ -11655,9 +11648,8 @@ msgid ""
 "To restore configuration files, you can upload a previously generated backup "
 "archive here. To reset the firmware to its initial state, click \"Perform "
 "reset\" (only possible with squashfs images)."
-msgstr ""
-"上传备份存档以恢复配置。要将固件恢复到初始状态，请单击“执行重置” (仅 "
-"squashfs 格式的固件文件有效)。"
+msgstr "上传备份存档以恢复配置。要将固件恢复到初始状态，请单击“执行重置” (仅 squashfs"
+" 格式的固件有效)。"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routesj.js:165
 msgid "ToS"
@@ -11810,7 +11802,7 @@ msgstr "服务类型"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1695
 msgid "UDP Layer 3 Master Device (udp_l3mdev) accept"
-msgstr "本机作为 UDP 第三层主设备"
+msgstr "UDP 第三层主设备（udp_l3mdev_accept）"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:62
 msgctxt "nft udp dport"
@@ -13154,12 +13146,12 @@ msgstr "未连接"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1217
 msgid "no override"
-msgstr "非绕过"
+msgstr "不覆盖"
 
 #: modules/luci-base/htdocs/luci-static/resources/form.js:2288
 #: modules/luci-base/htdocs/luci-static/resources/validation.js:72
 msgid "non-empty value"
-msgstr "非空值"
+msgstr "不能为空"
 
 #: modules/luci-base/htdocs/luci-static/resources/form.js:3447
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:851
