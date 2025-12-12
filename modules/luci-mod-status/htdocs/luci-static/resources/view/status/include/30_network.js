@@ -1,7 +1,6 @@
 'use strict';
 'require baseclass';
 'require fs';
-'require rpc';
 'require network';
 'require rpc';
 
