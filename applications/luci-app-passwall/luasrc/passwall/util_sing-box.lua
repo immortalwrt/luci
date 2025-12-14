@@ -206,6 +206,9 @@ function gen_outbound(flag, node, tag, proxy_table)
 						local first = node.tcp_guise_http_path[1]
 						return (first == "" or not first) and "/" or first
 					end)() or "/",
+				headers = node.tcp_guise_http_user_agent and {
+					["User-Agent"] = node.tcp_guise_http_user_agent
+				} or nil,
 				idle_timeout = (node.http_h2_health_check == "1") and node.http_h2_read_idle_timeout or nil,
 				ping_timeout = (node.http_h2_health_check == "1") and node.http_h2_health_check_timeout or nil,
 			}
@@ -217,6 +220,9 @@ function gen_outbound(flag, node, tag, proxy_table)
 				type = "http",
 				host = node.http_host or {},
 				path = node.http_path or "/",
+				headers = node.http_user_agent and {
+					["User-Agent"] = node.http_user_agent
+				} or nil,
 				idle_timeout = (node.http_h2_health_check == "1") and node.http_h2_read_idle_timeout or nil,
 				ping_timeout = (node.http_h2_health_check == "1") and node.http_h2_health_check_timeout or nil,
 			}
@@ -227,7 +233,10 @@ function gen_outbound(flag, node, tag, proxy_table)
 			v2ray_transport = {
 				type = "ws",
 				path = node.ws_path or "/",
-				headers = (node.ws_host ~= nil) and { Host = node.ws_host } or nil,
+				headers = (node.ws_host or node.ws_user_agent) and {
+					Host = node.ws_host,
+					["User-Agent"] = node.ws_user_agent
+				} or nil,
 				max_early_data = tonumber(node.ws_maxEarlyData) or nil,
 				early_data_header_name = (node.ws_earlyDataHeaderName) and node.ws_earlyDataHeaderName or nil --要与 Xray-core 兼容，请将其设置为 Sec-WebSocket-Protocol。它需要与服务器保持一致。
 			}
@@ -238,6 +247,9 @@ function gen_outbound(flag, node, tag, proxy_table)
 				type = "httpupgrade",
 				host = node.httpupgrade_host,
 				path = node.httpupgrade_path or "/",
+				headers = node.httpupgrade_user_agent and {
+					["User-Agent"] = node.httpupgrade_user_agent
+				} or nil
 			}
 		end
 
@@ -1302,7 +1314,7 @@ function gen_config(var)
 							end
 						end
 					end
-
+					
 					local rule = {
 						inbound = inboundTag,
 						outbound = outboundTag,
@@ -1519,7 +1531,7 @@ function gen_config(var)
 				server = dns_socks_address,
 				server_port = tonumber(dns_socks_port)
 			})
-		else
+		else 
 			default_outTag = COMMON.default_outbound_tag
 		end
 
@@ -1544,8 +1556,7 @@ function gen_config(var)
 			}
 
 			if remote_dns_udp_server then
-				local server_port = tonumber(remote_dns_port) or 53
-				remote_server.address = "udp://" .. remote_dns_udp_server .. ":" .. server_port
+				remote_server.address = remote_dns_udp_server
 			end
 
 			if remote_dns_tcp_server then
@@ -1569,7 +1580,7 @@ function gen_config(var)
 					inet4_range = "198.18.0.0/15",
 					inet6_range = "fc00::/18",
 				}
-
+				
 				table.insert(dns.servers, {
 					tag = fakedns_tag,
 					address = "fakeip",
@@ -1597,9 +1608,9 @@ function gen_config(var)
 			if remote_dns_udp_server then
 				local server_port = tonumber(remote_dns_port) or 53
 				remote_server.type = "udp"
-				remote_server.server = remote_dns_udp_server
+				remote_server.server = remote_dns_server
 				remote_server.server_port = server_port
-				tmp_address = remote_dns_udp_server
+				tmp_address = remote_dns_server
 			end
 
 			if remote_dns_tcp_server then
@@ -1629,7 +1640,7 @@ function gen_config(var)
 				table.insert(dns.servers, remote_server)
 			end
 
-			if remote_dns_fake then
+			if remote_dns_fake then		
 				table.insert(dns.servers, {
 					tag = fakedns_tag,
 					type = "fakeip",
@@ -1678,7 +1689,7 @@ function gen_config(var)
 					port = tonumber(direct_dns_port) or 53
 					direct_dns_server = "tcp://" .. direct_dns_tcp_server .. ":" .. port
 				end
-
+		
 				table.insert(dns.servers, {
 					tag = "direct",
 					address = direct_dns_server,
@@ -1697,7 +1708,7 @@ function gen_config(var)
 					direct_dns_server = direct_dns_tcp_server
 					type = "tcp"
 				end
-
+		
 				table.insert(dns.servers, {
 					tag = "direct",
 					type = type,
@@ -1784,7 +1795,7 @@ function gen_config(var)
 				end
 			end
 		end
-
+	
 		table.insert(inbounds, {
 			type = "direct",
 			tag = "dns-in",
@@ -1804,7 +1815,7 @@ function gen_config(var)
 			outbound = "dns-out"
 		})
 	end
-
+	
 	if inbounds or outbounds then
 		local config = {
 			log = {
@@ -2029,7 +2040,7 @@ function gen_proto_config(var)
 		}
 		if outbound then table.insert(outbounds, outbound) end
 	end
-
+	
 	local config = {
 		log = {
 			disabled = true,
