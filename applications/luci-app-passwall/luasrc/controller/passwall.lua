@@ -82,7 +82,10 @@ function index()
 	entry({"admin", "services", appname, "copy_node"}, call("copy_node")).leaf = true
 	entry({"admin", "services", appname, "clear_all_nodes"}, call("clear_all_nodes")).leaf = true
 	entry({"admin", "services", appname, "delete_select_nodes"}, call("delete_select_nodes")).leaf = true
+	entry({"admin", "services", appname, "reassign_group"}, call("reassign_group")).leaf = true
 	entry({"admin", "services", appname, "get_node"}, call("get_node")).leaf = true
+	entry({"admin", "services", appname, "save_node_order"}, call("save_node_order")).leaf = true
+	entry({"admin", "services", appname, "save_node_list_opt"}, call("save_node_list_opt")).leaf = true
 	entry({"admin", "services", appname, "update_rules"}, call("update_rules")).leaf = true
 	entry({"admin", "services", appname, "subscribe_del_node"}, call("subscribe_del_node")).leaf = true
 	entry({"admin", "services", appname, "subscribe_del_all"}, call("subscribe_del_all")).leaf = true
@@ -301,7 +304,8 @@ function index_status()
 end
 
 function haproxy_status()
-	local e = luci.sys.call(string.format("/bin/busybox top -bn1 | grep -v grep | grep '%s/bin/' | grep haproxy >/dev/null", appname)) == 0
+	local e = {}
+	e["status"] = luci.sys.call(string.format("/bin/busybox top -bn1 | grep -v grep | grep '%s/bin/' | grep haproxy >/dev/null", appname)) == 0
 	http_write_json(e)
 end
 
@@ -407,6 +411,11 @@ function add_node()
 	local uuid = api.gen_short_uuid()
 	uci:section(appname, "nodes", uuid)
 
+	local group = http.formvalue("group")
+	if group and group ~= "default" then
+		uci:set(appname, uuid, "group", group)
+	end
+
 	if redirect == "1" then
 		api.uci_save(uci, appname)
 		http.redirect(api.url("node_config", uuid))
@@ -420,6 +429,20 @@ function set_node()
 	local protocol = http.formvalue("protocol")
 	local section = http.formvalue("section")
 	uci:set(appname, "@global[0]", protocol .. "_node", section)
+	if protocol == "tcp" then
+		local node_protocol = uci:get(appname, section, "protocol")
+		if node_protocol == "_shunt" then
+			local type = uci:get(appname, section, "type")
+			local dns_shunt = uci:get(appname, "@global[0]", "dns_shunt")
+			local dns_key = (dns_shunt == "smartdns") and "smartdns_dns_mode" or "dns_mode"
+			local dns_mode = uci:get(appname, "@global[0]", dns_key)
+			local new_dns_mode = (type == "Xray") and "xray" or "sing-box"
+			if dns_mode ~= new_dns_mode then
+				uci:set(appname, "@global[0]", dns_key, new_dns_mode)
+				uci:set(appname, "@global[0]", "v2ray_dns_mode", "tcp")
+			end
+		end
+	end
 	api.uci_save(uci, appname, true, true)
 	http.redirect(api.url("log"))
 end
@@ -571,13 +594,12 @@ function delete_select_nodes()
 	end
 end
 
-
 function get_node()
 	local id = http.formvalue("id")
 	local result = {}
-	local show_node_info = api.uci_get_type("@global_other[0]", "show_node_info", "0")
+	local show_node_info = api.uci_get_type("global_other", "show_node_info", "0")
 
-	function add_is_ipv6_key(o)
+	local function add_is_ipv6_key(o)
 		if o and o.address and show_node_info == "1" then
 			local f = api.get_ipv6_full(o.address)
 			if f ~= "" then
@@ -591,12 +613,56 @@ function get_node()
 		result = uci:get_all(appname, id)
 		add_is_ipv6_key(result)
 	else
+		local default_nodes = {}
+		local other_nodes = {}
 		uci:foreach(appname, "nodes", function(t)
 			add_is_ipv6_key(t)
-			result[#result + 1] = t
+			if not t.group or t.group == "" then
+				default_nodes[#default_nodes + 1] = t
+			else
+				other_nodes[#other_nodes + 1] = t
+			end
 		end)
+		for i = 1, #default_nodes do result[#result + 1] = default_nodes[i] end
+		for i = 1, #other_nodes do result[#result + 1] = other_nodes[i] end
 	end
 	http_write_json(result)
+end
+
+function save_node_order()
+	local ids = http.formvalue("ids") or ""
+	local new_order = {}
+	for id in ids:gmatch("([^,]+)") do
+		new_order[#new_order + 1] = id
+	end
+	for idx, name in ipairs(new_order) do
+		luci.sys.call(string.format("uci -q reorder %s.%s=%d", appname, name, idx - 1))
+	end
+	api.sh_uci_commit(appname)
+	http_write_json({ status = "ok" })
+end
+
+function reassign_group()
+	local ids = http.formvalue("ids") or ""
+	local group = http.formvalue("group") or "default"
+	for id in ids:gmatch("([^,]+)") do
+		if group ~="" and group ~= "default" then
+			api.sh_uci_set(appname, id, "group", group)
+		else
+			api.sh_uci_del(appname, id, "group")
+		end
+	end
+	api.sh_uci_commit(appname)
+	http_write_json({ status = "ok" })
+end
+
+function save_node_list_opt()
+	local option = http.formvalue("option") or ""
+	local value = http.formvalue("value") or ""
+	if option ~= "" then
+		api.sh_uci_set(appname, "@global_other[0]", option, value, true)
+	end
+	http_write_json({ status = "ok" })
 end
 
 function update_rules()

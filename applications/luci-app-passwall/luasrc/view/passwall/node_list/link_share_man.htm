@@ -105,7 +105,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 		};
 		return r;
 	}
-
+	
 	function genQrcode(btn, urlname, sid) {
 		var qrcode_div = document.getElementById("qrcode_div");
 		qrcode_div.style.display = null;
@@ -217,7 +217,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 			url = b64encsafe(v_method.value + ":" + v_password.value) + "@" +
 				_address + ":" +
 				v_port.value + "/?";
-
+			
 			var shadow_tls;
 			//生成SS Shadow-TLS 插件参数
 			const generateShadowTLSBase64 = function(paramStr) {
@@ -563,9 +563,9 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 			var params = "";
 			params += opt.query("sni", dom_prefix + "tls_serverName");
 			params += opt.query("insecure", dom_prefix + "tls_allowInsecure");
-
+			
 			var v_password = null;
-
+			
 			if (v_type === "Hysteria2") {
 				v_password = opt.get("hysteria2_auth_password");
 				params += opt.query("pinSHA256", "hysteria2_tls_pinSHA256");
@@ -1049,7 +1049,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 							var kv = ws_path_params_array[i].split('=');
 							ws_path_params[decodeURIComponent(kv[0]).toLowerCase()] = decodeURIComponent(kv[1] || '');
 						}
-
+						
 						if (ws_path_params.ed) {
 							opt.set(dom_prefix + 'ws_path', ws_path);
 							opt.set(dom_prefix + 'ws_enableEarlyData', true);
@@ -1077,7 +1077,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 					opt.set(dom_prefix + 'grpc_serviceName', (queryParam.serviceName || queryParam.path) || "");
 					opt.set(dom_prefix + 'grpc_mode', queryParam.mode || "gun");
 				}
-
+			
 				if (queryParam["shadow-tls"]) {
 					//解析SS Shadow-TLS 插件参数
 					const parseShadowTLSParams = function(base64Str, outObj) {
@@ -1189,7 +1189,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 						var kv = ws_path_params_array[i].split('=');
 						ws_path_params[decodeURIComponent(kv[0]).toLowerCase()] = decodeURIComponent(kv[1] || '');
 					}
-
+					
 					if (ws_path_params.ed) {
 						opt.set(dom_prefix + 'ws_path', ws_path);
 						opt.set(dom_prefix + 'ws_enableEarlyData', true);
@@ -1302,7 +1302,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 						var kv = ws_path_params_array[i].split('=');
 						ws_path_params[decodeURIComponent(kv[0]).toLowerCase()] = decodeURIComponent(kv[1] || '');
 					}
-
+					
 					if (ws_path_params.ed) {
 						opt.set(dom_prefix + 'ws_path', ws_path);
 						opt.set(dom_prefix + 'ws_enableEarlyData', true);
@@ -1337,7 +1337,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				dom_prefix = "xray_"
 				opt.set('type', "Xray");
 			}
-
+			
 			var m = parseNodeUrl(ssrurl);
 			var password = m.passwd;
 			if (password === "") {
@@ -1439,7 +1439,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 						var kv = ws_path_params_array[i].split('=');
 						ws_path_params[decodeURIComponent(kv[0]).toLowerCase()] = decodeURIComponent(kv[1] || '');
 					}
-
+					
 					if (ws_path_params.ed) {
 						opt.set(dom_prefix + 'ws_path', ws_path);
 						opt.set(dom_prefix + 'ws_enableEarlyData', true);
@@ -1521,10 +1521,10 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				}
 				opt.set(dom_prefix + 'hop', queryParam.mport || "");
 			}
-
+			
 			opt.set(dom_prefix + 'address', unbracketIP(m.hostname));
 			opt.set(dom_prefix + 'port', m.port || "443");
-
+			
 			opt.set(dom_prefix + 'tls_serverName', queryParam.sni || "");
 			if (queryParam.insecure && queryParam.insecure == "1") {
 				opt.set(dom_prefix + 'tls_allowInsecure', true);
