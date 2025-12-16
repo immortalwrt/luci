@@ -95,7 +95,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 			local relay_port = node.port
 			new_port = get_new_port()
 			local config_file = string.format("%s_%s_%s.json", flag, tag, new_port)
-			if tag and node_id and tag ~= node_id then
+			if tag and node_id and not tag:find(node_id) then
 				config_file = string.format("%s_%s_%s_%s.json", flag, tag, node_id, new_port)
 			end
 			if run_socks_instance then
@@ -206,8 +206,8 @@ function gen_outbound(flag, node, tag, proxy_table)
 						local first = node.tcp_guise_http_path[1]
 						return (first == "" or not first) and "/" or first
 					end)() or "/",
-				headers = node.tcp_guise_http_user_agent and {
-					["User-Agent"] = node.tcp_guise_http_user_agent
+				headers = node.user_agent and {
+					["User-Agent"] = node.user_agent
 				} or nil,
 				idle_timeout = (node.http_h2_health_check == "1") and node.http_h2_read_idle_timeout or nil,
 				ping_timeout = (node.http_h2_health_check == "1") and node.http_h2_health_check_timeout or nil,
@@ -220,8 +220,8 @@ function gen_outbound(flag, node, tag, proxy_table)
 				type = "http",
 				host = node.http_host or {},
 				path = node.http_path or "/",
-				headers = node.http_user_agent and {
-					["User-Agent"] = node.http_user_agent
+				headers = node.user_agent and {
+					["User-Agent"] = node.user_agent
 				} or nil,
 				idle_timeout = (node.http_h2_health_check == "1") and node.http_h2_read_idle_timeout or nil,
 				ping_timeout = (node.http_h2_health_check == "1") and node.http_h2_health_check_timeout or nil,
@@ -233,9 +233,9 @@ function gen_outbound(flag, node, tag, proxy_table)
 			v2ray_transport = {
 				type = "ws",
 				path = node.ws_path or "/",
-				headers = (node.ws_host or node.ws_user_agent) and {
+				headers = (node.ws_host or node.user_agent) and {
 					Host = node.ws_host,
-					["User-Agent"] = node.ws_user_agent
+					["User-Agent"] = node.user_agent
 				} or nil,
 				max_early_data = tonumber(node.ws_maxEarlyData) or nil,
 				early_data_header_name = (node.ws_earlyDataHeaderName) and node.ws_earlyDataHeaderName or nil --要与 Xray-core 兼容，请将其设置为 Sec-WebSocket-Protocol。它需要与服务器保持一致。
@@ -247,8 +247,8 @@ function gen_outbound(flag, node, tag, proxy_table)
 				type = "httpupgrade",
 				host = node.httpupgrade_host,
 				path = node.httpupgrade_path or "/",
-				headers = node.httpupgrade_user_agent and {
-					["User-Agent"] = node.httpupgrade_user_agent
+				headers = node.user_agent and {
+					["User-Agent"] = node.user_agent
 				} or nil
 			}
 		end
@@ -1006,8 +1006,7 @@ function gen_config(var)
 					tag = "redirect_tcp",
 					listen = "::",
 					listen_port = tonumber(tcp_redir_port),
-					sniff = true,
-					sniff_override_destination = (singbox_settings.sniff_override_destination == "1") and true or false,
+					sniff = true
 				}
 				table.insert(inbounds, inbound)
 			else
@@ -1017,8 +1016,7 @@ function gen_config(var)
 					network = "tcp",
 					listen = "::",
 					listen_port = tonumber(tcp_redir_port),
-					sniff = true,
-					sniff_override_destination = (singbox_settings.sniff_override_destination == "1") and true or false,
+					sniff = true
 				}
 				table.insert(inbounds, inbound)
 			end
@@ -1031,8 +1029,7 @@ function gen_config(var)
 				network = "udp",
 				listen = "::",
 				listen_port = tonumber(udp_redir_port),
-				sniff = true,
-				sniff_override_destination = (singbox_settings.sniff_override_destination == "1") and true or false,
+				sniff = true
 			}
 			table.insert(inbounds, inbound)
 		end
@@ -1970,7 +1967,6 @@ function gen_config(var)
 						action = "sniff"
 					})
 					value.sniff = nil
-					value.sniff_override_destination = nil
 				end
 				if value.domain_strategy then
 					table.insert(config.route.rules, 1, {
