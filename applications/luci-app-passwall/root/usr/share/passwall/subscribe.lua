@@ -123,7 +123,7 @@ do
 		local name = string.upper(protocol)
 		local szType = "@global[0]"
 		local option = protocol .. "_node"
-
+		
 		local node_id = uci:get(appname, szType, option)
 		CONFIG[#CONFIG + 1] = {
 			log = true,
@@ -496,7 +496,7 @@ local function processData(szType, content, add_mode, group)
 		result.protocol = hostInfo[#hostInfo-3]
 		result.method = hostInfo[#hostInfo-2]
 		result.obfs = hostInfo[#hostInfo-1]
-		result.password = base64Decode(hostInfo[#hostInfo])
+		result.password = base64Decode(hostInfo[#hostInfo])	
 		local params = {}
 		for _, v in pairs(split(dat[2], '&')) do
 			local t = split(v, '=')
@@ -528,7 +528,7 @@ local function processData(szType, content, add_mode, group)
 
 		if not info.net then info.net = "tcp" end
 		info.net = string.lower(info.net)
-		if result.type == "sing-box" and info.net == "raw" then
+		if result.type == "sing-box" and info.net == "raw" then 
 			info.net = "tcp"
 		elseif result.type == "Xray" and info.net == "tcp" then
 			info.net = "raw"
@@ -774,7 +774,7 @@ local function processData(szType, content, add_mode, group)
 
 			if params.type then
 				params.type = string.lower(params.type)
-				if result.type == "sing-box" and params.type == "raw" then
+				if result.type == "sing-box" and params.type == "raw" then 
 					params.type = "tcp"
 				elseif result.type == "Xray" and params.type == "tcp" then
 					params.type = "raw"
@@ -932,7 +932,7 @@ local function processData(szType, content, add_mode, group)
 			log("跳过 Trojan 节点，因未适配到 Trojan 核心程序，或未正确设置节点使用类型。")
 			return nil
 		end
-
+		
 		local alias = ""
 		if content:find("#") then
 			local idx_sp = content:find("#")
@@ -990,7 +990,7 @@ local function processData(szType, content, add_mode, group)
 
 			if not params.type then params.type = "tcp" end
 			params.type = string.lower(params.type)
-			if result.type == "sing-box" and params.type == "raw" then
+			if result.type == "sing-box" and params.type == "raw" then 
 				params.type = "tcp"
 			elseif result.type == "Xray" and params.type == "tcp" then
 				params.type = "raw"
@@ -1134,7 +1134,7 @@ local function processData(szType, content, add_mode, group)
 			if ({ xhttp=true, kcp=true, mkcp=true })[params.type] and result.type ~= "Xray" and has_xray then
 				result.type = "Xray"
 			end
-			if result.type == "sing-box" and params.type == "raw" then
+			if result.type == "sing-box" and params.type == "raw" then 
 				params.type = "tcp"
 			elseif result.type == "Xray" and params.type == "tcp" then
 				params.type = "raw"
@@ -1221,7 +1221,7 @@ local function processData(szType, content, add_mode, group)
 				result.httpupgrade_host = params.host
 				result.httpupgrade_path = params.path
 			end
-
+			
 			result.encryption = params.encryption or "none"
 
 			result.flow = params.flow and params.flow:gsub("-udp443", "") or nil
@@ -1279,7 +1279,7 @@ local function processData(szType, content, add_mode, group)
 			content = content:sub(0, idx_sp - 1)
 		end
 		result.remarks = UrlDecode(alias)
-
+		
 		local dat = split(content:gsub("/%?", "?"), '%?')
 		local host_port = dat[1]
 		local params = {}
@@ -1758,7 +1758,7 @@ local function update_node(manual)
 							uci:set(appname, cfgid, "chain_proxy", "2")
 							uci:set(appname, cfgid, "to_node", to_node_group)
 						end
-					end
+					end		
 				end
 			end
 		end

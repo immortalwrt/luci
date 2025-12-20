@@ -276,6 +276,13 @@ eval_unset_val() {
 	done
 }
 
+is_socks_wrap() {
+	case "$1" in
+		Socks_*) return 0 ;;
+		*)       return 1 ;;
+	esac
+}
+
 ln_run() {
 	local file_func=${1}
 	local ln_name=${2}
@@ -538,7 +545,7 @@ run_xray() {
 	[ -n "$http_username" ] && [ -n "$http_password" ] && _extra_param="${_extra_param} -local_http_username $http_username -local_http_password $http_password"
 	[ -n "$dns_socks_address" ] && [ -n "$dns_socks_port" ] && _extra_param="${_extra_param} -dns_socks_address ${dns_socks_address} -dns_socks_port ${dns_socks_port}"
 	[ -n "$dns_listen_port" ] && _extra_param="${_extra_param} -dns_listen_port ${dns_listen_port}"
-
+	
 	if [ -n "$direct_dns_udp_server" ]; then
 		direct_dns_port=$(echo ${direct_dns_udp_server} | awk -F '#' '{print $2}')
 		_extra_param="${_extra_param} -direct_dns_udp_server $(echo ${direct_dns_udp_server} | awk -F '#' '{print $1}')"
@@ -633,10 +640,24 @@ run_socks() {
 	else
 		log_file="/dev/null"
 	fi
-	local type=$(echo $(config_n_get $node type) | tr 'A-Z' 'a-z')
-	local remarks=$(config_n_get $node remarks)
-	local server_host=$(config_n_get $node address)
-	local server_port=$(config_n_get $node port)
+
+	local node2socks_port=0
+	local type remarks server_host server_port
+	if is_socks_wrap "$node"; then
+		node2socks_port=$(config_n_get ${node#Socks_} port 0)
+	fi
+	if [ "$node2socks_port" = "0" ]; then
+		type=$(echo $(config_n_get $node type) | tr 'A-Z' 'a-z')
+		remarks=$(config_n_get $node remarks)
+		server_host=$(config_n_get $node address)
+		server_port=$(config_n_get $node port)
+	else
+		type="socks"
+		server_host="127.0.0.1"
+		server_port=$node2socks_port
+		remarks="Socks 配置($server_port 端口)"
+	fi
+
 	[ -n "$relay_port" ] && {
 		server_host="127.0.0.1"
 		server_port=$relay_port
@@ -669,10 +690,16 @@ run_socks() {
 
 	case "$type" in
 	socks)
-		local _socks_address=$(config_n_get $node address)
-		local _socks_port=$(config_n_get $node port)
-		local _socks_username=$(config_n_get $node username)
-		local _socks_password=$(config_n_get $node password)
+		local _socks_address _socks_port _socks_username _socks_password
+		if [ "$node2socks_port" = "0" ]; then
+			_socks_address=$(config_n_get $node address)
+			_socks_port=$(config_n_get $node port)
+			_socks_username=$(config_n_get $node username)
+			_socks_password=$(config_n_get $node password)
+		else
+			_socks_address="127.0.0.1"
+			_socks_port=$node2socks_port
+		fi
 		[ "$http_port" != "0" ] && {
 			http_flag=1
 			config_file="${config_file//SOCKS/HTTP_SOCKS}"
@@ -795,12 +822,26 @@ run_redir() {
 	fi
 	local proto=$(echo $proto | tr 'A-Z' 'a-z')
 	local PROTO=$(echo $proto | tr 'a-z' 'A-Z')
-	local type=$(echo $(config_n_get $node type) | tr 'A-Z' 'a-z')
+
+	local node2socks_port=0
+	local type remarks server_host port
+	if is_socks_wrap "$node"; then
+		node2socks_port=$(config_n_get ${node#Socks_} port 0)
+	fi
+	if [ "$node2socks_port" = "0" ]; then
+		type=$(echo $(config_n_get $node type) | tr 'A-Z' 'a-z')
+		remarks=$(config_n_get $node remarks)
+		server_host=$(config_n_get $node address)
+		port=$(config_n_get $node port)
+	else
+		type="socks"
+		server_host="127.0.0.1"
+		port=$node2socks_port
+		remarks="Socks 配置($port 端口)"
+	fi
+
 	local enable_log=$(config_t_get global log_${proto} 1)
 	[ "$enable_log" != "1" ] && log_file="/dev/null"
-	local remarks=$(config_n_get $node remarks)
-	local server_host=$(config_n_get $node address)
-	local port=$(config_n_get $node port)
 	[ -n "$server_host" ] && [ -n "$port" ] && {
 		check_host $server_host
 		[ $? != 0 ] && {
@@ -814,10 +855,16 @@ run_redir() {
 	UDP)
 		case "$type" in
 		socks)
-			local _socks_address=$(config_n_get $node address)
-			local _socks_port=$(config_n_get $node port)
-			local _socks_username=$(config_n_get $node username)
-			local _socks_password=$(config_n_get $node password)
+			local _socks_address _socks_port _socks_username _socks_password
+			if [ "$node2socks_port" = "0" ]; then
+				_socks_address=$(config_n_get $node address)
+				_socks_port=$(config_n_get $node port)
+				_socks_username=$(config_n_get $node username)
+				_socks_password=$(config_n_get $node password)
+			else
+				_socks_address="127.0.0.1"
+				_socks_port=$node2socks_port
+			fi
 			run_ipt2socks flag=default proto=UDP local_port=${local_port} socks_address=${_socks_address} socks_port=${_socks_port} socks_username=${_socks_username} socks_password=${_socks_password} log_file=${log_file}
 		;;
 		sing-box)
@@ -898,10 +945,15 @@ run_redir() {
 		case "$type" in
 		socks)
 			_socks_flag=1
-			_socks_address=$(config_n_get $node address)
-			_socks_port=$(config_n_get $node port)
-			_socks_username=$(config_n_get $node username)
-			_socks_password=$(config_n_get $node password)
+			if [ "$node2socks_port" = "0" ]; then
+				_socks_address=$(config_n_get $node address)
+				_socks_port=$(config_n_get $node port)
+				_socks_username=$(config_n_get $node username)
+				_socks_password=$(config_n_get $node password)
+			else
+				_socks_address="127.0.0.1"
+				_socks_port=$node2socks_port
+			fi
 			[ -z "$can_ipt" ] && {
 				local _config_file=$config_file
 				_config_file="TCP_SOCKS_${node}.json"
@@ -1455,7 +1507,7 @@ start_dns() {
 			china_ng_local_dns=${LOCAL_DNS}
 			sing_box_local_dns="direct_dns_udp_server=${LOCAL_DNS}"
 		;;
-		tcp)
+		tcp)	
 			local DIRECT_DNS=$(config_t_get global direct_dns 223.5.5.5 | sed -E 's/^\[([^]]+)\]:(.*)$/\1#\2/; t; s/^([^:]+):([0-9]+)$/\1#\2/')
 			china_ng_local_dns="tcp://${DIRECT_DNS}"
 			sing_box_local_dns="direct_dns_tcp_server=${DIRECT_DNS}"
@@ -1551,6 +1603,7 @@ start_dns() {
 			local _remote_dns_client_ip=$(config_t_get global remote_dns_client_ip)
 			[ -n "${_remote_dns_client_ip}" ] && _args="${_args} remote_dns_client_ip=${_remote_dns_client_ip}"
 			TCP_PROXY_DNS=1
+			local v2ray_dns_mode=$(config_t_get global v2ray_dns_mode tcp)
 			_args="${_args} dns_listen_port=${NEXT_DNS_LISTEN_PORT}"
 			_args="${_args} remote_dns_protocol=${v2ray_dns_mode}"
 			case "$v2ray_dns_mode" in
@@ -1560,7 +1613,6 @@ start_dns() {
 				;;
 				tcp|tcp+doh)
 					_args="${_args} remote_dns_tcp_server=${REMOTE_DNS}"
-					local v2ray_dns_mode=$(config_t_get global v2ray_dns_mode tcp)
 					if [ "$v2ray_dns_mode" = "tcp+doh" ]; then
 						remote_dns_doh=$(config_t_get global remote_dns_doh "https://1.1.1.1/dns-query")
 						_args="${_args} remote_dns_doh=${remote_dns_doh}"
@@ -1691,7 +1743,7 @@ start_dns() {
 			ln_run "$(first_type dnsmasq)" "dnsmasq_direct" "/dev/null" -C ${DIRECT_DNSMASQ_CONF} -x ${GLOBAL_ACL_PATH}/direct_dnsmasq.pid
 			echo "${DIRECT_DNSMASQ_PORT}" > ${GLOBAL_ACL_PATH}/direct_dnsmasq_port
 		}
-
+		
 		#Rewrite the default DNS service configuration
 		#Modify the default dnsmasq service
 		lua $APP_PATH/helper_dnsmasq.lua stretch
@@ -1856,7 +1908,7 @@ acl_app() {
 						echolog "  - 全局节点未启用，跳过【${remarks}】"
 					fi
 				else
-					[ "$(config_get_type $tcp_node)" = "nodes" ] && {
+					[ "$(config_get_type $tcp_node)" = "nodes" ] || [ "$(config_get_type ${tcp_node#Socks_})" = "socks" ] && {
 						if [ -n "${GLOBAL_TCP_NODE}" ] && [ "$tcp_node" = "${GLOBAL_TCP_NODE}" ]; then
 							set_cache_var "ACL_${sid}_tcp_node" "${GLOBAL_TCP_NODE}"
 							set_cache_var "ACL_${sid}_tcp_redir_port" "${GLOBAL_TCP_redir_port}"
@@ -2015,7 +2067,7 @@ acl_app() {
 					set_cache_var "ACL_${sid}_udp_node" "${udp_node}"
 					set_cache_var "ACL_${sid}_udp_redir_port" "${udp_port}"
 				else
-					[ "$(config_get_type $udp_node)" = "nodes" ] && {
+					[ "$(config_get_type $udp_node)" = "nodes" ] || [ "$(config_get_type ${udp_node#Socks_})" = "socks" ] && {
 						if [ -n "${GLOBAL_UDP_NODE}" ] && [ "$udp_node" = "${GLOBAL_UDP_NODE}" ]; then
 							set_cache_var "ACL_${sid}_udp_node" "${GLOBAL_UDP_NODE}"
 							set_cache_var "ACL_${sid}_udp_redir_port" "${GLOBAL_UDP_redir_port}"
@@ -2131,7 +2183,7 @@ start() {
 			sysctl -w net.bridge.bridge-nf-call-ip6tables=0 >/dev/null 2>&1
 		}
 	fi
-
+	
 	start_crontab
 	echolog "运行完成！\n"
 }
@@ -2189,18 +2241,23 @@ get_config() {
 	TCP_NODE=$(config_t_get global tcp_node)
 	UDP_NODE=$(config_t_get global udp_node)
 	TCP_UDP=0
-	if [ "$UDP_NODE" == "tcp" ]; then
+	if [ "$UDP_NODE" = "tcp" ]; then
 		UDP_NODE=$TCP_NODE
 		TCP_UDP=1
-	elif [ "$UDP_NODE" == "$TCP_NODE" ]; then
+	elif [ "$UDP_NODE" = "$TCP_NODE" ]; then
 		TCP_UDP=1
 	fi
-	[ "$ENABLED" == 1 ] && {
-		[ -n "$TCP_NODE" ] && [ "$(config_get_type $TCP_NODE)" == "nodes" ] && ENABLED_DEFAULT_ACL=1
-		[ -n "$UDP_NODE" ] && [ "$(config_get_type $UDP_NODE)" == "nodes" ] && ENABLED_DEFAULT_ACL=1
+	[ "$ENABLED" = 1 ] && {
+		local _node
+		for _node in "$TCP_NODE" "$UDP_NODE"; do
+			[ -n "$_node" ] && case "$_node" in
+				Socks_*) [ "$(config_get_type "${_node#Socks_}")" = "socks" ] && ENABLED_DEFAULT_ACL=1 ;;
+				*)       [ "$(config_get_type "$_node")" = "nodes" ] && ENABLED_DEFAULT_ACL=1 ;;
+			esac
+		done
 	}
 	ENABLED_ACLS=$(config_t_get global acl_enable 0)
-	[ "$ENABLED_ACLS" == 1 ] && {
+	[ "$ENABLED_ACLS" = 1 ] && {
 		[ "$(uci show ${CONFIG} | grep "@acl_rule" | grep "enabled='1'" | wc -l)" == 0 ] && ENABLED_ACLS=0
 	}
 
@@ -2246,7 +2303,7 @@ get_config() {
 	REMOTE_DNS_QUERY_STRATEGY="UseIP"
 	[ "$FILTER_PROXY_IPV6" = "1" ] && REMOTE_DNS_QUERY_STRATEGY="UseIPv4"
 	DNSMASQ_FILTER_PROXY_IPV6=${FILTER_PROXY_IPV6}
-
+	
 	RESOLVFILE=/tmp/resolv.conf.d/resolv.conf.auto
 	[ -f "${RESOLVFILE}" ] && [ -s "${RESOLVFILE}" ] || RESOLVFILE=/tmp/resolv.conf.auto
 

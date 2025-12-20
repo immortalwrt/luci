@@ -114,6 +114,10 @@ o:depends({ [_n("protocol")] = "_urltest" })
 o.widget = "checkbox"
 o.template = appname .. "/cbi/nodes_multivalue"
 o.group = {}
+for k, v in pairs(socks_list) do
+	o:value(v.id, v.remark)
+	o.group[#o.group+1] = v.group or ""
+end
 for i, v in pairs(nodes_table) do
 	o:value(v.id, v.remark)
 	o.group[#o.group+1] = v.group or ""
@@ -180,7 +184,7 @@ o.description = translate("The idle timeout.") .. "<br>" ..
 o = s:option(Flag, _n("urltest_interrupt_exist_connections"), translate("Interrupt existing connections"))
 o:depends({ [_n("protocol")] = "_urltest" })
 o.default = "0"
-o.description = translate("Interrupt existing connections when the selected outbound has changed.")
+o.description = translate("Interrupt existing connections when the selected outbound has changed.") 
 
 -- [[ 分流模块 ]]
 if #nodes_table > 0 then
@@ -543,8 +547,8 @@ o:depends({ [_n("ech")] = true })
 o.validate = function(self, value)
 	value = value:gsub("^%s+", ""):gsub("%s+$","\n"):gsub("\r\n","\n"):gsub("[ \t]*\n[ \t]*", "\n")
 	value = value:gsub("^%s*\n", "")
-	if value:sub(-1) == "\n" then
-		value = value:sub(1, -2)
+	if value:sub(-1) == "\n" then  
+		value = value:sub(1, -2)  
 	end
 	return value
 end
@@ -577,10 +581,10 @@ if singbox_tags:find("with_utls") then
 	o:depends({ [_n("protocol")] = "socks", [_n("tls")] = true })
 	o:depends({ [_n("protocol")] = "trojan", [_n("tls")] = true })
 	o:depends({ [_n("protocol")] = "anytls", [_n("tls")] = true })
-
+	
 	o = s:option(Value, _n("reality_publicKey"), translate("Public Key"))
 	o:depends({ [_n("reality")] = true })
-
+	
 	o = s:option(Value, _n("reality_shortId"), translate("Short Id"))
 	o:depends({ [_n("reality")] = true })
 end

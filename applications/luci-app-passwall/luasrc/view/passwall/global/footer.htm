@@ -78,7 +78,7 @@ local api = require "luci.passwall.api"
 						}
 
 						node_select.insertAdjacentHTML("beforeend",
-							'<div class="node-actions" style="display:inline-flex; align-items:center; gap:4px; flex-wrap:wrap; margin-left:4px;">'
+							'<div class="node-actions" style="display:inline-flex; align-items:center; gap:4px; flex-wrap:wrap; margin-left:4px;">'  
 							+ html + '</div>'
 						);
 					} catch (e) {
@@ -113,7 +113,7 @@ local api = require "luci.passwall.api"
 						html += '<a href="#" onclick="window.open(\'' + '<%=api.url("get_socks_log")%>?name=' + id.replace("cbi-passwall-", "") + '\', \'_blank\')"><%:Log%></a>';
 
 						node_select.insertAdjacentHTML("afterend",
-							'<div class="node-actions" style="display:inline-flex; align-items:center; gap:4px; flex-wrap:wrap; margin-left:4px;">'
+							'<div class="node-actions" style="display:inline-flex; align-items:center; gap:4px; flex-wrap:wrap; margin-left:4px;">'  
 							+ html + '</div>'
 						);
 					}

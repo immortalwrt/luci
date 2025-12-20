@@ -1061,12 +1061,30 @@ function gen_config(var)
 					end
 				end
 				if is_new_ut_node then
-					local ut_node = uci:get_all(appname, ut_node_id)
-					local outbound = gen_outbound(flag, ut_node, ut_node_tag, { fragment = singbox_settings.fragment == "1" or nil, record_fragment = singbox_settings.record_fragment == "1" or nil, run_socks_instance = not no_run })
-					if outbound then
-						outbound.tag = outbound.tag .. ":" .. ut_node.remarks
-						table.insert(outbounds, outbound)
-						valid_nodes[#valid_nodes + 1] = outbound.tag
+					local ut_node
+					if ut_node_id:find("Socks_") then
+						local socks_id = ut_node_id:sub(1 + #"Socks_")
+						local socks_node = uci:get_all(appname, socks_id) or nil
+						if socks_node then
+							ut_node = {
+								type = "sing-box",
+								protocol = "socks",
+								address = "127.0.0.1",
+								port = socks_node.port,
+								uot = "1",
+								remarks = "Socks_" .. socks_node.port
+							}
+						end
+					else
+						ut_node = uci:get_all(appname, ut_node_id)
+					end
+					if ut_node then
+						local outbound = gen_outbound(flag, ut_node, ut_node_tag, { fragment = singbox_settings.fragment == "1" or nil, record_fragment = singbox_settings.record_fragment == "1" or nil, run_socks_instance = not no_run })
+						if outbound then
+							outbound.tag = outbound.tag .. ":" .. ut_node.remarks
+							table.insert(outbounds, outbound)
+							valid_nodes[#valid_nodes + 1] = outbound.tag
+						end
 					end
 				end
 			end
@@ -1314,7 +1332,7 @@ function gen_config(var)
 							end
 						end
 					end
-
+					
 					local rule = {
 						inbound = inboundTag,
 						outbound = outboundTag,
@@ -1531,7 +1549,7 @@ function gen_config(var)
 				server = dns_socks_address,
 				server_port = tonumber(dns_socks_port)
 			})
-		else
+		else 
 			default_outTag = COMMON.default_outbound_tag
 		end
 
@@ -1580,7 +1598,7 @@ function gen_config(var)
 					inet4_range = "198.18.0.0/15",
 					inet6_range = "fc00::/18",
 				}
-
+				
 				table.insert(dns.servers, {
 					tag = fakedns_tag,
 					address = "fakeip",
@@ -1640,7 +1658,7 @@ function gen_config(var)
 				table.insert(dns.servers, remote_server)
 			end
 
-			if remote_dns_fake then
+			if remote_dns_fake then		
 				table.insert(dns.servers, {
 					tag = fakedns_tag,
 					type = "fakeip",
@@ -1689,7 +1707,7 @@ function gen_config(var)
 					port = tonumber(direct_dns_port) or 53
 					direct_dns_server = "tcp://" .. direct_dns_tcp_server .. ":" .. port
 				end
-
+		
 				table.insert(dns.servers, {
 					tag = "direct",
 					address = direct_dns_server,
@@ -1708,7 +1726,7 @@ function gen_config(var)
 					direct_dns_server = direct_dns_tcp_server
 					type = "tcp"
 				end
-
+		
 				table.insert(dns.servers, {
 					tag = "direct",
 					type = type,
@@ -1795,7 +1813,7 @@ function gen_config(var)
 				end
 			end
 		end
-
+	
 		table.insert(inbounds, {
 			type = "direct",
 			tag = "dns-in",
@@ -1815,7 +1833,7 @@ function gen_config(var)
 			outbound = "dns-out"
 		})
 	end
-
+	
 	if inbounds or outbounds then
 		local config = {
 			log = {
@@ -2040,7 +2058,7 @@ function gen_proto_config(var)
 		}
 		if outbound then table.insert(outbounds, outbound) end
 	end
-
+	
 	local config = {
 		log = {
 			disabled = true,

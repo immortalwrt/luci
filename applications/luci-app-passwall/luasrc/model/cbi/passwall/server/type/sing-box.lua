@@ -317,8 +317,8 @@ o:depends({ [_n("ech")] = true })
 o.validate = function(self, value)
 	value = value:gsub("^%s+", ""):gsub("%s+$","\n"):gsub("\r\n","\n"):gsub("[ \t]*\n[ \t]*", "\n")
 	value = value:gsub("^%s*\n", "")
-	if value:sub(-1) == "\n" then
-		value = value:sub(1, -2)
+	if value:sub(-1) == "\n" then  
+		value = value:sub(1, -2)  
 	end
 	return value
 end

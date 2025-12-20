@@ -95,7 +95,7 @@ o = s:option(Value, "autoswitch_retry_num", translate("Timeout retry num"))
 o.datatype = "min(1)"
 o.default = 1
 o:depends("enable_autoswitch", true)
-
+	
 o = s:option(MultiValue, "autoswitch_backup_node", translate("List of backup nodes"))
 o:depends("enable_autoswitch", true)
 o.widget = "checkbox"
