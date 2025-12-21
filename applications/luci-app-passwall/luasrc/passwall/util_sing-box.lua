@@ -1006,8 +1006,7 @@ function gen_config(var)
 					tag = "redirect_tcp",
 					listen = "::",
 					listen_port = tonumber(tcp_redir_port),
-					sniff = true,
-					sniff_override_destination = (singbox_settings.sniff_override_destination == "1") and true or false,
+					sniff = true
 				}
 				table.insert(inbounds, inbound)
 			else
@@ -1017,8 +1016,7 @@ function gen_config(var)
 					network = "tcp",
 					listen = "::",
 					listen_port = tonumber(tcp_redir_port),
-					sniff = true,
-					sniff_override_destination = (singbox_settings.sniff_override_destination == "1") and true or false,
+					sniff = true
 				}
 				table.insert(inbounds, inbound)
 			end
@@ -1031,8 +1029,7 @@ function gen_config(var)
 				network = "udp",
 				listen = "::",
 				listen_port = tonumber(udp_redir_port),
-				sniff = true,
-				sniff_override_destination = (singbox_settings.sniff_override_destination == "1") and true or false,
+				sniff = true
 			}
 			table.insert(inbounds, inbound)
 		end
@@ -1061,12 +1058,30 @@ function gen_config(var)
 					end
 				end
 				if is_new_ut_node then
-					local ut_node = uci:get_all(appname, ut_node_id)
-					local outbound = gen_outbound(flag, ut_node, ut_node_tag, { fragment = singbox_settings.fragment == "1" or nil, record_fragment = singbox_settings.record_fragment == "1" or nil, run_socks_instance = not no_run })
-					if outbound then
-						outbound.tag = outbound.tag .. ":" .. ut_node.remarks
-						table.insert(outbounds, outbound)
-						valid_nodes[#valid_nodes + 1] = outbound.tag
+					local ut_node
+					if ut_node_id:find("Socks_") then
+						local socks_id = ut_node_id:sub(1 + #"Socks_")
+						local socks_node = uci:get_all(appname, socks_id) or nil
+						if socks_node then
+							ut_node = {
+								type = "sing-box",
+								protocol = "socks",
+								address = "127.0.0.1",
+								port = socks_node.port,
+								uot = "1",
+								remarks = "Socks_" .. socks_node.port
+							}
+						end
+					else
+						ut_node = uci:get_all(appname, ut_node_id)
+					end
+					if ut_node then
+						local outbound = gen_outbound(flag, ut_node, ut_node_tag, { fragment = singbox_settings.fragment == "1" or nil, record_fragment = singbox_settings.record_fragment == "1" or nil, run_socks_instance = not no_run })
+						if outbound then
+							outbound.tag = outbound.tag .. ":" .. ut_node.remarks
+							table.insert(outbounds, outbound)
+							valid_nodes[#valid_nodes + 1] = outbound.tag
+						end
 					end
 				end
 			end
@@ -1952,7 +1967,6 @@ function gen_config(var)
 						action = "sniff"
 					})
 					value.sniff = nil
-					value.sniff_override_destination = nil
 				end
 				if value.domain_strategy then
 					table.insert(config.route.rules, 1, {
