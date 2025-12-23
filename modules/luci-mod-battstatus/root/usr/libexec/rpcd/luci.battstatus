@@ -26,6 +26,16 @@ case "$1" in
 							json_add_string message "Need pcat-mgr"
 						fi
 					;;
+					ariaboard,photonicat2)
+						if [ -d /sys/class/power_supply/battery ]; then
+							json_add_boolean valid 1
+							json_add_boolean charging $(cat /sys/class/power_supply/charger/online)
+							json_add_int percentage $(cat /sys/class/power_supply/battery/capacity)
+						else
+							json_add_boolean valid 0
+							json_add_string message "Need kmod-photonicat-pm"
+						fi
+					;;
 					hootoo,ht-tm05)
 						if [ -f /usr/sbin/i2cset ] && [ -f /usr/sbin/i2cget ]; then
 							json_add_boolean valid 1
