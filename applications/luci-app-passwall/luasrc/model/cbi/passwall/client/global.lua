@@ -309,6 +309,18 @@ o = s:taboption("Main", Flag, "tcp_node_socks_bind_local", translate("TCP Node")
 o.default = "1"
 o:depends({ tcp_node = "", ["!reverse"] = true })
 
+-- Node → DNS Depends Settings
+o = s:taboption("Main", DummyValue, "_node_sel_shunt", "")
+o.template = appname .. "/cbi/hidevalue"
+o.value = "1"
+o:depends({ tcp_node = "__always__" })
+
+o = s:taboption("Main", DummyValue, "_node_sel_other", "")
+o.template = appname .. "/cbi/hidevalue"
+o.value = "1"
+o:depends({ _node_sel_shunt = "1",  ['!reverse'] = true })
+
+-- [[ DNS Settings ]]--
 s:tab("DNS", translate("DNS"))
 
 o = s:taboption("DNS", ListValue, "dns_shunt", "DNS " .. translate("Shunt"))
@@ -388,8 +400,8 @@ end
 if has_xray then
 	o:value("xray", "Xray")
 end
-o:depends({ dns_shunt = "chinadns-ng", tcp_node = "" })
-o:depends({ dns_shunt = "dnsmasq", tcp_node = "" })
+o:depends({ dns_shunt = "chinadns-ng", _node_sel_other = "1" })
+o:depends({ dns_shunt = "dnsmasq", _node_sel_other = "1" })
 o.remove = function(self, section)
 	local f = s.fields["smartdns_dns_mode"]
 	if f and f:formvalue(section) then
@@ -408,7 +420,7 @@ if api.is_finded("smartdns") then
 	if has_xray then
 		o:value("xray", "Xray")
 	end
-	o:depends({ dns_shunt = "smartdns", tcp_node = "" })
+	o:depends({ dns_shunt = "smartdns", _node_sel_other = "1" })
 	o.remove = function(self, section)
 		local f = s.fields["dns_mode"]
 		if f and f:formvalue(section) then
@@ -548,6 +560,7 @@ o.datatype = "ipaddr"
 o:depends({dns_mode = "sing-box"})
 o:depends({dns_mode = "xray"})
 o:depends("dns_shunt", "smartdns")
+o:depends("_node_sel_shunt", "1")
 
 o = s:taboption("DNS", Flag, "remote_fakedns", "FakeDNS", translate("Use FakeDNS work in the shunt domain that proxy."))
 o.default = "0"
@@ -557,6 +570,7 @@ o:depends({smartdns_dns_mode = "sing-box", dns_shunt = "smartdns"})
 o:depends({dns_mode = "xray", dns_shunt = "dnsmasq"})
 o:depends({dns_mode = "xray", dns_shunt = "chinadns-ng"})
 o:depends({smartdns_dns_mode = "xray", dns_shunt = "smartdns"})
+o:depends("_node_sel_shunt", "1")
 o.validate = function(self, value, t)
 	if value and value == "1" then
 		local _dns_mode = s.fields["dns_mode"]:formvalue(t)
@@ -749,6 +763,52 @@ function s2.create(e, t)
 	TypedSection.create(e, t)
 	luci.http.redirect(e.extedit:format(t))
 end
+function s2.remove(e, t)
+	local socks = "Socks_" .. t
+	local new_node = ""
+	local node0 = m:get("@nodes[0]") or nil
+	if node0 then
+		new_node = node0[".name"]
+	end
+	if (m:get("@global[0]", "tcp_node") or "") == socks then
+		m:set('@global[0]', "tcp_node", new_node)
+	end
+	if (m:get("@global[0]", "udp_node") or "") == socks then
+		m:set('@global[0]', "udp_node", new_node)
+	end
+	m.uci:foreach(appname, "acl_rule", function(s)
+		if s["tcp_node"] and s["tcp_node"] == socks then
+			m:set(s[".name"], "tcp_node", "default")
+		end
+		if s["udp_node"] and s["udp_node"] == socks then
+			m:set(s[".name"], "udp_node", "default")
+		end
+	end)
+	m.uci:foreach(appname, "nodes", function(s)
+		local list_name = s["urltest_node"] and "urltest_node" or (s["balancing_node"] and "balancing_node")
+		if list_name then
+			local nodes = m.uci:get_list(appname, s[".name"], list_name)
+			if nodes then
+				local changed = false
+				local new_nodes = {}
+				for _, node in ipairs(nodes) do
+					if node ~= socks then
+						table.insert(new_nodes, node)
+					else
+						changed = true
+					end
+				end
+				if changed then
+					m.uci:set_list(appname, s[".name"], list_name, new_nodes)
+				end
+			end
+		end
+		if s["fallback_node"] == socks then
+			m:del(s[".name"], "fallback_node")
+		end
+	end)
+	TypedSection.remove(e, t)
+end
 
 o = s2:option(DummyValue, "status", translate("Status"))
 o.rawhtml = true
@@ -799,6 +859,12 @@ end
 local tcp = s.fields["tcp_node"]
 local udp = s.fields["udp_node"]
 local socks = s2.fields["node"]
+for k, v in pairs(socks_list) do
+	tcp:value(v.id, v["remark"])
+	tcp.group[#tcp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+	udp:value(v.id, v["remark"])
+	udp.group[#udp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+end
 for k, v in pairs(nodes_table) do
 	if #normal_list == 0 then
 		break
@@ -810,22 +876,15 @@ for k, v in pairs(nodes_table) do
 			udp:value(v.id, v["remark"])
 			udp.group[#udp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
 
-			s.fields["xray_dns_mode"]:depends({ [v.id .. "-type"] = "Xray", tcp_node = v.id })
-			s.fields["singbox_dns_mode"]:depends({ [v.id .. "-type"] = "sing-box", tcp_node = v.id })
-			s.fields["remote_dns_client_ip"]:depends({ tcp_node = v.id })
-			s.fields["remote_fakedns"]:depends({ tcp_node = v.id })
+			s.fields["_node_sel_shunt"]:depends({ tcp_node = v.id })
+			s.fields["xray_dns_mode"]:depends({ [v.id .. "-type"] = "Xray", _node_sel_shunt = "1" })
+			s.fields["singbox_dns_mode"]:depends({ [v.id .. "-type"] = "sing-box", _node_sel_shunt = "1" })
 		end
 	else
 		tcp:value(v.id, v["remark"])
 		tcp.group[#tcp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
 		udp:value(v.id, v["remark"])
 		udp.group[#udp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
-
-		s.fields["dns_mode"]:depends({ dns_shunt = "chinadns-ng", tcp_node = v.id })
-		s.fields["dns_mode"]:depends({ dns_shunt = "dnsmasq", tcp_node = v.id })
-		if api.is_finded("smartdns") then
-			s.fields["smartdns_dns_mode"]:depends({ dns_shunt = "smartdns", tcp_node = v.id })
-		end
 	end
 	if v.type == "Socks" then
 		if has_singbox or has_xray then
