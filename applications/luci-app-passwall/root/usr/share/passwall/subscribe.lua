@@ -843,6 +843,22 @@ local function processData(szType, content, add_mode, group)
 						if params.serviceName then result.grpc_serviceName = params.serviceName end
 						result.grpc_mode = params.mode or "gun"
 					end
+					if params.type == 'xhttp' then
+						if result.type ~= "Xray" then
+							result.error_msg = "请更换 Xray 以支持 xhttp 传输方式."
+						end
+						result.xhttp_host = params.host
+						result.xhttp_path = params.path
+						result.xhttp_mode = params.mode or "auto"
+						result.use_xhttp_extra = (params.extra and params.extra ~= "") and "1" or nil
+						result.xhttp_extra = (params.extra and params.extra ~= "") and api.base64Encode(params.extra) or nil
+						local success, Data = pcall(jsonParse, params.extra)
+						if success and Data then
+							local address = (Data.extra and Data.extra.downloadSettings and Data.extra.downloadSettings.address)
+									or (Data.downloadSettings and Data.downloadSettings.address)
+							result.download_address = (address and address ~= "") and address:gsub("^%[", ""):gsub("%]$", "") or nil
+						end
+					end
 					result.tls = "0"
 					if params.security == "tls" or params.security == "reality" then
 						result.tls = "1"
@@ -1213,8 +1229,6 @@ local function processData(szType, content, add_mode, group)
 					local address = (Data.extra and Data.extra.downloadSettings and Data.extra.downloadSettings.address)
 							or (Data.downloadSettings and Data.downloadSettings.address)
 					result.download_address = (address and address ~= "") and address:gsub("^%[", ""):gsub("%]$", "") or nil
-				else
-					result.download_address = nil
 				end
 			end
 			if params.type == 'httpupgrade' then
@@ -1530,6 +1544,7 @@ local function processData(szType, content, add_mode, group)
 end
 
 local function curl(url, file, ua, mode)
+	if not url or url == "" then return 404 end
 	local curl_args = {
 		"-skL", "-w %{http_code}", "--retry 3", "--connect-timeout 3"
 	}
@@ -1916,8 +1931,8 @@ local execute = function()
 
 		for index, value in ipairs(subscribe_list) do
 			local cfgid = value[".name"]
-			local remark = value.remark
-			local url = value.url
+			local remark = value.remark or ""
+			local url = value.url or ""
 			if value.allowInsecure and value.allowInsecure == "1" then
 				allowInsecure_default = true
 			end
