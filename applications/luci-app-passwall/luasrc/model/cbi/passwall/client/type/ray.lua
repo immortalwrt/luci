@@ -61,6 +61,7 @@ for k, e in ipairs(api.get_valid_nodes()) do
 			id = e[".name"],
 			remark = e["remark"],
 			type = e["type"],
+			address = e["address"],
 			chain_proxy = e["chain_proxy"],
 			group = e["group"]
 		}
@@ -192,7 +193,7 @@ o:value("https://www.google.com/generate_204", "Google")
 o:value("https://www.youtube.com/generate_204", "YouTube")
 o:value("https://connect.rom.miui.com/generate_204", "MIUI (CN)")
 o:value("https://connectivitycheck.platform.hicloud.com/generate_204", "HiCloud (CN)")
-o.default = "https://www.google.com/generate_204"
+o.default = o.keylist[3]
 o.description = translate("The URL used to detect the connection status.")
 
 -- 探测间隔
@@ -268,7 +269,9 @@ m.uci:foreach(appname, "shunt_rules", function(e)
 			for k, v in pairs(nodes_table) do
 				o:value(v.id, v.remark)
 				o.group[#o.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
-				pt:depends({ [_n("protocol")] = "_shunt", [_n("preproxy_enabled")] = true, [_n(e[".name"])] = v.id })
+				if not api.is_local_ip(v.address) then  --本地节点禁止使用前置
+					pt:depends({ [_n("protocol")] = "_shunt", [_n("preproxy_enabled")] = true, [_n(e[".name"])] = v.id })
+				end
 			end
 		end
 	end
@@ -308,7 +311,9 @@ if #nodes_table > 0 then
 	for k, v in pairs(nodes_table) do
 		o:value(v.id, v.remark)
 		o.group[#o.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
-		dpt:depends({ [_n("protocol")] = "_shunt", [_n("preproxy_enabled")] = true, [_n("default_node")] = v.id })
+		if not api.is_local_ip(v.address) then
+			dpt:depends({ [_n("protocol")] = "_shunt", [_n("preproxy_enabled")] = true, [_n("default_node")] = v.id })
+		end
 	end
 end
 
@@ -392,8 +397,7 @@ o = s:option(ListValue, _n("flow"), translate("flow"))
 o.default = ""
 o:value("", translate("Disable"))
 o:value("xtls-rprx-vision")
-o:depends({ [_n("protocol")] = "vless", [_n("transport")] = "raw" })
-o:depends({ [_n("protocol")] = "vless", [_n("transport")] = "xhttp" })
+o:depends({ [_n("protocol")] = "vless" })
 
 o = s:option(Flag, _n("tls"), translate("TLS"))
 o.default = 0
