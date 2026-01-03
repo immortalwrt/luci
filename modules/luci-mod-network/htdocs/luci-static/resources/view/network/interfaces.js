@@ -739,15 +739,17 @@ return view.extend({
 								_('As DHCP-Options; send unsolicited (dnsmasq only).'));
 						}
 
-						if (L.hasSystemFeature('odhcpd', 'dhcpv4')) {
+						if (L.hasSystemFeature('odhcpd', 'dhcpv4') || L.hasSystemFeature('dnsmasq')) {
 							so = ss.taboption('ipv4', form.RichListValue, 'dhcpv4', _('DHCPv4 Service'),
-									  _('Enable or disable DHCPv4 services on this interface (odhcpd only).'));
+									  _('Enable or disable DHCPv4 services on this interface.'));
 							so.optional = true;
-							so.value('', _('disabled'),
+							so.value('disabled', _('disabled'),
 								 _('Do not provide DHCPv4 services on this interface.'));
 							so.value('server', _('enabled'),
 								 _('Provide DHCPv4 services on this interface.'));
+						}
 
+						if (L.hasSystemFeature('odhcpd', 'dhcpv4')) {
 							so = ss.taboption('ipv4', form.Value, 'ipv6_only_preferred', _('IPv6-Only Preferred'),
 								_('Specifies how often (in seconds) clients should check whether IPv6-only mode is still preferred (see %s, odhcpd only).')
 								.format('<a href="%s" target="_blank">RFC8925</a>').format('https://www.rfc-editor.org/rfc/rfc8925'));
@@ -1046,7 +1048,8 @@ return view.extend({
 
 					so = ss.taboption('ipv6', form.Value, 'dhcpv6_pd_min_len', _('<abbr title="Prefix Delegation">PD</abbr> minimum length'),
 						_('Configures the minimum delegated prefix length assigned to a requesting downstream router, potentially overriding a requested prefix length. If left unspecified, the device will assign the smallest available prefix greater than or equal to the requested prefix.'));
-					so.datatype = 'range(1,62)';
+					so.placeholder = '62';
+					so.datatype = 'range(1,64)';
 					so.depends('dhcpv6', 'server');
 
 					/* This option is used by odhcpd. It can take IPv4/6 entries, although IPv4 DNS servers don't
