@@ -210,6 +210,7 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 					pt.remove = get_remove(v.id, id .. "_proxy_tag")
 					pt:value("", translate("Close"))
 					pt:value("main", translate("Preproxy Node"))
+					pt:depends("__hide__", "1")
 					for k1, v1 in pairs(socks_list) do
 						o:value(v1.id, v1.remark)
 						o.group[#o.group+1] = (v1.group and v1.group ~= "") and v1.group or translate("default")
@@ -274,6 +275,7 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 			o.remove = get_remove(v.id, id)
 			o:value("", translate("Close"))
 			o:value("main", translate("Preproxy Node"))
+			o:depends("__hide__", "1")
 			for k1, v1 in pairs(normal_list) do
 				if v1.protocol ~= "_balancing" and v1.protocol ~= "_urltest" and not api.is_local_ip(v1.address) then
 					o:depends({ [vid .. "-default_node"] = v1.id, [vid .. "-preproxy_enabled"] = "1" })
@@ -682,13 +684,36 @@ o.default = "proxy"
 o = s:taboption("Proxy", DummyValue, "switch_mode", " ")
 o.template = appname .. "/global/proxy"
 
-o = s:taboption("Proxy", Flag, "localhost_proxy", translate("Localhost Proxy"), translate("When selected, localhost can transparent proxy."))
-o.default = "1"
-o.rmempty = false
+---- Check the transparent proxy component
+local handle = io.popen("lsmod")
+local mods = ""
+if handle then
+	mods = handle:read("*a") or ""
+	handle:close()
+end
 
-o = s:taboption("Proxy", Flag, "client_proxy", translate("Client Proxy"), translate("When selected, devices in LAN can transparent proxy. Otherwise, it will not be proxy. But you can still use access control to allow the designated device to proxy."))
-o.default = "1"
-o.rmempty = false
+if (mods:find("REDIRECT") and mods:find("TPROXY")) or (mods:find("nft_redir") and mods:find("nft_tproxy")) then
+	o = s:taboption("Proxy", Flag, "localhost_proxy", translate("Localhost Proxy"), translate("When selected, localhost can transparent proxy."))
+	o.default = "1"
+	o.rmempty = false
+
+	o = s:taboption("Proxy", Flag, "client_proxy", translate("Client Proxy"), translate("When selected, devices in LAN can transparent proxy. Otherwise, it will not be proxy. But you can still use access control to allow the designated device to proxy."))
+	o.default = "1"
+	o.rmempty = false
+else
+	local html = string.format([[<div class="cbi-checkbox"><input class="cbi-input-checkbox" type="checkbox" disabled></div><div class="cbi-value-description"><font color="red">%s</font></div>]], translate("Missing components, transparent proxy is unavailable."))
+	o = s:taboption("Proxy", DummyValue, "localhost_proxy", translate("Localhost Proxy"))
+	o.rawhtml = true
+	function o.cfgvalue(self, section)
+		return html
+	end
+
+	o = s:taboption("Proxy", DummyValue, "client_proxy", translate("Client Proxy"))
+	o.rawhtml = true
+	function o.cfgvalue(self, section)
+		return html
+	end
+end
 
 o = s:taboption("Proxy", DummyValue, "_proxy_tips", "　")
 o.rawhtml = true
