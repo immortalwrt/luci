@@ -446,7 +446,14 @@ local function get_subscribe_info(cfgid, value)
 	for _, p in ipairs(rem_patterns) do rem_traffic = value:match(p) or rem_traffic end
 	subscribe_info[cfgid] = subscribe_info[cfgid] or {expired_date = "", rem_traffic = ""}
 	if expired_date then
-		subscribe_info[cfgid]["expired_date"] = expired_date
+		local function formatDate(str)
+			local y, m, d = str:match("(%d%d%d%d)[-/]?(%d%d?)[-/]?(%d%d?)")
+			if y and m and d then
+				return y .. "." .. m .. "." .. d
+			end
+			return str
+		end
+		subscribe_info[cfgid]["expired_date"] = formatDate(expired_date)
 	end
 	if rem_traffic then
 		subscribe_info[cfgid]["rem_traffic"] = rem_traffic
@@ -1560,11 +1567,11 @@ local function curl(url, file, ua, mode)
 	curl_args[#curl_args + 1] = get_headers()
 	local return_code, result
 	if mode == "direct" then
-		return_code, result = api.curl_direct(url, file, curl_args)
+		return_code, result = api.curl_base(url, file, curl_args)
 	elseif mode == "proxy" then
 		return_code, result = api.curl_proxy(url, file, curl_args)
 	else
-		return_code, result = api.curl_auto(url, file, curl_args)
+		return_code, result = api.curl_logic(url, file, curl_args)
 	end
 	return tonumber(result)
 end
