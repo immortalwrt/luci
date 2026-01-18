@@ -9,18 +9,18 @@ local uuid = luci.sys.exec("cat /proc/sys/kernel/random/uuid")
 
 font_red = [[<b style=color:red>]]
 font_off = [[</b>]]
-bold_on  = [[<strong>]]
+bold_on = [[<strong>]]
 bold_off = [[</strong>]]
 
 function IsYamlFile(e)
-   e=e or""
-   local e=string.lower(string.sub(e,-5,-1))
-   return e == ".yaml"
+	e=e or""
+	local e=string.lower(string.sub(e,-5,-1))
+	return e == ".yaml"
 end
 function IsYmlFile(e)
-   e=e or""
-   local e=string.lower(string.sub(e,-4,-1))
-   return e == ".yml"
+	e=e or""
+	local e=string.lower(string.sub(e,-4,-1))
+	return e == ".yml"
 end
 
 local encrypt_methods_ss = {
@@ -109,7 +109,7 @@ end
 -- [[ Servers Setting ]] --
 s = m:section(NamedSection, sid, "servers")
 s.anonymous = true
-s.addremove   = false
+s.addremove = false
 
 o = s:option(DummyValue, "server_url", "SS/SSR/VMESS/TROJAN URL")
 o.rawhtml = true
@@ -122,12 +122,12 @@ local e,a={}
 for t,f in ipairs(fs.glob("/etc/openclash/config/*"))do
 	a=fs.stat(f)
 	if a then
-    e[t]={}
-    e[t].name=fs.basename(f)
-    if IsYamlFile(e[t].name) or IsYmlFile(e[t].name) then
-       o:value(e[t].name)
-    end
-  end
+		e[t]={}
+		e[t].name=fs.basename(f)
+		if IsYamlFile(e[t].name) or IsYmlFile(e[t].name) then
+			o:value(e[t].name)
+		end
+	end
 end
 
 o = s:option(Flag, "manual", translate("Custom Tag"))
@@ -148,6 +148,7 @@ o:value("tuic", translate("Tuic"))
 o:value("snell", translate("Snell"))
 o:value("mieru", translate("Mieru"))
 o:value("anytls", translate("AnyTLS"))
+o:value("sudoku", translate("Sudoku"))
 o:value("socks5", translate("Socks5"))
 o:value("http", translate("HTTP(S)"))
 o:value("direct", translate("DIRECT"))
@@ -174,6 +175,7 @@ o:depends("type", "wireguard")
 o:depends("type", "tuic")
 o:depends("type", "mieru")
 o:depends("type", "anytls")
+o:depends("type", "sudoku")
 o:depends("type", "snell")
 o:depends("type", "socks5")
 o:depends("type", "http")
@@ -194,6 +196,7 @@ o:depends("type", "wireguard")
 o:depends("type", "tuic")
 o:depends("type", "mieru")
 o:depends("type", "anytls")
+o:depends("type", "sudoku")
 o:depends("type", "snell")
 o:depends("type", "socks5")
 o:depends("type", "http")
@@ -222,6 +225,46 @@ o:depends("type", "trojan")
 o:depends("type", "hysteria2")
 o:depends("type", "mieru")
 o:depends("type", "anytls")
+
+-- [[ Sudoku ]]--
+o = s:option(Value, "sudoku_key", translate("Key"))
+o.rmempty = true
+o.placeholder = translate("<client_key>")
+o:depends("type", "sudoku")
+
+o = s:option(ListValue, "aead_method", translate("Aead-method"))
+o.rmempty = true
+o.default = "chacha20-poly1305"
+o:value("chacha20-poly1305")
+o:value("aes-128-gcm")
+o:value("none")
+o:depends("type", "sudoku")
+
+o = s:option(Value, "padding_min", translate("Padding-min"))
+o.rmempty = true
+o.datatype = "uinteger"
+o.placeholder = translate("2")
+o:depends("type", "sudoku")
+
+o = s:option(Value, "padding_max", translate("Padding-max"))
+o.rmempty = true
+o.datatype = "uinteger"
+o.placeholder = translate("7")
+o:depends("type", "sudoku")
+
+o = s:option(ListValue, "table_type", translate("Table-type"))
+o.rmempty = true
+o.default = "prefer_ascii"
+o:value("prefer_ascii")
+o:value("prefer_entropy")
+o:depends("type", "sudoku")
+
+o = s:option(ListValue, "http_mask", translate("Http-mask"))
+o.rmempty = true
+o.default = "true"
+o:value("true")
+o:value("false")
+o:depends("type", "sudoku")
 
 -- [[ Mieru ]]--
 o = s:option(Value, "port_range", translate("Port Range"))
@@ -258,7 +301,15 @@ o.placeholder = translate("127.0.0.1")
 o.datatype = "or(ip4addr, ip6addr)"
 o:depends("type", "tuic")
 
-o = s:option(Value, "tc_token", translate("Token"))
+o = s:option(Value, "tc_token", translate("Token (tuicV4 only)"))
+o.rmempty = true
+o:depends("type", "tuic")
+
+o = s:option(Value, "tc_uuid", translate("UUID (tuicV5 only)"))
+o.rmempty = true
+o:depends("type", "tuic")
+
+o = s:option(Value, "tc_password", translate("Password (tuicV5 only)"))
 o.rmempty = true
 o:depends("type", "tuic")
 
@@ -1118,19 +1169,29 @@ function o.validate(self, value)
 	return value
 end
 
+o = s:option(Value, "dialer_proxy", translate("Dialer-proxy"))
+o.rmempty = true
+o.description = font_red..bold_on..translate("The added Dialer Proxy or Group Must Exist")..bold_off..font_off
+m.uci:foreach("openclash", "groups",
+function(s)
+	if s.name ~= "" and s.name ~= nil then
+		o:value(s.name)
+	end
+end)
+
 o = s:option(DynamicList, "groups", translate("Proxy Group (Support Regex)"))
 o.description = font_red..bold_on..translate("No Need Set when Config Create, The added Proxy Groups Must Exist")..bold_off..font_off
 o.rmempty = true
 o:value("all", translate("All Groups"))
 m.uci:foreach("openclash", "groups",
-		function(s)
-			if s.name ~= "" and s.name ~= nil then
-			   o:value(s.name)
-			end
-		end)
+function(s)
+	if s.name ~= "" and s.name ~= nil then
+		o:value(s.name)
+	end
+end)
 		
 local t = {
-    {Commit, Back}
+	{Commit, Back}
 }
 a = m:section(Table, t)
 
@@ -1138,16 +1199,16 @@ o = a:option(Button,"Commit", " ")
 o.inputtitle = translate("Commit Settings")
 o.inputstyle = "apply"
 o.write = function()
-   m.uci:commit(openclash)
-   luci.http.redirect(m.redirect)
+	m.uci:commit(openclash)
+	luci.http.redirect(m.redirect)
 end
 
 o = a:option(Button,"Back", " ")
 o.inputtitle = translate("Back Settings")
 o.inputstyle = "reset"
 o.write = function()
-   m.uci:revert(openclash, sid)
-   luci.http.redirect(m.redirect)
+	m.uci:revert(openclash, sid)
+	luci.http.redirect(m.redirect)
 end
 
 m:append(Template("openclash/toolbar_show"))
