@@ -11,66 +11,74 @@ local local_version = api.get_app_version("sing-box"):match("[^v]+")
 local version_ge_1_11_0 = api.compare_versions(local_version, ">=", "1.11.0")
 local version_ge_1_12_0 = api.compare_versions(local_version, ">=", "1.12.0")
 
-local geosite_all_tag = {}
-local geoip_all_tag = {}
-local srss_path = "/tmp/etc/" .. appname .."_tmp/srss/"
+local GEO_VAR = {
+	OK = nil,
+	DIR = nil,
+	SITE_PATH = nil,
+	IP_PATH = nil,
+	SITE_TAGS = {},
+	IP_TAGS = {},
+	TO_SRS_PATH = "/tmp/etc/" .. appname .."_tmp/singbox_srss/"
+}
 
-local function convert_geofile()
-	if api.compare_versions(local_version, "<", "1.8.0") then
-		api.log("！！！注意：Sing-Box 版本低，Sing-Box 分流无法启用！请在[组件更新]中更新。")
-		return
+function check_geoview()
+	if not GEO_VAR.OK then
+		-- Only get once
+		GEO_VAR.OK = (api.finded_com("geoview") and api.compare_versions(api.get_app_version("geoview"), ">=", "0.1.10")) and 1 or 0
 	end
-	local geo_dir = (uci:get(appname, "@global_rules[0]", "v2ray_location_asset") or "/usr/share/v2ray/"):match("^(.*)/")
-	local geosite_path = geo_dir .. "/geosite.dat"
-	local geoip_path = geo_dir .. "/geoip.dat"
-	if not api.finded_com("geoview") then
-		api.log("！！！注意：缺少 Geoview 组件，Sing-Box 分流无法启用！请在[组件更新]中更新。")
-		return
+	if GEO_VAR.OK == 0 then
+		api.log("！！！注意：缺少 Geoview 组件或版本过低，Sing-Box 分流无法启用！")
 	else
-		if api.compare_versions(api.get_app_version("geoview"), "<", "0.1.10") then
-			api.log("！！！注意：Geoview 组件版本低，Sing-Box 分流无法启用！请在[组件更新]中更新。")
-			return
+		GEO_VAR.DIR = GEO_VAR.DIR or (uci:get(appname, "@global_rules[0]", "v2ray_location_asset") or "/usr/share/v2ray/"):match("^(.*)/")
+		GEO_VAR.SITE_PATH = GEO_VAR.SITE_PATH or (GEO_VAR.DIR .. "/geosite.dat")
+		GEO_VAR.IP_PATH = GEO_VAR.IP_PATH or (GEO_VAR.DIR .. "/geoip.dat")
+		if not fs.access(GEO_VAR.TO_SRS_PATH) then
+			fs.mkdir(GEO_VAR.TO_SRS_PATH)
 		end
 	end
-	if not fs.access(srss_path) then
-		fs.mkdir(srss_path)
+	return GEO_VAR.OK
+end
+
+function geo_convert_srs(var)
+	if check_geoview() ~= 1 then
+		return
+	end
+	local geo_path = var["-geo_path"]
+	local prefix = var["-prefix"]
+	local rule_name = var["-rule_name"]
+	local output_srs_file = GEO_VAR.TO_SRS_PATH .. prefix .. "-" .. rule_name .. ".srs"
+	if not fs.access(output_srs_file) then
+		local cmd = string.format("geoview -type %s -action convert -input '%s' -list '%s' -output '%s' -lowmem=true",
+			prefix, geo_path, rule_name, output_srs_file)
+		sys.call(cmd)
+		local status = fs.access(output_srs_file) and "success." or "failed!"
+		if status == "failed!" then
+			api.log(string.format("  - %s:%s 转换为srs格式：%s", prefix, rule_name, status))
+		end
+	end
+end
+
+local function convert_geofile()
+	if check_geoview() ~= 1 then
+		return
 	end
 	local function convert(file_path, prefix, tags)
 		if next(tags) and fs.access(file_path) then
-			local md5_file = srss_path .. prefix .. ".dat.md5"
+			local md5_file = GEO_VAR.TO_SRS_PATH .. prefix .. ".dat.md5"
 			local new_md5 = sys.exec("md5sum " .. file_path .. " 2>/dev/null | awk '{print $1}'"):gsub("\n", "")
 			local old_md5 = sys.exec("[ -f " .. md5_file .. " ] && head -n 1 " .. md5_file .. " | tr -d ' \t\n' || echo ''")
 			if new_md5 ~= "" and new_md5 ~= old_md5 then
 				sys.call("printf '%s' " .. new_md5 .. " > " .. md5_file)
-				sys.call("rm -rf " .. srss_path .. prefix .. "-*.srs" )
+				sys.call("rm -rf " .. GEO_VAR.TO_SRS_PATH .. prefix .. "-*.srs" )
 			end
 			for k in pairs(tags) do
-				local srs_file = srss_path .. prefix .. "-" .. k .. ".srs"
-				if not fs.access(srs_file) then
-					local cmd = string.format("geoview -type %s -action convert -input '%s' -list '%s' -output '%s' -lowmem=true",
-						prefix, file_path, k, srs_file)
-					sys.exec(cmd)
-					--local status = fs.access(srs_file) and "成功。" or "失败！"
-					--api.log(string.format("  - 转换 %s:%s ... %s", prefix, k, status))
-				end
+				geo_convert_srs({["-geo_path"] = file_path, ["-prefix"] = prefix, ["-rule_name"] = k})
 			end
 		end
 	end
 	--api.log("Sing-Box 规则集转换：")
-	convert(geosite_path, "geosite", geosite_all_tag)
-	convert(geoip_path, "geoip", geoip_all_tag)
-end
-
-local new_port
-
-local function get_new_port()
-	local cmd_format = ". /usr/share/passwall/utils.sh ; echo -n $(get_new_port %s tcp)"
-	local set_port = 0
-	if new_port and tonumber(new_port) then
-		set_port = tonumber(new_port) + 1
-	end
-	new_port = tonumber(sys.exec(string.format(cmd_format, set_port == 0 and "auto" or set_port)))
-	return new_port
+	convert(GEO_VAR.SITE_PATH, "geosite", GEO_VAR.SITE_TAGS)
+	convert(GEO_VAR.IP_PATH, "geoip", GEO_VAR.IP_TAGS)
 end
 
 function gen_outbound(flag, node, tag, proxy_table)
@@ -94,7 +102,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 
 		if node.type ~= "sing-box" then
 			local relay_port = node.port
-			new_port = get_new_port()
+			local new_port = api.get_new_port()
 			local config_file = string.format("%s_%s_%s.json", flag, tag, new_port)
 			if tag and node_id and not tag:find(node_id) then
 				config_file = string.format("%s_%s_%s_%s.json", flag, tag, node_id, new_port)
@@ -925,6 +933,7 @@ function gen_config(var)
 	local dns = nil
 	local inbounds = {}
 	local outbounds = {}
+	local rule_set_table = {}
 	local COMMON = {}
 
 	local singbox_settings = uci:get_all(appname, "@global_singbox[0]") or {}
@@ -934,6 +943,59 @@ function gen_config(var)
 	}
 
 	local experimental = nil
+
+	function add_rule_set(tab)
+		if tab and next(tab) and tab.tag and not rule_set_table[tab.tag]then
+			rule_set_table[tab.tag] = tab
+		end
+	end
+
+	function parse_rule_set(w, rs)
+		-- Format: remote:https://raw.githubusercontent.com/lyc8503/sing-box-rules/rule-set-geosite/geosite-netflix.srs'
+		-- Format: local:/usr/share/sing-box/geosite-netflix.srs'
+		local result = nil
+		if w and #w > 0 then
+			if w:find("local:") == 1 or w:find("remote:") == 1 then
+				local _type = w:sub(1, w:find(":") - 1) -- "local" or "remote"
+				w = w:sub(w:find(":") + 1, #w)
+				local format = nil
+				local filename = w:sub(-w:reverse():find("/") + 1) -- geosite-netflix.srs
+				local suffix = ""
+				local find_doc = filename:reverse():find("%.")
+				if find_doc then
+					suffix = filename:sub(-find_doc + 1) -- "srs" or "json"
+				end
+				if suffix == "srs" then
+					format = "binary"
+				elseif suffix == "json" then
+					format = "source"
+				end
+				if format then
+					local rule_set_tag = filename:sub(1, filename:find("%.") - 1) --geosite-netflix
+					if rule_set_tag and #rule_set_tag > 0 then
+						if rs then
+							rule_set_tag = "rs_" .. rule_set_tag
+						end
+						result = {
+							type = _type,
+							tag = rule_set_tag,
+							format = format,
+							path = _type == "local" and w or nil,
+							url = _type == "remote" and w or nil,
+							--download_detour = _type == "remote" and "",
+							--update_interval = _type == "remote" and "",
+						}
+					end
+				end
+			end
+		end
+		return result
+	end
+
+	function geo_rule_set(prefix, rule_name)
+		local output_srs_file = "local:" .. GEO_VAR.TO_SRS_PATH .. prefix .. "-" .. rule_name .. ".srs"
+		return parse_rule_set(output_srs_file)
+	end
 
 	if node_id then
 		local node = uci:get_all(appname, node_id)
@@ -1154,6 +1216,8 @@ function gen_config(var)
 			local preproxy_tag = preproxy_rule_name
 			local preproxy_node_id = preproxy_rule_name and node["main_node"] or nil
 
+			inner_fakedns = node.fakedns or "0"
+
 			local function gen_shunt_node(rule_name, _node_id)
 				if not rule_name then return nil, nil end
 				if not _node_id then _node_id = node[rule_name] end
@@ -1205,7 +1269,7 @@ function gen_config(var)
 									pre_proxy = true
 								end
 								if pre_proxy then
-									new_port = get_new_port()
+									local new_port = api.get_new_port()
 									table.insert(inbounds, {
 										type = "direct",
 										tag = "proxy_" .. rule_name,
@@ -1344,6 +1408,8 @@ function gen_config(var)
 						if is_private or #source_ip_cidr > 0 then rule.rule_set_ip_cidr_match_source = true end
 					end
 
+					--[[
+					-- Too low usage rate, hidden
 					if e.sourcePort then
 						local source_port = {}
 						local source_port_range = {}
@@ -1357,6 +1423,7 @@ function gen_config(var)
 						rule.source_port = #source_port > 0 and source_port or nil
 						rule.source_port_range = #source_port_range > 0 and source_port_range or nil
 					end
+					]]--
 
 					if e.port then
 						local port = {}
@@ -1372,7 +1439,7 @@ function gen_config(var)
 						rule.port_range = #port_range > 0 and port_range or nil
 					end
 
-					local rule_set_tag = {}
+					local rule_set = {}
 
 					if e.domain_list then
 						local domain_table = {
@@ -1382,20 +1449,34 @@ function gen_config(var)
 							domain_keyword = {},
 							domain_regex = {},
 							rule_set = {},
+							fakedns = nil,
+							invert = e.invert == "1" and true or nil
 						}
 						string.gsub(e.domain_list, '[^' .. "\r\n" .. ']+', function(w)
 							if w:find("#") == 1 then return end
 							if w:find("geosite:") == 1 then
 								local _geosite = w:sub(1 + #"geosite:")  --适配srs
-								geosite_all_tag[_geosite] = true
-								table.insert(rule_set_tag, "geosite-" .. _geosite)
-								table.insert(domain_table.rule_set, "geosite-" .. _geosite)
+								local t = geo_rule_set("geosite", _geosite)
+								if t then
+									GEO_VAR.SITE_TAGS[_geosite] = true
+									add_rule_set(t)
+									table.insert(rule_set, t.tag)
+									table.insert(domain_table.rule_set, t.tag)
+								end
 							elseif w:find("regexp:") == 1 then
 								table.insert(domain_table.domain_regex, w:sub(1 + #"regexp:"))
 							elseif w:find("full:") == 1 then
 								table.insert(domain_table.domain, w:sub(1 + #"full:"))
 							elseif w:find("domain:") == 1 then
 								table.insert(domain_table.domain_suffix, w:sub(1 + #"domain:"))
+							elseif w:find("rule-set:", 1, true) == 1 or w:find("rs:") == 1 then
+								w = w:sub(w:find(":") + 1, #w)
+								local t = parse_rule_set(w, true)
+								if t then
+									add_rule_set(t)
+									table.insert(rule_set, t.tag)
+									table.insert(domain_table.rule_set, t.tag)
+								end
 							else
 								table.insert(domain_table.domain_keyword, w)
 							end
@@ -1404,6 +1485,10 @@ function gen_config(var)
 						rule.domain_suffix = #domain_table.domain_suffix > 0 and domain_table.domain_suffix or nil
 						rule.domain_keyword = #domain_table.domain_keyword > 0 and domain_table.domain_keyword or nil
 						rule.domain_regex = #domain_table.domain_regex > 0 and domain_table.domain_regex or nil
+						rule.rule_set = #domain_table.rule_set > 0 and domain_table.rule_set or nil
+						if inner_fakedns == "1" and node[e[".name"] .. "_fakedns"] == "1" then
+							domain_table.fakedns = true
+						end
 
 						if outboundTag then
 							table.insert(dns_domain_rules, api.clone(domain_table))
@@ -1420,8 +1505,19 @@ function gen_config(var)
 								if _geoip == "private" then
 									is_private = true
 								else
-									geoip_all_tag[_geoip] = true
-									table.insert(rule_set_tag, "geoip-" .. _geoip)
+									local t = geo_rule_set("geoip", _geoip)
+									if t then
+										GEO_VAR.IP_TAGS[_geoip] = true
+										add_rule_set(t)
+										table.insert(rule_set, t.tag)
+									end
+								end
+							elseif w:find("rule-set:", 1, true) == 1 or w:find("rs:") == 1 then
+								w = w:sub(w:find(":") + 1, #w)
+								local t = parse_rule_set(w, true)
+								if t then
+									add_rule_set(t)
+									table.insert(rule_set, t.tag)
 								end
 							else
 								table.insert(ip_cidr, w)
@@ -1432,7 +1528,8 @@ function gen_config(var)
 						rule.ip_cidr = #ip_cidr > 0 and ip_cidr or nil
 					end
 
-					rule.rule_set = #rule_set_tag > 0 and rule_set_tag or nil --适配srs
+					rule.rule_set = #rule_set > 0 and rule_set or nil --适配srs
+					rule.invert = e.invert == "1" and true or nil
 
 					table.insert(rules, rule)
 				end
@@ -1441,34 +1538,6 @@ function gen_config(var)
 			for index, value in ipairs(rules) do
 				table.insert(route.rules, rules[index])
 			end
-
-			local rule_set = {}    --适配srs
-			if next(geosite_all_tag) then
-				for k,v in pairs(geosite_all_tag) do
-					local srs_file = srss_path .. "geosite-" .. k ..".srs"
-					local _rule_set = {
-						tag = "geosite-" .. k,
-						type = "local",
-						format = "binary",
-						path = srs_file
-					}
-					table.insert(rule_set, _rule_set)
-				end
-			end
-			if next(geoip_all_tag) then
-				for k,v in pairs(geoip_all_tag) do
-					local srs_file = srss_path .. "geoip-" .. k ..".srs"
-					local _rule_set = {
-						tag = "geoip-" .. k,
-						type = "local",
-						format = "binary",
-						path = srs_file
-					}
-					table.insert(rule_set, _rule_set)
-				end
-			end
-			route.rule_set = #rule_set >0 and rule_set or nil
-
 		elseif node.protocol == "_urltest" then
 			if node.urltest_node then
 				COMMON.default_outbound_tag = gen_urltest(node)
@@ -1571,7 +1640,7 @@ function gen_config(var)
 				table.insert(dns.servers, remote_server)
 			end
 
-			if remote_dns_fake then
+			if remote_dns_fake or inner_fakedns == "1" then
 				dns.fakeip = {
 					enabled = true,
 					inet4_range = "198.18.0.0/15",
@@ -1637,7 +1706,7 @@ function gen_config(var)
 				table.insert(dns.servers, remote_server)
 			end
 
-			if remote_dns_fake then
+			if remote_dns_fake or inner_fakedns == "1" then
 				table.insert(dns.servers, {
 					tag = fakedns_tag,
 					type = "fakeip",
@@ -1755,8 +1824,9 @@ function gen_config(var)
 						domain_suffix = (value.domain_suffix and #value.domain_suffix > 0) and value.domain_suffix or nil,
 						domain_keyword = (value.domain_keyword and #value.domain_keyword > 0) and value.domain_keyword or nil,
 						domain_regex = (value.domain_regex and #value.domain_regex > 0) and value.domain_regex or nil,
-						rule_set = (value.rule_set and #value.rule_set > 0) and value.rule_set or nil,                      --适配srs
+						rule_set = (value.rule_set and #value.rule_set > 0) and value.rule_set or nil,  --适配srs
 						disable_cache = false,
+						invert = value.invert,
 						strategy = (version_ge_1_12_0 and value.outboundTag == "direct") and direct_strategy or nil --Migrate to 1.12 DNS
 					}
 					if version_ge_1_12_0 and value.outboundTag == "block" then --Migrate to 1.12 DNS
@@ -1778,7 +1848,7 @@ function gen_config(var)
 							table.insert(dns.servers, remote_shunt_server)
 							dns_rule.server = remote_shunt_server.tag
 						end
-						if remote_dns_fake then
+						if value.fakedns then
 							local fakedns_dns_rule = api.clone(dns_rule)
 							fakedns_dns_rule.query_type = {
 								"A", "AAAA"
@@ -1811,6 +1881,13 @@ function gen_config(var)
 			},
 			outbound = "dns-out"
 		})
+	end
+
+	if next(rule_set_table) then
+		route.rule_set = {}
+		for k, v in pairs(rule_set_table) do
+			table.insert(route.rule_set, v)
+		end
 	end
 
 	if inbounds or outbounds then
@@ -2053,12 +2130,13 @@ end
 
 _G.gen_config = gen_config
 _G.gen_proto_config = gen_proto_config
+_G.geo_convert_srs = geo_convert_srs
 
 if arg[1] then
 	local func =_G[arg[1]]
 	if func then
 		print(func(api.get_function_args(arg)))
-		if (next(geosite_all_tag) or next(geoip_all_tag)) and not no_run then
+		if (next(GEO_VAR.SITE_TAGS) or next(GEO_VAR.IP_TAGS)) and not no_run then
 			convert_geofile()
 		end
 	end

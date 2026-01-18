@@ -95,6 +95,8 @@ end
 
 m:append(Template(appname .. "/global/status"))
 
+local global_cfgid = m:get("@global[0]")[".name"]
+
 s = m:section(TypedSection, "global")
 s.anonymous = true
 s.addremove = false
@@ -118,29 +120,34 @@ o:value("", translate("Close"))
 o:value("tcp", translate("Same as the tcp node"))
 o.group = {"",""}
 
+local tcp_node_id = m.uci:get(appname, global_cfgid, "tcp_node")
+local tcp_node = tcp_node_id and m.uci:get_all(appname, tcp_node_id) or {}
+
 -- 分流
 if (has_singbox or has_xray) and #nodes_table > 0 then
-	local function get_cfgvalue(shunt_node_id, option)
-		return function(self, section)
-			return m:get(shunt_node_id, option)
-		end
-	end
-	local function get_write(shunt_node_id, option)
-		return function(self, section, value)
-			if s.fields["tcp_node"]:formvalue(section) == shunt_node_id then
-				m:set(shunt_node_id, option, value)
+	if #normal_list > 0 and tcp_node.protocol == "_shunt" then
+		local v = tcp_node
+		if v then
+			local function get_cfgvalue(shunt_node_id, option)
+				return function(self, section)
+					return m:get(shunt_node_id, option)
+				end
 			end
-		end
-	end
-	local function get_remove(shunt_node_id, option)
-		return function(self, section)
-			if s.fields["tcp_node"]:formvalue(section) == shunt_node_id then
-				m:del(shunt_node_id, option)
+			local function get_write(shunt_node_id, option)
+				return function(self, section, value)
+					if s.fields["tcp_node"]:formvalue(section) == shunt_node_id then
+						m:set(shunt_node_id, option, value)
+					end
+				end
 			end
-		end
-	end
-	if #normal_list > 0 then
-		for k, v in pairs(shunt_list) do
+			local function get_remove(shunt_node_id, option)
+				return function(self, section)
+					if s.fields["tcp_node"]:formvalue(section) == shunt_node_id then
+						m:del(shunt_node_id, option)
+					end
+				end
+			end
+			v.id = v[".name"]
 			local vid = v.id
 			-- shunt node type, Sing-Box or Xray
 			o = s:taboption("Main", ListValue, vid .. "-type", translate("Type"))
@@ -161,7 +168,7 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 			o.cfgvalue = get_cfgvalue(v.id, "preproxy_enabled")
 			o.write = get_write(v.id, "preproxy_enabled")
 
-			o = s:taboption("Main", ListValue, vid .. "-main_node", string.format('<a style="color:red">%s</a>', translate("Preproxy Node")), translate("Set the node to be used as a pre-proxy. Each rule (including <code>Default</code>) has a separate switch that controls whether this rule uses the pre-proxy or not."))
+			o = s:taboption("Main", ListValue, vid .. "-main_node", string.format('<a style="color:#FF8C00">%s</a>', translate("Preproxy Node")), translate("Set the node to be used as a pre-proxy. Each rule (including <code>Default</code>) has a separate switch that controls whether this rule uses the pre-proxy or not."))
 			o:depends(vid .. "-preproxy_enabled", "1")
 			o.template = appname .. "/cbi/nodes_listvalue"
 			o.group = {}
@@ -188,6 +195,12 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 			o.cfgvalue = get_cfgvalue(v.id, "main_node")
 			o.write = get_write(v.id, "main_node")
 
+			o = s:taboption("Main", Flag, vid .. "-fakedns", "FakeDNS", translate("Use FakeDNS work in the shunt domain that proxy."))
+			o:depends("tcp_node", v.id)
+			o.cfgvalue = get_cfgvalue(v.id, "fakedns")
+			o.write = get_write(v.id, "fakedns")
+			o.remove = get_remove(v.id, "fakedns")
+
 			m.uci:foreach(appname, "shunt_rules", function(e)
 				local id = e[".name"]
 				local node_option = vid .. "-" .. id .. "_node"
@@ -204,16 +217,23 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 					o.template = appname .. "/cbi/nodes_listvalue"
 					o.group = {"","","",""}
 
-					local pt = s:taboption("Main", ListValue, vid .. "-".. id .. "_proxy_tag", string.format('* <a style="color:red">%s</a>', e.remarks .. " " .. translate("Preproxy")))
+					local pt = s:taboption("Main", ListValue, vid .. "-".. id .. "_proxy_tag", string.format('* <a style="color:#FF8C00">%s</a>', e.remarks .. " " .. translate("Preproxy")))
 					pt.cfgvalue = get_cfgvalue(v.id, id .. "_proxy_tag")
 					pt.write = get_write(v.id, id .. "_proxy_tag")
 					pt.remove = get_remove(v.id, id .. "_proxy_tag")
 					pt:value("", translate("Close"))
 					pt:value("main", translate("Preproxy Node"))
 					pt:depends("__hide__", "1")
+
+					local fakedns_tag = s:taboption("Main", Flag, vid .. "-".. id .. "_fakedns", string.format('* <a style="color:#FF8C00">%s</a>', e.remarks .. " " .. "FakeDNS"))
+					fakedns_tag.cfgvalue = get_cfgvalue(v.id, id .. "_fakedns")
+					fakedns_tag.write = get_write(v.id, id .. "_fakedns")
+					fakedns_tag.remove = get_remove(v.id, id .. "_fakedns")
+
 					for k1, v1 in pairs(socks_list) do
 						o:value(v1.id, v1.remark)
 						o.group[#o.group+1] = (v1.group and v1.group ~= "") and v1.group or translate("default")
+						fakedns_tag:depends({ [node_option] = v1.id, [vid .. "-fakedns"] = "1" })
 					end
 					for k1, v1 in pairs(balancing_list) do
 						o:value(v1.id, v1.remark)
@@ -233,6 +253,10 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 						if not api.is_local_ip(v1.address) then  --本地节点禁止使用前置
 							pt:depends({ [node_option] = v1.id, [vid .. "-preproxy_enabled"] = "1" })
 						end
+						fakedns_tag:depends({ [node_option] = v1.id, [vid .. "-fakedns"] = "1" })
+					end
+					if v.default_node ~= "_direct" or v.default_node ~= "_blackhole" then
+						fakedns_tag:depends({ [node_option] = "_default", [vid .. "-fakedns"] = "1" })
 					end
 				end
 			end)
@@ -269,7 +293,7 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 			end
 
 			local id = "default_proxy_tag"
-			o = s:taboption("Main", ListValue, vid .. "-" .. id, string.format('* <a style="color:red">%s</a>', translate("Default Preproxy")), translate("When using, localhost will connect this node first and then use this node to connect the default node."))
+			o = s:taboption("Main", ListValue, vid .. "-" .. id, string.format('* <a style="color:#FF8C00">%s</a>', translate("Default Preproxy")), translate("When using, localhost will connect this node first and then use this node to connect the default node."))
 			o.cfgvalue = get_cfgvalue(v.id, id)
 			o.write = get_write(v.id, id)
 			o.remove = get_remove(v.id, id)
@@ -335,7 +359,7 @@ if api.is_finded("smartdns") then
 	o = s:taboption("DNS", Value, "group_domestic", translate("Domestic group name"))
 	o.placeholder = "local"
 	o:depends("dns_shunt", "smartdns")
-	o.description = translate("You only need to configure domestic DNS packets in SmartDNS and set it redirect or as Dnsmasq upstream, and fill in the domestic DNS group name here.")
+	o.description = translate("You only need to configure domestic DNS packets in SmartDNS, and fill in the domestic DNS group name here.")
 end
 
 o = s:taboption("DNS", ListValue, "direct_dns_mode", translate("Direct DNS") .. " " .. translate("Request protocol"))
@@ -559,7 +583,7 @@ o:depends({singbox_dns_mode = "doh"})
 
 o = s:taboption("DNS", Value, "remote_dns_client_ip", translate("EDNS Client Subnet"))
 o.description = translate("Notify the DNS server when the DNS query is notified, the location of the client (cannot be a private IP address).") .. "<br />" ..
-				translate("This feature requires the DNS server to support the Edns Client Subnet (RFC7871).")
+		translate("This feature requires the DNS server to support the Edns Client Subnet (RFC7871).")
 o.datatype = "ipaddr"
 o:depends({dns_mode = "sing-box"})
 o:depends({dns_mode = "xray"})
@@ -574,7 +598,7 @@ o:depends({smartdns_dns_mode = "sing-box", dns_shunt = "smartdns"})
 o:depends({dns_mode = "xray", dns_shunt = "dnsmasq"})
 o:depends({dns_mode = "xray", dns_shunt = "chinadns-ng"})
 o:depends({smartdns_dns_mode = "xray", dns_shunt = "smartdns"})
-o:depends("_node_sel_shunt", "1")
+--o:depends("_node_sel_shunt", "1")
 o.validate = function(self, value, t)
 	if value and value == "1" then
 		local _dns_mode = s.fields["dns_mode"]:formvalue(t)
@@ -924,6 +948,10 @@ for k, v in pairs(nodes_table) do
 	end
 end
 
-m:append(Template(appname .. "/global/footer"))
+local footer = Template(appname .. "/global/footer")
+footer.api = api
+footer.global_cfgid = global_cfgid
+footer.shunt_list = api.jsonc.stringify(shunt_list)
+m:append(footer)
 
 return m

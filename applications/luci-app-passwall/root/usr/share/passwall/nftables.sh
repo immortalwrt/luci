@@ -812,6 +812,9 @@ filter_vpsip() {
 	echolog "  - [$?]加入所有IPv4节点到nftset[$NFTSET_VPS]直连完成"
 	uci show $CONFIG | grep -E "(.address=|.download_address=)" | cut -d "'" -f 2 | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "/^$/d" | insert_nftset $NFTSET_VPS6 "-1"
 	echolog "  - [$?]加入所有IPv6节点到nftset[$NFTSET_VPS6]直连完成"
+	#订阅方式为直连时
+	get_subscribe_host | grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | grep -v "^127\.0\.0\.1$" | sed -e "/^$/d" | insert_nftset $NFTSET_VPS "-1"
+	get_subscribe_host | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "/^$/d" | insert_nftset $NFTSET_VPS6 "-1"
 }
 
 filter_server_port() {

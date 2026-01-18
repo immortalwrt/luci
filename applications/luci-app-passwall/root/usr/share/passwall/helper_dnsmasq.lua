@@ -365,16 +365,22 @@ function add_rule(var)
 					setflag_4 .. "passwall_vps",
 					setflag_6 .. "passwall_vps6"
 				}
-				uci:foreach(appname, "nodes", function(t)
-					local function process_address(address)
-						if address == "engage.cloudflareclient.com" then return end
-						if datatypes.hostname(address) then
-							set_domain_dns(address, fwd_dns)
-							set_domain_ipset(address, table.concat(sets, ","))
-						end
+				local function process_address(address)
+					if address == "engage.cloudflareclient.com" then return end
+					if datatypes.hostname(address) then
+						set_domain_dns(address, fwd_dns)
+						set_domain_ipset(address, table.concat(sets, ","))
 					end
+				end
+				uci:foreach(appname, "nodes", function(t)
 					process_address(t.address)
 					process_address(t.download_address)
+				end)
+				uci:foreach(appname, "subscribe_list", function(t)  --订阅链接
+					local url, _ = api.get_domain_port_from_url(t.url or "")
+					if url and url ~= "" then
+						process_address(url)
+					end
 				end)
 				log(string.format("  - 节点列表中的域名(vpslist)：%s", fwd_dns or "默认"))
 			end

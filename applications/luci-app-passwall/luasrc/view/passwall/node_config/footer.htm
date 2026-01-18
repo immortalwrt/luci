@@ -1,0 +1,33 @@
+<%
+local api = self.api
+-%>
+<script type="text/javascript">
+	//<![CDATA[
+	document.addEventListener("DOMContentLoaded", function () {
+		waitForElement('select[name*="<%=api.appname%>"][name*="type"]', function(el) {
+			let o_val = el.value;
+			el.addEventListener("change", () => {
+				el.blur();
+				if (o_val != el.value) {
+					update_node({
+						type: getOption("type").value
+					})
+				}
+			});
+		});
+		waitForElement('select[name*="<%=api.appname%>"][name*="protocol"]', function(el) {
+			let o_val = el.value;
+			el.addEventListener("change", () => {
+				el.blur();
+				if (el.value.startsWith("_") || (o_val.startsWith("_") && !el.value.startsWith("_"))) {
+					let name_split = el.name.split(".");
+					let name = name_split[name_split.length - 1];
+					update_node({
+						protocol: getOption(name).value
+					})
+				}
+			});
+		});
+	});
+	//]]>
+</script>
