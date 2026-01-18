@@ -258,14 +258,14 @@ ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
                 uci_commands << uci_set + 'interface_name=\"' + x['interface-name'].to_s + '\"'
              end
           };
-          
+
           threads_g << Thread.new {
              #routing-mark
              if x.key?('routing-mark') then
                 uci_commands << uci_set + 'routing_mark=\"' + x['routing-mark'].to_s + '\"'
              end
           };
-         
+
          threads_g << Thread.new {
             #other_group
             if x.key?('proxies') then 
@@ -278,6 +278,13 @@ ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
                }
             end
          };
+
+         threads_g << Thread.new {
+             #icon
+             if x.key?('icon') then
+                uci_commands << uci_set + 'icon=\"' + x['icon'].to_s + '\"'
+             end
+          };
          threads_g.each(&:join);
       rescue Exception => e
          YAML.LOG('Error: Resolve Groups Failed,【${CONFIG_NAME} - ' + x['type'] + ' - ' + x['name'] + ': ' + e.message + '】');
