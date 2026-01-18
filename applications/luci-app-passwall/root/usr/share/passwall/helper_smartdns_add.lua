@@ -24,6 +24,8 @@ local NO_PROXY_IPV6 = var["-NO_PROXY_IPV6"]
 local NO_LOGIC_LOG = var["-NO_LOGIC_LOG"]
 local NFTFLAG = var["-NFTFLAG"]
 local SUBNET = var["-SUBNET"]
+local LISTEN_PORT = var["-LISTEN_PORT"]
+local LOCAL_PORT = var["-LOCAL_PORT"]
 
 local uci = api.uci
 local sys = api.sys
@@ -108,9 +110,9 @@ if not fs.access(FLAG_PATH) then
 end
 
 local LOCAL_EXTEND_ARG = ""
-if LOCAL_GROUP == "nil" then
+if LOCAL_GROUP == "null" then
 	LOCAL_GROUP = nil
-	log("  * 注意：国内分组名未设置，可能会导致 DNS 分流错误！")
+	log("  * 注意：国内分组名未设置，直连 DNS 将无法查询！")
 else
 	--从smartdns配置中读取参数
 	local custom_conf_path = "/etc/smartdns/custom.conf"
@@ -165,9 +167,11 @@ end
 local force_https_soa = uci:get(appname, "@global[0]", "force_https_soa") or 1
 local proxy_server_name = "passwall-proxy-server"
 config_lines = {
+	tonumber(LISTEN_PORT) ~= 0 and "bind [::]:" .. LISTEN_PORT .. "@lo" or "",
+	(tonumber(LOCAL_PORT) ~= 0 and LOCAL_GROUP) and "bind [::]:" .. LOCAL_PORT .. "@lo -group " ..  LOCAL_GROUP or "",
 	tonumber(force_https_soa) == 1 and "force-qtype-SOA 65" or "force-qtype-SOA -,65",
 	"server 114.114.114.114 -bootstrap-dns",
-	DNS_MODE == "socks" and string.format("proxy-server socks5://%s -name %s", REMOTE_PROXY_SERVER, proxy_server_name) or nil
+	DNS_MODE == "socks" and string.format("proxy-server socks5://%s -name %s", REMOTE_PROXY_SERVER, proxy_server_name) or ""
 }
 if DNS_MODE == "socks" then
 	for w in string.gmatch(REMOTE_DNS, '[^|]+') do
@@ -305,16 +309,22 @@ local file_vpslist = TMP_ACL_PATH .. "/vpslist"
 if not is_file_nonzero(file_vpslist) then
 	local f_out = io.open(file_vpslist, "w")
 	local written_domains = {}
-	uci:foreach(appname, "nodes", function(t)
-		local function process_address(address)
-			if address == "engage.cloudflareclient.com" then return end
-			if datatypes.hostname(address) and not written_domains[address] then
-				f_out:write(address .. "\n")
-				written_domains[address] = true
-			end
+	local function process_address(address)
+		if address == "engage.cloudflareclient.com" then return end
+		if datatypes.hostname(address) and not written_domains[address] then
+			f_out:write(address .. "\n")
+			written_domains[address] = true
 		end
+	end
+	uci:foreach(appname, "nodes", function(t)
 		process_address(t.address)
 		process_address(t.download_address)
+	end)
+	uci:foreach(appname, "subscribe_list", function(t)  --订阅链接
+		local url, _ = api.get_domain_port_from_url(t.url or "")
+		if url and url ~= "" then
+			process_address(url)
+		end
 	end)
 	f_out:close()
 end
@@ -655,4 +665,4 @@ end
 
 fs.symlink(TMP_CONF_FILE, SMARTDNS_CONF)
 sys.call(string.format('echo "conf-file %s" >> /etc/smartdns/custom.conf', string.gsub(SMARTDNS_CONF, appname, appname .. "*")))
-log("  - 请让SmartDNS作为Dnsmasq的上游或重定向！")
+log("  - SmartDNS已作为Dnsmasq上游，如果你自行配置了错误的DNS流程，将会导致域名(直连/代理域名)分流失效！！！")

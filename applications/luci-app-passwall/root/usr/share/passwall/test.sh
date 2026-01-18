@@ -56,7 +56,7 @@ url_test_node() {
 				[ -n "${_username}" ] && [ -n "${_password}" ] && curlx="socks5h://${_username}:${_password}@${_address}:${_port}"
 			}
 		else
-			local _tmp_port=$(get_new_port 61080 tcp)
+			local _tmp_port=$(get_new_port 48900 tcp,udp)
 			/usr/share/${CONFIG}/app.sh run_socks flag="url_test_${node_id}" node=${node_id} bind=127.0.0.1 socks_port=${_tmp_port} config_file=url_test_${node_id}.json
 			local curlx="socks5h://127.0.0.1:${_tmp_port}"
 		fi
