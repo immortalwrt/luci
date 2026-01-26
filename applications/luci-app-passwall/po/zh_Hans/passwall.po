@@ -61,20 +61,23 @@ msgstr "查看日志"
 msgid "Node Config"
 msgstr "节点配置"
 
+msgid "Shunt Policy Config"
+msgstr "分流方案配置"
+
 msgid "Running Status"
 msgstr "运行状态"
 
-msgid "Baidu Connection"
-msgstr "百度连接"
+msgid "AliCloud Conn."
+msgstr "阿里连接"
 
-msgid "Google Connection"
+msgid "Google Conn."
 msgstr "谷歌连接"
 
-msgid "GitHub Connection"
+msgid "GitHub Conn."
 msgstr "GitHub 连接"
 
-msgid "Instagram Connection"
-msgstr "Instagram 连接"
+msgid "YouTube Conn."
+msgstr "YouTube 连接"
 
 msgid "Node Check"
 msgstr "节点检测"
@@ -217,8 +220,14 @@ msgstr "过滤代理域名 IPv6"
 msgid "Experimental feature."
 msgstr "实验性功能。"
 
-msgid "Use FakeDNS work in the shunt domain that proxy."
-msgstr "需要代理的分流规则域名使用 FakeDNS。"
+msgid "Use FakeDNS work in the domain that proxy."
+msgstr "需要代理的域名使用 FakeDNS。"
+
+msgid "Suitable scenarios for let the node servers get the target domain names."
+msgstr "适合让节点服务器获取目标域名的场景。"
+
+msgid "Such as: DNS unlocking of streaming media, reducing DNS query latency, etc."
+msgstr "例如：流媒体的 DNS 解锁、减少 DNS 查询延迟等。"
 
 msgid "Redirect"
 msgstr "重定向"
@@ -382,6 +391,9 @@ msgstr "清空所有节点"
 msgid "Are you sure to clear all nodes?"
 msgstr "你确定要清空所有节点吗？"
 
+msgid "Success"
+msgstr "成功"
+
 msgid "Error"
 msgstr "错误"
 
@@ -502,11 +514,20 @@ msgstr "前置代理节点"
 msgid "Set the node to be used as a pre-proxy. Each rule (including <code>Default</code>) has a separate switch that controls whether this rule uses the pre-proxy or not."
 msgstr "设置用作前置代理的节点。每条规则（包括<code>默认</code>）都有独立开关控制本规则是否使用前置代理。"
 
+msgid "Close (Not use)"
+msgstr "关闭（不使用）"
+
+msgid "Use default node"
+msgstr "使用默认节点"
+
 msgid "Direct Connection"
 msgstr "直连"
 
-msgid "Blackhole"
-msgstr "黑洞"
+msgid "Blackhole (Block)"
+msgstr "黑洞（屏蔽）"
+
+msgid "Use preproxy node"
+msgstr "使用前置代理节点"
 
 msgid "Default Preproxy"
 msgstr "默认前置代理"
@@ -930,6 +951,12 @@ msgstr "强制更新"
 
 msgid "Manually update"
 msgstr "手动更新"
+
+msgid "Rollback"
+msgstr "回滚"
+
+msgid "Rollbacking..."
+msgstr "回滚中..."
 
 msgid "Update Options"
 msgstr "更新选项"
@@ -1777,6 +1804,12 @@ msgstr "TLS 证书链指纹（SHA256）"
 msgid "Once set, connects only when the server’s chain fingerprint matches."
 msgstr "设置后，仅在服务器证书链指纹匹配时连接。"
 
+msgid "TLS Certificate Name (CertName)"
+msgstr "TLS 证书名称（CertName）"
+
+msgid "TLS is used to verify the leaf certificate name."
+msgstr "TLS 用于验证 leaf 证书的 name。"
+
 msgid "ECH Config"
 msgstr "ECH 配置"
 
@@ -1863,11 +1896,9 @@ msgstr "仅支持一层代理。"
 
 msgid ""
 "Chained proxy works only with Xray or Sing-box nodes.<br>"
-"The chained node must be the same type as your subscription node (Xray with Xray, Sing-box with Sing-box).<br>"
 "You can only use manual or imported nodes as chained nodes."
 msgstr ""
 "链式代理仅支持 Xray 与 Sing-box 节点。<br>"
-"链式节点需与订阅节点类型一致（Xray 对应 Xray，Sing-box 对应 Sing-box）。<br>"
 "仅支持手动添加或导入的节点用作链式节点。"
 
 msgid "Only work with using the %s node."
@@ -1995,6 +2026,9 @@ msgstr "请输入查询内容！"
 
 msgid "No results were found!"
 msgstr "未找到任何结果！"
+
+msgid "Rules containing this value:"
+msgstr "所在规则列表："
 
 msgid "Domain/IP Query"
 msgstr "域名/IP 查询"

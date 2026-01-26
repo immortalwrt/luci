@@ -1,7 +1,7 @@
 module("luci.passwall.util_trojan", package.seeall)
 local api = require "luci.passwall.api"
 local uci = api.uci
-local json = api.jsonc
+local jsonc = api.jsonc
 
 function gen_config_server(node)
 	local cipher = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:AES128-SHA:AES256-SHA:DES-CBC3-SHA"
@@ -41,18 +41,18 @@ function gen_config_server(node)
 end
 
 function gen_config(var)
-	local node_id = var["-node"]
+	local node_id = var["node"]
 	if not node_id then
-		print("-node 不能为空")
+		print("node 不能为空")
 		return
 	end
 	local node = uci:get_all("passwall", node_id)
-	local run_type = var["-run_type"]
-	local local_addr = var["-local_addr"]
-	local local_port = var["-local_port"]
-	local server_host = var["-server_host"] or node.address
-	local server_port = var["-server_port"] or node.port
-	local loglevel = var["-loglevel"] or 2
+	local run_type = var["run_type"]
+	local local_addr = var["local_addr"]
+	local local_port = var["local_port"]
+	local server_host = var["server_host"] or node.address
+	local server_port = var["server_port"] or node.port
+	local loglevel = var["loglevel"] or 2
 	local cipher = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:AES128-SHA:AES256-SHA:DES-CBC3-SHA"
 	local cipher13 = "TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_256_GCM_SHA384"
 
@@ -83,7 +83,7 @@ function gen_config(var)
 		},
 		udp_timeout = 60,
 		tcp = {
-			use_tproxy = (node.type == "Trojan-Plus" and var["-use_tproxy"]) and true or nil,
+			use_tproxy = (node.type == "Trojan-Plus" and var["use_tproxy"]) and true or nil,
 			no_delay = true,
 			keep_alive = true,
 			reuse_port = true,
@@ -91,7 +91,7 @@ function gen_config(var)
 			fast_open_qlen = 20
 		}
 	}
-	return json.stringify(trojan, 1)
+	return jsonc.stringify(trojan, 1)
 end
 
 _G.gen_config = gen_config
@@ -99,6 +99,10 @@ _G.gen_config = gen_config
 if arg[1] then
 	local func =_G[arg[1]]
 	if func then
-		print(func(api.get_function_args(arg)))
+		local var = nil
+		if arg[2] then
+			var = jsonc.parse(arg[2])
+		end
+		print(func(var))
 	end
 end

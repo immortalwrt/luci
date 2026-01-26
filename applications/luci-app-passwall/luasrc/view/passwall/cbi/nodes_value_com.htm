@@ -63,23 +63,32 @@
 }
 
 .v-dropdown-container {
-	display: block;
+	display: inline-block;
 	position: relative;
 	white-space: nowrap;
-	width: 100%;
+	min-width: 220px;
 }
+@media (max-width: 600px) {
+	.v-dropdown-container {
+		display: block;
+		white-space: normal;
+	}
+}
+
 .v-dropdown-display {
 	cursor: pointer;
 	display: inline-flex;
 	align-items: center;
 	justify-content: space-between;
 	box-sizing: border-box;
+	width: 100%;
 }
 .v-dropdown-label {
 	display: inline-block;
 	overflow: hidden;
 	white-space: nowrap;
-	max-width: calc(100% - 18px);
+	width: 100%;
+	text-align: left;
 }
 .v-dropdown-panel {
 	position: fixed;
@@ -91,6 +100,7 @@
 	box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 	max-height: 50vh;
 	overflow: auto;
+	overscroll-behavior: contain;
 }
 .v-dropdown-search, .v-dropdown-custom {
 	width: 100%;
@@ -146,49 +156,31 @@
 		return cssRules.filter(Boolean).join(' ')
 	}
 
-	function v_parseColorToRgba(color) {
-			if (!color) return null;
-
-			const ctx = document.createElement('canvas').getContext('2d');
-			if (!ctx) return null;
-
-			ctx.fillStyle = color;
-			const computedColor = ctx.fillStyle;
-			// Match #RRGGBB or #RRGGBBAA format
-			if (computedColor.startsWith('#')) {
-					const hex = computedColor.substring(1);
-					// #RRGGBB (6 digits)
-					if (hex.length === 6) {
-							return {
-									r: parseInt(hex.substring(0, 2), 16),
-									g: parseInt(hex.substring(2, 4), 16),
-									b: parseInt(hex.substring(4, 6), 16),
-									a: 1
-							};
-					}
-					// #RRGGBBAA (8 digits)
-					if (hex.length === 8) {
-							return {
-									r: parseInt(hex.substring(0, 2), 16),
-									g: parseInt(hex.substring(2, 4), 16),
-									b: parseInt(hex.substring(4, 6), 16),
-									a: parseInt(hex.substring(6, 8), 16) / 255
-							};
-					}
-			}
-			// Match rgba() or rgb() format (for browsers that return this format)
-			const rgbaMatch = computedColor.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/);
-			if (rgbaMatch) {
-					return {
-							r: parseInt(rgbaMatch[1], 10),
-							g: parseInt(rgbaMatch[2], 10),
-							b: parseInt(rgbaMatch[3], 10),
-							a: rgbaMatch[4] !== undefined ? parseFloat(rgbaMatch[4]) : 1
-					};
-			}
-
-			return null; // Invalid color
-	}
+	const v_parseColorToRgba = (function() {
+		// Create canvas and context once (Closure)
+		const canvas = document.createElement('canvas');
+		canvas.width = 1;
+		canvas.height = 1;
+		const ctx = canvas.getContext('2d', { willReadFrequently: true });
+		return function(colorStr) {
+			if (!colorStr)
+			   return null;
+			ctx.clearRect(0, 0, 1, 1);
+			// 2. Apply the color
+			ctx.fillStyle = colorStr;
+			// 3. Fill a single pixel
+			ctx.fillRect(0, 0, 1, 1);
+			// 4. Extract pixel data [R, G, B, A]
+			const data = ctx.getImageData(0, 0, 1, 1).data;
+			return {
+				r: data[0],
+				g: data[1],
+				b: data[2],
+				// Convert alpha from 0-255 to 0-1 (rounded to 3 decimal places)
+				a: Math.round((data[3] / 255) * 1000) / 1000
+			};
+		};
+	})();
 
 	// Helper to convert back to Hex (for output consistency)
 	function v_rgbToHex(r, g, b) {
@@ -248,7 +240,7 @@
 			const styleBody = window.getComputedStyle(document.body)
 
 			const styleNode = document.createElement('style')
-			const styleNames = ["color", "height", "padding", "margin", "lineHeight", "border", "borderRadius","minHeight"]
+			const styleNames = ["color", "height", "padding", "margin", "lineHeight", "border", "borderRadius", "minWidth","minHeight"]
 			if (styleSelect.borderBottomStyle !== "none") {
 				styleNames.push("borderBottomWidth", "borderBottomStyle", "borderBottomColor");
 			}
@@ -257,7 +249,7 @@
 			const panelRadius = styleSelect.borderRadius;
 			const optionColor = !v_isTransparent(styleOption.backgroundColor) ? styleOption.backgroundColor : !v_isTransparent(styleSelect.backgroundColor) ? styleSelect.backgroundColor : styleBody.backgroundColor
 			const titleColor = v_getColorSchema(optionColor) === "light" ? v_darker(optionColor, 30) : v_lighter(optionColor, 30)
-			const selectStyleCSS = [`#${CSS.escape(cbid + ".display")} {`, v_style2Css(styleSelect, styleNames), v_style2Css(styleSelect, ["backgroundColor"]), `width:100%;min-width:7rem;`, "}"]
+			const selectStyleCSS = [`#${CSS.escape(cbid + ".display")} {`, v_style2Css(styleSelect, styleNames), v_style2Css(styleSelect, ["backgroundColor"]), "}"]
 			const optionStyleCSS = [`#${CSS.escape(cbid + ".panel")}  {`, v_style2Css(styleOption, styleNames), `background-color: ${optionColor};`, `border-radius: ${panelRadius};`, "}"]
 			const titleStyleCSS = [`#${CSS.escape(cbid + ".panel")} .v-group-title  {`, `background-color: ${titleColor} !important;`, "}"]
 			styleNode.textContent = [].concat(selectStyleCSS, optionStyleCSS, titleStyleCSS).join("\n")
@@ -567,7 +559,7 @@
 		if (changed) {
 			//改值
 			hiddenInput.value = inputValue;
-			labelSpan.textContent = inputValue;
+			labelSpan.textContent = v_ellipsisByWidth(cbid, inputValue);
 			labelSpan.title = inputValue;
 			v_highlightSelectedItem(listContainer, hiddenInput);
 			v_updateGroupCounts(cbid, listContainer, hiddenInput, searchInput);
@@ -661,7 +653,7 @@
 			if (changed) {
 				//改值
 				hiddenInput.value = key;
-				labelSpan.textContent = text;
+				labelSpan.textContent = v_ellipsisByWidth(cbid, text);
 				labelSpan.title = text;
 				v_highlightSelectedItem(listContainer, hiddenInput);
 				v_updateGroupCounts(cbid, listContainer, hiddenInput, searchInput);
@@ -701,6 +693,73 @@
 			e.preventDefault();
 			v_customEnter(cbid, labelSpan, hiddenInput, searchInput, panel, listContainer, customInput);
 		});
+
+		// 防止 panel 惯性滚动穿透
+		panel.addEventListener('wheel', function (e) {
+			const deltaY = e.deltaY;
+			const scrollTop = panel.scrollTop;
+			const scrollHeight = panel.scrollHeight;
+			const clientHeight = panel.clientHeight;
+			const isAtTop = scrollTop === 0;
+			const isAtBottom = scrollTop + clientHeight >= scrollHeight;
+			if (deltaY < 0 && isAtTop) {
+				e.preventDefault();
+				return;
+			}
+			if (deltaY > 0 && isAtBottom) {
+				e.preventDefault();
+				return;
+			}
+			e.stopPropagation();
+		}, { passive: false });
+	}
+
+	//截断display字符长度
+	window.v_labelSpan_maxWidth = {};
+	function v_ellipsisByWidth(cbid, text) {
+		const el = document.getElementById(cbid + ".label");
+		if (!el || !text) return text;
+		text = text.trim();
+		const maxWidth = el.clientWidth;
+		window.v_labelSpan_maxWidth[cbid] = maxWidth;
+		if (maxWidth <= 0) return text;
+		const style = window.getComputedStyle(el);
+		const font = [
+			style.fontStyle,
+			style.fontVariant,
+			style.fontWeight,
+			style.fontSize || '16px',
+			style.fontFamily || 'sans-serif'
+		].join(" ").replace(/\s+/g, ' ');
+		const canvas = v_ellipsisByWidth._canvas || (v_ellipsisByWidth._canvas = document.createElement("canvas"));
+		const ctx = canvas.getContext("2d");
+		ctx.font = font;
+		if (ctx.measureText(text).width <= maxWidth) {
+			return text;
+		}
+		const ellipsis = "...";
+		const ellipsisWidth = ctx.measureText(ellipsis).width;
+		const minChars = 15;
+		const probe = text.slice(0, minChars);
+		const probeWidth = ctx.measureText(probe).width;
+		if (probeWidth + ellipsisWidth > maxWidth) {
+			return text;
+		}
+		let left = 0;
+		let right = text.length;
+		let result = ellipsis;
+		while (left <= right) {
+			const mid = (left + right) >> 1;
+			const substr = text.slice(0, mid);
+			const w = ctx.measureText(substr).width;
+			if (w + ellipsisWidth <= maxWidth) {
+				result = substr + ellipsis;
+				left = mid + 1;
+			} else {
+				right = mid - 1;
+			}
+		}
+		return result;
 	}
 
 	const v_adaptiveControls = new Set();
@@ -708,12 +767,23 @@
 		v_adaptiveControls.add(cbid);
 		v_adaptiveStyle(cbid);
 	}
+	function v_labelSpanResize(cbid) {
+		const el = document.getElementById(cbid + ".label");
+		if (!el) return;
+		const maxWidth = el.clientWidth;
+		if (window.v_labelSpan_maxWidth[cbid] == maxWidth) return;
+		let text = el.title;
+		el.textContent = v_ellipsisByWidth(cbid, text);
+	}
 	let v_adaptiveTicking = false;
 	window.addEventListener("resize", () => {
 		if (!v_adaptiveTicking) {
 			v_adaptiveTicking = true;
 			requestAnimationFrame(() => {
-				v_adaptiveControls.forEach(cbid => v_adaptiveStyle(cbid));
+				v_adaptiveControls.forEach(cbid => {
+					v_adaptiveStyle(cbid);
+					v_labelSpanResize(cbid);
+				});
 				v_adaptiveTicking = false;
 			});
 		}

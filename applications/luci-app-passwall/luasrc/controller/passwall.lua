@@ -90,6 +90,7 @@ function index()
 	entry({"admin", "services", appname, "save_node_order"}, call("save_node_order")).leaf = true
 	entry({"admin", "services", appname, "save_node_list_opt"}, call("save_node_list_opt")).leaf = true
 	entry({"admin", "services", appname, "update_rules"}, call("update_rules")).leaf = true
+	entry({"admin", "services", appname, "rollback_rules"}, call("rollback_rules")).leaf = true
 	entry({"admin", "services", appname, "subscribe_del_node"}, call("subscribe_del_node")).leaf = true
 	entry({"admin", "services", appname, "subscribe_del_all"}, call("subscribe_del_all")).leaf = true
 	entry({"admin", "services", appname, "subscribe_manual"}, call("subscribe_manual")).leaf = true
@@ -341,7 +342,7 @@ function connect_status()
 	local e = {}
 	e.use_time = ""
 	local url = http.formvalue("url")
-	local baidu = string.find(url, "baidu")
+	local aliyun = string.find(url, "aliyun")
 	local chn_list = uci:get(appname, "@global[0]", "chn_list") or "direct"
 	local gfw_list = uci:get(appname, "@global[0]", "use_gfw_list") or "1"
 	local proxy_mode = uci:get(appname, "@global[0]", "tcp_proxy_mode") or "proxy"
@@ -349,11 +350,11 @@ function connect_status()
 	local socks_server = (localhost_proxy == "0") and api.get_cache_var("GLOBAL_TCP_SOCKS_server") or ""
 	url = "-w %{http_code}:%{time_pretransfer} " .. url
 	if socks_server and socks_server ~= "" then
-		if (chn_list == "proxy" and gfw_list == "0" and proxy_mode ~= "proxy" and baidu ~= nil) or (chn_list == "0" and gfw_list == "0" and proxy_mode == "proxy") then
-		-- 中国列表+百度 or 全局
+		if (chn_list == "proxy" and gfw_list == "0" and proxy_mode ~= "proxy" and aliyun ~= nil) or (chn_list == "0" and gfw_list == "0" and proxy_mode == "proxy") then
+		-- 中国列表+阿里 or 全局
 			url = "-x socks5h://" .. socks_server .. " " .. url
-		elseif baidu == nil then
-		-- 其他代理模式+百度以外网站
+		elseif aliyun == nil then
+		-- 其他代理模式+阿里以外网站
 			url = "-x socks5h://" .. socks_server .. " " .. url
 		end
 	end
@@ -424,7 +425,7 @@ function add_node()
 		uci:set(appname, uuid, "group", group)
 	end
 
-	uci:set(appname, uuid, "type", "Xray")
+	uci:set(appname, uuid, "type", "Socks")
 
 	if redirect == "1" then
 		api.uci_save(uci, appname)
@@ -702,6 +703,24 @@ function update_rules()
 	http_write_json()
 end
 
+function rollback_rules()
+	local arg_type = http.formvalue("type")
+	local rules = http.formvalue("rules") or ""
+	if arg_type ~= "geoip" and arg_type ~= "geosite" then
+		http_write_json_error()
+		return
+	end
+	local bak_dir = "/tmp/bak_v2ray/"
+	local geo_dir = (uci:get(appname, "@global_rules[0]", "v2ray_location_asset") or "/usr/share/v2ray/")
+	local geo2rule = uci:get(appname, "@global_rules[0]", "geo2rule") or "0"
+	fs.move(bak_dir .. arg_type .. ".dat", geo_dir .. arg_type .. ".dat")
+	fs.rmdir(bak_dir)
+	if geo2rule == "1" and rules ~= "" then
+		luci.sys.call("lua /usr/share/passwall/rule_update.lua log '" .. rules .. "' rollback > /dev/null")
+	end
+	http_write_json_ok()
+end
+
 function server_user_status()
 	local e = {}
 	e.index = http.formvalue("index")
@@ -864,27 +883,56 @@ function geo_view()
 		http.write(i18n.translate("Please enter query content!"))
 		return
 	end
+	local function get_rules(str, type)
+		local rules_id = {}
+		uci:foreach(appname, "shunt_rules", function(s)
+			local list
+			if type == "geoip" then list = s.ip_list else list = s.domain_list end
+			for line in string.gmatch((list or ""), "[^\r\n]+") do
+				if line ~= "" and not line:find("#") then
+					local prefix, main = line:match("^(.-):(.*)")
+					if not main then main = line end
+					if type == "geoip" and (api.datatypes.ipaddr(str) or api.datatypes.ip6addr(str)) then
+						if main:find(str, 1, true) then rules_id[#rules_id + 1] = s[".name"] end
+					else
+						if main == str then rules_id[#rules_id + 1] = s[".name"] end
+					end
+				end
+			end
+		end)
+		return rules_id
+	end
 	local geo_dir = (uci:get(appname, "@global_rules[0]", "v2ray_location_asset") or "/usr/share/v2ray/"):match("^(.*)/")
 	local geosite_path = geo_dir .. "/geosite.dat"
 	local geoip_path = geo_dir .. "/geoip.dat"
 	local geo_type, file_path, cmd
 	local geo_string = ""
+	local bin = api.get_app_path("geoview")
 	if action == "lookup" then
 		if api.datatypes.ipaddr(value) or api.datatypes.ip6addr(value) then
 			geo_type, file_path = "geoip", geoip_path
 		else
 			geo_type, file_path = "geosite", geosite_path
 		end
-		cmd = string.format("geoview -type %s -action lookup -input '%s' -value '%s' -lowmem=true", geo_type, file_path, value)
+		cmd = string.format(bin .. " -type %s -action lookup -input '%s' -value '%s' -lowmem=true", geo_type, file_path, value)
 		geo_string = luci.sys.exec(cmd):lower()
 		if geo_string ~= "" then
-			local lines = {}
-			for line in geo_string:gmatch("([^\n]*)\n?") do
-				if line ~= "" then
-					table.insert(lines, geo_type .. ":" .. line)
+			local lines, rules, seen = {}, {}, {}
+			for line in geo_string:gmatch("([^\n]+)") do
+				lines[#lines + 1] = geo_type .. ":" .. line
+				for _, r in ipairs(get_rules(line, geo_type) or {}) do
+					if not seen[r] then seen[r] = true; rules[#rules + 1] = r end
 				end
 			end
+			for _, r in ipairs(get_rules(value, geo_type) or {}) do
+				if not seen[r] then seen[r] = true; rules[#rules + 1] = r end
+			end
 			geo_string = table.concat(lines, "\n")
+			if #rules > 0 then
+				geo_string = geo_string .. "\n--------------------\n"
+				geo_string = geo_string .. i18n.translate("Rules containing this value:") .. "\n"
+				geo_string = geo_string .. table.concat(rules, "\n")
+			end
 		end
 	elseif action == "extract" then
 		local prefix, list = value:match("^(geoip:)(.*)$")

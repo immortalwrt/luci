@@ -1,7 +1,7 @@
 <%+cbi/valueheader%>
 <%
 local api = require "luci.passwall.api"
-local appname = 'passwall'
+local appname = api.appname
 local map = self.map
 
 local has_ss = api.is_finded("ss-redir")
@@ -26,6 +26,8 @@ local trojan_type = get_core("trojan_type", {{has_trojan_plus,"trojan-plus"},{ha
 local vmess_type = get_core("vmess_type", {{has_xray,"xray"},{has_singbox,"sing-box"}})
 local vless_type = get_core("vless_type", {{has_xray,"xray"},{has_singbox,"sing-box"}})
 local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{has_singbox,"sing-box"}, {has_xray,"xray"}})
+
+local current_node = map:get(section)
 -%>
 <script src="<%=resource%>/view/<%=appname%>/qrcode.min.js"></script>
 <script type="text/javascript">//<![CDATA[
@@ -122,7 +124,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 
 	function buildUrl(btn, urlname, sid) {
 		var opt = {
-			base: "cbid.passwall",
+			base: "cbid.<%=appname%>",
 			client: true,
 			get: function (opt) {
 				var id = this.base + "." + opt;
@@ -315,6 +317,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 					params += opt.query("alpn", dom_prefix + "alpn");
 					params += opt.query("sni", dom_prefix + "tls_serverName");
 					params += opt.query("allowinsecure", dom_prefix + "tls_allowInsecure");
+					params += opt.query("pcs", dom_prefix + "tls_CertSha");
+					params += opt.query("vcn", dom_prefix + "tls_CertByName");
 					params += opt.query("ech", dom_prefix + "ech_config");
 				}
 
@@ -493,6 +497,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				params += opt.query("alpn", dom_prefix + "alpn");
 				params += opt.query("sni", dom_prefix + "tls_serverName");
 				params += opt.query("allowinsecure", dom_prefix + "tls_allowInsecure");
+				params += opt.query("pcs", dom_prefix + "tls_CertSha");
+				params += opt.query("vcn", dom_prefix + "tls_CertByName");
 				params += opt.query("ech", dom_prefix + "ech_config");
 			}
 
@@ -557,6 +563,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				params += opt.query("alpn", dom_prefix + "alpn");
 				params += opt.query("sni", dom_prefix + "tls_serverName");
 				params += opt.query("allowinsecure", dom_prefix + "tls_allowInsecure");
+				params += opt.query("pcs", dom_prefix + "tls_CertSha");
+				params += opt.query("vcn", dom_prefix + "tls_CertByName");
 				params += opt.query("ech", dom_prefix + "ech_config");
 			}
 			params += "#" + encodeURI(v_alias.value);
@@ -570,6 +578,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 			var params = "";
 			params += opt.query("sni", dom_prefix + "tls_serverName");
 			params += opt.query("insecure", dom_prefix + "tls_allowInsecure");
+			params += opt.query("pcs", dom_prefix + "tls_CertSha");
+			params += opt.query("vcn", dom_prefix + "tls_CertByName");
 
 			var v_password = null;
 
@@ -694,7 +704,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 
 	function fromUrl(btn, urlname, sid, cacheData) {
 		var opt = {
-			base: 'cbid.passwall',
+			base: 'cbid.<%=appname%>',
 			client: true,
 			get: function (opt) {
 				var obj;
@@ -1013,6 +1023,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 						}
 						opt.set(dom_prefix + 'ech', !!queryParam.ech);
 						opt.set(dom_prefix + 'ech_config', queryParam.ech || '');
+						opt.set(dom_prefix + 'tls_CertSha', queryParam.pcs || '');
+						opt.set(dom_prefix + 'tls_CertByName', queryParam.vcn || '');
 					}
 
 					if (queryParam.security == "reality") {
@@ -1253,6 +1265,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				tls_serverName = tls_serverName || "";
 				opt.set(dom_prefix + 'tls_serverName', tls_serverName);
 				opt.set(dom_prefix + 'alpn', queryParam.alpn || 'default');
+				opt.set(dom_prefix + 'tls_CertSha', queryParam.pcs || '');
+				opt.set(dom_prefix + 'tls_CertByName', queryParam.vcn || '');
 			}
 			opt.set(dom_prefix + 'tls_allowInsecure', true);
 			if ((queryParam.allowinsecure ?? '0') === '0' && (queryParam.insecure ?? '0') === '0') {
@@ -1409,6 +1423,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 					}
 					opt.set(dom_prefix + 'ech', !!queryParam.ech);
 					opt.set(dom_prefix + 'ech_config', queryParam.ech || '');
+					opt.set(dom_prefix + 'tls_CertSha', queryParam.pcs || '');
+					opt.set(dom_prefix + 'tls_CertByName', queryParam.vcn || '');
 				}
 
 				if (queryParam.security == "reality") {
@@ -1555,6 +1571,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 			if (queryParam.insecure && queryParam.insecure == "1") {
 				opt.set(dom_prefix + 'tls_allowInsecure', true);
 			}
+			opt.set(dom_prefix + 'tls_CertSha', queryParam.pcs || '');
+			opt.set(dom_prefix + 'tls_CertByName', queryParam.vcn || '');
 			if (m.hash) {
 				opt.set('remarks', decodeURIComponent(m.hash.substr(1)));
 			}
@@ -1718,10 +1736,12 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 </style>
 <div class="share-toolbar">
 	<div class="toolbar-buttons">
-		<input type="button" class="btn cbi-button cbi-button-apply" value='<%:From Share URL%>' onclick="return fromUrl(this, '<%=self.option%>', '<%=self.value%>')" />
-		<input type="button" class="btn cbi-button cbi-button-apply" value='<%:Build Share URL%>' onclick="return exportUrl(this, '<%=self.option%>', '<%=self.value%>')" />
-		<input type="button" class="btn cbi-button cbi-button-apply" value='<%:Generate QRCode%>' onclick="return genQrcode(this, '<%=self.option%>', '<%=self.value%>')" />
-		<input type="button" class="btn cbi-button cbi-button-apply" value='<%:Export Config File%>' onclick="return exportConfigFile(this, '<%=self.value%>')" />
+		<% if not current_node.protocol or not current_node.protocol:find("_") then -%>
+		<input id="fromUrlBtn" type="button" class="btn cbi-button cbi-button-apply" value='<%:From Share URL%>' onclick="return fromUrl(this, '<%=self.option%>', '<%=self.value%>')" />
+		<input id="exportUrlBtn" type="button" class="btn cbi-button cbi-button-apply" value='<%:Build Share URL%>' onclick="return exportUrl(this, '<%=self.option%>', '<%=self.value%>')" />
+		<input id="genQrcodeBtn" type="button" class="btn cbi-button cbi-button-apply" value='<%:Generate QRCode%>' onclick="return genQrcode(this, '<%=self.option%>', '<%=self.value%>')" />
+		<% end -%>
+		<input id="exportConfigFileBtn" type="button" class="btn cbi-button cbi-button-apply" value='<%:Export Config File%>' onclick="return exportConfigFile(this, '<%=self.value%>')" />
 	</div>
 	<div id="qrcode_div" style="padding:5px 0;display:none">
 		<div id="qrcode" style="display:flex;justify-content:center;"></div>
