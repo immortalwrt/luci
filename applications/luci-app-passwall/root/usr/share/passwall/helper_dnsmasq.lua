@@ -181,6 +181,11 @@ function add_rule(var)
 	local CACHE_DNS_PATH = CACHE_PATH .. "/" .. CACHE_FLAG
 	local CACHE_TEXT_FILE = CACHE_DNS_PATH .. ".txt"
 	local USE_CHINADNS_NG = "0"
+	local IS_SHUNT_NODE = uci:get(appname, TCP_NODE, "protocol") == "_shunt"
+
+	if IS_SHUNT_NODE then
+		REMOTE_FAKEDNS = uci:get(appname, TCP_NODE, "fakedns") or "0"
+	end
 
 	local list1 = {}
 	local excluded_domain = {}
@@ -540,7 +545,7 @@ function add_rule(var)
 		end
 
 		--分流规则
-		if uci:get(appname, TCP_NODE, "protocol") == "_shunt" and USE_CHINADNS_NG == "0" then
+		if IS_SHUNT_NODE and USE_CHINADNS_NG == "0" then
 			local t = uci:get_all(appname, TCP_NODE)
 			local default_node_id = t["default_node"] or "_direct"
 			uci:foreach(appname, "shunt_rules", function(s)

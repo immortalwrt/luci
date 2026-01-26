@@ -105,7 +105,7 @@ window.v_dropdown_data["<%=cbid%>"] = <%=json.stringify(dropdown_data)%>;
 	<!-- 模拟 ListValue 控件外观 -->
 	<div class="cbi-input-value cbi-input-select v-dropdown-display" id="<%=cbid%>.display" tabindex="0">
 		<span id="<%=cbid%>.label" class="v-dropdown-label" title="<%=pcdata(current_label)%>">
-			<%=pcdata(current_label ~= "" and current_label or current_key)%>
+			<%=pcdata(translate("-- Please choose --"))%>
 		</span>
 		<span class="v-arrow-down"></span>
 	</div>
@@ -125,8 +125,6 @@ window.v_dropdown_data["<%=cbid%>"] = <%=json.stringify(dropdown_data)%>;
 		</div>
 	</div>
 </div>
-
-<%+cbi/valuefooter%>
 
 <script type="text/javascript">
 //<![CDATA[
@@ -154,6 +152,11 @@ window.v_dropdown_data["<%=cbid%>"] = <%=json.stringify(dropdown_data)%>;
 		}
 	});
 	v_registerAdaptive(cbid);
+	setTimeout(() => {
+		labelSpan.textContent = v_ellipsisByWidth(cbid, '<%=pcdata(current_label ~= "" and current_label or current_key)%>');
+	}, 100);
 })();
 //]]>
 </script>
+
+<%+cbi/valuefooter%>

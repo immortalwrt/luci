@@ -92,7 +92,8 @@
 	display: inline-block;
 	overflow: hidden;
 	white-space: nowrap;
-	max-width: calc(100% - 18px);
+	width: 100%;
+	text-align: left;
 }
 .lv-dropdown-panel {
 	position: fixed;
@@ -104,6 +105,7 @@
 	box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 	max-height: 50vh;
 	overflow: auto;
+	overscroll-behavior: contain;
 }
 .lv-dropdown-search {
 	width: 100%;
@@ -159,49 +161,31 @@
 		return cssRules.filter(Boolean).join(' ')
 	}
 
-	function lv_parseColorToRgba(color) {
-			if (!color) return null;
-
-			const ctx = document.createElement('canvas').getContext('2d');
-			if (!ctx) return null;
-
-			ctx.fillStyle = color;
-			const computedColor = ctx.fillStyle;
-			// Match #RRGGBB or #RRGGBBAA format
-			if (computedColor.startsWith('#')) {
-					const hex = computedColor.substring(1);
-					// #RRGGBB (6 digits)
-					if (hex.length === 6) {
-							return {
-									r: parseInt(hex.substring(0, 2), 16),
-									g: parseInt(hex.substring(2, 4), 16),
-									b: parseInt(hex.substring(4, 6), 16),
-									a: 1
-							};
-					}
-					// #RRGGBBAA (8 digits)
-					if (hex.length === 8) {
-							return {
-									r: parseInt(hex.substring(0, 2), 16),
-									g: parseInt(hex.substring(2, 4), 16),
-									b: parseInt(hex.substring(4, 6), 16),
-									a: parseInt(hex.substring(6, 8), 16) / 255
-							};
-					}
-			}
-			// Match rgba() or rgb() format (for browsers that return this format)
-			const rgbaMatch = computedColor.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/);
-			if (rgbaMatch) {
-					return {
-							r: parseInt(rgbaMatch[1], 10),
-							g: parseInt(rgbaMatch[2], 10),
-							b: parseInt(rgbaMatch[3], 10),
-							a: rgbaMatch[4] !== undefined ? parseFloat(rgbaMatch[4]) : 1
-					};
-			}
-
-			return null; // Invalid color
-	}
+	const lv_parseColorToRgba = (function() {
+		// Create canvas and context once (Closure)
+		const canvas = document.createElement('canvas');
+		canvas.width = 1;
+		canvas.height = 1;
+		const ctx = canvas.getContext('2d', { willReadFrequently: true });
+		return function(colorStr) {
+			if (!colorStr)
+			   return null;
+			ctx.clearRect(0, 0, 1, 1);
+			// 2. Apply the color
+			ctx.fillStyle = colorStr;
+			// 3. Fill a single pixel
+			ctx.fillRect(0, 0, 1, 1);
+			// 4. Extract pixel data [R, G, B, A]
+			const data = ctx.getImageData(0, 0, 1, 1).data;
+			return {
+				r: data[0],
+				g: data[1],
+				b: data[2],
+				// Convert alpha from 0-255 to 0-1 (rounded to 3 decimal places)
+				a: Math.round((data[3] / 255) * 1000) / 1000
+			};
+		};
+	})();
 
 	// Helper to convert back to Hex (for output consistency)
 	function lv_rgbToHex(r, g, b) {
@@ -554,6 +538,18 @@
 			"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
 		}[c]));
 	}
+
+	function lv_change(cbid, listContainer, hiddenSelect, labelSpan, searchInput, new_key, new_text) {
+		//改值
+		hiddenSelect.options[0].value = new_key;
+		hiddenSelect.options[0].text = new_key;
+		hiddenSelect.value = new_key;
+		labelSpan.textContent = lv_ellipsisByWidth(cbid, new_text);
+		labelSpan.title = new_text;
+		lv_highlightSelectedItem(listContainer, hiddenSelect);
+		lv_updateGroupCounts(cbid, listContainer, hiddenSelect, searchInput);
+	}
+
 	function lv_render_dropdown_list(cbid, panel, listContainer, hiddenSelect, labelSpan, searchInput, display) {
 		if (window.lv_dropdown_rendered[cbid]) return;
 		const data = window.lv_dropdown_data[cbid];
@@ -630,13 +626,7 @@
 			const changed = key !== hiddenSelect.value;
 			if (changed) {
 				//改值
-				hiddenSelect.options[0].value = key;
-				hiddenSelect.options[0].text = key;
-				hiddenSelect.value = key;
-				labelSpan.textContent = text;
-				labelSpan.title = text;
-				lv_highlightSelectedItem(listContainer, hiddenSelect);
-				lv_updateGroupCounts(cbid, listContainer, hiddenSelect, searchInput);
+				lv_change(cbid, listContainer, hiddenSelect, labelSpan, searchInput, key, text);
 			}
 			lv_closePanel(cbid,panel,listContainer,hiddenSelect,searchInput);
 			if (changed) {
@@ -669,6 +659,73 @@
 				}
 			});
 		});
+
+		// 防止 panel 惯性滚动穿透
+		panel.addEventListener('wheel', function (e) {
+			const deltaY = e.deltaY;
+			const scrollTop = panel.scrollTop;
+			const scrollHeight = panel.scrollHeight;
+			const clientHeight = panel.clientHeight;
+			const isAtTop = scrollTop === 0;
+			const isAtBottom = scrollTop + clientHeight >= scrollHeight;
+			if (deltaY < 0 && isAtTop) {
+				e.preventDefault();
+				return;
+			}
+			if (deltaY > 0 && isAtBottom) {
+				e.preventDefault();
+				return;
+			}
+			e.stopPropagation();
+		}, { passive: false });
+	}
+
+	//截断display字符长度
+	window.lv_labelSpan_maxWidth = {};
+	function lv_ellipsisByWidth(cbid, text) {
+		const el = document.getElementById(cbid + ".label");
+		if (!el || !text) return text;
+		text = text.trim();
+		const maxWidth = el.clientWidth;
+		window.lv_labelSpan_maxWidth[cbid] = maxWidth;
+		if (maxWidth <= 0) return text;
+		const style = window.getComputedStyle(el);
+		const font = [
+			style.fontStyle,
+			style.fontVariant,
+			style.fontWeight,
+			style.fontSize || '16px',
+			style.fontFamily || 'sans-serif'
+		].join(" ").replace(/\s+/g, ' ');
+		const canvas = lv_ellipsisByWidth._canvas || (lv_ellipsisByWidth._canvas = document.createElement("canvas"));
+		const ctx = canvas.getContext("2d");
+		ctx.font = font;
+		if (ctx.measureText(text).width <= maxWidth) {
+			return text;
+		}
+		const ellipsis = "...";
+		const ellipsisWidth = ctx.measureText(ellipsis).width;
+		const minChars = 15;
+		const probe = text.slice(0, minChars);
+		const probeWidth = ctx.measureText(probe).width;
+		if (probeWidth + ellipsisWidth > maxWidth) {
+			return text;
+		}
+		let left = 0;
+		let right = text.length;
+		let result = ellipsis;
+		while (left <= right) {
+			const mid = (left + right) >> 1;
+			const substr = text.slice(0, mid);
+			const w = ctx.measureText(substr).width;
+			if (w + ellipsisWidth <= maxWidth) {
+				result = substr + ellipsis;
+				left = mid + 1;
+			} else {
+				right = mid - 1;
+			}
+		}
+		return result;
 	}
 
 	const lv_adaptiveControls = new Set();
@@ -676,12 +733,23 @@
 		lv_adaptiveControls.add(cbid);
 		lv_adaptiveStyle(cbid);
 	}
+	function lv_labelSpanResize(cbid) {
+		const el = document.getElementById(cbid + ".label");
+		if (!el) return;
+		const maxWidth = el.clientWidth;
+		if (window.lv_labelSpan_maxWidth[cbid] == maxWidth) return;
+		let text = el.title;
+		el.textContent = lv_ellipsisByWidth(cbid, text);
+	}
 	let lv_adaptiveTicking = false;
 	window.addEventListener("resize", () => {
 		if (!lv_adaptiveTicking) {
 			lv_adaptiveTicking = true;
 			requestAnimationFrame(() => {
-				lv_adaptiveControls.forEach(cbid => lv_adaptiveStyle(cbid));
+				lv_adaptiveControls.forEach(cbid => {
+					lv_adaptiveStyle(cbid);
+					lv_labelSpanResize(cbid);
+				});
 				lv_adaptiveTicking = false;
 			});
 		}
