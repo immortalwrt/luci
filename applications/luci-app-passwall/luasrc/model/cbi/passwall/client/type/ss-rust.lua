@@ -1,12 +1,10 @@
 local m, s = ...
 
-local api = require "luci.passwall.api"
-
 if not api.is_finded("sslocal") then
 	return
 end
 
-local type_name = "SS-Rust"
+type_name = "SS-Rust"
 
 -- [[ Shadowsocks Rust ]]
 

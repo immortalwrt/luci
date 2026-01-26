@@ -33,9 +33,13 @@ local asset_location = uci:get(name, "@global_rules[0]", "v2ray_location_asset")
 local geo2rule = uci:get(name, "@global_rules[0]", "geo2rule") or "0"
 local geoip_update_ok, geosite_update_ok = false, false
 asset_location = asset_location:match("/$") and asset_location or (asset_location .. "/")
+local backup_path = "/tmp/bak_v2ray/"
+local rollback = false
 
 if arg3 == "cron" then
 	arg2 = nil
+elseif arg3 == "rollback" then
+	rollback, geoip_update_ok, geosite_update_ok = true, true, true
 end
 
 local log = function(...)
@@ -370,6 +374,7 @@ local function GeoToRule(rule_name, rule_type, out_path)
 	local geosite_path = asset_location .. "geosite.dat"
 	local geoip_path = asset_location .. "geoip.dat"
 	local file_path = (rule_type == "domain") and geosite_path or geoip_path
+	local bin = api.get_app_path("geoview")
 	local geo_arg
 	if rule_type == "domain" then
 		if rule_name == "gfwlist" then
@@ -382,13 +387,13 @@ local function GeoToRule(rule_name, rule_type, out_path)
 	elseif rule_type == "ip6" then
 		geo_arg = "-type geoip -list cn -ipv4=false"
 	end
-	local cmd = string.format("geoview -input '%s' %s -lowmem=true -output '%s'", file_path, geo_arg, out_path)
+	local cmd = string.format(bin .. " -input '%s' %s -lowmem=true -output '%s'", file_path, geo_arg, out_path)
 	sys.exec(cmd)
 	return true;
 end
 
 --fetch rule
-local function fetch_rule(rule_name,rule_type,url,exclude_domain, max_retries)
+local function fetch_rule(rule_name, rule_type, url, exclude_domain, max_retries)
 	local sret = 200
 	local max_attempts = max_retries or 2
 	local rule_dataset = {}
@@ -504,7 +509,7 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain, max_retries)
 				os.execute(string.format("mv -f %s %s.nft", nft_file, rule_final_path))
 			end
 			os.execute(string.format("mv -f %s %s", file_tmp, rule_final_path))
-			reboot = 1
+			if not rollback then reboot = 1 end
 			log(string.format("%s 更新成功，总规则数 %d 条。", rule_name, #result_list))
 		else
 			log(rule_name .. " 版本一致，无需更新。")
@@ -535,7 +540,7 @@ local function fetch_geofile(geo_name, geo_type, url)
 			local content = f:read("*l")
 			f:close()
 			if content then
-				content = content:gsub(down_filename, tmp_path)
+				content = content:gsub("(%x+)%s+.+", "%1  " .. tmp_path)
 				f = io.open(sha_path, "w")
 				if f then
 					f:write(content)
@@ -565,7 +570,8 @@ local function fetch_geofile(geo_name, geo_type, url)
 	if sret_tmp == 200 then
 		if sha_verify then
 			if verify_sha256(sha_path) then
-				sys.call(string.format("mkdir -p %s && cp -f %s %s", asset_location, tmp_path, asset_path))
+				sys.call(string.format("mkdir -p %s && mv -f %s %s", backup_path, asset_path, backup_path))
+				sys.call(string.format("mkdir -p %s && mv -f %s %s", asset_location, tmp_path, asset_path))
 				reboot = 1
 				log(geo_type .. " 更新成功。")
 				if geo_type == "geoip" then
@@ -582,7 +588,8 @@ local function fetch_geofile(geo_name, geo_type, url)
 				log(geo_type .. " 版本一致，无需更新。")
 				return 0
 			end
-			sys.call(string.format("mkdir -p %s && cp -f %s %s", asset_location, tmp_path, asset_path))
+			sys.call(string.format("mkdir -p %s && mv -f %s %s", backup_path, asset_path, backup_path))
+			sys.call(string.format("mkdir -p %s && mv -f %s %s", asset_location, tmp_path, asset_path))
 			reboot = 1
 			log(geo_type .. " 更新成功。")
 			if geo_type == "geoip" then
@@ -643,6 +650,7 @@ if arg2 then
 			geosite_update = "1"
 		end
 	end)
+	if rollback then arg2 = nil end
 else
 	gfwlist_update = uci:get(name, "@global_rules[0]", "gfwlist_update") or "1"
 	chnroute_update = uci:get(name, "@global_rules[0]", "chnroute_update") or "1"
@@ -670,13 +678,13 @@ local function remove_tmp_geofile(name)
 end
 
 if geo2rule == "1" then
-	if geoip_update == "1" then
+	if geoip_update == "1" and not rollback then
 		log("geoip 开始更新...")
 		safe_call(fetch_geoip, "更新geoip发生错误...")
 		remove_tmp_geofile("geoip")
 	end
 
-	if geosite_update == "1" then
+	if geosite_update == "1" and not rollback then
 		log("geosite 开始更新...")
 		safe_call(fetch_geosite, "更新geosite发生错误...")
 		remove_tmp_geofile("geosite")
@@ -685,22 +693,26 @@ if geo2rule == "1" then
 	-- 如果是手动更新(arg2存在)始终生成规则
 	local force_generate = (arg2 ~= nil)
 
-	if geoip_update_ok or force_generate then
-		if fs.access(asset_location .. "geoip.dat") then
-			safe_call(fetch_chnroute, "生成chnroute发生错误...")
-			safe_call(fetch_chnroute6, "生成chnroute6发生错误...")
-		else
-			log("geoip.dat 文件不存在,跳过规则生成。")
-		end
+	if (geoip_update_ok or force_generate) and fs.access(asset_location .. "geoip.dat") then
+			if force_generate or chnroute_update == "1" then
+				safe_call(fetch_chnroute, "生成chnroute发生错误...")
+			end
+			if force_generate or chnroute6_update == "1" then
+				safe_call(fetch_chnroute6, "生成chnroute6发生错误...")
+			end
+	else
+		log("geoip.dat 文件不存在,跳过规则生成。")
 	end
 
-	if geosite_update_ok or force_generate then
-		if fs.access(asset_location .. "geosite.dat") then
-			safe_call(fetch_gfwlist, "生成gfwlist发生错误...")
-			safe_call(fetch_chnlist, "生成chnlist发生错误...")
-		else
-			log("geosite.dat 文件不存在,跳过规则生成。")
-		end
+	if (geosite_update_ok or force_generate) and fs.access(asset_location .. "geosite.dat") then
+			if force_generate or gfwlist_update == "1" then
+				safe_call(fetch_gfwlist, "生成gfwlist发生错误...")
+			end
+			if force_generate or chnlist_update == "1" then
+				safe_call(fetch_chnlist, "生成chnlist发生错误...")
+			end
+	else
+		log("geosite.dat 文件不存在,跳过规则生成。")
 	end
 else
 	if gfwlist_update == "1" then
@@ -732,13 +744,15 @@ else
 	end
 end
 
-uci:set(name, "@global_rules[0]", "gfwlist_update", gfwlist_update)
-uci:set(name, "@global_rules[0]", "chnroute_update", chnroute_update)
-uci:set(name, "@global_rules[0]", "chnroute6_update", chnroute6_update)
-uci:set(name, "@global_rules[0]", "chnlist_update", chnlist_update)
-uci:set(name, "@global_rules[0]", "geoip_update", geoip_update)
-uci:set(name, "@global_rules[0]", "geosite_update", geosite_update)
-api.uci_save(uci, name, true)
+if not rollback then
+	uci:set(name, "@global_rules[0]", "gfwlist_update", gfwlist_update)
+	uci:set(name, "@global_rules[0]", "chnroute_update", chnroute_update)
+	uci:set(name, "@global_rules[0]", "chnroute6_update", chnroute6_update)
+	uci:set(name, "@global_rules[0]", "chnlist_update", chnlist_update)
+	uci:set(name, "@global_rules[0]", "geoip_update", geoip_update)
+	uci:set(name, "@global_rules[0]", "geosite_update", geosite_update)
+	api.uci_save(uci, name, true)
+end
 
 if reboot == 1 then
 	if arg3 == "cron" then

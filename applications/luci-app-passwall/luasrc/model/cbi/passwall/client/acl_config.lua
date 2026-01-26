@@ -209,6 +209,10 @@ o.default = ""
 o:depends({ _hide_node_option = false, use_global_config = false })
 o.template = appname .. "/cbi/nodes_listvalue"
 o.group = {}
+o.remove = function(self, section)
+	m:del(section, self.option)
+	m:del(section, "udp_node")
+end
 
 o = s:option(DummyValue, "_tcp_node_bool", "")
 o.template = "passwall/cbi/hidevalue"
@@ -219,14 +223,36 @@ o = s:option(ListValue, "udp_node", "<a style='color: red'>" .. translate("UDP N
 o.default = ""
 o:value("", translate("Close"))
 o:value("tcp", translate("Same as the tcp node"))
-o:depends({ _tcp_node_bool = "1" })
+o:depends({ _tcp_node_bool = "1", _node_sel_other = "1" })
 o.template = appname .. "/cbi/nodes_listvalue"
 o.group = {"",""}
+o.remove = function(self, section)
+	local v = s.fields["shunt_udp_node"]:formvalue(section)
+	if not f then
+		return m:del(section, self.option)
+	end
+end
+
+o = s:option(ListValue, "shunt_udp_node", "<a style='color: red'>" .. translate("UDP Node") .. "</a>")
+o:value("close", translate("Close"))
+o:value("tcp", translate("Same as the tcp node"))
+o:depends({ _tcp_node_bool = "1", _node_sel_shunt = "1" })
+o.cfgvalue = function(self, section)
+	local v = m:get(section, "udp_node") or ""
+	if v == "" then v = "close" end
+	if v ~= "close" and v ~= "tcp" then v = "tcp" end
+	return v
+end
+o.write = function(self, section, value)
+	if value == "close" then value = "" end
+	return m:set(section, "udp_node", value)
+end
 
 o = s:option(DummyValue, "_udp_node_bool", "")
 o.template = "passwall/cbi/hidevalue"
 o.value = "1"
 o:depends({ udp_node = "",  ['!reverse'] = true })
+o:depends({ shunt_udp_node = "tcp" })
 
 ---- TCP Proxy Drop Ports
 local TCP_PROXY_DROP_PORTS = m:get("@global_forwarding[0]", "tcp_proxy_drop_ports")
@@ -471,7 +497,7 @@ o:depends({dns_mode = "sing-box"})
 o:depends({dns_mode = "xray"})
 o:depends({_node_sel_shunt = "1"})
 
-o = s:option(Flag, "remote_fakedns", "FakeDNS", translate("Use FakeDNS work in the shunt domain that proxy."))
+o = s:option(Flag, "remote_fakedns", "FakeDNS", translate("Use FakeDNS work in the domain that proxy."))
 o.default = "0"
 o.rmempty = false
 o:depends({dns_mode = "sing-box"})
