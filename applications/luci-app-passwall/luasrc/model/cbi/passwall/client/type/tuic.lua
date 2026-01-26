@@ -1,12 +1,10 @@
 local m, s = ...
 
-local api = require "luci.passwall.api"
-
 if not api.is_finded("tuic-client") then
 	return
 end
 
-local type_name = "TUIC"
+type_name = "TUIC"
 
 -- [[ TUIC ]]
 
