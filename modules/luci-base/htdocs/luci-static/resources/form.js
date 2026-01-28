@@ -1921,6 +1921,37 @@ const CBIAbstractValue = CBIAbstractElement.extend(/** @lends LuCI.form.Abstract
 	},
 
 	/**
+	 * Get the validator function for the widget, handling both single functions
+	 * and arrays of functions.
+	 *
+	 * @private
+	 * @param {string} section_id
+	 * The configuration section ID
+	 *
+	 * @returns {function}
+	 * Returns a bound validator function suitable for passing to UI widgets.
+	 * If this.validate is an array, returns a wrapper that calls each validator
+	 * serially. Otherwise returns the bound validate method.
+	 */
+	getValidator(section_id) {
+		if (Array.isArray(this.validate)) {
+			const validators = this.validate;
+			const element = this;
+			return (value) => {
+				for (let val of validators) {
+					if (typeof(val) === 'function') {
+						const result = val.call(element, section_id, value);
+						if (result !== true)
+							return result;
+					}
+				}
+				return true;
+			};
+		}
+		return L.bind(this.validate, this, section_id);
+	},
+
+	/**
 	 * Test whether the input value is currently valid.
 	 *
 	 * @param {string} section_id
@@ -2189,13 +2220,25 @@ const CBITypedSection = CBIAbstractSection.extend(/** @lends LuCI.form.TypedSect
 	 */
 
 	/**
-	 * Override the caption used for the section add a button at the bottom of
+	 * Override the caption used for the section add button at the bottom of
 	 * the section form element. Set to a string, it will be used as-is.
 	 * Set to a function, the function will be invoked and its return value
 	 * is used as a caption, after converting it to a string. If this property
 	 * is not set, the default is `Add`.
 	 *
 	 * @name LuCI.form.TypedSection.prototype#addbtntitle
+	 * @type string|function
+	 * @default null
+	 */
+
+	/**
+	 * Override the caption used for the section delete button at the bottom of
+	 * the section form element. Set to a string, it will be used as-is.
+	 * Set to a function, the function will be invoked and its return value
+	 * is used as a caption, after converting it to a string. If this property
+	 * is not set, the default is `Delete`.
+	 *
+	 * @name LuCI.form.TypedSection.prototype#delbtntitle
 	 * @type string|function
 	 * @default null
 	 */
@@ -2319,6 +2362,7 @@ const CBITypedSection = CBIAbstractSection.extend(/** @lends LuCI.form.TypedSect
 
 		for (let i = 0; i < nodes.length; i++) {
 			if (this.addremove) {
+				const rem_btn_title = this.titleFn('delbtntitle', section_id);
 				sectionEl.appendChild(
 					E('div', { 'class': 'cbi-section-remove right' },
 						E('button', {
@@ -2327,7 +2371,7 @@ const CBITypedSection = CBIAbstractSection.extend(/** @lends LuCI.form.TypedSect
 							'data-section-id': cfgsections[i],
 							'click': ui.createHandlerFn(this, 'handleRemove', cfgsections[i]),
 							'disabled': this.map.readonly || null
-						}, [ _('Delete') ])));
+						}, [ rem_btn_title ?? _('Delete') ])));
 			}
 
 			if (!this.anonymous)
@@ -2460,6 +2504,18 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 	 */
 
 	/**
+	 * Override the caption used for the section clone button at the bottom of
+	 * the section form element. Set to a string, it will be used as-is.
+	 * Set to a function, the function will be invoked and its return value
+	 * is used as a caption, after converting it to a string. If this property
+	 * is not set, the default is `Clone`.
+	 *
+	 * @name LuCI.form.TypedSection.prototype#clonebtntitle
+	 * @type string|function
+	 * @default null
+	 */
+
+	/**
 	 * Enables a per-section instance row `Edit` button which triggers a certain
 	 * action when clicked. Set to a string, the string value is used
 	 * as a `String.format()` pattern with the name of the underlying UCI section
@@ -2576,6 +2632,9 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 			if (this.extedit || this.rowcolors)
 				trEl.classList.add(!(tableEl.childNodes.length % 2)
 					? 'cbi-rowstyle-1' : 'cbi-rowstyle-2');
+			if  (sectionname && (!this.anonymous || this.sectiontitle)) {
+				trEl.appendChild(E('td', {'class': 'td cbi-value-field cbi-value-first-field'}, [ (sectionname && (!this.anonymous || this.sectiontitle)) ? sectionname : null ]));
+			}
 
 			for (let j = 0; j < max_cols && nodes[i].firstChild; j++)
 				trEl.appendChild(nodes[i].firstChild);
@@ -2616,10 +2675,17 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 
 		if (has_titles) {
 			const trEl = E('tr', {
-				'class': `tr cbi-section-table-titles ${anon_class}`,
+				'class': `tr cbi-value-first-field cbi-section-table-titles ${anon_class}`,
 				'data-title': (!this.anonymous || this.sectiontitle) ? _('Name') : null,
 				'click': this.sortable ? ui.createHandlerFn(this, 'handleSort') : null
 			});
+			if (!this.anonymous || this.sectiontitle) {
+				trEl.appendChild(E('th', {
+						'class': 'th cbi-section-table-cell',
+						'data-sortable-row': this.sortable ? '' : null
+						},	(!this.anonymous || this.sectiontitle) ? _('Name') : null
+					));
+			}
 
 			for (let i = 0, opt; i < max_cols && (opt = this.children[i]) != null; i++) {
 				if (opt.modalonly)
@@ -2748,7 +2814,7 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 		}
 
 		if (this.addremove) {
-			const btn_title = this.titleFn('removebtntitle', section_id);
+			const btn_title = this.titleFn('delbtntitle', section_id);
 
 			dom.append(tdEl.lastElementChild,
 				E('button', {
@@ -3598,13 +3664,14 @@ const CBINamedSection = CBIAbstractSection.extend(/** @lends LuCI.form.NamedSect
 
 		if (ucidata) {
 			if (this.addremove) {
+				const rem_btn_title = this.titleFn('delbtntitle', section_id);
 				sectionEl.appendChild(
 					E('div', { 'class': 'cbi-section-remove right' },
 						E('button', {
 							'class': 'cbi-button',
 							'click': ui.createHandlerFn(this, 'handleRemove'),
 							'disabled': this.map.readonly || null
-						}, [ _('Delete') ])));
+						}, [ rem_btn_title ?? _('Delete') ])));
 			}
 
 			sectionEl.appendChild(E('div', {
@@ -3615,12 +3682,13 @@ const CBINamedSection = CBIAbstractSection.extend(/** @lends LuCI.form.NamedSect
 			}, nodes));
 		}
 		else if (this.addremove) {
+			const add_btn_title = this.titleFn('addbtntitle', section_id);
 			sectionEl.appendChild(
 				E('button', {
 					'class': 'cbi-button cbi-button-add',
 					'click': ui.createHandlerFn(this, 'handleAdd'),
 					'disabled': this.map.readonly || null
-				}, [ _('Add') ]));
+				}, [ add_btn_title ?? _('Add') ]));
 		}
 
 		dom.bindClassInstance(sectionEl, this);
@@ -3833,7 +3901,7 @@ const CBIValue = CBIAbstractValue.extend(/** @lends LuCI.form.Value.prototype */
 				optional: this.optional || this.rmempty,
 				datatype: this.datatype,
 				select_placeholder: this.placeholder ?? placeholder,
-				validate: L.bind(this.validate, this, section_id),
+				validate: this.getValidator(section_id),
 				disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 			});
 		}
@@ -3844,7 +3912,7 @@ const CBIValue = CBIAbstractValue.extend(/** @lends LuCI.form.Value.prototype */
 				optional: this.optional || this.rmempty,
 				datatype: this.datatype,
 				placeholder: this.placeholder,
-				validate: L.bind(this.validate, this, section_id),
+				validate: this.getValidator(section_id),
 				disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 			});
 		}
@@ -3912,7 +3980,7 @@ const CBIDynamicList = CBIValue.extend(/** @lends LuCI.form.DynamicList.prototyp
 			optional: this.optional || this.rmempty,
 			datatype: this.datatype,
 			placeholder: this.placeholder,
-			validate: L.bind(this.validate, this, section_id),
+			validate: this.getValidator(section_id),
 			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 		});
 
@@ -4004,7 +4072,7 @@ const CBIListValue = CBIValue.extend(/** @lends LuCI.form.ListValue.prototype */
 			optional: this.optional,
 			orientation: this.orientation,
 			placeholder: this.placeholder,
-			validate: L.bind(this.validate, this, section_id),
+			validate: this.getValidator(section_id),
 			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 		});
 
@@ -4099,7 +4167,7 @@ const CBIRichListValue = CBIListValue.extend(/** @lends LuCI.form.ListValue.prot
 			orientation: this.orientation,
 			select_placeholder: this.select_placeholder || this.placeholder,
 			custom_placeholder: this.custom_placeholder || this.placeholder,
-			validate: L.bind(this.validate, this, section_id),
+			validate: this.getValidator(section_id),
 			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 		});
 
@@ -4244,7 +4312,7 @@ const CBIRangeSliderValue = CBIValue.extend(/** @lends LuCI.form.RangeSliderValu
 			calcunits: this.calcunits,
 			disabled: this.readonly || this.disabled,
 			datatype: this.datatype,
-			validate: L.bind(this.validate, this, section_id),
+			validate: this.getValidator(section_id),
 		});
 
 		this.widget = slider;
@@ -4271,13 +4339,13 @@ const CBIRangeSliderValue = CBIValue.extend(/** @lends LuCI.form.RangeSliderValu
 });
 
 /**
- * @class FlagValue
+ * @class Flag
  * @memberof LuCI.form
  * @augments LuCI.form.Value
  * @hideconstructor
  * @classdesc
  *
- * The `FlagValue` element builds upon the {@link LuCI.ui.Checkbox} widget to
+ * The `Flag` element builds upon the {@link LuCI.ui.Checkbox} widget to
  * implement a simple checkbox element.
  *
  * @param {LuCI.form.Map|LuCI.form.JSONMap} form
@@ -4301,7 +4369,7 @@ const CBIRangeSliderValue = CBIValue.extend(/** @lends LuCI.form.RangeSliderValu
  * @param {string} [description]
  * The description text of the option element.
  */
-const CBIFlagValue = CBIValue.extend(/** @lends LuCI.form.FlagValue.prototype */ {
+const CBIFlagValue = CBIValue.extend(/** @lends LuCI.form.Flag.prototype */ {
 	__name__: 'CBI.FlagValue',
 
 	__init__(...args) {
@@ -4315,7 +4383,7 @@ const CBIFlagValue = CBIValue.extend(/** @lends LuCI.form.FlagValue.prototype */
 	/**
 	 * Sets the input value to use for the checkbox checked state.
 	 *
-	 * @name LuCI.form.FlagValue.prototype#enabled
+	 * @name LuCI.form.Flag.prototype#enabled
 	 * @type string
 	 * @default 1
 	 */
@@ -4323,7 +4391,7 @@ const CBIFlagValue = CBIValue.extend(/** @lends LuCI.form.FlagValue.prototype */
 	/**
 	 * Sets the input value to use for the checkbox unchecked state.
 	 *
-	 * @name LuCI.form.FlagValue.prototype#disabled
+	 * @name LuCI.form.Flag.prototype#disabled
 	 * @type string
 	 * @default 0
 	 */
@@ -4337,7 +4405,7 @@ const CBIFlagValue = CBIValue.extend(/** @lends LuCI.form.FlagValue.prototype */
 	 * value will be shown as a tooltip. If the return value of the function
 	 * is `null` no tooltip will be set.
 	 *
-	 * @name LuCI.form.FlagValue.prototype#tooltip
+	 * @name LuCI.form.Flag.prototype#tooltip
 	 * @type string|function
 	 * @default null
 	 */
@@ -4348,7 +4416,7 @@ const CBIFlagValue = CBIValue.extend(/** @lends LuCI.form.FlagValue.prototype */
 	 * If set, this icon will be shown for the default one.
 	 * This could also be a png icon from the resources directory.
 	 *
-	 * @name LuCI.form.FlagValue.prototype#tooltipicon
+	 * @name LuCI.form.Flag.prototype#tooltipicon
 	 * @type string
 	 * @default 'ℹ️';
 	 */
@@ -4366,7 +4434,7 @@ const CBIFlagValue = CBIValue.extend(/** @lends LuCI.form.FlagValue.prototype */
 			id: this.cbid(section_id),
 			value_enabled: this.enabled,
 			value_disabled: this.disabled,
-			validate: L.bind(this.validate, this, section_id),
+			validate: this.getValidator(section_id),
 			tooltip,
 			tooltipicon: this.tooltipicon,
 			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
@@ -4509,7 +4577,7 @@ const CBIMultiValue = CBIDynamicList.extend(/** @lends LuCI.form.MultiValue.prot
 			create: this.create,		
 			display_items: this.display_size ?? this.size ?? 3,
 			dropdown_items: this.dropdown_size ?? this.size ?? -1,
-			validate: L.bind(this.validate, this, section_id),
+			validate: this.getValidator(section_id),
 			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 		});
 
@@ -4602,7 +4670,7 @@ const CBITextValue = CBIValue.extend(/** @lends LuCI.form.TextValue.prototype */
 			cols: this.cols,
 			rows: this.rows,
 			wrap: this.wrap,
-			validate: L.bind(this.validate, this, section_id),
+			validate: this.getValidator(section_id),
 			readonly: (this.readonly != null) ? this.readonly : this.map.readonly,
 			disabled: (this.disabled != null) ? this.disabled : null,
 		});
@@ -4706,13 +4774,13 @@ const CBIDummyValue = CBIValue.extend(/** @lends LuCI.form.DummyValue.prototype 
 });
 
 /**
- * @class ButtonValue
+ * @class Button
  * @memberof LuCI.form
  * @augments LuCI.form.Value
  * @hideconstructor
  * @classdesc
  *
- * The `ButtonValue` element wraps a {@link LuCI.ui.Hiddenfield} widget and
+ * The `Button` element wraps a {@link LuCI.ui.Hiddenfield} widget and
  * renders the underlying UCI option or default value as readonly text.
  *
  * @param {LuCI.form.Map|LuCI.form.JSONMap} form
@@ -4736,7 +4804,7 @@ const CBIDummyValue = CBIValue.extend(/** @lends LuCI.form.DummyValue.prototype 
  * @param {string} [description]
  * The description text of the option element.
  */
-const CBIButtonValue = CBIValue.extend(/** @lends LuCI.form.ButtonValue.prototype */ {
+const CBIButtonValue = CBIValue.extend(/** @lends LuCI.form.Button.prototype */ {
 	__name__: 'CBI.ButtonValue',
 
 	/**
@@ -4752,7 +4820,7 @@ const CBIButtonValue = CBIValue.extend(/** @lends LuCI.form.ButtonValue.prototyp
 	 *
 	 * The default of `null` means the option title is used as caption.
 	 *
-	 * @name LuCI.form.ButtonValue.prototype#inputtitle
+	 * @name LuCI.form.Button.prototype#inputtitle
 	 * @type string|function
 	 * @default null
 	 */
@@ -4768,7 +4836,7 @@ const CBIButtonValue = CBIValue.extend(/** @lends LuCI.form.ButtonValue.prototyp
 	 *
 	 * The default of `null` means a neutral button styling is used.
 	 *
-	 * @name LuCI.form.ButtonValue.prototype#inputstyle
+	 * @name LuCI.form.Button.prototype#inputstyle
 	 * @type string
 	 * @default null
 	 */
@@ -4785,7 +4853,7 @@ const CBIButtonValue = CBIValue.extend(/** @lends LuCI.form.ButtonValue.prototyp
 	 * DOM click element as the first and the underlying configuration section ID
 	 * as the second argument.
 	 *
-	 * @name LuCI.form.ButtonValue.prototype#onclick
+	 * @name LuCI.form.Button.prototype#onclick
 	 * @type function
 	 * @default null
 	 */
@@ -4883,13 +4951,13 @@ const CBIHiddenValue = CBIValue.extend(/** @lends LuCI.form.HiddenValue.prototyp
  * offers the ability to browse, upload and select remote files.
  *
  * @param {LuCI.form.Map|LuCI.form.JSONMap} form
- * The configuration form to which this section is added to. It is automatically passed
+ * The configuration form to which this section is added. It is automatically passed
  * by [option()]{@link LuCI.form.AbstractSection#option} or
  * [taboption()]{@link LuCI.form.AbstractSection#taboption} when adding the
  * option to the section.
  *
  * @param {LuCI.form.AbstractSection} section
- * The configuration section this option is added to. It is automatically passed
+ * The configuration section this option is added. It is automatically passed
  * by [option()]{@link LuCI.form.AbstractSection#option} or
  * [taboption()]{@link LuCI.form.AbstractSection#taboption} when adding the
  * option to the section.
@@ -4910,6 +4978,8 @@ const CBIFileUpload = CBIValue.extend(/** @lends LuCI.form.FileUpload.prototype 
 		this.super('__init__', args);
 
 		this.browser = false;
+		this.directory_create = false;
+		this.directory_select = false;
 		this.show_hidden = false;
 		this.enable_upload = true;
 		this.enable_remove = true;
@@ -4919,7 +4989,8 @@ const CBIFileUpload = CBIValue.extend(/** @lends LuCI.form.FileUpload.prototype 
 
 
 	/**
-	 * Open in a file browser mode instead of selecting for a file
+	 * Render the widget in browser mode initially instead of a button
+	 * to 'Select File...'.
 	 *
 	 * @name LuCI.form.FileUpload.prototype#browser
 	 * @type boolean
@@ -4953,6 +5024,35 @@ const CBIFileUpload = CBIValue.extend(/** @lends LuCI.form.FileUpload.prototype 
 	 * @name LuCI.form.FileUpload.prototype#enable_upload
 	 * @type boolean
 	 * @default true
+	 */
+
+	/**
+	 * Toggle remote directory create functionality.
+	 *
+	 * When set to `true`, the underlying widget provides a button which lets
+	 * the user create directories. Note that this is merely
+	 * a cosmetic feature: remote create permissions are controlled by the
+	 * session ACL rules.
+	 *
+	 * The default of `false` means the directory create button is hidden.
+	 *
+	 * @name LuCI.form.FileUpload.prototype#directory_create
+	 * @type boolean
+	 * @default false
+	 */
+
+	/**
+	 * Toggle remote directory select functionality.
+	 *
+	 * When set to `true`, the underlying widget changes behaviour to select
+	 * directories instead of files, in effect, becoming a directory
+	 * picker.
+	 *
+	 * The default is `false`.
+	 *
+	 * @name LuCI.form.FileUpload.prototype#directory_select
+	 * @type boolean
+	 * @default false
 	 */
 
 	/**
@@ -5001,10 +5101,171 @@ const CBIFileUpload = CBIValue.extend(/** @lends LuCI.form.FileUpload.prototype 
 			name: this.cbid(section_id),
 			browser: this.browser,
 			show_hidden: this.show_hidden,
+			directory_create: this.directory_create,
+			directory_select: this.directory_select,
 			enable_upload: this.enable_upload,
 			enable_remove: this.enable_remove,
 			enable_download: this.enable_download,
 			root_directory: this.root_directory,
+			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
+		});
+
+		return browserEl.render();
+	}
+});
+
+/**
+ * @class DirectoryPicker
+ * @memberof LuCI.form
+ * @augments LuCI.form.Value
+ * @hideconstructor
+ * @classdesc
+ *
+ * The `DirectoryPicker` element wraps a {@link LuCI.ui.FileUpload} widget and
+ * offers the ability to browse, create, delete and select remote directories.
+ *
+ * @param {LuCI.form.Map|LuCI.form.JSONMap} form
+ * The configuration form to which this section is added. It is automatically passed
+ * by [option()]{@link LuCI.form.AbstractSection#option} or
+ * [taboption()]{@link LuCI.form.AbstractSection#taboption} when adding the
+ * option to the section.
+ *
+ * @param {LuCI.form.AbstractSection} section
+ * The configuration section this option is added. It is automatically passed
+ * by [option()]{@link LuCI.form.AbstractSection#option} or
+ * [taboption()]{@link LuCI.form.AbstractSection#taboption} when adding the
+ * option to the section.
+ *
+ * @param {string} option
+ * The name of the UCI option to map.
+ *
+ * @param {string} [title]
+ * The title caption of the option element.
+ *
+ * @param {string} [description]
+ * The description text of the option element.
+ */
+const CBIDirectoryPicker = CBIValue.extend(/** @lends LuCI.form.DirectoryPicker.prototype */ {
+	__name__: 'CBI.DirectoryPicker',
+
+	__init__(...args) {
+		this.super('__init__', args);
+
+		this.browser = false;
+		this.directory_create = false;
+		this.enable_download = false;
+		this.enable_remove = false;
+		this.enable_upload = false;
+		this.root_directory = '/tmp';
+		this.show_hidden = true;
+	},
+
+
+	/**
+	 * Render the widget in browser mode initially instead of a button
+	 * to 'Select Directory...'.
+	 *
+	 * @name LuCI.form.DirectoryPicker.prototype#browser
+	 * @type boolean
+	 * @default false
+	 */
+
+	/**
+	 * Toggle remote directory create functionality.
+	 *
+	 * When set to `true`, the underlying widget provides a button which lets
+	 * the user create directories. Note that this is merely
+	 * a cosmetic feature: remote create permissions are controlled by the
+	 * session ACL rules.
+	 *
+	 * The default of `false` means the directory create button is hidden.
+	 *
+	 * @name LuCI.form.DirectoryPicker.prototype#directory_create
+	 * @type boolean
+	 * @default false
+	 */
+
+	/**
+	 * Toggle download file functionality.
+	 *
+	 * @name LuCI.form.DirectoryPicker.prototype#enable_download
+	 * @type boolean
+	 * @default false
+	 */
+
+	/**
+	 * Toggle remote file delete functionality.
+	 *
+	 * When set to `true`, the underlying widget provides buttons which let
+	 * the user delete files from remote directories. Note that this is merely
+	 * a cosmetic feature: remote delete permissions are controlled by the
+	 * session ACL rules.
+	 *
+	 * The default is `false`, means file removal buttons are not displayed.
+	 *
+	 * @name LuCI.form.DirectoryPicker.prototype#enable_remove
+	 * @type boolean
+	 * @default false
+	 */
+
+	/**
+	 * Toggle file upload functionality.
+	 *
+	 * When set to `true`, the underlying widget provides a button which lets
+	 * the user select and upload local files to the remote system.
+	 * Note that this is merely a cosmetic feature: remote upload access is
+	 * controlled by the session ACL rules.
+	 *
+	 * The default of `false` means file upload functionality is disabled.
+	 *
+	 * @name LuCI.form.DirectoryPicker.prototype#enable_upload
+	 * @type boolean
+	 * @default false
+	 */
+
+	/**
+	 * Specify the root directory for file browsing.
+	 *
+	 * This property defines the topmost directory the file browser widget may
+	 * navigate to. The UI will not allow browsing directories outside this
+	 * prefix. Note that this is merely a cosmetic feature: remote file access
+	 * and directory listing permissions are controlled by the session ACL
+	 * rules.
+	 *
+	 * The default is `/tmp`.
+	 *
+	 * @name LuCI.form.DirectoryPicker.prototype#root_directory
+	 * @type string
+	 * @default /tmp
+	 */
+
+	/**
+	 * Toggle display of hidden files.
+	 *
+	 * Display hidden files when rendering the remote directory listing.
+	 * Note that this is merely a cosmetic feature: hidden files are always
+	 * included in received remote file listings.
+	 *
+	 * The default of `true` means hidden files are displayed.
+	 *
+	 * @name LuCI.form.DirectoryPicker.prototype#show_hidden
+	 * @type boolean
+	 * @default true
+	 */
+
+	/** @private */
+	renderWidget(section_id, option_index, cfgvalue) {
+		const browserEl = new ui.FileUpload((cfgvalue != null) ? cfgvalue : this.default, {
+			id: this.cbid(section_id),
+			name: this.cbid(section_id),
+			browser: this.browser,
+			directory_create: this.directory_create,
+			directory_select: true,
+			enable_download: this.enable_download,
+			enable_remove: this.enable_remove,
+			enable_upload: this.enable_upload,
+			root_directory: this.root_directory,
+			show_hidden: this.show_hidden,
 			disabled: (this.readonly != null) ? this.readonly : this.map.readonly
 		});
 
@@ -5202,5 +5463,6 @@ return baseclass.extend(/** @lends LuCI.form.prototype */ {
 	Button: CBIButtonValue,
 	HiddenValue: CBIHiddenValue,
 	FileUpload: CBIFileUpload,
+	DirectoryPicker: CBIDirectoryPicker,
 	SectionValue: CBISectionValue
 });

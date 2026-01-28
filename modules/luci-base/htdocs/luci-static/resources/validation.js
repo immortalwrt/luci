@@ -51,7 +51,7 @@ const Validator = baseclass.extend({
 		else
 			return false;
 
-		if (value != null)
+		if (value != null && value != undefined)
 			this.value = value;
 
 		return func.apply(this, args);
@@ -86,8 +86,18 @@ const Validator = baseclass.extend({
 			return false;
 		}
 
-		if (typeof(this.vfunc) == 'function')
+		if (typeof(this.vfunc) == 'function') {
 			valid = this.vfunc(this.value);
+		} else if (Array.isArray(this.vfunc)) {
+			/* Execute validation functions serially */
+			for (let val of this.vfunc) {
+				if (typeof(val) == 'function') {
+					valid = val(this.value);
+					if (valid !== true)
+						break;
+				}
+			}
+		}
 
 		if (valid !== true) {
 			this.assert(false, valid);
@@ -285,6 +295,24 @@ const ValidatorFactory = baseclass.extend({
 
 			return this.assert(m && this.factory.parseIPv6(m[1]) && (m[2] ? this.apply('ip6prefix', m[2]) : true),
 				nomask ? _('valid IPv6 address') : _('valid IPv6 address or prefix'));
+		},
+
+		ip6ll(nomask) {
+			/* fe80::/10  -> 0xfe80 .. 0xfebf */
+			const x = parseInt(this.value, 16) | 0;
+			const isll = (((x & 0xffc0) ^ 0xfe80) === 0);
+
+			return this.assert(isll && this.apply('ip6addr', nomask),
+				_('valid IPv6 Link Local address'));
+		},
+
+		ip6ula(nomask) {
+			/* fd00::/8  -> 0xfd00 .. 0xfdff */
+			const x = parseInt(this.value, 16) | 0;
+			const isula = (((x & 0xfe00) ^ 0xfc00) === 0);
+
+			return this.assert(isula && this.apply('ip6addr', nomask),
+				_('valid IPv6 ULA address'));
 		},
 
 		ip4prefix() {

@@ -415,7 +415,7 @@ div.hostinfo {
 	border: 1px solid #90c0e0;
 	background: #000 !important;
 	color: #90c0e0 !important;
-	padding: calc(.125em - 1px) calc(.5em - 1px);
+	/*padding: calc(.125em - 1px) calc(.5em - 1px);*/
 }
 
 html #menubar a:link,
@@ -576,18 +576,6 @@ p {
 ul.cbi-apply {
 	font-size: 90%;
 }
-
-/*input:-webkit-input-placeholder {
-	color: #AAAAAA;
-}*/
-
-input:-moz-placeholder {
-	color: #AAAAAA;
-}
-
-/*input:-ms-input-placeholder {
-	color: #AAAAAA;
-}*/
 
 input[type=submit],
 input[type=reset],
@@ -814,6 +802,7 @@ table td, table th {
 	vertical-align: middle;
 	padding: 0.25em 0.6em;
 	border-bottom: 1px dotted #bbbbbb;
+	align-items: baseline;
 }
 
 .cbi-value:hover {
@@ -977,13 +966,6 @@ div.cbi-optionals {
 	margin-left: auto;
 }
 
-/**::-ms-backdrop,*/
-.cbi-page-actions > .cbi-button-save,
-.cbi-page-actions > .cbi-button-apply,
-.cbi-page-actions > form[method="post"] {
-	margin-left: 50%;
-}
-
 .cbi-page-actions > .cbi-button-apply + .cbi-button-save,
 .cbi-page-actions > .cbi-button-negative + .cbi-button-save,
 .cbi-page-actions > .cbi-button-save + form[method="post"],
@@ -1003,12 +985,7 @@ div.cbi-optionals {
 }
 
 .td[data-title]::before {
-	content: attr(data-title) ":\20";
-	font-weight: bold;
-	text-align: left;
-	display: none;
-	padding: 1px 0;
-	white-space: nowrap;
+	content: none; 
 }
 
 .td[data-description]::after {
@@ -1028,16 +1005,7 @@ div.cbi-optionals {
 
 .tr[data-title]::before,
 .tr.cbi-section-table-titles.named::before {
-	content: attr(data-title) "\20";
-	font-weight: bold;
-	text-align: left;
-	display: table-cell;
-	align-self: center;
-	flex: 1 1 5%;
-	padding: .25em;
-	white-space: normal;
-	word-wrap: break-word;
-	vertical-align: middle;
+	content: none;
 }
 
 .cbi-value-helpicon img {
@@ -1066,6 +1034,11 @@ div.cbi-optionals {
 .cbi-value-field var {
 	color: #2222FF;
 }
+
+.cbi-value-first-field {
+	font-weight: bold;	
+}
+
 
 ul.cbi-tabmenu {
 	list-style-type: none;
@@ -1376,7 +1349,7 @@ ul.cbi-tabmenu li.cbi-tab-disabled[data-errors]::after {
 
 /* indication line for drag-and-drop in UIDynamicList*/
 .cbi-dynlist > .item.drag-over {
-	border-top: 1px solid red;
+	border-top: 1px red;
 }
 
 /* Make item being dragged in UIDynamicList partially transparent*/
@@ -1395,7 +1368,7 @@ ul.cbi-tabmenu li.cbi-tab-disabled[data-errors]::after {
 
 /* indication line for drag-and-drop in UIDynamicList*/
 .cbi-dynlist > .add-item > .cbi-button-add.drag-over {
-	border-top: 1px solid red;
+	border-top: 1px red;
 }
 
 .cbi-dynlist > .add-item > input {

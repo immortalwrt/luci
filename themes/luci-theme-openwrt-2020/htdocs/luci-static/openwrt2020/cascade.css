@@ -305,10 +305,7 @@ tr.cbi-section-table-titles[data-title]::before {
 }
 
 tr[data-title]::before {
-	content: attr(data-title);
-	display: table-cell;
-	border-top: 1px solid var(--main-dark-color);
-	padding: .5em;
+	content: none;
 }
 
 th {
@@ -877,19 +874,28 @@ p > a {
 }
 
 .alert-message.info {
+	color: var(--secondary-bright-color);
 	background: var(--main-bright-color);
 }
 
 .alert-message.warning {
+	color: var(--secondary-bright-color);
 	background: var(--warning-color);
 }
 
 .alert-message.danger {
+	color: var(--secondary-bright-color);
 	background: var(--danger-color);
 }
 
 .alert-message.success {
+	color: var(--secondary-bright-color);
 	background: var(--success-color);
+}
+
+.alert-message.notice {
+	color: var(--main-bright-color);
+	background: var(--secondary-bright-color);
 }
 
 .alert-message .btn {
@@ -898,6 +904,17 @@ p > a {
 
 .alert-message .btn:hover {
 	box-shadow: 0 0 4px 1px var(--secondary-bright-color);
+}
+
+/* Fix for table text in notifications */
+.alert-message.notice table,
+.alert-message.notice .table,
+.alert-message.notice td,
+.alert-message.notice th,
+.alert-message.notice .td,
+.alert-message.notice .th {
+	color: var(--main-bright-color) !important;
+	background: transparent !important;
 }
 
 @keyframes fade-in {
@@ -1123,6 +1140,7 @@ textarea {
 	display: flex;
 	flex-wrap: wrap;
 	margin: 0 0 1em 0;
+	align-items: baseline;
 }
 
 .cbi-value > label:first-child {
@@ -1136,6 +1154,10 @@ textarea {
 
 .cbi-value > .cbi-section {
 	flex: 1 1 100%;
+}
+
+.cbi-value-first-field {
+	font-weight: bold;	
 }
 
 .cbi-map-descr,
@@ -1639,6 +1661,12 @@ button.spinning::before, .btn.spinning::before {
 	background: var(--success-color);
 }
 
+.label.notice {
+	background:var(--secondary-bright-color);
+	color:var(--main-bright-color);
+	border: 1px solid var(--main-bright-color);
+}
+
 ul.deps {
 	margin: 0;
 	padding: 0;
@@ -1787,20 +1815,7 @@ ul.errors {
 	}
 
 	td[data-title]::before {
-		content: attr(data-title) ": ";
-		white-space: nowrap;
-		font-weight: bold;
-		width: 40%;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		position: absolute;
-		left: 0;
-		top: 0;
-		bottom: 0;
-		padding: .2em 0;
-		text-align: left;
-		display: inline-flex;
-		align-items: center;
+		content: none;
 	}
 
 	td[data-title]::after {
