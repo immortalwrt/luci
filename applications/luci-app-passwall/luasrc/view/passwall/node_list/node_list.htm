@@ -269,16 +269,20 @@ table td, .table .td {
 		ajaxList = [];
 	}
 
-	function to_add_node() {
+	function to_add_node(protocol) {
 		ajaxAbortAll();
 		const dom = document.getElementsByClassName("cbi-tab")[0];
 		const current_group = dom.getAttribute("group_name")
-		window.location.href='<%=api.url("add_node")%>?redirect=1&group=' + current_group;
+		if (protocol && protocol === "shunt") {
+			window.location.href = '<%=api.url("add_node")%>?protocol=shunt&redirect=1&group=' + current_group;
+		} else {
+			window.location.href = '<%=api.url("add_node")%>?redirect=1&group=' + current_group;
+		}
 	}
 
 	function to_edit_node(cbi_id) {
 		ajaxAbortAll();
-		location.href='<%=api.url("node_config")%>/' + cbi_id;
+		window.location.href = '<%=api.url("edit_node")%>' + "?section=" + cbi_id;
 	}
 
 	function copy_node(cbi_id) {

@@ -1,5 +1,8 @@
 <%
 local api = require "luci.passwall.api"
+local fs = api.fs
+local has_old_geoip = fs.access("/tmp/bak_v2ray/geoip.dat")
+local has_old_geosite = fs.access("/tmp/bak_v2ray/geosite.dat")
 -%>
 <script src="<%=resource%>/view/<%=api.appname%>/Sortable.min.js?v=26.1.9"></script>
 
@@ -68,7 +71,14 @@ local api = require "luci.passwall.api"
 				<input class="cbi-input-checkbox" type="checkbox" name="geosite" value="1" />
 				geosite
 			</label>
-			<br><br><input class="btn cbi-button cbi-button-apply" type="button" id="update_rules_btn" onclick="update_rules(this)" value="<%:Manually update%>" />
+			<br><br>
+			<input class="btn cbi-button cbi-button-apply" type="button" id="update_rules_btn" onclick="update_rules(this)" value="<%:Manually update%>" />
+			<% if has_old_geoip then %>
+			<input class="btn cbi-button cbi-button-reset" type="button" onclick="rollback_rules(this, 'geoip')" value="<%:Rollback%> GeoIP" />
+			<% end %>
+			<% if has_old_geosite then %>
+			<input class="btn cbi-button cbi-button-reset" type="button" onclick="rollback_rules(this, 'geosite')" value="<%:Rollback%> Geosite" />
+			<% end %>
 		</div>
 	</div>
 </div>
@@ -123,8 +133,8 @@ local api = require "luci.passwall.api"
 		var len = domList.length;
 		while(len--) {
 			var dom = domList[len];　　
-			if(dom.type == 'checkbox' && dom.checked) {　　
-				checkBoxList.push(dom.name);　　
+			if(dom.type == 'checkbox' && dom.checked) {
+				checkBoxList.push(dom.name);
 			}
 		}
 		XHR.get('<%=api.url("update_rules")%>', {
@@ -137,6 +147,42 @@ local api = require "luci.passwall.api"
 					alert("<%:Error%>");
 					btn.disabled = false;
 					btn.value = '<%:Manually update%>';
+				}
+			}
+		);
+	}
+
+	function rollback_rules(btn, type) {
+		let ori_val = btn.value;
+		btn.disabled = true;
+		btn.value = '<%:Rollbacking...%>';
+		var div = document.getElementById('_rule_div');
+		var domList = div.getElementsByTagName('input');
+		var checkBoxList = [];
+		var len = domList.length;
+		while(len--) {
+			var dom = domList[len];　　
+			if(dom.type == 'checkbox' && dom.checked) {
+				if(type == 'geoip' && (dom.name === 'chnroute' || dom.name === 'chnroute6')) {
+					checkBoxList.push(dom.name);
+				}
+				if(type == 'geosite' && (dom.name === 'gfwlist' || dom.name === 'chnlist')) {
+					checkBoxList.push(dom.name);
+				}
+			}
+		}
+		XHR.get('<%=api.url("rollback_rules")%>', {
+			type: type,
+			rules: checkBoxList.join(",")
+			},
+			function(x, data) {
+				if(x && x.status == 200 && data.code == 1) {
+					alert("<%:Success%>");
+					btn.style.display = "none";
+				} else {
+					alert("<%:Error%>");
+					btn.disabled = false;
+					btn.value = ori_val;
 				}
 			}
 		);
