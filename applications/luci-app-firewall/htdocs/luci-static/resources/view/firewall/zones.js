@@ -107,6 +107,7 @@ return view.extend({
 		s.addremove = true;
 		s.anonymous = true;
 		s.sortable  = true;
+		s.filterrow = true;
 		s.nodescriptions = true;
 
 		s.handleRemove = function(section_id, ev) {
