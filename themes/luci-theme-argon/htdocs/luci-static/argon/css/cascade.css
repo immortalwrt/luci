@@ -2782,6 +2782,7 @@ td > .ifacebadge,
   font-size: small;
   font-family: 'Google Sans';
   line-height: 1.25;
+  overflow-y: hidden;
   width: 100%;
   min-height: 15rem;
   padding: 1rem;
@@ -3624,11 +3625,11 @@ pre.command-output {
 [data-page="admin-status-nftables"] .nft-chain-hook {
   padding: 0.5rem 1.25rem;
 }
-[data-page="admin-nlbw-display"] .cbi-section[data-tab="export"] {
+[data-page="admin-services-nlbw-display"] .cbi-section[data-tab="export"] {
   padding: 1.5rem !important;
 }
-[data-page="admin-nlbw-backup"] form {
-  padding-left: 1.5rem;
+[data-page="admin-services-nlbw-display"] .cbi-section > .right {
+  margin: 15px 15px 0px 0px;
 }
 [data-page="admin-services-ddns"] #syslog {
   overflow: auto;
@@ -3682,6 +3683,10 @@ pre.command-output {
 }
 [data-page^="admin-services-openclash"] .oc .developer-container {
   background: transparent;
+}
+[data-page^="admin-services-openclash"] .oc .announcement-card {
+  width: auto!important;
+  margin: 10px!important;
 }
 [data-page^="admin-services-openclash"] #cbi-openclash > fieldset {
   background: none;
