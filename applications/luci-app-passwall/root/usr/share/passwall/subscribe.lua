@@ -17,6 +17,8 @@ local ssub, slen, schar, sbyte, sformat, sgsub = string.sub, string.len, string.
 local split = api.split
 local jsonParse, jsonStringify = luci.jsonc.parse, luci.jsonc.stringify
 local base64Decode = api.base64Decode
+local UrlEncode = api.UrlEncode
+local UrlDecode = api.UrlDecode
 local uci = api.uci
 local fs = api.fs
 uci:revert(appname)
@@ -264,10 +266,6 @@ do
 				[".name"] = "default_node",
 				remarks = "默认"
 			})
-			table.insert(rules, {
-				[".name"] = "main_node",
-				remarks = "默认前置"
-			})
 
 			for k, e in pairs(rules) do
 				local _node_id = node[e[".name"]] or nil
@@ -417,18 +415,6 @@ do
 			end
 		end
 	end
-end
-
-local function UrlEncode(szText)
-	return szText:gsub("([^%w%-_%.%~])", function(c)
-		return string.format("%%%02X", string.byte(c))
-	end)
-end
-
-local function UrlDecode(szText)
-	return szText and szText:gsub("+", " "):gsub("%%(%x%x)", function(h)
-		return string.char(tonumber(h, 16))
-	end) or nil
 end
 
 -- 取机场信息（剩余流量、到期时间）
@@ -630,6 +616,8 @@ local function processData(szType, content, add_mode, group)
 			result.tls = "0"
 		end
 
+		result.tcp_fast_open = info.tfo
+
 		if result.type == "sing-box" and (result.transport == "mkcp" or result.transport == "xhttp") then
 			log("跳过节点:" .. result.remarks .."，因Sing-Box不支持" .. szType .. "协议的" .. result.transport .. "传输方式，需更换Xray。")
 			return nil
@@ -733,13 +721,17 @@ local function processData(szType, content, add_mode, group)
 
 			result.method = method
 			result.password = password
+			result.tcp_fast_open = params.tfo
 
-			if has_xray and (result.type ~= 'Xray' and  result.type ~= 'sing-box' and params.type) then
-				result.type = 'Xray'
-				result.protocol = 'shadowsocks'
-			elseif has_singbox and (result.type ~= 'Xray' and  result.type ~= 'sing-box' and params.type) then
-				result.type = 'sing-box'
-				result.protocol = 'shadowsocks'
+			local need_upgrade = (result.type ~= "Xray" and result.type ~= "sing-box")
+				and (params.type and params.type ~= "tcp")
+				and (params.headerType and params.headerType ~= "none")
+			if has_xray and (need_upgrade or params.type == "xhttp") then
+				result.type = "Xray"
+				result.protocol = "shadowsocks"
+			elseif has_singbox and need_upgrade then
+				result.type = "sing-box"
+				result.protocol = "shadowsocks"
 			end
 
 			if result.plugin then
@@ -902,7 +894,8 @@ local function processData(szType, content, add_mode, group)
 					else
 						result.tls_allowInsecure = allowInsecure_default and "1" or "0"
 					end
-				else
+					result.uot = params.udp
+				elseif (params.type ~= "tcp" and params.type ~= "raw") and (params.headerType and params.headerType ~= "none") then
 					result.error_msg = "请更换Xray或Sing-Box来支持SS更多的传输方式."
 				end
 			end
@@ -1101,6 +1094,7 @@ local function processData(szType, content, add_mode, group)
 			end
 
 			result.alpn = params.alpn
+			result.tcp_fast_open = params.tfo
 
 			if result.type == "sing-box" and (result.transport == "mkcp" or result.transport == "xhttp") then
 				log("跳过节点:" .. result.remarks .."，因Sing-Box不支持" .. szType .. "协议的" .. result.transport .. "传输方式，需更换Xray。")
@@ -1290,6 +1284,8 @@ local function processData(szType, content, add_mode, group)
 			else
 				result.tls_allowInsecure = allowInsecure_default and "1" or "0"
 			end
+
+			result.tcp_fast_open = params.tfo
 
 			if result.type == "sing-box" and (result.transport == "mkcp" or result.transport == "xhttp") then
 				log("跳过节点:" .. result.remarks .."，因Sing-Box不支持" .. szType .. "协议的" .. result.transport .. "传输方式，需更换Xray。")
