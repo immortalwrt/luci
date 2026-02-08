@@ -105,6 +105,7 @@ config nodes 'myshunt'
 
 config shunt_rules 'DirectGame'
 	option remarks 'DirectGame'
+	option network 'tcp,udp'
 	option domain_list '# steam直连域名获取国内CDN走国内线路下载
 cm.steampowered.com
 steamserver.net
@@ -157,6 +158,7 @@ geosite:category-games@cn'
 
 config shunt_rules 'ProxyGame'
 	option remarks 'ProxyGame'
+	option network 'tcp,udp'
 	option domain_list '# steam 商店/客服/聊天/网页布局/API/二维码/Google云同步 代理URL
 steamcommunity.com
 www.steamcommunity.com
@@ -196,21 +198,24 @@ steamcloud-singapore.storage.googleapis.com
 steamcloud-sydney.storage.googleapis.com
 steamcloud-taiwan.storage.googleapis.com
 steamcloud-eu.storage.googleapis.com
-
+domain:blizzard.com
 geosite:category-games'
 
 config shunt_rules 'AIGC'
 	option remarks 'AIGC'
+	option network 'tcp,udp'
 	option domain_list 'geosite:category-ai-!cn
 geosite:apple-intelligence'
 
 config shunt_rules 'Streaming'
 	option remarks 'Streaming'
+	option network 'tcp,udp'
 	option domain_list 'geosite:netflix
 geosite:disney'
 
 config shunt_rules 'Proxy'
 	option remarks 'Proxy'
+	option network 'tcp,udp'
 	option domain_list 'geosite:geolocation-!cn'
 	option ip_list '149.154.160.0/20
 91.108.4.0/22
@@ -238,6 +243,7 @@ config shunt_rules 'Proxy'
 
 config shunt_rules 'Direct'
 	option remarks 'Direct'
+	option network 'tcp,udp'
 	option domain_list 'geosite:cn'
 	option ip_list '223.5.5.5/32
 223.6.6.6/32
