@@ -1,16 +1,12 @@
 local m, s = ...
 
-local api = require "luci.passwall.api"
-
 local singbox_bin = api.finded_com("sing-box")
 
 if not singbox_bin then
 	return
 end
 
-local appname = "passwall"
-
-local type_name = "sing-box"
+type_name = "sing-box"
 
 -- [[ sing-box ]]
 
@@ -96,60 +92,27 @@ if not arg_select_proto:find("_") then
 	load_normal_options = true
 end
 
-local nodes_list = {}
-local iface_list = {}
-local urltest_list = {}
-for k, e in ipairs(api.get_valid_nodes()) do
-	if e.node_type == "normal" then
-		nodes_list[#nodes_list + 1] = {
-			id = e[".name"],
-			remark = e["remark"],
-			type = e["type"],
-			address = e["address"],
-			chain_proxy = e["chain_proxy"],
-			group = e["group"]
-		}
-	end
-	if e.protocol == "_iface" then
-		iface_list[#iface_list + 1] = {
-			id = e[".name"],
-			remark = e["remark"],
-			group = e["group"]
-		}
-	end
-	if e.protocol == "_urltest" then
-		urltest_list[#urltest_list + 1] = {
-			id = e[".name"],
-			remark = e["remark"],
-			group = e["group"]
-		}
-	end
-end
-
-local socks_list = {}
-m.uci:foreach(appname, "socks", function(s)
-	if s.enabled == "1" and s.node then
-		socks_list[#socks_list + 1] = {
-			id = "Socks_" .. s[".name"],
-			remark = translate("Socks Config") .. " " .. string.format("[%s %s]", s.port, translate("Port")),
-			group = "Socks"
-		}
-	end
-end)
+local node_list = api.get_node_list()
 
 if load_urltest_options then -- [[ URLTest Start ]]
-	o = s:option(MultiValue, _n("urltest_node"), translate("URLTest node list"), translate("List of nodes to test, <a target='_blank' href='https://sing-box.sagernet.org/configuration/outbound/urltest'>document</a>"))
+	o = s:option(ListValue, _n("node_add_mode"), translate("Node Addition Method"))
 	o:depends({ [_n("protocol")] = "_urltest" })
+	o.default = "manual"
+	o:value("manual", translate("Manual"))
+	o:value("batch", translate("Batch"))
+
+	o = s:option(MultiValue, _n("urltest_node"), translate("URLTest node list"), translate("List of nodes to test, <a target='_blank' href='https://sing-box.sagernet.org/configuration/outbound/urltest'>document</a>"))
+	o:depends({ [_n("node_add_mode")] = "manual" })
 	o.widget = "checkbox"
 	o.template = appname .. "/cbi/nodes_multivalue"
 	o.group = {}
-	for k, v in pairs(socks_list) do
-		o:value(v.id, v.remark)
-		o.group[#o.group+1] = v.group or ""
-	end
-	for i, v in pairs(nodes_list) do
-		o:value(v.id, v.remark)
-		o.group[#o.group+1] = v.group or ""
+	for k1, v1 in pairs(node_list) do
+		if k1 == "socks_list" or k1 == "normal_list" then
+			for i, v in ipairs(v1) do
+				o:value(v.id, v.remark)
+				o.group[#o.group+1] = v.group or ""
+			end
+		end
 	end
 	-- 读取旧 DynamicList
 	function o.cfgvalue(self, section)
@@ -175,6 +138,21 @@ if load_urltest_options then -- [[ URLTest Start ]]
 			return
 		end
 	end
+
+	o = s:option(MultiValue, _n("node_group"), translate("Select Group"))
+	o:depends({ [_n("node_add_mode")] = "batch" })
+	o.widget = "checkbox"
+	o:value("default", translate("default"))
+	for k, v in pairs(groups) do
+		o:value(api.UrlEncode(k), k)
+	end
+
+	o = s:option(Value, _n("node_match_rule"), translate("Node Matching Rules"))
+	o:depends({ [_n("node_add_mode")] = "batch" })
+	local descrStr = "Example: <code>^A && B && !C && D$</code><br>"
+	descrStr = descrStr .. "This means the node remark must start with A (^), include B, exclude C (!), and end with D ($).<br>"
+	descrStr = descrStr .. "Conditions are joined by <code>&&</code>, and their order does not affect the result."
+	o.description = translate(descrStr)
 
 	o = s:option(Value, _n("urltest_url"), translate("Probe URL"))
 	o:depends({ [_n("protocol")] = "_urltest" })
@@ -233,7 +211,7 @@ o.datatype = "port"
 local protocols = s.fields[_n("protocol")].keylist
 if #protocols > 0 then
 	for index, value in ipairs(protocols) do
-		if not value:find("_") then
+		if not value:find("^_") then
 			s.fields[_n("address")]:depends({ [_n("protocol")] = value })
 			s.fields[_n("port")]:depends({ [_n("protocol")] = value })
 		end
@@ -401,7 +379,7 @@ if singbox_tags:find("with_quic") then
 	o:depends({ [_n("protocol")] = "hysteria2" })
 
 	o = s:option(Value, _n("hysteria2_obfs_password"), translate("Obfs Password"))
-	o:depends({ [_n("protocol")] = "hysteria2" })
+	o:depends({ [_n("hysteria2_obfs_type")] = "salamander" })
 
 	o = s:option(Value, _n("hysteria2_auth_password"), translate("Auth Password"))
 	o.password = true
@@ -762,7 +740,7 @@ o:value("", translate("Close(Not use)"))
 o:value("1", translate("Preproxy Node"))
 o:value("2", translate("Landing Node"))
 for i, v in ipairs(s.fields[_n("protocol")].keylist) do
-	if not v:find("_") then
+	if not v:find("^_") then
 		o:depends({ [_n("protocol")] = v })
 	end
 end
@@ -777,12 +755,19 @@ o2:depends({ [_n("chain_proxy")] = "2" })
 o2.template = appname .. "/cbi/nodes_listvalue"
 o2.group = {}
 
-for k, v in pairs(nodes_list) do
-	if v.id ~= arg[1] and (not v.chain_proxy or v.chain_proxy == "") then
-		o1:value(v.id, v.remark)
-		o1.group[#o1.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
-		o2:value(v.id, v.remark)
-		o2.group[#o2.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+for k1, v1 in pairs(node_list) do
+	if k1 ~= "shunt_list" and k1 ~= "iface_list" then
+		for i, v in ipairs(v1) do
+			if v.id ~= arg[1] then
+				o1:value(v.id, v.remark)
+				o1.group[#o1.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+				if k1 == "normal_list" then
+					-- Landing Node not support use special node.
+					o2:value(v.id, v.remark)
+					o2.group[#o2.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+				end
+			end
+		end
 	end
 end
 
@@ -797,9 +782,6 @@ if load_shunt_options then
 	setfenv(shunt_lua, getfenv(1))(m, s, {
 		node_id = arg[1],
 		node = current_node,
-		socks_list = socks_list,
-		urltest_list = urltest_list,
-		iface_list = iface_list,
-		normal_list = nodes_list
+		node_list = node_list,
 	})
 end

@@ -15,6 +15,8 @@ TMP_ROUTE_PATH=${TMP_PATH}/route
 TMP_SCRIPT_FUNC_PATH=${TMP_PATH}/script_func
 RULES_PATH=/usr/share/${CONFIG}/rules
 
+. /lib/functions/network.sh
+
 echolog() {
 	local d="$(date "+%Y-%m-%d %H:%M:%S")"
 	echo -e "$d: $*" >>$LOG_FILE
@@ -64,7 +66,8 @@ get_enabled_anonymous_secs() {
 get_geoip() {
 	local geoip_code="$1"
 	local geoip_type_flag=""
-	local geoip_path="${V2RAY_LOCATION_ASSET%*/}/geoip.dat"
+	local geoip_path="$(config_t_get global_rules v2ray_location_asset "/usr/share/v2ray/")"
+	geoip_path="${geoip_path%*/}/geoip.dat"
 	local bin="$(first_type $(config_t_get global_app geoview_file) geoview)"
 	[ -n "$bin" ] && [ -s "$geoip_path" ] || { echo ""; return 1; }
 	case "$2" in
@@ -80,14 +83,15 @@ get_host_ip() {
 	local count=$3
 	[ -z "$count" ] && count=3
 	local isip=""
-	local ip=$host
+	local ip=""
 	if [ "$1" == "ipv6" ]; then
 		isip=$(echo $host | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}")
 		if [ -n "$isip" ]; then
-			isip=$(echo $host | cut -d '[' -f2 | cut -d ']' -f1)
+			ip=$(echo "$host" | tr -d '[]')
 		fi
 	else
 		isip=$(echo $host | grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}")
+		[ -n "$isip" ] && ip=$isip
 	fi
 	[ -z "$isip" ] && {
 		local t=4
@@ -95,7 +99,7 @@ get_host_ip() {
 		local vpsrip=$(resolveip -$t -t $count $host | awk 'NR==1{print}')
 		ip=$vpsrip
 	}
-	echo $ip
+	[ -n "$ip" ] && echo "$ip"
 }
 
 get_node_host_ip() {
@@ -241,27 +245,57 @@ check_port_exists() {
 }
 
 get_new_port() {
-	local default_start_port=2000
+	local default_start_port=2001
 	local min_port=1025
 	local max_port=49151
-	local port=$1
-	[ "$port" == "auto" ] && port=$default_start_port
-	[ "$port" -lt $min_port -o "$port" -gt $max_port ] && port=$default_start_port
-	local protocol=$(echo $2 | tr 'A-Z' 'a-z')
-	local result=$(check_port_exists $port $protocol)
-	if [ "$result" != 0 ]; then
-		local temp=
-		if [ "$port" -lt $max_port ]; then
-			temp=$(expr $port + 1)
-		elif [ "$port" -gt $min_port ]; then
-			temp=$(expr $port - 1)
+	local port="$1"
+	local protocol=$(echo "$2" | tr 'A-Z' 'a-z')
+	local LOCK_FILE="${LOCK_PATH}/${CONFIG}_get_prot.lock"
+	while ! mkdir "$LOCK_FILE" 2>/dev/null; do
+		sleep 0.05
+	done
+	if [ "$port" = "auto" ]; then
+		local now last_time diff last_port
+		now=$(date +%s 2>/dev/null)
+		last_time=$(get_cache_var "last_get_new_port_time")
+		if [ -n "$now" ] && [ -n "$last_time" ]; then
+			diff=$(expr "$now" - "$last_time")
+			[ "$diff" -lt 0 ] && diff=$(expr 0 - "$diff")
 		else
-			temp=$default_start_port
+			diff=999
 		fi
-		get_new_port $temp $protocol
-	else
-		echo $port
+		if [ "$diff" -gt 10 ]; then
+			port=$default_start_port
+		else
+			last_port=$(get_cache_var "last_get_new_port_auto")
+			if [ -n "$last_port" ]; then
+				port=$(expr "$last_port" + 1)
+			else
+				port=$default_start_port
+			fi
+		fi
 	fi
+	[ "$port" -lt $min_port -o "$port" -gt $max_port ] && port=$default_start_port
+	local start_port="$port"
+	while :; do
+		if [ "$(check_port_exists "$port" "$protocol")" = 0 ]; then
+			break
+		fi
+		port=$(expr "$port" + 1)
+		if [ "$port" -gt $max_port ]; then
+			port=$min_port
+		fi
+		[ "$port" = "$start_port" ] && {
+			rmdir "$LOCK_FILE" 2>/dev/null
+			return 1
+		}
+	done
+	if [ "$1" = "auto" ]; then
+		set_cache_var "last_get_new_port_auto" "$port"
+		[ -n "$now" ] && set_cache_var "last_get_new_port_time" "$now"
+	fi
+	rmdir "$LOCK_FILE" 2>/dev/null
+	echo "$port"
 }
 
 check_ver() {
@@ -353,7 +387,6 @@ add_ip2route() {
 	local remarks="${1}"
 	[ "$remarks" != "$ip" ] && remarks="${1}(${ip})"
 
-	. /lib/functions/network.sh
 	local gateway device
 	network_get_gateway gateway "$2"
 	network_get_device device "$2"
@@ -440,4 +473,39 @@ get_subscribe_host(){
 		url="$(host_from_url "$url")"
 		echo "$url"
 	done
+}
+
+gen_lanlist() {
+	cat $RULES_PATH/lanlist_ipv4 | tr -s '\n' | grep -v "^#"
+}
+
+gen_lanlist_6() {
+	cat $RULES_PATH/lanlist_ipv6 | tr -s '\n' | grep -v "^#"
+}
+
+get_wan_ips() {
+	local family="$1"
+	local NET_ADDR
+	local iface
+	local INTERFACES=$(ubus call network.interface dump | jsonfilter -e \
+			'@.interface[!(@.interface ~ /lan/) && !(@.l3_device ~ /\./) && @.route[0]].interface')
+	for iface in $INTERFACES; do
+		local addr
+		if [ "$family" = "ip6" ]; then
+			network_get_ipaddr6 addr "$iface"
+			case "$addr" in
+				""|fe80*) continue ;;
+			esac
+		else
+			network_get_ipaddr addr "$iface"
+			case "$addr" in
+				""|"0.0.0.0") continue ;;
+			esac
+		fi
+		case " $NET_ADDR " in
+			*" $addr "*) ;;
+			*) NET_ADDR="${NET_ADDR:+$NET_ADDR }$addr" ;;
+		esac
+	done
+	echo "$NET_ADDR"
 }
