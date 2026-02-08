@@ -7,6 +7,8 @@
 
 const scope = this;
 
+uci.loadPackage('luci').catch();
+
 const callSessionAccess = rpc.declare({
 	object: 'session',
 	method: 'access',
@@ -105,6 +107,9 @@ const CBIJSONConfig = baseclass.extend({
 		if (Array.isArray(value))
 			return value;
 
+		if (L.isObject(value))
+			return value;
+
 		if (value != null)
 			return String(value);
 
@@ -121,6 +126,8 @@ const CBIJSONConfig = baseclass.extend({
 		if (value == null)
 			delete this.data[section][option];
 		else if (Array.isArray(value))
+			this.data[section][option] = value;
+		else if (L.isObject(value))
 			this.data[section][option] = value;
 		else
 			this.data[section][option] = String(value);
@@ -373,6 +380,7 @@ const CBIAbstractElement = baseclass.extend(/** @lends LuCI.form.AbstractElement
 const CBIMap = CBIAbstractElement.extend(/** @lends LuCI.form.Map.prototype */ {
 	__init__(config, ...args) {
 		this.super('__init__', args);
+		uci.load('luci');
 
 		this.config = config;
 		this.parsechain = [ config ];
@@ -2470,6 +2478,15 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 	 */
 
 	/**
+	 * Set a custom text for the actions column header row when actions buttons
+	 * are present.
+	 *
+	 * @name LuCI.form.TableSection.prototype#actionstitle
+	 * @type string|function
+	 * @default null
+	 */
+
+	/**
 	 * Specify a maximum amount of columns to display. By default, one table
 	 * column is rendered for each child option of the form section element.
 	 * When this option is set to a positive number, then no more columns than
@@ -2529,6 +2546,46 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 	 * @name LuCI.form.TableSection.prototype#extedit
 	 * @type string|function
 	 * @default null
+	 */
+
+	/**
+	 * Optional table filtering for table sections.
+	 *
+	 * Set `filterrow` to `true` to display a filter header row in the generated
+	 * table with per-column text fields to search for string matches in the
+	 * column. The filter row appears after the titles row.
+	 *
+	 * The filters work cumulatively: text in each field shall match
+	 * an entry for the row to be displayed. The results are filtered live.
+	 * Matching is case-sensitive, and partial, i.e. part or all of the result 
+	 * includes the search string.
+	 *
+	 * The filter fields assume the placeholder text `Filter ` suffixed with
+	 * the column name, to ease correlation of filter fields to their corresponding
+	 * column entries on narrow displays which might fold the columns over 
+	 * multiple lines.
+	 *
+	 * @name LuCI.form.TableSection.prototype#filterrow
+	 * @type boolean
+	 * @default null
+	 */
+
+	/**
+	 * Optional footer row for table sections.
+	 *
+	 * Set `footer` to one of:
+	 *  - a function that returns a table row (`tr`) or node `E('...')`
+	 *  - an array of string cell contents (first entry maps to the name column
+	 * if present).
+	 *
+	 * This is useful for providing sum totals, extra function buttons or extra
+	 * space.
+	 *
+	 * The default implementation returns an empty node.
+	 *
+	 * @name LuCI.form.TableSection.prototype#footer
+	 * @type string[]|function
+	 * @default E([])
 	 */
 
 	/**
@@ -2597,13 +2654,28 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 			'class': 'table cbi-section-table'
 		});
 
+		const theadEl = E('thead', {
+			'class': 'thead cbi-section-thead'
+		});
+
+		const tbodyEl = E('tbody', {
+			'class': 'tbody cbi-section-tbody'
+		});
+
+		const tfootEl = E('tfoot', {
+			'class': 'tfoot cbi-section-tfoot'
+		});
+
 		if (this.title != null && this.title != '' && !this.hidetitle)
 			sectionEl.appendChild(E('h3', {}, this.title));
 
 		if (this.description != null && this.description != '')
 			sectionEl.appendChild(E('div', { 'class': 'cbi-section-descr' }, this.description));
 
-		tableEl.appendChild(this.renderHeaderRows(false));
+		theadEl.appendChild(this.renderHeaderRows(false));
+
+		if(theadEl.hasChildNodes())
+			tableEl.appendChild(theadEl);
 
 		for (let i = 0; i < nodes.length; i++) {
 			let sectionname = this.titleFn('sectiontitle', cfgsections[i]);
@@ -2615,39 +2687,47 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 				'id': 'cbi-%s-%s'.format(config_name, cfgsections[i]),
 				'class': 'tr cbi-section-table-row',
 				'data-sid': cfgsections[i],
-				'draggable': (drag_sort || touch_sort) ? true : null,
-				'mousedown': drag_sort ? L.bind(this.handleDragInit, this) : null,
-				'dragstart': drag_sort ? L.bind(this.handleDragStart, this) : null,
 				'dragover': drag_sort ? L.bind(this.handleDragOver, this) : null,
 				'dragenter': drag_sort ? L.bind(this.handleDragEnter, this) : null,
 				'dragleave': drag_sort ? L.bind(this.handleDragLeave, this) : null,
 				'dragend': drag_sort ? L.bind(this.handleDragEnd, this) : null,
 				'drop': drag_sort ? L.bind(this.handleDrop, this) : null,
-				'touchmove': touch_sort ? L.bind(this.handleTouchMove, this) : null,
 				'touchend': touch_sort ? L.bind(this.handleTouchEnd, this) : null,
 				'data-title': (sectionname && (!this.anonymous || this.sectiontitle)) ? sectionname : null,
 				'data-section-id': cfgsections[i]
 			});
 
 			if (this.extedit || this.rowcolors)
-				trEl.classList.add(!(tableEl.childNodes.length % 2)
+				trEl.classList.add(!(tbodyEl.childNodes.length % 2)
 					? 'cbi-rowstyle-1' : 'cbi-rowstyle-2');
+
 			if  (sectionname && (!this.anonymous || this.sectiontitle)) {
-				trEl.appendChild(E('td', {'class': 'td cbi-value-field cbi-value-first-field'}, [ (sectionname && (!this.anonymous || this.sectiontitle)) ? sectionname : null ]));
+				trEl.appendChild(E('td', {'class': 'td cbi-value-field cbi-section-table-titles'}, [
+					(sectionname && (!this.anonymous || this.sectiontitle)) ? sectionname : null
+				]));
 			}
 
 			for (let j = 0; j < max_cols && nodes[i].firstChild; j++)
 				trEl.appendChild(nodes[i].firstChild);
 
 			trEl.appendChild(this.renderRowActions(cfgsections[i], has_more ? _('More…') : null));
-			tableEl.appendChild(trEl);
+			tbodyEl.appendChild(trEl);
 		}
 
 		if (nodes.length == 0)
-			tableEl.appendChild(E('tr', { 'class': 'tr cbi-section-table-row placeholder' },
+			tbodyEl.appendChild(E('tr', { 'class': 'tr cbi-section-table-row placeholder' },
 				E('td', { 'class': 'td' }, this.renderSectionPlaceholder())));
 
+		tableEl.appendChild(tbodyEl);
+
+		tfootEl.appendChild(this.renderFooterRows(false));
+
+		if (tfootEl.hasChildNodes())
+			tableEl.appendChild(tfootEl);
+
 		sectionEl.appendChild(tableEl);
+
+		setTimeout(() => { try { this.stabilizeActionColumnWidth(tableEl); } catch (e) {} }, 0);
 
 		sectionEl.appendChild(this.renderSectionAdd('cbi-tblsection-create'));
 
@@ -2663,6 +2743,7 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 		const max_cols = this.max_cols ?? this.children.length;
 		const has_more = max_cols < this.children.length;
 		const anon_class = (!this.anonymous || this.sectiontitle) ? 'named' : 'anonymous';
+		const tableFilter = uci.get('luci', 'main', 'tablefilters') || false;
 		const trEls = E([]);
 
 		for (let i = 0, opt; i < max_cols && (opt = this.children[i]) != null; i++) {
@@ -2675,16 +2756,16 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 
 		if (has_titles) {
 			const trEl = E('tr', {
-				'class': `tr cbi-value-first-field cbi-section-table-titles ${anon_class}`,
-				'data-title': (!this.anonymous || this.sectiontitle) ? _('Name') : null,
+				'class': `tr cbi-section-table-titles ${anon_class}`,
 				'click': this.sortable ? ui.createHandlerFn(this, 'handleSort') : null
 			});
+
 			if (!this.anonymous || this.sectiontitle) {
 				trEl.appendChild(E('th', {
-						'class': 'th cbi-section-table-cell',
-						'data-sortable-row': this.sortable ? '' : null
-						},	(!this.anonymous || this.sectiontitle) ? _('Name') : null
-					));
+					'class': 'th cbi-section-table-cell',
+					'data-sortable-row': this.sortable ? '' : null
+					},	(!this.anonymous || this.sectiontitle) ? _('Name') : null
+				));
 			}
 
 			for (let i = 0, opt; i < max_cols && (opt = this.children[i]) != null; i++) {
@@ -2711,12 +2792,112 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 					dom.content(trEl.lastElementChild, opt.title);
 			}
 
-			if (this.sortable || this.extedit || this.addremove || has_more || has_action || this.cloneable)
+			if (this.sortable || this.extedit || this.addremove || has_more || has_action || this.cloneable) {
+				const rawTitle = (this.actionstitle !== undefined) ? this.actionstitle : null;
+				const actionsTitle = (typeof rawTitle === 'function') ? rawTitle.call(this, has_action) : rawTitle;
 				trEl.appendChild(E('th', {
 					'class': 'th cbi-section-table-cell cbi-section-actions'
-				}));
+				}, (actionsTitle !== undefined) ? actionsTitle : null));
+			}
 
 			trEls.appendChild(trEl);
+		}
+
+		if (this.filterrow && tableFilter) {
+			const filterTr = E('tr', { 'class': `tr cbi-section-table-filter ${anon_class}` });
+
+			if (!this.anonymous || this.sectiontitle) {
+				filterTr.appendChild(E('th', { 'class': 'th cbi-section-table-cell' }, [
+					E('input', {
+						'type': 'text',
+						'class': 'cbi-input cbi-section-filter',
+						'placeholder': _('Filter'),
+					})
+				]));
+			}
+
+			for (let i = 0, opt; i < max_cols && (opt = this.children[i]) != null; i++) {
+				if (opt.modalonly) continue;
+				const f = /flag/i.test(opt.__name__);
+
+				const th = E('th', { 'class': 'th cbi-section-table-cell' }, [
+					E('input', {
+						'type': 'text',
+						'class': 'cbi-input cbi-section-filter',
+						'placeholder': f ? _('0/1') : _('Filter') + ' ' + opt.title,
+						'maxlength': f ? 1 : '',
+						'style': f ? 'width: 30px;' : '',
+					})
+				]);
+
+				if (opt.width != null) th.style.width = (typeof(opt.width) == 'number') ? `${opt.width}px` : opt.width;
+				filterTr.appendChild(th);
+			}
+
+			if (this.sortable || this.extedit || this.addremove || has_more || has_action || this.cloneable) {
+				filterTr.appendChild(E('th', { 'class': 'th cbi-section-table-cell cbi-section-actions' }, [
+					E('button', {
+						'class': 'btn cbi-button cbi-button-neutral',
+						'type': 'button',
+						'title': _('Reset filters'),
+						'click': () => {
+							const inputs = filterTr.querySelectorAll('input.cbi-section-filter');
+							inputs.forEach(i => {
+								i.value = '';
+								i.dispatchEvent(new Event('input', { bubbles: true }));
+							});
+							const tbl = filterTr.closest('table');
+							try { this.stabilizeActionColumnWidth(tbl); } catch (e) { }
+						}
+					}, [ _('Reset') ])
+				]));
+			}
+
+			const attachFn = (input) => {
+				input.addEventListener('input', (ev) => {
+					const tbl = ev.target.closest('table');
+					if (!tbl) return;
+
+					const inputs = tbl.querySelectorAll('tr.cbi-section-table-filter input');
+					const col_filts = Array.from(inputs).map(i => i.value.trim());
+					const rows = tbl.querySelectorAll('tr.tr.cbi-section-table-row');
+
+					rows.forEach(row => {
+						const cells = Array.from(row.children)
+							.filter(c => c.classList && c.classList.contains('td'));
+
+						let hide = false;
+
+						for (let k = 0; k < col_filts.length; k++) {
+							if (!col_filts[k]) continue;
+
+							let txt;
+							const cell = cells[k];
+
+							const checked = cell?.querySelector('input[type="checkbox"]')?.checked;
+							const select = cell?.querySelector('select');
+							const checkbox = checked !== undefined;
+
+							if (checkbox)
+								txt = checked ? '1' : '0';
+							else if (select)
+								txt = Array.from(select.selectedOptions)
+									.map(opt => opt.textContent || opt.value.toLowerCase())
+									.join(' ');
+							else
+								txt = cell.textContent || '';
+
+							if (!txt.includes(col_filts[k])) { hide = true; break; }
+						}
+						row.style.display = hide ? 'none' : '';
+					});
+					try { this.stabilizeActionColumnWidth(tbl); } catch (e) { /* ignore */ }
+				});
+			};
+
+			filterTr.querySelectorAll('input').forEach(attachFn);
+
+			trEls.appendChild(filterTr);
 		}
 
 		if (has_descriptions && !this.nodescriptions) {
@@ -2738,10 +2919,13 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 						(typeof(opt.width) == 'number') ? `${opt.width}px` : opt.width;
 			}
 
-			if (this.sortable || this.extedit || this.addremove || has_more || has_action || this.cloneable)
+			if (this.sortable || this.extedit || this.addremove || has_more || has_action || this.cloneable) {
+				const rawTitle = (this.actionstitle !== undefined) ? this.actionstitle : null;
+				const actionsTitle = (typeof rawTitle === 'function') ? rawTitle.call(this, has_action) : rawTitle;
 				trEl.appendChild(E('th', {
 					'class': 'th cbi-section-table-cell cbi-section-actions'
-				}));
+				}, (actionsTitle !== undefined) ? actionsTitle : null));
+			}
 
 			trEls.appendChild(trEl);
 		}
@@ -2750,7 +2934,87 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 	},
 
 	/** @private */
-	renderRowActions(section_id, more_label) {
+	renderFooterRows(has_action) {
+		if (this.footer == null)
+			return E([]);
+
+		const max_cols = this.max_cols ?? this.children.length;
+		const has_more = max_cols < this.children.length;
+		const anon_class = (!this.anonymous || this.sectiontitle) ? 'named' : 'anonymous';
+
+		if (typeof this.footer === 'function') {
+			const node = this.footer.call(this, has_action);
+			return node || E([]);
+		}
+
+		const values = Array.isArray(this.footer) ? this.footer : [];
+		let idx = 0;
+		const trEl = E('tr', { 'class': `tr cbi-section-table-footer ${anon_class}` });
+
+		if (!this.anonymous || this.sectiontitle) {
+			trEl.appendChild(E('td', { 'class': 'td cbi-value-field cbi-section-table-titles' }, values[idx++] ?? null));
+		}
+
+		for (let i = 0, opt; i < max_cols && (opt = this.children[i]) != null; i++) {
+			if (opt.modalonly)
+				continue;
+
+			trEl.appendChild(E('td', { 'class': 'td', 'data-widget': opt.__name__ }, values[idx++] ?? null));
+		}
+
+		if (this.sortable || this.extedit || this.addremove || has_more || has_action || this.cloneable) {
+			trEl.appendChild(E('td', { 'class': 'td cbi-section-actions' }, values[idx++] ?? null));
+		}
+
+		return trEl;
+	},
+
+
+	/**
+	 * Ensure the actions column keeps a stable width even when rows are hidden
+	 * (e.g., due to filtering). Measures the widest actions cell and applies
+	 * a fixed width to header/filter/footer/action cells. Stores measured width
+	 * in dataset so filtering won't collapse the column if all rows are hidden.
+	 */
+	stabilizeActionColumnWidth(tableEl) {
+		if (!tableEl || !tableEl.querySelector) return;
+
+		const actionDivs = Array.from(tableEl.querySelectorAll('td.cbi-section-actions > div'));
+		let max = 0;
+		actionDivs.forEach(div => {
+			if (div && div.offsetWidth) max = Math.max(max, div.offsetWidth);
+		});
+
+		const saved = parseInt(tableEl.dataset.actionColWidth || '0', 10) || 0;
+		if (max <= 0 && saved > 0) max = saved;
+		if (max <= 0) return; // nothing measurable
+
+		tableEl.dataset.actionColWidth = String(max);
+		const px = `${max}px`;
+
+		const setStyles = (el) => {
+			if (!el) return;
+			el.style.minWidth = px;
+			el.style.width = px;
+		};
+
+		setStyles(tableEl.querySelector('th.cbi-section-actions'));
+		setStyles(tableEl.querySelector('tr.cbi-section-table-filter th.cbi-section-actions'));
+		setStyles(tableEl.querySelector('tr.cbi-section-table-footer td.cbi-section-actions'));
+		actionDivs.forEach(div => setStyles(div.parentNode));
+
+		// attach a single resize handler per table to recalc on viewport changes
+		if (!tableEl.__actionColResizeAttached) {
+			tableEl.__actionColResizeAttached = true;
+			window.addEventListener('resize', () => {
+				delete tableEl.dataset.actionColWidth; // force re-measure
+				this.stabilizeActionColumnWidth(tableEl);
+			});
+		}
+	},
+
+	/** @private */
+	renderRowActions(section_id, more_label, trEl) {
 		const config_name = this.uciconfig ?? this.map.config;
 
 		if (!this.sortable && !this.extedit && !this.addremove && !more_label && !this.cloneable)
@@ -2761,14 +3025,27 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 		}, E('div'));
 
 		if (this.sortable) {
-			dom.append(tdEl.lastElementChild, [
-				E('button', {
-					'title': _('Drag to reorder'),
-					'class': 'cbi-button drag-handle center',
-					'style': 'cursor:move',
-					'disabled': this.map.readonly || null
-				}, '☰')
-			]);
+			const touch_sort = ('ontouchstart' in window);
+			const dragHandleProps = {
+				'title': _('Drag to reorder'),
+				'class': 'cbi-button drag-handle center',
+				'style': 'cursor:move; user-select:none; -webkit-user-select:none; display:inline-block;',
+				'draggable': !touch_sort,
+				'dragstart': !touch_sort ? L.bind(function(ev) {
+					this.handleDragStart(ev, trEl);
+				}, this) : null,
+				'dragend': !touch_sort ? L.bind(function(ev) {
+					this.handleDragEnd(ev, trEl);
+				}, this) : null,
+				'touchmove': touch_sort ? L.bind(function(ev) {
+					this.handleTouchMove(ev);
+				}, this) : null,
+				'touchend': touch_sort ? L.bind(function(ev) {
+					this.handleTouchEnd(ev);
+				}, this) : null
+			};
+			const dragHandle = E('button', dragHandleProps, '☰');
+			dom.append(tdEl.lastElementChild, [ dragHandle ]);
 		}
 
 		if (this.extedit) {
@@ -2835,13 +3112,15 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 	},
 
 	/** @private */
-	handleDragStart(ev) {
-		if (!scope.dragState?.node.classList.contains('drag-handle')) {
+	handleDragStart(ev, trEl) {
+		// Only allow drag from the handle
+		if (!ev.target || !ev.target.classList || !ev.target.classList.contains('drag-handle')) {
 			scope.dragState = null;
 			return false;
 		}
-
-		scope.dragState.node = dom.parent(scope.dragState.node, '.tr');
+		// Set the row as the drag source
+		scope.dragState = scope.dragState || {};
+		scope.dragState.node = trEl || dom.parent(ev.target, '.tr');
 		ev.dataTransfer.setData('text', 'drag');
 		ev.target.style.opacity = 0.4;
 	},
@@ -2881,9 +3160,19 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 	},
 
 	/** @private */
-	handleDragEnd(ev) {
-		const n = ev.target;
-
+	handleDragEnd(ev, trEl) {
+		let n;
+		if (trEl) {
+			n = trEl;
+		} else if (ev.target && typeof ev.target.closest === 'function') {
+			n = ev.target.closest('tr');
+		} else {
+			// Fall-back: skip if no valid row
+			return;
+		}
+		if (!n) return;
+		// Reset drag handle visual state
+		n.querySelector('.drag-handle').style.opacity = '';
 		n.style.opacity = '';
 		n.classList.add('flash');
 		n.parentNode.querySelectorAll('.drag-over-above, .drag-over-below')
@@ -3014,7 +3303,7 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 
 		dragHandle.style.top = `${touchLoc.pageY - (parseInt(dragHandle.style.height) / 2)}px`;
 
-		rowElem.parentNode.querySelectorAll('[draggable]').forEach((tr, i, trs) => {
+		rowElem.parentNode.querySelectorAll('.cbi-section-table-row').forEach((tr, i, trs) => {
 			const trRect = tr.getBoundingClientRect();
 			const yTop = trRect.top + window.scrollY;
 			const yBottom = trRect.bottom + window.scrollY;
@@ -3049,6 +3338,9 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 
 		if (!dragHandle)
 			return;
+
+		// Reset drag handle visual state
+		dragHandle.style.opacity = '';
 
 		if (targetElem) {
 			const isBelow = targetElem.classList.contains('drag-over-below');
@@ -3315,8 +3607,26 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 			m.section = section_id;
 			m.readonly = parent.readonly;
 
-			s.tabs = this.tabs;
-			s.tab_names = this.tab_names;
+			/* Clone tabs as both array and object. Otherwise calling renderMoreOptionsModal (reopening
+			the same Modal multiple times) results in errors when s.tab is called in the modal. This
+			allows Modal dialogues that declare new tabs to be opened multiple times without re-creating
+			tabs that 'already exist'. */
+			if (this.tabs) {
+				s.tabs = Array.from(this.tabs);
+				for (const key in this.tabs) {
+					if (Object.prototype.hasOwnProperty.call(this.tabs, key) && isNaN(Number(key))) {
+						s.tabs[key] = this.tabs[key];
+					}
+				}
+			} else {
+				s.tabs = undefined;
+			}
+
+			if (this.tab_names) {
+				s.tab_names = Array.isArray(this.tab_names) ? this.tab_names.slice() : Object.assign({}, this.tab_names);
+			} else {
+				s.tab_names = undefined;
+			}
 
 			this.cloneOptions(this, s);
 
