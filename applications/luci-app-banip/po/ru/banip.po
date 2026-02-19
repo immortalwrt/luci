@@ -1,7 +1,8 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-01-11 05:01+0000\n"
-"Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
+"PO-Revision-Date: 2026-02-15 08:22+0000\n"
+"Last-Translator: SnIPeRSnIPeR <snipersniper@users.noreply.hosted.weblate.org>"
+"\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsbanip/ru/>\n"
 "Language: ru\n"
@@ -9,7 +10,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:602
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:671
@@ -49,19 +50,19 @@ msgstr "-- по умолчанию --"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/feeds.js:234
 msgid "<IP-Address>"
-msgstr ""
+msgstr "<IP-адрес>"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/feeds.js:236
 msgid "<IP-Address> <Netmask>"
-msgstr ""
+msgstr "<IP-адрес> <Маска сети>"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/feeds.js:235
 msgid "<IP-Address><CSV-Seperator>"
-msgstr ""
+msgstr "<IP-адреса><CSV-разделитель>"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/feeds.js:237
 msgid "<Suricata Syntax>"
-msgstr ""
+msgstr "<Синтаксис Suricata>"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:706
 msgid "AFRINIC - serving Africa and the Indian Ocean region"
@@ -210,6 +211,8 @@ msgstr "Блокировка переадресации VLAN"
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:375
 msgid "Block packets with spoofed source IP addresses in all supported chains."
 msgstr ""
+"Блокировать пакеты с поддельными IP-адресами источника во всех "
+"поддерживаемых цепочках."
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:664
 msgid "Blocklist Feed"
@@ -272,16 +275,11 @@ msgstr "Коллекция IP-адресов, основанная на номе
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:40
 msgid ""
 "Configuration of the banIP package to ban incoming and outgoing IPs via "
-"named nftables Sets. For further information please check the <a "
-"style=\"color:#37c;font-weight:bold;\" href=\"https://github.com/openwrt/"
-"packages/blob/master/net/banip/files/README.md\" target=\"_blank\" "
-"rel=\"noreferrer noopener\" >online documentation</a>"
+"named nftables Sets. For further information please check the %s."
 msgstr ""
-"Конфигурация пакета banIP для запрета входящих и исходящих IP-адресов через "
-"именованные наборы nftables. Для получения дополнительной информации "
-"ознакомьтесь с <a style=\"color:#37c;font-weight:bold;\" href=\"https://"
-"github.com/openwrt/packages/blob/master/net/banip/files/README.md\" "
-"target=\"_blank\" rel=\"noreferrer noopener\" >онлайн-документацией</a>"
+"Конфигурация пакета banIP для блокировки входящих и исходящих IP-адресов с "
+"помощью именованных наборов nftables. Для получения дополнительной "
+"информации ознакомьтесь с %s."
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:211
 msgid "Count"
@@ -406,7 +404,7 @@ msgstr "Поле не может быть пустым"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:375
 msgid "Enable BCP38"
-msgstr ""
+msgstr "Включить BCP38"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:451
 msgid "Enable GeoIP Map"
@@ -662,7 +660,7 @@ msgstr "Логировать входящие"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:575
 msgid "Log Limit"
-msgstr "Ограничение журнала"
+msgstr "Лимит журнала"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:568
 msgid "Log Outbound"
@@ -897,7 +895,7 @@ msgstr "Результат"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/feeds.js:233
 msgid "Rule"
-msgstr ""
+msgstr "Правило"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:154
 msgid "Run Flags"
@@ -1071,7 +1069,7 @@ msgstr "Настройки таблиц/цепочек"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:332
 msgid "Target directory for banIP-related error files."
-msgstr "Целевая директория для файлов ошибок banIP."
+msgstr "Целевой каталог для файлов ошибок banIP."
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:328
 msgid "Target directory for banIP-related report files."
@@ -1250,11 +1248,11 @@ msgstr "asterisk: недействительный аккаунт"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:281
 msgid "auto-added IPs to allowlist"
-msgstr "автоматическое добавление IP-адресов в список разрешений"
+msgstr "автоматически добавлено в список разрешений"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:285
 msgid "auto-added IPs to blocklist"
-msgstr "автоматическое добавление IP-адресов в список блокировок"
+msgstr "автоматически добавлено в список блокировок"
 
 #: applications/luci-app-banip/root/usr/share/luci/menu.d/luci-app-banip.json:3
 msgid "banIP"
@@ -1262,27 +1260,27 @@ msgstr "banIP"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:276
 msgid "blocked bcp38 packets"
-msgstr ""
+msgstr "заблокировано пакетов BCP38"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:264
 msgid "blocked icmp-flood packets"
-msgstr "заблокированные пакеты icmp-flood"
+msgstr "заблокировано ICMP-флуд пакетов"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:268
 msgid "blocked invalid ct packets"
-msgstr "блокировка недопустимых пакетов ct"
+msgstr "заблокировано ct-пакетов"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:272
 msgid "blocked invalid tcp packets"
-msgstr "блокировка недопустимых пакетов tcp"
+msgstr "заблокировано недопустимых TCP-пакетов"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:256
 msgid "blocked syn-flood packets"
-msgstr "заблокированные пакеты syn-флуда"
+msgstr "заблокировано SYN-флуд пакетов"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:260
 msgid "blocked udp-flood packets"
-msgstr "заблокированные пакеты udp-флуда"
+msgstr "заблокировано UDP-флуд пакетов"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:550
 msgid "crit"
@@ -1310,7 +1308,7 @@ msgstr "ошибка"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:554
 msgid "info"
-msgstr "инфо"
+msgstr "информация"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:484
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:495
@@ -1340,6 +1338,10 @@ msgstr "nginx: подозрительный IP-адрес"
 msgid "notice"
 msgstr "уведомление"
 
+#: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:41
+msgid "online documentation"
+msgstr "онлайн-документацией"
+
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:600
 msgid "openvpn TLS error"
 msgstr "openvpn: ошибка TLS"
@@ -1363,6 +1365,20 @@ msgstr "sshd: неудачная попытка входа"
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:552
 msgid "warn"
 msgstr "предупреждение"
+
+#~ msgid ""
+#~ "Configuration of the banIP package to ban incoming and outgoing IPs via "
+#~ "named nftables Sets. For further information please check the <a "
+#~ "style=\"color:#37c;font-weight:bold;\" href=\"https://github.com/openwrt/"
+#~ "packages/blob/master/net/banip/files/README.md\" target=\"_blank\" "
+#~ "rel=\"noreferrer noopener\" >online documentation</a>"
+#~ msgstr ""
+#~ "Конфигурация пакета banIP для запрета входящих и исходящих IP-адресов "
+#~ "через именованные наборы nftables. Для получения дополнительной "
+#~ "информации ознакомьтесь с <a style=\"color:#37c;font-weight:bold;\" "
+#~ "href=\"https://github.com/openwrt/packages/blob/master/net/banip/files/"
+#~ "README.md\" target=\"_blank\" rel=\"noreferrer noopener\" >онлайн-"
+#~ "документацией</a>"
 
 #~ msgid "<DATE><IPv4><SPACE>"
 #~ msgstr "<DATE><IPv4><SPACE>"

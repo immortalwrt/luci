@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2026-01-20 07:02+0000\n"
-"Last-Translator: Nicolas Aigner <nicolas.aigner@gmail.com>\n"
+"PO-Revision-Date: 2026-02-15 08:22+0000\n"
+"Last-Translator: Janderson Vieira Santos <jandersonvs79@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "openwrt/luciapplicationsadblock/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -37,7 +37,7 @@ msgstr "<Sintaxe Adblock Plus>"
 msgid "<Domain>"
 msgstr "<Domínio>"
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:323
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:324
 msgid "Action"
 msgstr "Ação"
 
@@ -48,23 +48,23 @@ msgstr "Fontes Ativas"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:375
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:396
 msgid "AdGuard (default)"
-msgstr ""
+msgstr "AdGuard (padrão)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:376
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:397
 msgid "AdGuard (family)"
-msgstr ""
+msgstr "AdGuard (família)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:323
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:335
 msgid "AdGuard (unfiltered)"
-msgstr ""
+msgstr "AdGuard (sem filtro)"
 
 #: applications/luci-app-adblock/root/usr/share/luci/menu.d/luci-app-adblock.json:3
 msgid "Adblock"
 msgstr "Bloqueio de anúncios"
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:412
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:414
 msgid "Adblock Test"
 msgstr "Teste do Adblock"
 
@@ -115,11 +115,11 @@ msgstr ""
 "Modificações na lista de permissão foram salvas, recarregue o bloqueador de "
 "anúncios para que as mudanças tenham efeito."
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:340
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:341
 msgid "Allowlist..."
 msgstr "Lista de Permissão..."
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:322
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:323
 msgid "Answer"
 msgstr "Resposta"
 
@@ -148,7 +148,7 @@ msgstr "Fonte de Lista de Bloqueio"
 msgid "Blocklist Query"
 msgstr "Consulta na Lista de Bloqueio"
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:439
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:441
 msgid "Blocklist Query..."
 msgstr "Pesquisando a Lista de Bloqueio..."
 
@@ -161,7 +161,7 @@ msgstr ""
 "Modificações na lista de bloqueio foram salvas, recarregue o bloqueador de "
 "anúncios para que as mudanças tenham efeito."
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:349
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:350
 msgid "Blocklist..."
 msgstr "Lista de Bloqueio..."
 
@@ -212,49 +212,45 @@ msgstr "Clientes"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:380
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:401
 msgid "Cloudflare (malware)"
-msgstr ""
+msgstr "Cloudflare (malware)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:381
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:402
 msgid "Cloudflare (malware+family)"
-msgstr ""
+msgstr "Cloudflare (malware+família)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:325
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:337
 msgid "Cloudflare (unfiltered)"
-msgstr ""
+msgstr "Cloudflare (sem filtro)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:53
 msgid ""
 "Configuration of the adblock package to block ad/abuse domains by using DNS. "
-"For further information <a href=\"https://github.com/openwrt/packages/blob/"
-"master/net/adblock/files/README.md\" target=\"_blank\" rel=\"noreferrer "
-"noopener\" >check the online documentation</a>"
+"For further information %s"
 msgstr ""
-"Configuração do pacote de adblock para bloquear domínios de anúncio/abuso "
-"usando DNS. Para obter mais informações <a href=\"https://github.com/openwrt/"
-"packages/blob/master/net/adblock/files/README.md\" target=\"_blank\" "
-"rel=\"noreferrer noopener\" >verifique a documentação on-line</a>"
+"Configuração do pacote adblock para bloquear domínios de anúncios/abuso "
+"usando DNS. Para mais informações %s"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:379
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:400
 msgid "Control D (adblock)"
-msgstr ""
+msgstr "Control D (adblock)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:378
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:399
 msgid "Control D (family)"
-msgstr ""
+msgstr "Control D (família)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:377
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:398
 msgid "Control D (security)"
-msgstr ""
+msgstr "Control D (segurança)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:324
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:336
 msgid "Control D (unfiltered)"
-msgstr ""
+msgstr "Control D (sem filtro)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:270
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:272
@@ -295,27 +291,27 @@ msgstr "Tempo Limite para Reiniciar o DNS"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:368
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:389
 msgid "DNS4EU (protective)"
-msgstr ""
+msgstr "DNS4EU (protetivo)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:370
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:391
 msgid "DNS4EU (protective+adblock)"
-msgstr ""
+msgstr "DNS4EU (protetivo+adblock)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:369
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:390
 msgid "DNS4EU (protective+family)"
-msgstr ""
+msgstr "DNS4EU (protetivo+família)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:371
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:392
 msgid "DNS4EU (protective+family+adblock)"
-msgstr ""
+msgstr "DNS4EU (protetivo+família+adblock)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:322
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:334
 msgid "DNS4EU (unfiltered)"
-msgstr ""
+msgstr "DNS4EU (sem filtro)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:317
 msgid "Date"
@@ -330,19 +326,23 @@ msgid ""
 "Devices with listed MAC addresses will always use the configured filtered "
 "DNS server."
 msgstr ""
+"Dispositivos com os endereços MAC listados usarão sempre o servidor DNS "
+"filtrado configurado."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:304
 msgid ""
 "Devices with listed MAC addresses will always use the configured unfiltered "
 "DNS server."
 msgstr ""
+"Dispositivos com os endereços MAC listados usarão sempre o servidor DNS sem "
+"filtro configurado."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:327
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:339
 msgid "Digitale Gesellschaft (unfiltered)"
-msgstr ""
+msgstr "Digitale Gesellschaft (sem filtro)"
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:321
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:322
 msgid "Domain"
 msgstr "Domínio"
 
@@ -413,7 +413,7 @@ msgstr ""
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:347
 msgid "Enable Filtered DNS Routing"
-msgstr ""
+msgstr "Ativar Roteamento de DNS Filtrado"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:223
 msgid "Enable SafeSearch"
@@ -421,13 +421,15 @@ msgstr "Ativar o SafeSearch"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:301
 msgid "Enable Unfiltered DNS Routing"
-msgstr ""
+msgstr "Ativar Roteamento de DNS Sem Filtro"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:515
 msgid ""
 "Enable a GeoIP map that shows the geographical location of the blocked "
 "domains."
 msgstr ""
+"Ativar um mapa GeoIP que mostra a localização geográfica dos domínios "
+"bloqueados."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:206
 msgid "Enable the adblock service."
@@ -454,10 +456,12 @@ msgstr ""
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:358
 msgid "Entire interfaces or VLANs will be routed to the filtered DNS server."
 msgstr ""
+"Interfaces inteiras ou VLANs serão roteadas para o servidor DNS sem filtro."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:312
 msgid "Entire interfaces or VLANs will be routed to the unfiltered DNS server."
 msgstr ""
+"Política de DNS Filtrado Externo (Desvio de DNS baseado em MAC/Interface)."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:563
 msgid "External Blocklist Feeds"
@@ -466,10 +470,12 @@ msgstr "Fontes Externas de Lista de Bloqueio"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:345
 msgid "External Filtered DNS Policy (MAC-/Interface‑based DNS bypass)"
 msgstr ""
+"Política de DNS Filtrado Externo (Desvio de DNS baseado em MAC/Interface)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:299
 msgid "External Unfiltered DNS Policy (MAC-/Interface‑based DNS bypass)"
 msgstr ""
+"Política de DNS Sem Filtro Externo (Desvio de DNS baseado em MAC/Interface)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/feeds.js:231
 msgid "Extra Extra Large"
@@ -497,11 +503,11 @@ msgstr "Filtrar critérios como data, domínio ou cliente (opcional)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:414
 msgid "Firewall LAN Devices/VLANs that should be forced locally."
-msgstr ""
+msgstr "Dispositivos LAN/VLANs do Firewall que devem ser forçados localmente."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:192
 msgid "Firewall Settings"
-msgstr ""
+msgstr "Configurações de Firewall"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:421
 msgid "Firewall ports that should be forced locally."
@@ -509,7 +515,7 @@ msgstr "As portas do firewall que devem ser impostas localmente."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:465
 msgid "First instance"
-msgstr ""
+msgstr "Primeira instância"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:453
 msgid "Flush DNS Cache"
@@ -521,7 +527,7 @@ msgstr "Usar o DNS Local"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:414
 msgid "Forced Devices/VLANs"
-msgstr ""
+msgstr "Dispositivos/VLANs Forçados"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:421
 msgid "Forced Ports"
@@ -565,45 +571,57 @@ msgstr "Prioridade máxima"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:319
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:365
 msgid "IPv4 DNS Resolver"
-msgstr ""
+msgstr "Resolvedor DNS IPv4"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:365
 msgid ""
 "IPv4 DNS resolver applied to MACs and interfaces using the filtered DNS "
 "policy."
 msgstr ""
+"Resolvedor DNS IPv4 aplicado a MACs e interfaces usando a política de DNS "
+"filtrado."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:319
 msgid ""
 "IPv4 DNS resolver applied to MACs and interfaces using the unfiltered DNS "
 "policy."
 msgstr ""
+"Resolvedor DNS IPv4 aplicado a MACs e interfaces usando a política de DNS "
+"sem filtro."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:331
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:386
 msgid "IPv6 DNS Resolver"
-msgstr ""
+msgstr "Resolvedor DNS IPv6"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:386
 msgid ""
 "IPv6 DNS resolver applied to MACs and interfaces using the filtered DNS "
 "policy."
 msgstr ""
+"Resolvedor DNS IPv6 aplicado a MACs e interfaces usando a política de DNS "
+"filtrado."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:331
 msgid ""
 "IPv6 DNS resolver applied to MACs and interfaces using the unfiltered DNS "
 "policy."
 msgstr ""
+"Resolvedor DNS IPv6 aplicado a MACs e interfaces usando a política de DNS "
+"sem filtro."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:144
 msgid "Information"
 msgstr "Informações"
 
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:320
+msgid "Interface"
+msgstr "Interface"
+
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:312
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:358
 msgid "Interface DNS Filter Targets"
-msgstr ""
+msgstr "Alvos de Filtro DNS de Interface"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/feeds.js:202
 msgid "Invalid characters"
@@ -615,7 +633,7 @@ msgstr "Valores de entrada inválidos, não é possível salvar as modificaçõe
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:476
 msgid "Jail Mode"
-msgstr ""
+msgstr "Modo de Isolamento"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/feeds.js:229
 msgid "Large"
@@ -625,7 +643,7 @@ msgstr "Grande"
 msgid "Last Run"
 msgstr "Última Execução"
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:399
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:401
 msgid "Latest DNS Requests"
 msgstr "As últimas solicitações do DNS"
 
@@ -664,7 +682,7 @@ msgstr "Lista de ferramentas compatíveis e já pré-configuradas para download.
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:409
 msgid "Local DNS Enforcement"
-msgstr ""
+msgstr "Imposição de DNS Local"
 
 #: applications/luci-app-adblock/root/usr/share/luci/menu.d/luci-app-adblock.json:59
 msgid "Log View"
@@ -673,9 +691,9 @@ msgstr "Visualização de registro (Log)"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:304
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:350
 msgid "MAC DNS Filter Targets"
-msgstr ""
+msgstr "Alvos de Filtro DNS por MAC"
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:431
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:433
 msgid "Map"
 msgstr "Mapa"
 
@@ -695,7 +713,7 @@ msgstr "Nível adequado"
 msgid "No %s related logs yet!"
 msgstr "Ainda não há logs relacionados a %s!"
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:427
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:429
 msgid "No GeoIP Map data!"
 msgstr "Nenhum dado no Mapa GeoIP!"
 
@@ -712,6 +730,8 @@ msgid ""
 "Only domains on the allowlist are permitted, all other DNS requests are "
 "rejected."
 msgstr ""
+"Apenas domínios na lista de permitidos são aceitos; todas as outras "
+"requisições DNS são rejeitadas."
 
 #: applications/luci-app-adblock/root/usr/share/luci/menu.d/luci-app-adblock.json:19
 msgid "Overview"
@@ -735,12 +755,12 @@ msgstr "Formato de protocolo/URL não suportado"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:382
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:403
 msgid "Quad9 (malware)"
-msgstr ""
+msgstr "Quad9 (malware)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:326
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:338
 msgid "Quad9 (unfiltered)"
-msgstr ""
+msgstr "Quad9 (sem filtro)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:141
 msgid "Query"
@@ -774,7 +794,7 @@ msgstr "Atualizar"
 msgid "Refresh DNS Report"
 msgstr "Atualizar o Relatório do DNS"
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:447
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:449
 msgid "Refresh..."
 msgstr "Atualizar..."
 
@@ -824,12 +844,16 @@ msgid ""
 "Routes selected MACs or interfaces to a filtered external DNS resolver, "
 "bypassing local adblock."
 msgstr ""
+"Roteia MACs ou interfaces selecionadas para um resolvedor DNS externo "
+"filtrado, ignorando o adblock local."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:301
 msgid ""
 "Routes selected MACs or interfaces to an unfiltered external DNS resolver, "
 "bypassing local adblock."
 msgstr ""
+"Roteia MACs ou interfaces selecionadas para um resolvedor DNS externo sem "
+"filtro, ignorando o adblock local."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/feeds.js:218
 msgid "Rule"
@@ -958,7 +982,7 @@ msgstr ""
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:505
 msgid "The list of ports used by tcpdump."
-msgstr ""
+msgstr "A lista de portas usadas pelo tcpdump."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:261
 msgid "The selected priority will be used for adblock background processing."
@@ -1001,11 +1025,13 @@ msgstr ""
 "um domínio por linha. Comentários iniciados com '#' são permitidos – "
 "endereços IP, curingas e expressões regulares não são."
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:366
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:368
 msgid ""
 "This tab displays the most recently generated DNS report. Use the ‘Refresh’ "
 "button to update it."
 msgstr ""
+"Esta aba exibe o relatório DNS gerado mais recentemente. Use o botão "
+"'Atualizar' para atualizá-lo."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:318
 msgid "Time"
@@ -1015,7 +1041,7 @@ msgstr "Hora"
 msgid "Timeout to wait for a successful DNS backend restart."
 msgstr "Tempo limite para aguardar o reinício bem sucedido do DNS."
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:392
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:394
 msgid "Top Statistics"
 msgstr "Principais estatísticas"
 
@@ -1029,9 +1055,9 @@ msgstr ""
 msgid "Trigger Delay"
 msgstr "Gatilho de Atraso"
 
-#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:320
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:321
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/feeds.js:207
 msgid "URL"
@@ -1095,20 +1121,24 @@ msgstr ""
 msgid "bind"
 msgstr "vincular"
 
+#: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:54
+msgid "check the online documentation"
+msgstr "verifique a documentação online"
+
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:373
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:394
 msgid "dnsforge (clean)"
-msgstr ""
+msgstr "dnsforge (limpo)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:374
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:395
 msgid "dnsforge (hard)"
-msgstr ""
+msgstr "dnsforge (rígido)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:372
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:393
 msgid "dnsforge (normal)"
-msgstr ""
+msgstr "dnsforge (normal)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:440
 msgid "dnsmasq"
@@ -1137,6 +1167,18 @@ msgstr "DNS Inteligente"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:441
 msgid "unbound"
 msgstr "desvincular"
+
+#~ msgid ""
+#~ "Configuration of the adblock package to block ad/abuse domains by using "
+#~ "DNS. For further information <a href=\"https://github.com/openwrt/"
+#~ "packages/blob/master/net/adblock/files/README.md\" target=\"_blank\" "
+#~ "rel=\"noreferrer noopener\" >check the online documentation</a>"
+#~ msgstr ""
+#~ "Configuração do pacote de adblock para bloquear domínios de anúncio/abuso "
+#~ "usando DNS. Para obter mais informações <a href=\"https://github.com/"
+#~ "openwrt/packages/blob/master/net/adblock/files/README.md\" "
+#~ "target=\"_blank\" rel=\"noreferrer noopener\" >verifique a documentação "
+#~ "on-line</a>"
 
 #~ msgid "Allow Local Client IPs"
 #~ msgstr "Permita os IPs dos clientes locais"

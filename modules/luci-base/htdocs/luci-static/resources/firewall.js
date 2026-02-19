@@ -4,10 +4,20 @@
 'require tools.prng as random';
 
 
+/**
+ * Load the firewall configuration.
+ * @returns {Promise}
+ */
 function initFirewallState() {
 	return L.resolveDefault(uci.load('firewall'));
 }
 
+/**
+ * Parse an enum value.
+ * @param {?string} s 
+ * @param {Array<string>} values
+ * @returns {string}
+ */
 function parseEnum(s, values) {
 	if (s == null)
 		return null;
@@ -24,6 +34,12 @@ function parseEnum(s, values) {
 	return null;
 }
 
+/**
+ * Parse a policy value, or defaultValue if not found.
+ * @param {?string} s 
+ * @param {Array<string>} [defaultValue=['DROP', 'REJECT', 'ACCEPT']]
+ * @returns {?string}
+ */
 function parsePolicy(s, defaultValue) {
 	return parseEnum(s, ['DROP', 'REJECT', 'ACCEPT']) || (arguments.length < 2 ? null : defaultValue);
 }
@@ -31,6 +47,11 @@ function parsePolicy(s, defaultValue) {
 
 var Firewall, AbstractFirewallItem, Defaults, Zone, Forwarding, Redirect, Rule;
 
+/**
+ * Look up a firewall zone.
+ * @param {?string} name
+ * @returns {?Zone}
+ */
 function lookupZone(name) {
 	var z = uci.get('firewall', name);
 
@@ -49,6 +70,11 @@ function lookupZone(name) {
 	return null;
 }
 
+/**
+ * Generate a colour for a name.
+ * @param {?string} forName
+ * @returns {string}
+ */
 function getColorForName(forName) {
 	if (forName == null)
 		return '#eeeeee';
@@ -108,11 +134,11 @@ Firewall = L.Class.extend({
 
 	getZones: function() {
 		return initFirewallState().then(function() {
-			var sections = uci.sections('firewall', 'zone'),
-			    zones = [];
+			const sections = uci.sections('firewall', 'zone');
+			const zones = [];
 
-			for (var i = 0; i < sections.length; i++)
-				zones.push(new Zone(sections[i]['.name']));
+			for (let s of sections)
+				zones.push(new Zone(s['.name']));
 
 			zones.sort(function(a, b) { return a.getName() > b.getName() });
 
@@ -122,11 +148,11 @@ Firewall = L.Class.extend({
 
 	getZoneByNetwork: function(network) {
 		return initFirewallState().then(function() {
-			var sections = uci.sections('firewall', 'zone');
+			const sections = uci.sections('firewall', 'zone');
 
-			for (var i = 0; i < sections.length; i++)
-				if (L.toArray(sections[i].network).indexOf(network) != -1)
-					return new Zone(sections[i]['.name']);
+			for (let s of sections)
+				if (L.toArray(s.network).indexOf(network) != -1)
+					return new Zone(s['.name']);
 
 			return null;
 		});
@@ -134,8 +160,8 @@ Firewall = L.Class.extend({
 
 	deleteZone: function(name) {
 		return initFirewallState().then(function() {
-			var section = uci.get('firewall', name),
-			    found = false;
+			const section = uci.get('firewall', name);
+			let found = false;
 
 			if (section != null && section['.type'] == 'zone') {
 				found = true;
@@ -143,28 +169,28 @@ Firewall = L.Class.extend({
 				uci.remove('firewall', section['.name']);
 			}
 			else if (name != null) {
-				var sections = uci.sections('firewall', 'zone');
+				const sections = uci.sections('firewall', 'zone');
 
-				for (var i = 0; i < sections.length; i++) {
-					if (sections[i].name != name)
+				for (let s of sections) {
+					if (s.name != name)
 						continue;
 
 					found = true;
-					uci.remove('firewall', sections[i]['.name']);
+					uci.remove('firewall', s['.name']);
 				}
 			}
 
 			if (found == true) {
-				sections = uci.sections('firewall');
+				const sections = uci.sections('firewall');
 
-				for (var i = 0; i < sections.length; i++) {
-					if (sections[i]['.type'] != 'rule' &&
-					    sections[i]['.type'] != 'redirect' &&
-					    sections[i]['.type'] != 'forwarding')
+				for (let s of sections) {
+					if (s['.type'] != 'rule' &&
+					    s['.type'] != 'redirect' &&
+					    s['.type'] != 'forwarding')
 					    continue;
 
-					if (sections[i].src == name || sections[i].dest == name)
-						uci.remove('firewall', sections[i]['.name']);
+					if (s.src == name || s.dest == name)
+						uci.remove('firewall', s['.name']);
 				}
 			}
 
@@ -180,31 +206,31 @@ Firewall = L.Class.extend({
 			if (lookupZone(newName) != null)
 				return false;
 
-			var sections = uci.sections('firewall', 'zone'),
-			    found = false;
+			const sections = uci.sections('firewall', 'zone');
+			let found = false;
 
-			for (var i = 0; i < sections.length; i++) {
-				if (sections[i].name != oldName)
+			for (let s of sections) {
+				if (s.name != oldName)
 					continue;
 
-				uci.set('firewall', sections[i]['.name'], 'name', newName);
+				uci.set('firewall', s['.name'], 'name', newName);
 				found = true;
 			}
 
 			if (found == true) {
-				sections = uci.sections('firewall');
+				const sections = uci.sections('firewall');
 
-				for (var i = 0; i < sections.length; i++) {
-					if (sections[i]['.type'] != 'rule' &&
-					    sections[i]['.type'] != 'redirect' &&
-					    sections[i]['.type'] != 'forwarding')
+				for (let s of sections) {
+					if (s['.type'] != 'rule' &&
+					    s['.type'] != 'redirect' &&
+					    s['.type'] != 'forwarding')
 					    continue;
 
-					if (sections[i].src == oldName)
-						uci.set('firewall', sections[i]['.name'], 'src', newName);
+					if (s.src == oldName)
+						uci.set('firewall', s['.name'], 'src', newName);
 
-					if (sections[i].dest == oldName)
-						uci.set('firewall', sections[i]['.name'], 'dest', newName);
+					if (s.dest == oldName)
+						uci.set('firewall', s['.name'], 'dest', newName);
 				}
 			}
 

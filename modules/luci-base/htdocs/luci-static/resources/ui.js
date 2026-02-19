@@ -55,7 +55,7 @@ const UIElement = baseclass.extend(/** @lends LuCI.ui.AbstractElement.prototype 
 	 * It defaults to `string` which will allow any value.
 	 * See {@link LuCI.validation} for details on the expression format.
 	 *
-	 * @property {function|function[]} [validator]
+	 * @property {function()|Array<function()>} [validator]
 	 * Specifies one or more custom validator functions which are invoked after
 	 * the standard validation constraints are checked. Each function should
 	 * return `true` to accept the given input value. When multiple functions
@@ -179,6 +179,7 @@ const UIElement = baseclass.extend(/** @lends LuCI.ui.AbstractElement.prototype 
 	 *
 	 * @instance
 	 * @memberof LuCI.ui.AbstractElement
+	 * @returns {boolean}
 	 */
 	triggerValidation() {
 		if (typeof(this.vfunc) != 'function')
@@ -295,7 +296,7 @@ const UIElement = baseclass.extend(/** @lends LuCI.ui.AbstractElement.prototype 
 
 	/**
 	 * Render the widget, set up event listeners and return resulting markup.
-	 *
+	 * @abstract
 	 * @instance
 	 * @memberof LuCI.ui.AbstractElement
 	 *
@@ -309,7 +310,7 @@ const UIElement = baseclass.extend(/** @lends LuCI.ui.AbstractElement.prototype 
 /**
  * Instantiate a text input widget.
  *
- * @constructor Textfield
+ * @class Textfield
  * @memberof LuCI.ui
  * @augments LuCI.ui.AbstractElement
  *
@@ -339,6 +340,8 @@ const UITextfield = UIElement.extend(/** @lends LuCI.ui.Textfield.prototype */ {
 	 *
 	 * @typedef {LuCI.ui.AbstractElement.InitOptions} InitOptions
 	 * @memberof LuCI.ui.Textfield
+	 * @param {string} value
+	 * @param {object} options
 	 *
 	 * @property {boolean} [password=false]
 	 * Specifies whether the input should be rendered as concealed password field.
@@ -371,7 +374,7 @@ const UITextfield = UIElement.extend(/** @lends LuCI.ui.Textfield.prototype */ {
 			'id': this.options.id ? `widget.${this.options.id}` : null,
 			'name': this.options.name,
 			'type': 'text',
-			'class': `password-input ${this.options.password ? 'cbi-input-password' : 'cbi-input-text'}`,
+			'class': this.options.password ? 'cbi-input-password' : 'cbi-input-text',
 			'readonly': this.options.readonly ? '' : null,
 			'disabled': this.options.disabled ? '' : null,
 			'maxlength': this.options.maxlength,
@@ -390,7 +393,7 @@ const UITextfield = UIElement.extend(/** @lends LuCI.ui.Textfield.prototype */ {
 						// DOM manipulation (e.g. by password managers) may have inserted other
 						// elements between the reveal button and the input. This searches for
 						// the first <input> inside the parent of the <button> to use for toggle.
-						const e = this.parentElement.querySelector('input.password-input')
+						const e = this.parentElement.querySelector('input.cbi-input-password')
 						if (e) {
 							e.type = (e.type === 'password') ? 'text' : 'password';
 						} else {
@@ -410,7 +413,11 @@ const UITextfield = UIElement.extend(/** @lends LuCI.ui.Textfield.prototype */ {
 		return this.bind(frameEl);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} frameEl
+	 * @returns {Node}
+	 */
 	bind(frameEl) {
 		const inputEl = frameEl.querySelector('input');
 
@@ -440,7 +447,7 @@ const UITextfield = UIElement.extend(/** @lends LuCI.ui.Textfield.prototype */ {
 /**
  * Instantiate a textarea widget.
  *
- * @constructor Textarea
+ * @class Textarea
  * @memberof LuCI.ui
  * @augments LuCI.ui.AbstractElement
  *
@@ -470,6 +477,8 @@ const UITextarea = UIElement.extend(/** @lends LuCI.ui.Textarea.prototype */ {
 	 *
 	 * @typedef {LuCI.ui.AbstractElement.InitOptions} InitOptions
 	 * @memberof LuCI.ui.Textarea
+	 * @param {string} value
+	 * @param {object} options
 	 *
 	 * @property {boolean} [readonly=false]
 	 * Specifies whether the input widget should be rendered readonly.
@@ -528,7 +537,12 @@ const UITextarea = UIElement.extend(/** @lends LuCI.ui.Textarea.prototype */ {
 		return this.bind(frameEl);
 	},
 
-	/** @private */
+
+	/**
+	 * @private
+	 * @param {Node} frameEl
+	 * @returns {Node}
+	 */
 	bind(frameEl) {
 		const inputEl = frameEl.firstElementChild;
 
@@ -556,7 +570,7 @@ const UITextarea = UIElement.extend(/** @lends LuCI.ui.Textarea.prototype */ {
 /**
  * Instantiate a checkbox widget.
  *
- * @constructor Checkbox
+ * @class Checkbox
  * @memberof LuCI.ui
  * @augments LuCI.ui.AbstractElement
  *
@@ -586,6 +600,8 @@ const UICheckbox = UIElement.extend(/** @lends LuCI.ui.Checkbox.prototype */ {
 	 *
 	 * @typedef {LuCI.ui.AbstractElement.InitOptions} InitOptions
 	 * @memberof LuCI.ui.Checkbox
+	 * @param {string} value
+	 * @param {object} options
 	 *
 	 * @property {string} [value_enabled=1]
 	 * Specifies the value corresponding to a checked checkbox.
@@ -652,7 +668,11 @@ const UICheckbox = UIElement.extend(/** @lends LuCI.ui.Checkbox.prototype */ {
 		return this.bind(frameEl);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} frameEl
+	 * @returns {Node}
+	 */
 	bind(frameEl) {
 		this.node = frameEl;
 
@@ -693,7 +713,7 @@ const UICheckbox = UIElement.extend(/** @lends LuCI.ui.Checkbox.prototype */ {
 /**
  * Instantiate a select dropdown or checkbox/radiobutton group.
  *
- * @constructor Select
+ * @class Select
  * @memberof LuCI.ui
  * @augments LuCI.ui.AbstractElement
  *
@@ -730,6 +750,9 @@ const UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 	 *
 	 * @typedef {LuCI.ui.AbstractElement.InitOptions} InitOptions
 	 * @memberof LuCI.ui.Select
+	 * @param {string} value
+	 * @param {object} choices
+	 * @param {object} options
 	 *
 	 * @property {boolean} [multiple=false]
 	 * Specifies whether multiple choice values may be selected.
@@ -847,7 +870,11 @@ const UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 		return this.bind(frameEl);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} frameEl
+	 * @returns {Node}
+	 */
 	bind(frameEl) {
 		this.node = frameEl;
 
@@ -893,7 +920,7 @@ const UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 			return;
 		}
 
-		const radioEls = frameEl.querySelectorAll('input[type="radio"]');
+		const radioEls = this.node.querySelectorAll('input[type="radio"]');
 		for (let i = 0; i < radioEls.length; i++)
 			radioEls[i].checked = (radioEls[i].value == value);
 	}
@@ -902,7 +929,7 @@ const UISelect = UIElement.extend(/** @lends LuCI.ui.Select.prototype */ {
 /**
  * Instantiate a rich dropdown choice widget.
  *
- * @constructor Dropdown
+ * @class Dropdown
  * @memberof LuCI.ui
  * @augments LuCI.ui.AbstractElement
  *
@@ -938,6 +965,9 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	 *
 	 * @typedef {LuCI.ui.AbstractElement.InitOptions} InitOptions
 	 * @memberof LuCI.ui.Dropdown
+	 * @param {string} value
+	 * @param {object} choices
+	 * @param {object} options
 	 *
 	 * @property {boolean} [optional=true]
 	 * Specifies whether the dropdown selection is optional. In contrast to
@@ -976,7 +1006,7 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	 * which is used to enter custom choice values. This should not normally
 	 * be used except by widgets derived from the Dropdown class.
 	 *
-	 * @property {string} [create_template=script[type="item-template"]]
+	 * @property {string} [create_template="script[type='item-template']"]
 	 * Specifies a CSS selector expression used to find an HTML element
 	 * serving as template for newly added custom choice values.
 	 *
@@ -1112,7 +1142,11 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		return this.bind(sb);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} sb
+	 * @returns {Node}
+	 */
 	bind(sb) {
 		const o = this.options;
 
@@ -1126,7 +1160,7 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 
 		const ul = sb.querySelector('ul');
 		const more = sb.appendChild(E('span', { class: 'more', tabindex: -1 }, '···'));
-		const open = sb.appendChild(E('span', { class: 'open', tabindex: -1 }, '▾'));
+		sb.appendChild(E('span', { class: 'open', tabindex: -1 }, '▾'));
 		const canary = sb.appendChild(E('div'));
 		const create = sb.querySelector(this.options.create_query);
 		let ndisplay = this.options.display_items;
@@ -1225,7 +1259,11 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		return sb;
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} element
+	 * @returns {document}
+	 */
 	getScrollParent(element) {
 		let parent = element;
 		let style = getComputedStyle(element);
@@ -1247,9 +1285,12 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		return document.body;
 	},
 
-	/** @private */
+
+	/**
+	 * @private
+	 * @param {Node} sb
+	 */
 	openDropdown(sb) {
-		const st = window.getComputedStyle(sb, null);
 		const ul = sb.querySelector('ul');
 		const li = ul.querySelectorAll('li');
 		const fl = findParent(sb, '.cbi-value-field');
@@ -1362,7 +1403,11 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		ul.addEventListener('transitionend', focusFn);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} sb
+	 * @param {boolean} no_focus
+	 */
 	closeDropdown(sb, no_focus) {
 		if (!sb.hasAttribute('open'))
 			return;
@@ -1391,7 +1436,12 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		this.saveValues(sb, ul);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} sb
+	 * @param {Node} li list item
+	 * @param {boolean} force_state
+	 */
 	toggleItem(sb, li, force_state) {
 		const ul = li.parentNode;
 
@@ -1474,7 +1524,11 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		this.saveValues(sb, ul);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} sb
+	 * @param {Node} li list item
+	 */
 	transformItem(sb, li) {
 		const cbox = E('form', {}, E('input', { type: 'checkbox', tabindex: -1, onclick: 'event.preventDefault()' }));
 		const label = E('label');
@@ -1486,7 +1540,11 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		li.appendChild(label);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} sb
+	 * @param {Node} ul unordered list
+	 */
 	saveValues(sb, ul) {
 		const sel = ul.querySelectorAll('li[selected]');
 		const div = sb.lastElementChild;
@@ -1536,7 +1594,11 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		}));
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} sb
+	 * @param {string[]} values
+	 */
 	setValues(sb, values) {
 		const ul = sb.querySelector('ul');
 
@@ -1573,7 +1635,12 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		}
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} sb
+	 * @param {Node} elem
+	 * @param {boolean} scroll
+	 */
 	setFocus(sb, elem, scroll) {
 		if (sb.hasAttribute('locked-in'))
 			return;
@@ -1590,7 +1657,10 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		elem.focus();
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleMouseout(ev) {
 		const sb = ev.currentTarget;
 
@@ -1604,7 +1674,13 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		sb.querySelector('ul.dropdown').focus();
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} sb
+	 * @param {string} value
+	 * @param {string} label
+	 * @returns {Node}
+	 */
 	createChoiceElement(sb, value, label) {
 		const tpl = sb.querySelector(this.options.create_template);
 		let markup = null;
@@ -1635,7 +1711,11 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		return new_item;
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} sb
+	 * @param {string} value
+	 */
 	createItems(sb, value) {
 		const sbox = this;
 		let val = (value ?? '').trim();
@@ -1760,7 +1840,10 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		});
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleClick(ev) {
 		const sb = ev.currentTarget;
 
@@ -1782,7 +1865,10 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		ev.stopPropagation();
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleKeydown(ev) {
 		const sb = ev.currentTarget;
 		const ul = sb.querySelector('ul.dropdown');
@@ -1855,14 +1941,20 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		}
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleDropdownClose(ev) {
 		const sb = ev.currentTarget;
 
 		this.closeDropdown(sb, true);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleDropdownSelect(ev) {
 		const sb = ev.currentTarget;
 		const li = findParent(ev.target, 'li');
@@ -1874,7 +1966,10 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		this.closeDropdown(sb, true);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleMouseover(ev) {
 		const sb = ev.currentTarget;
 
@@ -1887,7 +1982,10 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 			this.setFocus(sb, li);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleFocus(ev) {
 		const sb = ev.currentTarget;
 
@@ -1897,12 +1995,18 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		});
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleCanaryFocus(ev) {
 		this.closeDropdown(ev.currentTarget.parentNode);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleCreateKeydown(ev) {
 		const input = ev.currentTarget;
 		const li = findParent(input, 'li');
@@ -1936,7 +2040,10 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		}
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleCreateFocus(ev) {
 		const input = ev.currentTarget;
 		const li = findParent(input, 'li');
@@ -1950,7 +2057,10 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		this.setFocus(sb, li, true);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleCreateBlur(ev) {
 		const input = ev.currentTarget;
 		const cbox = findParent(input, 'li').querySelector('input[type="checkbox"]');
@@ -1962,7 +2072,10 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 		sb.removeAttribute('locked-in');
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleCreateClick(ev) {
 		ev.currentTarget.querySelector(this.options.create_query).focus();
 	},
@@ -2010,7 +2123,7 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 /**
  * Instantiate a rich dropdown choice widget allowing custom values.
  *
- * @constructor Combobox
+ * @class Combobox
  * @memberof LuCI.ui
  * @augments LuCI.ui.Dropdown
  *
@@ -2049,16 +2162,19 @@ const UICombobox = UIDropdown.extend(/** @lends LuCI.ui.Combobox.prototype */ {
 	 *
 	 * @typedef {LuCI.ui.Dropdown.InitOptions} InitOptions
 	 * @memberof LuCI.ui.Combobox
+	 * @param {string} value
+	 * @param {object} choices
+	 * @param {object} options
 	 *
-	 * @property {boolean} multiple=false
+	 * @property {boolean} [multiple=false]
 	 * Since Comboboxes never allow selecting multiple values, this property
 	 * is forcibly set to `false`.
 	 *
-	 * @property {boolean} create=true
+	 * @property {boolean} [create=true]
 	 * Since Comboboxes always allow custom choice values, this property is
 	 * forcibly set to `true`.
 	 *
-	 * @property {boolean} optional=true
+	 * @property {boolean} [optional=true]
 	 * Since Comboboxes are always optional, this property is forcibly set to
 	 * `true`.
 	 */
@@ -2079,7 +2195,7 @@ const UICombobox = UIDropdown.extend(/** @lends LuCI.ui.Combobox.prototype */ {
 /**
  * Instantiate a combo button widget offering multiple action choices.
  *
- * @constructor ComboButton
+ * @class ComboButton
  * @memberof LuCI.ui
  * @augments LuCI.ui.Dropdown
  *
@@ -2117,16 +2233,19 @@ const UIComboButton = UIDropdown.extend(/** @lends LuCI.ui.ComboButton.prototype
 	 *
 	 * @typedef {LuCI.ui.Dropdown.InitOptions} InitOptions
 	 * @memberof LuCI.ui.ComboButton
+	 * @param {string} value
+	 * @param {object} choices
+	 * @param {object} options
 	 *
-	 * @property {boolean} multiple=false
+	 * @property {boolean} [multiple=false]
 	 * Since ComboButtons never allow selecting multiple actions, this property
 	 * is forcibly set to `false`.
 	 *
-	 * @property {boolean} create=false
+	 * @property {boolean} [create=false]
 	 * Since ComboButtons never allow creating custom choices, this property
 	 * is forcibly set to `false`.
 	 *
-	 * @property {boolean} optional=false
+	 * @property {boolean} [optional=false]
 	 * Since ComboButtons must always select one action, this property is
 	 * forcibly set to `false`.
 	 *
@@ -2139,7 +2258,7 @@ const UIComboButton = UIDropdown.extend(/** @lends LuCI.ui.ComboButton.prototype
 	 * This is useful to apply different button styles, such as colors, to the
 	 * combined button depending on the selected action.
 	 *
-	 * @property {function} [click]
+	 * @property {function()} [click]
 	 * Specifies a handler function to invoke when the user clicks the button.
 	 * This function will be called with the button DOM node as `this` context
 	 * and receive the DOM click event as first as well as the selected action
@@ -2166,7 +2285,12 @@ const UIComboButton = UIDropdown.extend(/** @lends LuCI.ui.ComboButton.prototype
 		return node;
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 * @param {...*} args
+	 * @returns {null}
+	 */
 	handleClick(ev, ...args) {
 		const sb = ev.currentTarget;
 		const t = ev.target;
@@ -2178,7 +2302,12 @@ const UIComboButton = UIDropdown.extend(/** @lends LuCI.ui.ComboButton.prototype
 			return this.options.click.call(sb, ev, this.getValue());
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} sb
+	 * @param {...*} args
+	 * @returns {*}
+	 */
 	toggleItem(sb, ...args) {
 		const rv = UIDropdown.prototype.toggleItem.call(this, sb, ...args);
 		const val = this.getValue();
@@ -2195,7 +2324,7 @@ const UIComboButton = UIDropdown.extend(/** @lends LuCI.ui.ComboButton.prototype
 /**
  * Instantiate a dynamic list widget.
  *
- * @constructor DynamicList
+ * @class DynamicList
  * @memberof LuCI.ui
  * @augments LuCI.ui.AbstractElement
  *
@@ -2235,12 +2364,15 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
 	 *
 	 * @typedef {LuCI.ui.Dropdown.InitOptions} InitOptions
 	 * @memberof LuCI.ui.DynamicList
+	 * @param {string} values
+	 * @param {object} choices
+	 * @param {object} options
 	 *
-	 * @property {boolean} multiple=false
+	 * @property {boolean} [multiple=false]
 	 * Since dynamic lists never allow selecting multiple choices when adding
 	 * another list item, this property is forcibly set to `false`.
 	 *
-	 * @property {boolean} optional=true
+	 * @property {boolean} [optional=true]
 	 * Since dynamic lists use an embedded dropdown to present a list of
 	 * predefined choice values, the dropdown must be made optional to allow
 	 * it to remain unselected.
@@ -2307,7 +2439,10 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
 		return this.bind(dl);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} dl
+	 */
 	initDragAndDrop(dl) {
 		let draggedItem = null;
 		let placeholder = null;
@@ -2351,7 +2486,6 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
 		});
 
 		dl.addEventListener('touchstart', (e) => {
-			const touch = e.touches[0];
 			const target = e.target.closest('.item');
 			if (target) {
 				draggedItem = target;
@@ -2396,7 +2530,11 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
 		});
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} dl
+	 * @returns {Node}
+	 */
 	bind(dl) {
 		dl.addEventListener('click', L.bind(this.handleClick, this));
 		dl.addEventListener('keydown', L.bind(this.handleKeydown, this));
@@ -2412,7 +2550,13 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
 		return dl;
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} dl
+	 * @param {string} value
+	 * @param {string} text
+	 * @param {boolean} flash
+	 */
 	addItem(dl, value, text, flash) {
 		let exists = false;
 
@@ -2444,7 +2588,11 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
 		this.dispatchCbiDynlistChange(dl,value);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} dl
+	 * @param {string} value
+	 */
 	dispatchCbiDynlistChange(dl,value) {
 		dl.dispatchEvent(new CustomEvent('cbi-dynlist-change', {
 			bubbles: true,
@@ -2457,7 +2605,11 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
 		}));
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} dl
+	 * @param {Node} item
+	 */
 	removeItem(dl, item) {
 		const value = item.querySelector('input[type="hidden"]').value;
 		const sb = dl.querySelector('.cbi-dropdown');
@@ -2476,7 +2628,10 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
 		this.dispatchCbiDynlistChange(dl, value);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleClick(ev) {
 		const dl = ev.currentTarget;
 		const item = findParent(ev.target, '.item');
@@ -2506,7 +2661,10 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
 		}
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleDropdownChange(ev) {
 		const dl = ev.currentTarget;
 		const sbIn = ev.detail.instance;
@@ -2537,7 +2695,10 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
 		this.addItem(dl, sbVal.value, label, true);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleKeydown(ev) {
 		const dl = ev.currentTarget;
 		const item = findParent(ev.target, '.item');
@@ -2651,7 +2812,7 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
 /**
  * Instantiate a range slider widget.
  *
- * @constructor RangeSlider
+ * @class RangeSlider
  * @memberof LuCI.ui
  * @augments LuCI.ui.AbstractElement
  *
@@ -2675,25 +2836,27 @@ const UIDynamicList = UIElement.extend(/** @lends LuCI.ui.DynamicList.prototype 
  * @param {LuCI.ui.RangeSlider.InitOptions} [options]
  * Object describing the widget specific options to initialize the range slider.
  */
-const UIRangeSlider = UIElement.extend({
+const UIRangeSlider = UIElement.extend( /** @lends LuCI.ui.RangeSlider.prototype */ {
 	/**
 	 * In addition to the [AbstractElement.InitOptions]{@link LuCI.ui.AbstractElement.InitOptions}
 	 * the following properties are recognized:
 	 *
 	 * @typedef {LuCI.ui.AbstractElement.InitOptions} InitOptions
 	 * @memberof LuCI.ui.RangeSlider
+	 * @param {string} value
+	 * @param {object} options
 	 *
-	 * @property {int} [min=1]
+	 * @property {number} [min=1]
 	 * Specifies the minimum value of the range.
 	 *
-	 * @property {int} [max=100]
+	 * @property {number} [max=100]
 	 * Specifies the maximum value of the range.
 	 *
 	 * @property {string} [step=1]
 	 * Specifies the step value of the range slider handle. Use "any" for
 	 * arbitrary precision floating point numbers.
 	 *
-	 * @param {function} [calculate=null]
+	 * @param {function()} [calculate=null]
 	 * A function to invoke when the slider is adjusted by the user. The function
 	 * performs a calculation on the selected value to produce a new value.
 	 *
@@ -2782,6 +2945,7 @@ const UIRangeSlider = UIElement.extend({
 	 *
 	 * @instance
 	 * @memberof LuCI.ui.RangeSlider
+	 * @returns {number}
 	 */
 	getCalculatedValue() {
 		return this.calculatedvalue;
@@ -2802,7 +2966,7 @@ const UIRangeSlider = UIElement.extend({
 /**
  * Instantiate a hidden input field widget.
  *
- * @constructor Hiddenfield
+ * @class Hiddenfield
  * @memberof LuCI.ui
  * @augments LuCI.ui.AbstractElement
  *
@@ -2845,7 +3009,11 @@ const UIHiddenfield = UIElement.extend(/** @lends LuCI.ui.Hiddenfield.prototype 
 		return this.bind(hiddenEl);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} hiddenEl
+	 * @returns {Node} hiddenEl
+	 */
 	bind(hiddenEl) {
 		this.node = hiddenEl;
 
@@ -2868,7 +3036,7 @@ const UIHiddenfield = UIElement.extend(/** @lends LuCI.ui.Hiddenfield.prototype 
 /**
  * Instantiate a file upload widget.
  *
- * @constructor FileUpload
+ * @class FileUpload
  * @memberof LuCI.ui
  * @augments LuCI.ui.AbstractElement
  *
@@ -2900,6 +3068,8 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 	 *
 	 * @typedef {LuCI.ui.AbstractElement.InitOptions} InitOptions
 	 * @memberof LuCI.ui.FileUpload
+	 * @param {string} value
+	 * @param {object} options
 	 *
 	 * @property {boolean} [browser=false]
 	 * Use a file browser mode.
@@ -2954,7 +3124,11 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		}, options);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} browserEl
+	 * @returns {Node} hiddenEl
+	 */
 	bind(browserEl) {
 		this.node = browserEl;
 
@@ -3011,7 +3185,11 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		return renderFileBrowser
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {string} path
+	 * @returns {string}
+	 */
 	truncatePath(path) {
 		if (path.length > 50)
 			path = `${path.substring(0, 25)}…${path.substring(path.length - 25)}`;
@@ -3019,7 +3197,11 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		return path;
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {string} type
+	 * @returns {Node}
+	 */
 	iconForType(type) {
 		switch (type) {
 		case 'symlink':
@@ -3048,15 +3230,23 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		}
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {string} path
+	 * @returns {string}
+	 */
 	canonicalizePath(path) {
 	return path.replace(/\/{2,}/g, '/')                // Collapse multiple slashes
 				.replace(/\/\.(\/|$)/g, '/')           // Remove `/.`
-				.replace(/[^\/]+\/\.\.(\/|$)/g, '/')   // Resolve `/..`
+				.replace(/[^/]+\/\.\.(\/|$)/g, '/')   // Resolve `/..`
 				.replace(/\/$/g, (m, o, s) => s.length > 1 ? '' : '/'); // Remove trailing `/` only if not root
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {string} path
+	 * @returns {string[]}
+	 */
 	splitPath(path) {
 		const croot = this.canonicalizePath(this.options.root_directory ?? '/');
 		const cpath = this.canonicalizePath(path ?? '/');
@@ -3071,7 +3261,11 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		return parts;
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {string} path
+	 * @param {Event} ev
+	 */
 	handleCreateDirectory(path, ev) {
 		const container = E('div', { 'class': 'uci-dialog' });
 
@@ -3123,7 +3317,13 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		]);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {string} path
+	 * @param {object[]} list
+	 * @param {Event} ev
+	 * @returns {Promise}
+	 */
 	handleUpload(path, list, ev) {
 		const form = ev.target.parentNode;
 		const fileinput = form.querySelector('input[type="file"]');
@@ -3162,9 +3362,15 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		}, this, path, ev));
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {string} path
+	 * @param {object} fileStat
+	 * @param {Event} ev
+	 * @returns {Promise}
+	 */
 	handleDelete(path, fileStat, ev) {
-		const parent = path.replace(/\/[^\/]+$/, '') ?? '/';
+		const parent = path.replace(/\/[^/]+$/, '') ?? '/';
 		const name = path.replace(/^.+\//, '');
 		let msg;
 
@@ -3192,7 +3398,12 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		}
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {string} path
+	 * @param {object[]} list
+	 * @returns {Promise}
+	 */
 	renderUpload(path, list) {
 		if (!this.options.enable_upload)
 			return E([]);
@@ -3218,7 +3429,7 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 						const nameinput = ev.target.parentNode.querySelector('input[type="text"]');
 						const uploadbtn = ev.target.parentNode.querySelector('button.cbi-button-save');
 
-						nameinput.value = ev.target.value.replace(/^.+[\/\\]/, '');
+						nameinput.value = ev.target.value.replace(/^.+[/\\]/, '');
 						uploadbtn.disabled = false;
 					}
 				}),
@@ -3239,7 +3450,12 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		]);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} container
+	 * @param {string} path
+	 * @param {object[]} list
+	 */
 	renderListing(container, path, list) {
 		const breadcrumb = E('p');
 		const rows = E('ul');
@@ -3337,7 +3553,10 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		]);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleCancel(ev) {
 		const button = this.node.firstElementChild;
 		const browser = button.nextElementSibling;
@@ -3350,7 +3569,10 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		ev.preventDefault();
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleReset(ev) {
 		const button = this.node.firstElementChild;
 		const hidden = this.node.lastElementChild;
@@ -3361,7 +3583,12 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		this.handleCancel(ev);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {string} path
+	 * @param {object} fileStat
+	 * @param {Event} ev
+	 */
 	handleDownload(path, fileStat, ev) {
 		fs.read_direct(path, 'blob').then((blob) => {
 			const url = window.URL.createObjectURL(blob);
@@ -3377,7 +3604,12 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		});
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {string} path
+	 * @param {object} fileStat
+	 * @param {Event} ev
+	 */
 	handleSelect(path, fileStat, ev) {
 		const browser = dom.parent(ev.target, '.cbi-filebrowser');
 		const ul = browser.querySelector('ul');
@@ -3406,11 +3638,15 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		}
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 * @returns {Promise}
+	 */
 	handleFileBrowser(ev) {
 		const button = ev.target;
 		const browser = button.nextElementSibling;
-		let path = this.stat ? this.stat.path.replace(/\/[^\/]+$/, '') : (this.options.initial_directory ?? this.options.root_directory);
+		let path = this.stat ? this.stat.path.replace(/\/[^/]+$/, '') : (this.options.initial_directory ?? this.options.root_directory);
 
 		if (path.indexOf(this.options.root_directory) != 0)
 			path = this.options.root_directory;
@@ -3440,7 +3676,11 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 	}
 });
 
-
+/**
+ * Erase the menu node
+ * @param {Node} node
+ * @returns {Node}
+ */
 function scrubMenu(node) {
 	let hasSatisfiedChild = false;
 
@@ -3464,7 +3704,7 @@ function scrubMenu(node) {
 /**
  * Handle menu.
  *
- * @constructor menu
+ * @class menu
  * @memberof LuCI.ui
  *
  * @classdesc
@@ -3475,13 +3715,17 @@ const UIMenu = baseclass.singleton(/** @lends LuCI.ui.menu.prototype */ {
 	/**
 	 * @typedef {Object} MenuNode
 	 * @memberof LuCI.ui.menu
-
-	 * @property {string} name - The internal name of the node, as used in the URL
+	 * @property {string} name - The internal name of the node, as used in the
+	 * URL.
 	 * @property {number} order - The sort index of the menu node
-	 * @property {string} [title] - The title of the menu node, `null` if the node should be hidden
-	 * @property {satisfied} boolean - Boolean indicating whether the menu entries dependencies are satisfied
-	 * @property {readonly} [boolean] - Boolean indicating whether the menu entries underlying ACLs are readonly
-	 * @property {LuCI.ui.menu.MenuNode[]} [children] - Array of child menu nodes.
+	 * @property {string} [title] - The title of the menu node, `null` if the
+	 * node should be hidden.
+	 * @property {boolean} satisfied - Boolean indicating whether the menu
+	 * entries dependencies are satisfied.
+	 * @property {boolean} [readonly] - Boolean indicating whether the menu
+	 * entries underlying ACLs are readonly.
+	 * @property {LuCI.ui.menu.MenuNode[]} [children] - Array of child menu 
+	 * nodes.
 	 */
 
 	/**
@@ -3613,8 +3857,8 @@ const UITable = baseclass.extend(/** @lends LuCI.ui.table.prototype */ {
 			const trow = table.appendChild(E('tr', { 'class': 'tr placeholder' }));
 			const td = trow.appendChild(E('td', { 'class': 'td' }, placeholder));
 
-			if (typeof(captionClasses) == 'object')
-				DOMTokenList.prototype.add.apply(td.classList, L.toArray(captionClasses[0]));
+			if (typeof(options.captionClasses) == 'object')
+				DOMTokenList.prototype.add.apply(td.classList, L.toArray(options.captionClasses[0]));
 		}
 
 		DOMTokenList.prototype.add.apply(table.classList, L.toArray(options.classes));
@@ -3712,7 +3956,10 @@ const UITable = baseclass.extend(/** @lends LuCI.ui.table.prototype */ {
 		return this.node;
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Node} node
+	 */
 	initFromMarkup(node) {
 		if (!dom.elem(node))
 			node = document.querySelector(node);
@@ -3743,8 +3990,13 @@ const UITable = baseclass.extend(/** @lends LuCI.ui.table.prototype */ {
 		this.options = options;
 	},
 
-	/** @private */
-	deriveSortKey(value, index) {
+	/**
+	 * @private
+	 * @param {string} value
+	 * @param {number} index
+	 * @returns {string}
+	 */
+ 	deriveSortKey(value, index) {
 		const opts = this.options ?? {};
 		let hint;
 		let m;
@@ -3822,7 +4074,10 @@ const UITable = baseclass.extend(/** @lends LuCI.ui.table.prototype */ {
 		}
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @returns {?string}
+	 */
 	getActiveSortState() {
 		if (this.sortState)
 			return this.sortState;
@@ -3840,7 +4095,11 @@ const UITable = baseclass.extend(/** @lends LuCI.ui.table.prototype */ {
 		return null;
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {number} index
+	 * @param {boolean} descending
+	 */
 	setActiveSortState(index, descending) {
 		this.sortState = [ index, descending ];
 
@@ -3859,7 +4118,10 @@ const UITable = baseclass.extend(/** @lends LuCI.ui.table.prototype */ {
 		session.setLocalData('tablesort', state);
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	handleSort(ev) {
 		if (!ev.target.matches('th[data-sortable-row]'))
 			return;
@@ -3985,7 +4247,10 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 		modalDiv.blur();
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	cancelModal(ev) {
 		if (ev.key == 'Escape') {
 			const btn = modalDiv.querySelector('.right > button, .right > .btn, .button-row > .btn');
@@ -3995,7 +4260,10 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 		}
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	showTooltip(ev) {
 		const target = findParent(ev.target, '[data-tooltip]');
 
@@ -4042,7 +4310,10 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 		}));
 	},
 
-	/** @private */
+	/**
+	 * @private
+	 * @param {Event} ev
+	 */
 	hideTooltip(ev) {
 		if (ev.target === tooltipDiv || ev.relatedTarget === tooltipDiv ||
 		    tooltipDiv.contains(ev.target) || tooltipDiv.contains(ev.relatedTarget))
@@ -4149,7 +4420,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 	 * to the `dom.content()` function - refer to its documentation for
 	 * applicable values.
 	 * 
-	 * @param {int} [timeout]
+	 * @param {number} [timeout]
 	 * A millisecond value after which the notification will disappear
 	 * automatically. If omitted, the notification will remain until it receives
 	 * the click event.
@@ -4164,6 +4435,10 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 	addTimeLimitedNotification(title, children, timeout, ...classes) {
 		const msg = this.addNotification(title, children, ...classes);
 
+		/**
+		 * Set node parameters to fade the notification out after timeout.
+		 * @param {Element} element
+		 */
 		function fadeOutNotification(element) {
 			if (element) {
 				element.classList.add('fade-out');
@@ -4204,7 +4479,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 	 * @param {string} label
 	 * The text to display in the indicator label.
 	 *
-	 * @param {function} [handler]
+	 * @param {function()} [handler]
 	 * A handler function to invoke when the indicator label is clicked/touched
 	 * by the user. If omitted, the indicator is not clickable/touchable.
 	 *
@@ -4318,7 +4593,6 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 		for (let i = 0; i < items.length; i += 2) {
 			if (items[i+1] !== null && items[i+1] !== undefined) {
 				const sep = separators[(i/2) % separators.length];
-				const cld = [];
 
 				children.push(E('span', { class: 'nowrap' }, [
 					items[i] ? E('strong', `${items[i]}: `) : '',
@@ -4413,13 +4687,14 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 
 			const menu = E('ul', { 'class': 'cbi-tabmenu' });
 			const group = panes[0].parentNode;
-			const groupId = +group.getAttribute('data-tab-group');
 			let selected = null;
 
 			if (group.getAttribute('data-initialized') === 'true')
 				return;
 
-			for (let i = 0, pane; pane = panes[i]; i++) {
+			let pane;
+			for (let i = 0; i < panes.length; i++) {
+				pane = panes[i];
 				const name = pane.getAttribute('data-tab');
 				const title = pane.getAttribute('data-tab-title');
 				const active = pane.getAttribute('data-tab-active') === 'true';
@@ -4483,7 +4758,11 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 			return dom.isEmpty(pane, n => n.classList.contains('cbi-tab-descr'));
 		},
 
-		/** @private */
+		/**
+		 * @private
+		 * @param {object} pane
+		 * @returns {string}
+		 */
 		getPathForPane(pane) {
 			const path = [];
 			let node = null;
@@ -4501,7 +4780,10 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 			return path.join('/');
 		},
 
-		/** @private */
+		/**
+		 * @private
+		 * @returns {object}
+		 */
 		getActiveTabState() {
 			const page = document.body.getAttribute('data-page');
 			const state = session.getLocalData('tab');
@@ -4514,13 +4796,23 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 			return { page: page, paths: {} };
 		},
 
-		/** @private */
+		/**
+		 * @private
+		 * @param {object} pane
+		 * @returns {string|0}
+		 */
 		getActiveTabId(pane) {
 			const path = this.getPathForPane(pane);
-			return +this.getActiveTabState().paths[path] ?? 0;
+			const p = +(this.getActiveTabState().paths[path]);
+			return p ?? 0;
 		},
 
-		/** @private */
+		/**
+		 * @private
+		 * @param {object} pane
+		 * @param {number} tabIndex
+		 * @returns {object}
+		 */
 		setActiveTabId(pane, tabIndex) {
 			const path = this.getPathForPane(pane);
 			const state = this.getActiveTabState();
@@ -4530,7 +4822,11 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 			return session.setLocalData('tab', state);
 		},
 
-		/** @private */
+		/**
+		 * @private
+		 * @param {Event} ev
+		 * @param {document} root
+		 */
 		updateTabs(ev, root) {
 			(root ?? document).querySelectorAll('[data-tab-title]').forEach(L.bind((pane) => {
 				const menu = pane.parentNode.previousElementSibling;
@@ -4561,13 +4857,15 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 			}, this));
 		},
 
-		/** @private */
+		/**
+		 * @private
+		 * @param {Event} ev
+		 */
 		switchTab(ev) {
 			const tab = ev.target.parentNode;
 			const name = tab.getAttribute('data-tab');
 			const menu = tab.parentNode;
 			const group = menu.nextElementSibling;
-			const groupId = +group.getAttribute('data-tab-group');
 			let index = 0;
 
 			ev.preventDefault();
@@ -4602,7 +4900,6 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 	/**
 	 * @typedef {Object} FileUploadReply
 	 * @memberof LuCI.ui
-
 	 * @property {string} name - Name of the uploaded file without directory components
 	 * @property {number} size - Size of the uploaded file in bytes
 	 * @property {string} checksum - The MD5 checksum of the received file data
@@ -4647,7 +4944,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 
 								dom.content(body, [
 									E('ul', {}, [
-										E('li', {}, [ '%s: %s'.format(_('Name'), file.name.replace(/^.*[\\\/]/, '')) ]),
+										E('li', {}, [ '%s: %s'.format(_('Name'), file.name.replace(/^.*[\\/]/, '')) ]),
 										E('li', {}, [ '%s: %1024mB'.format(_('Size'), file.size) ])
 									])
 								]);
@@ -4786,7 +5083,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 				for (let i = 0; i < 2; i++)
 					for (let j = 0; j < ipaddrs.length; j++)
 						tasks.push(this.pingDevice(i ? 'https' : 'http', ipaddrs[j])
-							.then(ev => { reachable = ev.target.src.replace(/^(https?:\/\/[^\/]+).*$/, '$1/') }, () => {}));
+							.then(ev => { reachable = ev.target.src.replace(/^(https?:\/\/[^/]+).*$/, '$1/') }, () => {}));
 
 				return Promise.all(tasks).then(() => {
 					if (reachable) {
@@ -4964,7 +5261,11 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 			dlg.classList.add('uci-dialog');
 		},
 
-		/** @private */
+		/**
+		 * @private
+		 * @param {string} type
+		 * @param {string} content
+		 */
 		displayStatus(type, content) {
 			if (type) {
 				const message = UI.prototype.showModal('', '');
@@ -4988,7 +5289,10 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 			}
 		},
 
-		/** @private */
+		/**
+		 * @private
+		 * @returns {Promise}
+		 */
 		checkConnectivityAffected() {
 			return L.resolveDefault(fs.exec_direct('/usr/libexec/luci-peeraddr', null, 'json')).then(L.bind((info) => {
 				if (L.isObject(info) && Array.isArray(info.inbound_interfaces)) {
@@ -5009,7 +5313,10 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 			}, this));
 		},
 
-		/** @private */
+		/**
+		 * @private
+		 * @param {boolean} checked
+		 */
 		rollback(checked) {
 			if (checked) {
 				this.displayStatus('warning spinning',
@@ -5060,7 +5367,12 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 			}
 		},
 
-		/** @private */
+		/**
+		 * @private
+		 * @param {boolean} checked
+		 * @param {number} deadline
+		 * @param {string} override_token
+		 */
 		confirm(checked, deadline, override_token) {
 			let tt;
 			let ts = Date.now();
@@ -5136,7 +5448,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 		 * @param {boolean} [checked=false]
 		 * Whether to perform a checked (`true`) configuration apply or an
 		 * unchecked (`false`) one.
-
+		 *
 		 * In case of a checked apply, the configuration changes must be
 		 * confirmed within a specific time interval, otherwise the device
 		 * will begin to roll back the changes in order to restore the previous
@@ -5269,7 +5581,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 	 * If an input element is not marked optional it must not be empty,
 	 * otherwise it will be marked as invalid.
 	 *
-	 * @param {function|function[]} [vfunc]
+	 * @param {function()|Array<function()>} [vfunc]
 	 * Specifies a custom validation function or an array of validation functions
 	 * which are invoked after the other validation constraints are applied. Each
 	 * function must return `true` to accept the passed value. When multiple
@@ -5283,7 +5595,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 	 * validation. If omitted, the `keyup` and `blur` events are bound by
 	 * default.
 	 *
-	 * @returns {function}
+	 * @returns {function()}
 	 * Returns the compiled validator function which can be used to trigger
 	 * field validation manually or to bind it to further events.
 	 *
@@ -5323,17 +5635,17 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 	 * @param {*} ctx
 	 * The `this` context to use for the wrapped function.
 	 *
-	 * @param {function|string} fn
+	 * @param {function()|string} fn
 	 * Specifies the function to wrap. In case of a function value, the
 	 * function is used as-is. If a string is specified instead, it is looked
 	 * up in `ctx` to obtain the function to wrap. In both cases the bound
 	 * function will be invoked with `ctx` as `this` context
 	 *
-	 * @param {...*} extra_args
+	 * @param {...*} args
 	 * Any further parameter as passed as-is to the bound event handler
 	 * function in the same order as passed to `createHandlerFn()`.
 	 *
-	 * @returns {function|null}
+	 * @returns {?function()}
 	 * Returns the pre-bound handler function which is suitable to be passed
 	 * to `addEventListener()`. Returns `null` if the given `fn` argument is
 	 * a string which could not be found in `ctx` or if `ctx[fn]` is not a

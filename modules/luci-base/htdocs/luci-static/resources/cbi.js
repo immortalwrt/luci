@@ -11,26 +11,52 @@
 	http://www.apache.org/licenses/LICENSE-2.0
 */
 
-var cbi_d = [];
-var cbi_strings = { path: {}, label: {} };
+/**
+ * CBI (Configuration Bindings Interface) helper utilities and DOM helpers.
+ *
+ * Provides initialization for CBI UI elements, dependency handling,
+ * validation wiring and miscellaneous helpers used by LuCI forms. Functions
+ * defined here are registered as global `window.*` symbols.
+ * @module LuCI.cbi
+ */
+const cbi_d = [];
+const cbi_strings = { path: {}, label: {} };
 
+/**
+ * Read signed 8-bit integer from a byte array at the given offset.
+ * @param {Array<number>} bytes - Byte array.
+ * @param {number} off - Offset into the array.
+ * @returns {number} Signed 8-bit value (returned as unsigned number).
+ */
 function s8(bytes, off) {
-	var n = bytes[off];
+	const n = bytes[off];
 	return (n > 0x7F) ? (n - 256) >>> 0 : n;
 }
 
+/**
+ * Read unsigned 16-bit little-endian integer from a byte array at offset.
+ * @param {Array<number>} bytes - Byte array.
+ * @param {number} off - Offset into the array.
+ * @returns {number} Unsigned 16-bit integer.
+ */
 function u16(bytes, off) {
 	return ((bytes[off + 1] << 8) + bytes[off]) >>> 0;
 }
 
+/**
+ * Compute a stable 32-bit-ish string hash used for translation keys.
+ * Encodes UTF-8 surrogate pairs and mixes bytes into a hex hash string.
+ * @param {string|null} s - Input string.
+ * @returns {string|null} Hex hash string or null for empty input.
+ */
 function sfh(s) {
 	if (s === null || s.length === 0)
 		return null;
 
-	var bytes = [];
+	const bytes = [];
 
-	for (var i = 0; i < s.length; i++) {
-		var ch = s.charCodeAt(i);
+	for (let i = 0; i < s.length; i++) {
+		let ch = s.charCodeAt(i);
 
 		// Handle surrogate pairs
 		if (ch >= 0xD800 && ch <= 0xDBFF && i + 1 < s.length) {
@@ -60,9 +86,9 @@ function sfh(s) {
 	if (!bytes.length)
 		return null;
 
-	var hash = (bytes.length >>> 0),
-	    len = (bytes.length >>> 2),
-	    off = 0, tmp;
+	let hash = (bytes.length >>> 0);
+	let len = (bytes.length >>> 2);
+	let off = 0, tmp;
 
 	while (len--) {
 		hash += u16(bytes, off);
@@ -105,15 +131,35 @@ function sfh(s) {
 
 var plural_function = null;
 
+/**
+ * Trim whitespace and normalise internal whitespace sequences to single spaces.
+ * @param {*} s - Value to convert to string and trim.
+ * @returns {string} Trimmed and normalised string.
+ */
 function trimws(s) {
 	return String(s).trim().replace(/[ \t\n]+/g, ' ');
 }
 
+/**
+ * Lookup a translated string for the given message and optional context.
+ * Falls back to the source string when no translation found.
+ * @param {string} s - Source string.
+ * @param {string} [c] - Optional translation context.
+ * @returns {string} Translated string or original.
+ */
 function _(s, c) {
 	var k = (c != null ? trimws(c) + '\u0001' : '') + trimws(s);
 	return (window.TR && TR[sfh(k)]) || s;
 }
 
+/**
+ * Plural-aware translation lookup.
+ * @param {number} n - Quantity to evaluate plural form.
+ * @param {string} s - Singular string.
+ * @param {string} p - Plural string.
+ * @param {string} [c] - Optional context.
+ * @returns {string} Translated plural form or source string.
+ */
 function N_(n, s, p, c) {
 	if (plural_function == null && window.TR)
 		plural_function = new Function('n', (TR['00000000'] || 'plural=(n != 1);') + 'return +plural');
@@ -125,6 +171,12 @@ function N_(n, s, p, c) {
 }
 
 
+/**
+ * Register a dependency entry for a field.
+ * @param {HTMLElement|string} field - Field element or its id.
+ * @param {Object} dep - Dependency specification object.
+ * @param {number} index - Order index of the dependent node.
+ */
 function cbi_d_add(field, dep, index) {
 	var obj = (typeof(field) === 'string') ? document.getElementById(field) : field;
 	if (obj) {
@@ -149,6 +201,12 @@ function cbi_d_add(field, dep, index) {
 	}
 }
 
+/**
+ * Check whether an input/select identified by target matches the given reference value.
+ * @param {string} target - Element id or name to query.
+ * @param {string} ref - Reference value to compare with.
+ * @returns {boolean} True if the current value matches ref.
+ */
 function cbi_d_checkvalue(target, ref) {
 	var value = null,
 	    query = 'input[id="'+target+'"], input[name="'+target+'"], ' +
@@ -162,6 +220,11 @@ function cbi_d_checkvalue(target, ref) {
 	return (((value !== null) ? value : "") == ref);
 }
 
+/**
+ * Evaluate a list of dependency descriptors and return whether any match.
+ * @param {Array<Object>} deps - Array of dependency objects to evaluate.
+ * @returns {boolean} True when dependencies indicate the element should be shown.
+ */
 function cbi_d_check(deps) {
 	var reverse;
 	var def = false;
@@ -186,6 +249,10 @@ function cbi_d_check(deps) {
 	return def;
 }
 
+/**
+ * Update DOM nodes based on registered dependencies, showing or hiding
+ * nodes and restoring their order when dependency state changes.
+ */
 function cbi_d_update() {
 	var state = false;
 	for (var i=0; i<cbi_d.length; i++) {
@@ -227,8 +294,13 @@ function cbi_d_update() {
 		parent.dispatchEvent(new CustomEvent('dependency-update', { bubbles: true }));
 }
 
+/**
+ * Initialize CBI widgets and wire up dependency and validation handlers.
+ * Walks the DOM looking for CBI-specific data attributes and replaces
+ * placeholders with interactive widgets.
+ */
 function cbi_init() {
-	var nodes;
+	let nodes;
 
 	document.querySelectorAll('.cbi-dropdown').forEach(function(node) {
 		cbi_dropdown_init(node);
@@ -237,74 +309,74 @@ function cbi_init() {
 
 	nodes = document.querySelectorAll('[data-strings]');
 
-	for (var i = 0, node; (node = nodes[i]) !== undefined; i++) {
-		var str = JSON.parse(node.getAttribute('data-strings'));
-		for (var key in str) {
-			for (var key2 in str[key]) {
-				var dst = cbi_strings[key] || (cbi_strings[key] = { });
-				    dst[key2] = str[key][key2];
+	for (let n of nodes) {
+		const str = JSON.parse(n.getAttribute('data-strings'));
+		for (let key in str) {
+			for (let key2 in str[key]) {
+				const dst = cbi_strings[key] || (cbi_strings[key] = { });
+				dst[key2] = str[key][key2];
 			}
 		}
 	}
 
 	nodes = document.querySelectorAll('[data-depends]');
 
-	for (var i = 0, node; (node = nodes[i]) !== undefined; i++) {
-		var index = parseInt(node.getAttribute('data-index'), 10);
-		var depends = JSON.parse(node.getAttribute('data-depends'));
+	for (let n of nodes) {
+		const index = parseInt(n.getAttribute('data-index'), 10);
+		const depends = JSON.parse(n.getAttribute('data-depends'));
 		if (!isNaN(index) && depends.length > 0) {
-			for (var alt = 0; alt < depends.length; alt++)
-				cbi_d_add(node, depends[alt], index);
+			for (let a of depends)
+				cbi_d_add(n, depends[a], index);
 		}
 	}
 
 	nodes = document.querySelectorAll('[data-update]');
 
-	for (var i = 0, node; (node = nodes[i]) !== undefined; i++) {
-		var events = node.getAttribute('data-update').split(' ');
-		for (var j = 0, event; (event = events[j]) !== undefined; j++)
-			node.addEventListener(event, cbi_d_update);
+	for (let n of nodes) {
+		const events = n.getAttribute('data-update').split(' ');
+		for (let ev of events)
+			n.addEventListener(ev, cbi_d_update);
 	}
 
 	nodes = document.querySelectorAll('[data-choices]');
 
-	for (var i = 0, node; (node = nodes[i]) !== undefined; i++) {
-		var choices = JSON.parse(node.getAttribute('data-choices')),
-		    options = {};
+	for (let node of nodes) {
+		const choices = JSON.parse(node.getAttribute('data-choices'));
+		const options = {};
 
-		for (var j = 0; j < choices[0].length; j++)
+		for (let j = 0; j < choices[0].length; j++)
 			options[choices[0][j]] = choices[1][j];
 
-		var def = (node.getAttribute('data-optional') === 'true')
+		const def = (node.getAttribute('data-optional') === 'true')
 			? node.placeholder || '' : null;
 
-		var cb = new L.ui.Combobox(node.value, options, {
+		const cb = new L.ui.Combobox(node.value, options, {
 			name: node.getAttribute('name'),
 			sort: choices[0],
 			select_placeholder: def || _('-- Please choose --'),
 			custom_placeholder: node.getAttribute('data-manual') || _('-- custom --')
 		});
 
-		var n = cb.render();
+		const n = cb.render();
 		n.addEventListener('cbi-dropdown-change', cbi_d_update);
 		node.parentNode.replaceChild(n, node);
 	}
 
 	nodes = document.querySelectorAll('[data-dynlist]');
 
-	for (var i = 0, node; (node = nodes[i]) !== undefined; i++) {
-		var choices = JSON.parse(node.getAttribute('data-dynlist')),
-		    values = JSON.parse(node.getAttribute('data-values') || '[]'),
-		    options = null;
+	for (let node of nodes) {
+		const choices = JSON.parse(node.getAttribute('data-dynlist'));
+		const values = JSON.parse(node.getAttribute('data-values') || '[]');
+		let options = null;
 
 		if (choices[0] && choices[0].length) {
 			options = {};
 
-			for (var j = 0; j < choices[0].length; j++)
+			for (let j = 0; j < choices[0].length; j++)
 				options[choices[0][j]] = choices[1][j];
 		}
 
-		var dl = new L.ui.DynamicList(values, options, {
+		let dl = new L.ui.DynamicList(values, options, {
 			name: node.getAttribute('data-prefix'),
 			sort: choices[0],
 			datatype: choices[2],
@@ -312,14 +384,14 @@ function cbi_init() {
 			placeholder: node.getAttribute('data-placeholder')
 		});
 
-		var n = dl.render();
+		let n = dl.render();
 		n.addEventListener('cbi-dynlist-change', cbi_d_update);
 		node.parentNode.replaceChild(n, node);
 	}
 
 	nodes = document.querySelectorAll('[data-type]');
 
-	for (var i = 0, node; (node = nodes[i]) !== undefined; i++) {
+	for (let node of nodes) {
 		cbi_validate_field(node, node.getAttribute('data-optional') === 'true',
 		                   node.getAttribute('data-type'));
 	}
@@ -329,7 +401,7 @@ function cbi_init() {
 	});
 
 	document.querySelectorAll('.cbi-section-remove > input[name^="cbi.rts"]').forEach(function(i) {
-		var handler = function(ev) {
+		let handler = function(ev) {
 			var bits = this.name.split(/\./),
 			    section = document.getElementById('cbi-' + bits[2] + '-' + bits[3]);
 
@@ -343,9 +415,9 @@ function cbi_init() {
 	var tasks = [];
 
 	document.querySelectorAll('[data-ui-widget]').forEach(function(node) {
-		var args = JSON.parse(node.getAttribute('data-ui-widget') || '[]'),
-		    widget = new (Function.prototype.bind.apply(L.ui[args[0]], args)),
-		    markup = widget.render();
+		const args = JSON.parse(node.getAttribute('data-ui-widget') || '[]');
+		const widget = new (Function.prototype.bind.apply(L.ui[args[0]], args));
+		const markup = widget.render();
 
 		tasks.push(Promise.resolve(markup).then(function(markup) {
 			markup.addEventListener('widget-change', cbi_d_update);
@@ -356,6 +428,12 @@ function cbi_init() {
 	Promise.all(tasks).then(cbi_d_update);
 }
 
+/**
+ * Run all validators associated with a form and optionally show an error.
+ * @param {HTMLFormElement} form - Form element containing validators.
+ * @param {string} [errmsg] - Message to show when validation fails.
+ * @returns {boolean} True when form is valid.
+ */
 function cbi_validate_form(form, errmsg)
 {
 	/* if triggered by a section removal or addition, don't validate */
@@ -363,8 +441,8 @@ function cbi_validate_form(form, errmsg)
 		return true;
 
 	if (form.cbi_validators) {
-		for (var i = 0; i < form.cbi_validators.length; i++) {
-			var validator = form.cbi_validators[i];
+		for (let fv of form.cbi_validators) {
+			const validator = fv;
 
 			if (!validator() && errmsg) {
 				alert(errmsg);
@@ -376,12 +454,21 @@ function cbi_validate_form(form, errmsg)
 	return true;
 }
 
+/**
+ * Enable/disable a named-section add button depending on input value.
+ * @param {HTMLInputElement} input - Input that contains the new section name.
+ */
 function cbi_validate_named_section_add(input)
 {
 	var button = input.parentNode.parentNode.querySelector('.cbi-button-add');
 	button.disabled = input.value === '';
 }
 
+/**
+ * Trigger a delayed form validation (used to allow UI state to settle).
+ * @param {HTMLFormElement} form - Form to validate after a short delay.
+ * @returns {boolean} Always returns true.
+ */
 function cbi_validate_reset(form)
 {
 	window.setTimeout(
@@ -391,6 +478,12 @@ function cbi_validate_reset(form)
 	return true;
 }
 
+/**
+ * Attach a validator to a field and wire validation events.
+ * @param {HTMLElement|string} cbid - Element or element id to validate.
+ * @param {boolean} optional - Whether an empty value is allowed.
+ * @param {string} type - Validator type expression (passed to L.validation).
+ */
 function cbi_validate_field(cbid, optional, type)
 {
 	var field = isElem(cbid) ? cbid : document.getElementById(cbid);
@@ -425,6 +518,13 @@ function cbi_validate_field(cbid, optional, type)
 	}
 }
 
+/**
+ * Move a table row up or down within a section and update the storage field.
+ * @param {HTMLElement} elem - Element inside the row that triggers the swap.
+ * @param {boolean} up - If true, move the row up; otherwise move down.
+ * @param {string} store - ID of the hidden input used to store the order.
+ * @returns {boolean} Always returns false to cancel default action.
+ */
 function cbi_row_swap(elem, up, store)
 {
 	var tr = findParent(elem.parentNode, '.cbi-section-table-row');
@@ -462,7 +562,7 @@ function cbi_row_swap(elem, up, store)
 			node.classList.remove('cbi-rowstyle-2');
 			node.classList.add((n++ % 2) ? 'cbi-rowstyle-2' : 'cbi-rowstyle-1');
 
-			if (/-([^\-]+)$/.test(node.id))
+			if (/-([^-]+)$/.test(node.id))
 				ids.push(RegExp.$1);
 		}
 	}
@@ -478,12 +578,16 @@ function cbi_row_swap(elem, up, store)
 	return false;
 }
 
+/**
+ * Mark the last visible value container child with class `cbi-value-last`.
+ * @param {HTMLElement} container - Parent container element.
+ */
 function cbi_tag_last(container)
 {
-	var last;
+	let last;
 
-	for (var i = 0; i < container.childNodes.length; i++) {
-		var c = container.childNodes[i];
+	for (let cn of container.childNodes) {
+		var c = cn;
 		if (matchesElem(c, 'div')) {
 			c.classList.remove('cbi-value-last');
 			last = c;
@@ -494,9 +598,17 @@ function cbi_tag_last(container)
 		last.classList.add('cbi-value-last');
 }
 
+/**
+ * Submit a form, optionally adding a hidden input to pass a name/value pair.
+ * @param {HTMLElement} elem - Element inside the form or an element with a form.
+ * @param {string} [name] - Name of hidden input to include, if any.
+ * @param {string} [value] - Value for the hidden input (defaults to '1').
+ * @param {string} [action] - Optional form action URL override.
+ * @returns {boolean} True on successful submit, false when no form found.
+ */
 function cbi_submit(elem, name, value, action)
 {
-	var form = elem.form || findParent(elem, 'form');
+	const form = elem.form || findParent(elem, 'form');
 
 	if (!form)
 		return false;
@@ -516,16 +628,35 @@ function cbi_submit(elem, name, value, action)
 	return true;
 }
 
+/**
+ * @external String
+ */
+
+/**
+ * Format a string using positional arguments.
+ * @function format
+ * @memberof external:String.prototype
+ * @param {...string} args
+ * @returns {string}
+ */
 String.prototype.format = function()
 {
 	if (!RegExp)
 		return;
 
-	var html_esc = [/&/g, '&#38;', /"/g, '&#34;', /'/g, '&#39;', /</g, '&#60;', />/g, '&#62;'];
-	var quot_esc = [/"/g, '&#34;', /'/g, '&#39;'];
+	const html_esc = [/&/g, '&#38;', /"/g, '&#34;', /'/g, '&#39;', /</g, '&#60;', />/g, '&#62;'];
+	const quot_esc = [/"/g, '&#34;', /'/g, '&#39;'];
 
+	/**
+	 * Escape a string.
+	 * @private
+	 * @function esc
+	 * @param {string} s
+	 * @param {string} r
+	 * @returns {string}
+	 */
 	function esc(s, r) {
-		var t = typeof(s);
+		const t = typeof(s);
 
 		if (s == null || t === 'object' || t === 'function')
 			return '';
@@ -533,52 +664,44 @@ String.prototype.format = function()
 		if (t !== 'string')
 			s = String(s);
 
-		for (var i = 0; i < r.length; i += 2)
+		for (let i = 0; i < r.length; i += 2)
 			s = s.replace(r[i], r[i+1]);
 
 		return s;
 	}
 
-	var str = this;
-	var out = '';
-	var re = /^(([^%]*)%('.|0|\x20)?(-)?(\d+)?(\.\d+)?(%|b|c|d|u|f|o|s|x|X|q|h|j|t|m))/;
-	var a = b = [], numSubstitutions = 0, numMatches = 0;
+	let str = this;
+	let subst, n, pad;
+	let out = '';
+	const re = /^(([^%]*)%('.|0|\x20)?(-)?(\d+)?(\.\d+)?(%|b|c|d|u|f|o|s|x|X|q|h|j|t|m))/;
+	let a = [], numSubstitutions = 0;
 
-	while (a = re.exec(str)) {
-		var m = a[1];
-		var leftpart = a[2], pPad = a[3], pJustify = a[4], pMinLength = a[5];
-		var pPrecision = a[6], pType = a[7];
-
-		numMatches++;
+	while ((a = re.exec(str)) !== null) {
+		const m = a[1];
+		let leftpart = a[2], pPad = a[3], pJustify = a[4], pMinLength = a[5];
+		let pPrecision = a[6], pType = a[7];
+		let precision;
 
 		if (pType == '%') {
 			subst = '%';
 		}
 		else {
 			if (numSubstitutions < arguments.length) {
-				var param = arguments[numSubstitutions++];
+				let param = arguments[numSubstitutions++];
 
-				var pad = '';
+				pad = '';
 				if (pPad && pPad.substr(0,1) == "'")
-					pad = leftpart.substr(1,1);
+					pad = pPad.substr(1,1);
 				else if (pPad)
 					pad = pPad;
 				else
 					pad = ' ';
 
-				var justifyRight = true;
-				if (pJustify && pJustify === "-")
-					justifyRight = false;
-
-				var minLength = -1;
-				if (pMinLength)
-					minLength = +pMinLength;
-
-				var precision = -1;
+				precision = -1;
 				if (pPrecision && pType == 'f')
 					precision = +pPrecision.substring(1);
 
-				var subst = param;
+				subst = param;
 
 				switch(pType) {
 					case 'b':
@@ -594,7 +717,7 @@ String.prototype.format = function()
 						break;
 
 					case 'u':
-						var n = +param || 0;
+						n = +param || 0;
 						subst = Math.floor((n < 0) ? 0x100000000 + n : n).toFixed(0);
 						break;
 
@@ -679,7 +802,7 @@ String.prototype.format = function()
 
 		if (pMinLength) {
 			subst = subst.toString();
-			for (var i = subst.length; i < pMinLength; i++)
+			for (let i = subst.length; i < pMinLength; i++)
 				if (pJustify == '-')
 					subst = subst + ' ';
 				else
@@ -693,26 +816,48 @@ String.prototype.format = function()
 	return out + str;
 }
 
+/**
+ * Format a string using positional arguments.
+ * @function nobr
+ * @memberof external:String.prototype
+ * @param {...string} args
+ * @returns {string}
+ */
 String.prototype.nobr = function()
 {
 	return this.replace(/[\s\n]+/g, '&#160;');
 }
 
+/**
+ * Format a string using positional arguments.
+ * @function format
+ * @memberof external:String
+ * @param {...string} args
+ * @returns {string}
+ */
 String.format = function()
 {
-	var a = [ ];
+	const a = [ ];
 
-	for (var i = 1; i < arguments.length; i++)
+	for (let i = 1; i < arguments.length; i++) {
 		a.push(arguments[i]);
+	}
 
 	return ''.format.apply(arguments[0], a);
 }
 
+/**
+ * Format a string using positional arguments.
+ * @function nobr
+ * @memberof external:String
+ * @param {...string} args
+ * @returns {string}
+ */
 String.nobr = function()
 {
-	var a = [ ];
+	const a = [ ];
 
-	for (var i = 1; i < arguments.length; i++)
+	for (let i = 1; i < arguments.length; i++)
 		a.push(arguments[i]);
 
 	return ''.nobr.apply(arguments[0], a);
@@ -736,27 +881,62 @@ if (!window.requestAnimationFrame) {
 }
 
 
+/**
+ * Return the element for input which may be an element or an id.
+ * @param {Element|string} e - Element or id.
+ * @returns {HTMLElement|null}
+ */
 function isElem(e) { return L.dom.elem(e) }
-function toElem(s) { return L.dom.parse(s) }
+
+/**
+ * Test whether node matches a CSS selector.
+ * @param {Node} node - Node to test.
+ * @param {string} selector - CSS selector.
+ * @returns {boolean}
+ */
 function matchesElem(node, selector) { return L.dom.matches(node, selector) }
+
+/**
+ * Find the parent matching selector from node upwards.
+ * @param {Node} node - Starting node.
+ * @param {string} selector - CSS selector to match ancestor.
+ * @returns {HTMLElement|null}
+ */
 function findParent(node, selector) { return L.dom.parent(node, selector) }
+
+/**
+ * Create DOM elements using {@link L.dom.create} helper (convenience wrapper).
+ * @returns {HTMLElement}
+ */
 function E() { return L.dom.create.apply(L.dom, arguments) }
 
+/**
+ * Initialize a dropdown element into an {@link L.ui.Dropdown} instance and bind it.
+ * If already bound, this is a no-op.
+ * @param {HTMLElement} sb - The select element to convert.
+ * @returns {L.ui.Dropdown|undefined} Dropdown instance or undefined when already bound.
+ */
 function cbi_dropdown_init(sb) {
 	if (sb && L.dom.findClassInstance(sb) instanceof L.ui.Dropdown)
 		return;
 
-	var dl = new L.ui.Dropdown(sb, null, { name: sb.getAttribute('name') });
+	const dl = new L.ui.Dropdown(sb, null, { name: sb.getAttribute('name') });
 	return dl.bind(sb);
 }
 
+/**
+ * Update or initialize a table UI widget with new data.
+ * @param {HTMLElement|string} table - Table element or selector.
+ * @param {...Node[]} data - Data to update the table with.
+ * @param {string} [placeholder] - Placeholder text when empty.
+ */
 function cbi_update_table(table, data, placeholder) {
-	var target = isElem(table) ? table : document.querySelector(table);
+	const target = isElem(table) ? table : document.querySelector(table);
 
 	if (!isElem(target))
 		return;
 
-	var t = L.dom.findClassInstance(target);
+	let t = L.dom.findClassInstance(target);
 
 	if (!(t instanceof L.ui.Table)) {
 		t = new L.ui.Table(target);
@@ -764,16 +944,6 @@ function cbi_update_table(table, data, placeholder) {
 	}
 
 	t.update(data, placeholder);
-}
-
-function showModal(title, children)
-{
-	return L.showModal(title, children);
-}
-
-function hideModal()
-{
-	return L.hideModal();
 }
 
 

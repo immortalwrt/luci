@@ -6,7 +6,7 @@
 /**
  * @typedef {Object} FileStatEntry
  * @memberof LuCI.fs
-
+ *
  * @property {string} name - Name of the directory entry
  * @property {string} type - Type of the entry, one of `block`, `char`, `directory`, `fifo`, `symlink`, `file`, `socket` or `unknown`
  * @property {number} size - Size in bytes
@@ -28,52 +28,43 @@
  * @property {string} [stderr] - The stderr produced by the command, if any
  */
 
-var callFileList, callFileStat, callFileRead, callFileWrite, callFileRemove,
-    callFileExec, callFileMD5;
-
-callFileList = rpc.declare({
+const callFileList = rpc.declare({
 	object: 'file',
 	method: 'list',
 	params: [ 'path' ]
 });
 
-callFileStat = rpc.declare({
+const callFileStat = rpc.declare({
 	object: 'file',
 	method: 'stat',
 	params: [ 'path' ]
 });
 
-callFileRead = rpc.declare({
+const callFileRead = rpc.declare({
 	object: 'file',
 	method: 'read',
 	params: [ 'path' ]
 });
 
-callFileWrite = rpc.declare({
+const callFileWrite = rpc.declare({
 	object: 'file',
 	method: 'write',
 	params: [ 'path', 'data', 'mode' ]
 });
 
-callFileRemove = rpc.declare({
+const callFileRemove = rpc.declare({
 	object: 'file',
 	method: 'remove',
 	params: [ 'path' ]
 });
 
-callFileExec = rpc.declare({
+const callFileExec = rpc.declare({
 	object: 'file',
 	method: 'exec',
 	params: [ 'command', 'params', 'env' ]
 });
 
-callFileMD5 = rpc.declare({
-	object: 'file',
-	method: 'md5',
-	params: [ 'path' ]
-});
-
-var rpcErrors = [
+const rpcErrors = [
 	null,
 	'InvalidCommandError',
 	'InvalidArgumentError',
@@ -85,21 +76,28 @@ var rpcErrors = [
 	'UnsupportedError'
 ];
 
+/**
+ * Handle an RPC reply.
+ * @param {object} expect
+ * @param {number} rc
+ * @throws {Error}
+ * @returns {number}
+ */
 function handleRpcReply(expect, rc) {
 	if (typeof(rc) == 'number' && rc != 0) {
-		var e = new Error(rpc.getStatusText(rc)); e.name = rpcErrors[rc] || 'Error';
+		let e = new Error(rpc.getStatusText(rc)); e.name = rpcErrors[rc] || 'Error';
 		throw e;
 	}
 
 	if (expect) {
-		var type = Object.prototype.toString;
+		const type = Object.prototype.toString;
 
-		for (var key in expect) {
+		for (let key in expect) {
 			if (rc != null && key != '')
 				rc = rc[key];
 
 			if (rc == null || type.call(rc) != type.call(expect[key])) {
-				var e = new Error(_('Unexpected reply data format')); e.name = 'TypeError';
+				let e = new Error(_('Unexpected reply data format')); e.name = 'TypeError';
 				throw e;
 			}
 
@@ -110,6 +108,12 @@ function handleRpcReply(expect, rc) {
 	return rc;
 }
 
+/**
+ * Handle a CGI-IO reply.
+ * @param {object} res
+ * @throws {Error}
+ * @returns {string}
+ */
 function handleCgiIoReply(res) {
 	if (!res.ok || res.status != 200) {
 		var e = new Error(res.statusText);
@@ -165,7 +169,7 @@ var FileSystem = baseclass.extend(/** @lends LuCI.fs.prototype */ {
 	 * Returns a promise resolving to an array of stat detail objects or
 	 * rejecting with an error stating the failure reason.
 	 */
-	list: function(path) {
+	list(path) {
 		return callFileList(path).then(handleRpcReply.bind(this, { entries: [] }));
 	},
 
@@ -179,7 +183,7 @@ var FileSystem = baseclass.extend(/** @lends LuCI.fs.prototype */ {
 	 * Returns a promise resolving to a stat detail object or
 	 * rejecting with an error stating the failure reason.
 	 */
-	stat: function(path) {
+	stat(path) {
 		return callFileStat(path).then(handleRpcReply.bind(this, { '': {} }));
 	},
 
@@ -194,7 +198,7 @@ var FileSystem = baseclass.extend(/** @lends LuCI.fs.prototype */ {
 	 * Returns a promise resolving to a string containing the file contents or
 	 * rejecting with an error stating the failure reason.
 	 */
-	read: function(path) {
+	read(path) {
 		return callFileRead(path).then(handleRpcReply.bind(this, { data: '' }));
 	},
 
@@ -220,7 +224,7 @@ var FileSystem = baseclass.extend(/** @lends LuCI.fs.prototype */ {
 	 * Returns a promise resolving to `0` or rejecting with an error stating
 	 * the failure reason.
 	 */
-	write: function(path, data, mode) {
+	write(path, data, mode) {
 		data = (data != null) ? String(data) : '';
 		mode = (mode != null) ? mode : 420; // 0644
 		return callFileWrite(path, data, mode).then(handleRpcReply.bind(this, { '': 0 }));
@@ -236,7 +240,7 @@ var FileSystem = baseclass.extend(/** @lends LuCI.fs.prototype */ {
 	 * Returns a promise resolving to `0` or rejecting with an error stating
 	 * the failure reason.
 	 */
-	remove: function(path) {
+	remove(path) {
 		return callFileRemove(path).then(handleRpcReply.bind(this, { '': 0 }));
 	},
 
@@ -265,7 +269,7 @@ var FileSystem = baseclass.extend(/** @lends LuCI.fs.prototype */ {
 	 * Returns a promise resolving to an object describing the execution
 	 * results or rejecting with an error stating the failure reason.
 	 */
-	exec: function(command, params, env) {
+	exec(command, params, env) {
 		if (!Array.isArray(params))
 			params = null;
 
@@ -293,7 +297,7 @@ var FileSystem = baseclass.extend(/** @lends LuCI.fs.prototype */ {
 	 * Returns a promise resolving to the file contents or the empty string
 	 * on failure.
 	 */
-	trimmed: function(path) {
+	trimmed(path) {
 		return L.resolveDefault(this.read(path), '').then(function(s) {
 			return s.trim();
 		});
@@ -314,7 +318,7 @@ var FileSystem = baseclass.extend(/** @lends LuCI.fs.prototype */ {
 	 * Returns a promise resolving to an array containing the stripped lines
 	 * of the given file or `[]` on failure.
 	 */
-	lines: function(path) {
+	lines(path) {
 		return L.resolveDefault(this.read(path), '').then(function(s) {
 			var lines = [];
 
@@ -355,7 +359,7 @@ var FileSystem = baseclass.extend(/** @lends LuCI.fs.prototype */ {
 	 * to the specified type or rejecting with an error stating the failure
 	 * reason.
 	 */
-	read_direct: function(path, type) {
+	read_direct(path, type) {
 		var postdata = 'sessionid=%s&path=%s'
 			.format(encodeURIComponent(L.env.sessionid), encodeURIComponent(path));
 
@@ -401,7 +405,7 @@ var FileSystem = baseclass.extend(/** @lends LuCI.fs.prototype */ {
 	 * Whether to include stderr output in command output. This is usually
 	 * not needed but can be useful to execute a command and get full output.
 	 *
-	 * @param {function} [responseProgress=null]
+	 * @param {function()} [responseProgress=null]
 	 * An optional request callback function which receives ProgressEvent
 	 * instances as sole argument during the HTTP response transfer. This is
 	 * usually not needed but can be useful to receive realtime command
@@ -412,7 +416,7 @@ var FileSystem = baseclass.extend(/** @lends LuCI.fs.prototype */ {
 	 * according to the specified type or rejecting with an error stating the
 	 * failure reason.
 	 */
-	exec_direct: function(command, params, type, latin1, stderr, responseProgress) {
+	exec_direct(command, params, type, latin1, stderr, responseProgress) {
 		var cmdstr = String(command)
 			.replace(/\\/g, '\\\\').replace(/(\s)/g, '\\$1');
 

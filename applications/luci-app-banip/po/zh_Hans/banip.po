@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-02-04 12:41+0000\n"
+"PO-Revision-Date: 2026-02-18 07:10+0000\n"
 "Last-Translator: 大王叫我来巡山 "
 "<hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
@@ -9,7 +9,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 5.16.1-dev\n"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:602
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:671
@@ -248,7 +248,7 @@ msgstr "此标签页上进行的更改需要重启 banIP 服务才能生效。"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/feeds.js:306
 msgid "Clear"
-msgstr "清理"
+msgstr "清除"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:722
 msgid "Collection of IP addresses based on Autonomous System Numbers."
@@ -257,15 +257,8 @@ msgstr "基于 ASN 号码的 IP 地址集。"
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:40
 msgid ""
 "Configuration of the banIP package to ban incoming and outgoing IPs via "
-"named nftables Sets. For further information please check the <a "
-"style=\"color:#37c;font-weight:bold;\" href=\"https://github.com/openwrt/"
-"packages/blob/master/net/banip/files/README.md\" target=\"_blank\" "
-"rel=\"noreferrer noopener\" >online documentation</a>"
-msgstr ""
-"配置 banIP 包，通过命名的 nftables 集封禁传入和传出的 IP 地址。更多信息请查"
-"看 <a style=\"color:#37c;font-weight:bold;\" href=\"https://github.com/"
-"openwrt/packages/blob/master/net/banip/files/README.md\" target=\"_blank\" "
-"rel=\"noreferrer noopener\" >在线文档</a>"
+"named nftables Sets. For further information please check the %s."
+msgstr "配置 banIP 包通过命名的 nftables 集封禁入站和出站 IP。进一步信息请见 %s。"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:211
 msgid "Count"
@@ -1041,7 +1034,7 @@ msgstr "所选的优先级将用于 banIP 后台处理。"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/logtemplate.js:50
 msgid "The syslog output, pre-filtered for messages related to: %s"
-msgstr "预过滤的系统日志输出，获取与下列项目相关的消息：%s"
+msgstr "预过滤的系统日志输出，获取与下列项目相关的消息： %s"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/allowlist.js:32
 msgid ""
@@ -1050,9 +1043,9 @@ msgid ""
 "exactly one MAC/IPv4/IPv6 address or domain name per line. Ranges in CIDR "
 "notation and MAC/IP-bindings are allowed."
 msgstr ""
-"这是本地 banIP 白名单，会允许特定的 MAC、IP 地址或域名。<br /><em><b>请注意："
-"</b></em>每行只能添加一个 MAC/IPv4/IPv6 地址或域名。允许 CIDR 格式的 IP 范围"
-"和 MAC/IP 绑定。"
+"这是本地 banIP 白名单，会允许特定的 MAC、IP 地址或域名。<br /> <em><b>请注意"
+"： </b></em> 每行只能添加一个 MAC/IPv4/IPv6 地址或域名。允许 CIDR 格式的 IP "
+"范围和 MAC/IP 绑定。"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/blocklist.js:32
 msgid ""
@@ -1061,9 +1054,9 @@ msgid ""
 "exactly one MAC/IPv4/IPv6 address or domain name per line. Ranges in CIDR "
 "notation and MAC/IP-bindings are allowed."
 msgstr ""
-"这是本地 banIP 黑名单，会拦截特定的 MAC、IP 地址或域名。<br /><em><b>请注意："
-"</b></em>每行只能添加一个 MAC/IPv4/IPv6 地址或域名。允许 CIDR 格式的 IP 范围"
-"和 MAC/IP 绑定。"
+"这是本地 banIP 黑名单，会拦截特定的 MAC、IP 地址或域名。<br /> <em><b>请注意"
+"： </b></em> 每行只能添加一个 MAC/IPv4/IPv6 地址或域名。允许 CIDR 格式的 IP "
+"范围和 MAC/IP 绑定。"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/setreport.js:248
 msgid ""
@@ -1137,7 +1130,7 @@ msgstr "无法解析运行时信息！"
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/allowlist.js:55
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/blocklist.js:55
 msgid "Unable to save modifications: %s"
-msgstr "无法保存更改：%s"
+msgstr "无法保存更改： %s"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/feeds.js:288
 msgid "Upload"
@@ -1236,7 +1229,7 @@ msgstr "错误项"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:554
 msgid "info"
-msgstr "信息项"
+msgstr "信息"
 
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:484
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:495
@@ -1266,6 +1259,10 @@ msgstr "nginx 可疑 IP"
 msgid "notice"
 msgstr "通知"
 
+#: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:41
+msgid "online documentation"
+msgstr "在线文档"
+
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:600
 msgid "openvpn TLS error"
 msgstr "openvpn TLS 错误"
@@ -1289,6 +1286,18 @@ msgstr "sshd 登录失败"
 #: applications/luci-app-banip/htdocs/luci-static/resources/view/banip/overview.js:552
 msgid "warn"
 msgstr "警告"
+
+#~ msgid ""
+#~ "Configuration of the banIP package to ban incoming and outgoing IPs via "
+#~ "named nftables Sets. For further information please check the <a "
+#~ "style=\"color:#37c;font-weight:bold;\" href=\"https://github.com/openwrt/"
+#~ "packages/blob/master/net/banip/files/README.md\" target=\"_blank\" "
+#~ "rel=\"noreferrer noopener\" >online documentation</a>"
+#~ msgstr ""
+#~ "配置 banIP 包，通过命名的 nftables 集封禁传入和传出的 IP 地址。更多信息请"
+#~ "查看 <a style=\"color:#37c;font-weight:bold;\" href=\"https://github.com/"
+#~ "openwrt/packages/blob/master/net/banip/files/README.md\" "
+#~ "target=\"_blank\" rel=\"noreferrer noopener\" >在线文档</a>"
 
 #~ msgid "<DATE><IPv4><SPACE>"
 #~ msgstr "<DATE><IPv4><SPACE>"

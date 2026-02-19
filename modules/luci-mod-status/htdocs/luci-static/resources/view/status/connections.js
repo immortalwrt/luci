@@ -5,93 +5,106 @@
 'require rpc';
 'require fs';
 
-var callLuciRealtimeStats = rpc.declare({
+const callLuciRealtimeStats = rpc.declare({
 	object: 'luci',
 	method: 'getRealtimeStats',
 	params: [ 'mode', 'device' ],
 	expect: { result: [] }
 });
 
-var callLuciConntrackList = rpc.declare({
+const callLuciConntrackList = rpc.declare({
 	object: 'luci',
 	method: 'getConntrackList',
 	expect: { result: [] }
 });
 
-var callNetworkRrdnsLookup = rpc.declare({
+const callNetworkRrdnsLookup = rpc.declare({
 	object: 'network.rrdns',
 	method: 'lookup',
 	params: [ 'addrs', 'timeout', 'limit' ],
 	expect: { '': {} }
 });
 
-var callLuciRpcGetHostHints = rpc.declare({
+const callLuciRpcGetHostHints = rpc.declare({
 	object: 'luci-rpc',
 	method: 'getHostHints',
 	expect: { '': {} }
 });
 
-var graphPolls = [],
-	pollInterval = 3,
-	dns_cache = {},
-	service_cache = {},
-	enableLookups = false,
-	filterText = '';
+const callLuciRpcGetNetworkDevices = rpc.declare({
+	object: 'luci-rpc',
+	method: 'getNetworkDevices',
+	expect: { '': {} }
+});
 
-var recheck_lookup_queue = {};
+const callLuciRpcGetDHCPLeases = rpc.declare({
+	object: 'luci-rpc',
+	method: 'getDHCPLeases',
+	expect: { '': {} }
+});
+
+const graphPolls = [];
+const pollInterval = 3;
+const dns_cache = Object.create(null);
+const service_cache = Object.create(null);
+const ethers_cache = Object.create(null);
+let ethers_cache_is_loaded = false;
+let enableLookups = false;
+let filterText = '';
+
+const recheck_lookup_queue = {};
 
 Math.log2 = Math.log2 || function(x) { return Math.log(x) * Math.LOG2E; };
 
 return view.extend({
-	load: function() {
+	load() {
 		return Promise.all([
 			this.loadSVG(L.resource('svg/connections.svg'))
 		]);
 	},
 
-	updateGraph: function(svg, lines, cb) {
-		var G = svg.firstElementChild;
+	updateGraph(svg, lines, cb) {
+		const G = svg.firstElementChild;
 
-		var view = document.querySelector('#view');
+		const view = document.querySelector('#view');
 
-		var width  = view.offsetWidth - 2;
-		var height = 300 - 2;
-		var step   = 5;
+		const width  = view.offsetWidth - 2;
+		const height = 300 - 2;
+		const step   = 5;
 
-		var data_wanted = Math.floor(width / step);
+		const data_wanted = Math.floor(width / step);
 
-		var data_values = [],
-		    line_elements = [];
+		const data_values = [];
 
-		for (var i = 0; i < lines.length; i++)
-			if (lines[i] != null)
+		for (let line of lines)
+			if (line != null)
 				data_values.push([]);
 
-		var info = {
+		const info = {
 			line_current: [],
 			line_average: [],
 			line_peak:    []
 		};
 
 		/* prefill datasets */
-		for (var i = 0; i < data_values.length; i++)
-			for (var j = 0; j < data_wanted; j++)
-					data_values[i][j] = 0;
+		for (let dv of data_values)
+			for (let j = 0; j < data_wanted; j++)
+					dv[j] = 0;
 
 		/* plot horizontal time interval lines */
-		for (var i = width % (step * 60); i < width; i += step * 60) {
-			var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-				line.setAttribute('x1', i);
-				line.setAttribute('y1', 0);
-				line.setAttribute('x2', i);
-				line.setAttribute('y2', '100%');
-				line.setAttribute('style', 'stroke:black;stroke-width:0.1');
+		for (let i = width % (step * 60); i < width; i += step * 60) {
+			const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+			line.setAttribute('x1', i);
+			line.setAttribute('y1', 0);
+			line.setAttribute('x2', i);
+			line.setAttribute('y2', '100%');
+			line.setAttribute('style', 'stroke:black;stroke-width:0.1');
 
-			var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-				text.setAttribute('x', i + 5);
-				text.setAttribute('y', 15);
-				text.setAttribute('style', 'fill:#eee; font-size:9pt; font-family:sans-serif; text-shadow:1px 1px 1px #000');
-				text.appendChild(document.createTextNode(Math.round((width - i) / step / 60) + 'm'));
+			const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+			text.setAttribute('x', i + 5);
+			text.setAttribute('y', 15);
+			text.setAttribute('style', 'fill:#eee; font-size:9pt; font-family:sans-serif; text-shadow:1px 1px 1px #000');
+			text.appendChild(document.createTextNode(Math.round((width - i) / step / 60) + 'm'));
 
 			G.appendChild(line);
 			G.appendChild(text);
@@ -114,279 +127,284 @@ return view.extend({
 		});
 	},
 
-	updateConntrack: function(conn) {
-		function fetchServices() {
-			if (Object.keys(service_cache).length > 0) return;
+	async updateConntrack(conn) {
+			async function fetchServices() {
+					if (!enableLookups) return;
+					if (Object.keys(service_cache).length > 0) return;
 
-			fs.read('/etc/services')
-				.then((rawData) => {
-					const lines = rawData.split('\n');  // Split data into lines
-					// Parse each line to extract port and service info
-					lines.forEach(line => {
-						const match = line.match(/^([\w-]+)\s+(\d+)\/(\w+)/);  // Regex to match service definition
-						if (match) {
-							const [, service, port, protocol] = match;
-							// Cache the service info by port and protocol
-							if (!service_cache[port]) service_cache[port] = {};
-							service_cache[port][protocol] = service;
-						}
-					});
-				})
-				.catch((error) => {
-					console.error('Error fetching services:', error);
-				});
-		}
+					try {
+							const rawData = await fs.read('/etc/services');
+							const lines = rawData.split('\n');
 
-		function joinAddressWithPortOrServiceName(address, port, protocol) {
-			if (!port) return address;
-
-			if (enableLookups) {
-				fetchServices();
-				const service = service_cache[Number(port)]?.[protocol];
-				if (service)
-					return `${address}:${service}`;
-			}
-			return `${address}:${port}`;
-		}
-
-		var lookup_queue = [ ];
-		var rows = [];
-
-		conn.sort(function(a, b) {
-			return b.bytes - a.bytes;
-		});
-
-		for (var i = 0; i < conn.length; i++)
-		{
-			var c  = conn[i];
-
-			if ((c.src == '127.0.0.1' && c.dst == '127.0.0.1') ||
-				(c.src == '::1'       && c.dst == '::1'))
-				continue;
-
-			if (!dns_cache[c.src] && lookup_queue.indexOf(c.src) == -1)
-				lookup_queue.push(c.src);
-
-			if (!dns_cache[c.dst] && lookup_queue.indexOf(c.dst) == -1)
-				lookup_queue.push(c.dst);
-
-			var src = dns_cache[c.src] || (c.layer3 == 'ipv6' ? '[' + c.src + ']' : c.src);
-			var dst = dns_cache[c.dst] || (c.layer3 == 'ipv6' ? '[' + c.dst + ']' : c.dst);
-
-			const network = c.layer3.toUpperCase();
-			const protocol = c.layer4.toUpperCase();
-			const source ='%h'.format(joinAddressWithPortOrServiceName(src, c.sport, protocol));
-			const destination = '%h'.format(joinAddressWithPortOrServiceName(dst, c.dport, protocol));
-			const transfer = [ c.bytes, '%1024.2mB (%d %s)'.format(c.bytes, c.packets, _('Pkts.')) ];
-
-			if (filterText) {
-				let filterTextExpressions = filterText.split(' ');
-				if (filterTextExpressions.some((element) => element.toUpperCase() !== network && element.toUpperCase() !== protocol 
-						&& !(c.src.includes(element) || source.includes(element))
-						&& !(c.dst.includes(element) || destination.includes(element)))) {
-					continue;
-				}
-			}
-
-			rows.push([
-				network,
-				protocol,
-				source,
-				destination,
-				transfer,
-			]);
-		}
-
-		cbi_update_table('#connections', rows, E('em', _('No information available')));
-
-		if (enableLookups && lookup_queue.length > 0) {
-			// Take a batch of max 100 addresses
-			const reduced_lookup_queue = lookup_queue.length > 100
-				? lookup_queue.slice(0, 100)
-				: lookup_queue;
-
-			const checked = new Set(reduced_lookup_queue);
-
-			callNetworkRrdnsLookup(reduced_lookup_queue, 5000, 1000).then(function (replies) {
-				const unresolved = [];
-
-				// Remove resolved addresses from lookup_queue, keep unresolved
-				lookup_queue = lookup_queue.filter(address => {
-					if (!checked.has(address)) return true; // outside this batch → keep
-					if (replies[address]) {
-						dns_cache[address] = replies[address];
-						return false; // resolved → remove
+							for (const line of lines) {
+									const match = line.match(/^([\w-]+)\s+(\d+)\/(\w+)/);
+									if (match) {
+											const service = match[1].toUpperCase();
+											const port = match[2];
+											const protocol = match[3].toUpperCase();
+											if (!(port in service_cache)) service_cache[port] = {};
+											service_cache[port][protocol] = service;
+									}
+							}
+					} catch (err) {
+							console.error('Error fetching services:', err);
 					}
-					unresolved.push(address);
-					return true; // unresolved → keep
-				});
+			}
 
-				if (unresolved.length > 0) {
-					callLuciRpcGetHostHints().then(function (hints) {
-						const ipNameMap = {};
+			function joinAddressWithPortOrServiceName(address, port, protocol) {
+					if (!port) return address;
+					if (enableLookups) {
+							const service = service_cache[port]?.[protocol];
+							if (service) return `${address}:${service}`;
+					}
+					return `${address}:${port}`;
+			}
 
-						for (const hint of Object.values(hints || {})) {
-							if (!hint || !hint.name) continue;
-							for (const ip of [...(hint.ipaddrs || []), ...(hint.ip6addrs || [])]) {
-								ipNameMap[ip] = hint.name;
+			await fetchServices();
+
+			const lookup_queue = new Set();
+			const rows = [];
+
+			conn.sort((a, b) => b.bytes - a.bytes);
+
+			for (const c of conn) {
+					if ((c.src === '127.0.0.1' && c.dst === '127.0.0.1') ||
+							(c.src === '::1' && c.dst === '::1'))
+							continue;
+
+					if (enableLookups) {
+							if (!(c.src in dns_cache)) lookup_queue.add(c.src);
+							if (!(c.dst in dns_cache)) lookup_queue.add(c.dst);
+					}
+
+					const src = enableLookups && (c.src in dns_cache) ? dns_cache[c.src] : (c.layer3 === 'ipv6' ? `[${c.src}]` : c.src);
+					const dst = enableLookups && (c.dst in dns_cache) ? dns_cache[c.dst] : (c.layer3 === 'ipv6' ? `[${c.dst}]` : c.dst);
+					const network = c.layer3.toUpperCase();
+					const protocol = c.layer4.toUpperCase();
+					const source = '%h'.format(joinAddressWithPortOrServiceName(src, c.sport, protocol));
+					const destination = '%h'.format(joinAddressWithPortOrServiceName(dst, c.dport, protocol));
+					const transfer = [c.bytes, '%1024.2mB (%d %s)'.format(c.bytes, c.packets, _('Pkts.'))];
+
+					if (filterText) {
+							const filterTextExpressions = filterText.split(' ');
+							if (filterTextExpressions.some(el => el.toUpperCase() !== network && el.toUpperCase() !== protocol
+									&& !c.src.includes(el) && !source.includes(el)
+									&& !c.dst.includes(el) && !destination.includes(el))) {
+									continue;
 							}
-						}
+					}
 
-						// Apply host hints and recheck logic
-						lookup_queue = lookup_queue.filter(address => {
-							if (!checked.has(address)) return true; // outside batch → keep
-							if (ipNameMap[address]) {
-								dns_cache[address] = ipNameMap[address]
-								return false; // resolved → remove
+					rows.push([network, protocol, source, destination, transfer]);
+			}
+
+			cbi_update_table('#connections', rows, E('em', _('No information available')));
+
+			if (!enableLookups || lookup_queue.size === 0) return;
+
+			const reduced_lookup_queue = lookup_queue.size > 100
+					? new Set([...lookup_queue].slice(0, 100))
+					: new Set(lookup_queue);
+
+			async function softFailure(fn) {
+					try {
+							return await fn();
+					} catch (err) {
+							console.debug('Lookup failed:', err);
+							return null;
+					}
+			}
+
+			function updateDnsCache(addr, name) {
+					if (!addr || !name) return;
+					if (!(addr in dns_cache)) dns_cache[addr] = name;
+					lookup_queue.delete(addr);
+					reduced_lookup_queue.delete(addr);
+			}
+
+			// 1. DHCP Leases
+			const leases = await softFailure(() => callLuciRpcGetDHCPLeases());
+			if (leases && Object.keys(leases).length !== 0) {
+					for (const lease of [...(leases.dhcp_leases || []), ...(leases.dhcp6_leases || [])]) {
+							const addr = lease.ipaddr || lease.ip6addr;
+							updateDnsCache(addr, lease.hostname);
+					}
+			}
+
+			if (reduced_lookup_queue.size > 0) {
+					// 2. Reverse DNS Lookup
+					const dnsReplies = await softFailure(() => callNetworkRrdnsLookup([...reduced_lookup_queue], 5000, 1000));
+					if (dnsReplies && Object.keys(dnsReplies).length !== 0) {
+							for (const addr of Object.keys(dnsReplies)) updateDnsCache(addr, dnsReplies[addr]);
+					}
+			}
+
+			if (reduced_lookup_queue.size > 0) {
+					// 3. Resolve names via hints
+					const hints = ethers_cache_is_loaded ? ethers_cache : await softFailure(() => callLuciRpcGetHostHints());
+
+					if (hints && Object.keys(hints).length !== 0) {
+							for (const [ether, obj] of Object.entries(hints)) {
+									if (!ether || !obj?.name) continue;
+									if (!(ether in ethers_cache) && Object.keys(obj).length !== 0) ethers_cache[ether] = obj;
+									for (const addr of [...(obj.ipaddrs || []), ...(obj.ip6addrs || [])])
+											updateDnsCache(addr, obj.name);
 							}
+							if (Object.keys(ethers_cache).length) ethers_cache_is_loaded = true;
+					}
+			}
 
-							if ((recheck_lookup_queue[address] || 0) > 2) {
-								dns_cache[address] = address.includes(':') ? `[${address}]` : address;
-								return false; // give up → remove
+			if (reduced_lookup_queue.size > 0) {
+					// 4. Network devices
+					const devices = await softFailure(() => callLuciRpcGetNetworkDevices());
+					if (devices) {
+							for (const device of Object.values(devices)) {
+									if (!device.mac) continue;
+									const name = ethers_cache[device.mac]?.name;
+									if (!name) continue;
+									for (const item of [...(device.ipaddrs || []), ...(device.ip6addrs || [])])
+											updateDnsCache(item.address, name);
 							}
+					}
+			}
 
+			// Final cleanup for unresolved addresses
+			for (const address of reduced_lookup_queue)
+					if ((recheck_lookup_queue[address] || 0) > 2)
+							dns_cache[address] = address.includes(':') ? `[${address}]` : address;
+					else
 							recheck_lookup_queue[address] = (recheck_lookup_queue[address] || 0) + 1;
-							return true; // unresolved → keep
-						});
-					});
-				}
 
-				var btn = document.querySelector('.btn.toggle-lookups');
-				if (btn) {
+			const btn = document.querySelector('.btn.toggle-lookups');
+			if (btn) {
 					btn.firstChild.data = enableLookups ? _('Disable DNS lookups') : _('Enable DNS lookups');
 					btn.classList.remove('spinning');
 					btn.disabled = false;
-				}
-			});
-		}
+			}
 	},
 
-	pollData: function() {
-		poll.add(L.bind(function() {
-			var tasks = [
+	async pollData() {
+		poll.add(L.bind(async function() {
+			const tasks = [
 				L.resolveDefault(callLuciConntrackList(), [])
 			];
 
-			for (var i = 0; i < graphPolls.length; i++) {
-				var ctx = graphPolls[i];
+			graphPolls.forEach(() => {
 				tasks.push(L.resolveDefault(callLuciRealtimeStats('conntrack'), []));
-			}
+			});
 
-			return Promise.all(tasks).then(L.bind(function(datasets) {
-				this.updateConntrack(datasets[0]);
+			const datasets = await Promise.all(tasks);
+			await this.updateConntrack(datasets[0]);
+			for (let gi = 0; gi < graphPolls.length; gi++) {
+				const ctx = graphPolls[gi];
+				const data = datasets[gi + 1];
+				const values = ctx.values;
+				const lines = ctx.lines;
+				const info = ctx.info;
 
-				for (var gi = 0; gi < graphPolls.length; gi++) {
-					var ctx = graphPolls[gi],
-					    data = datasets[gi + 1],
-					    values = ctx.values,
-					    lines = ctx.lines,
-					    info = ctx.info;
+				let data_scale = 0;
+				let data_wanted = Math.floor(ctx.width / ctx.step);
+				let last_timestamp = NaN;
 
-					var data_scale = 0;
-					var data_wanted = Math.floor(ctx.width / ctx.step);
-					var last_timestamp = NaN;
+				for (let i = 0, di = 0; di < lines.length; di++) {
+					if (lines[di] == null)
+						continue;
 
-					for (var i = 0, di = 0; di < lines.length; di++) {
-						if (lines[di] == null)
+					const multiply = (lines[di].multiply != null) ? lines[di].multiply : 1;
+					const offset = (lines[di].offset != null) ? lines[di].offset : 0;
+
+					for (let j = ctx.timestamp ? 0 : 1; j < data.length; j++) {
+						/* skip overlapping entries */
+						if (data[j][0] <= ctx.timestamp)
 							continue;
 
-						var multiply = (lines[di].multiply != null) ? lines[di].multiply : 1,
-						    offset = (lines[di].offset != null) ? lines[di].offset : 0;
-
-						for (var j = ctx.timestamp ? 0 : 1; j < data.length; j++) {
-							/* skip overlapping entries */
-							if (data[j][0] <= ctx.timestamp)
-								continue;
-
-							if (i == 0) {
-								ctx.fill++;
-								last_timestamp = data[j][0];
-							}
-
-							info.line_current[i] = data[j][di + 1] * multiply;
-							info.line_current[i] -= Math.min(info.line_current[i], offset);
-							values[i].push(info.line_current[i]);
+						if (i == 0) {
+							ctx.fill++;
+							last_timestamp = data[j][0];
 						}
 
-						i++;
+						info.line_current[i] = data[j][di + 1] * multiply;
+						info.line_current[i] -= Math.min(info.line_current[i], offset);
+						values[i].push(info.line_current[i]);
 					}
 
-					/* cut off outdated entries */
-					ctx.fill = Math.min(ctx.fill, data_wanted);
-
-					for (var i = 0; i < values.length; i++) {
-						var len = values[i].length;
-						values[i] = values[i].slice(len - data_wanted, len);
-
-						/* find peaks, averages */
-						info.line_peak[i] = NaN;
-						info.line_average[i] = 0;
-
-						for (var j = 0; j < values[i].length; j++) {
-							info.line_peak[i] = isNaN(info.line_peak[i]) ? values[i][j] : Math.max(info.line_peak[i], values[i][j]);
-							info.line_average[i] += values[i][j];
-						}
-
-						info.line_average[i] = info.line_average[i] / ctx.fill;
-					}
-
-					info.peak = Math.max.apply(Math, info.line_peak);
-
-					/* remember current timestamp, calculate horizontal scale */
-					if (!isNaN(last_timestamp))
-						ctx.timestamp = last_timestamp;
-
-					var size = Math.floor(Math.log2(info.peak)),
-					    div = Math.pow(2, size - (size % 10)),
-					    mult = info.peak / div,
-					    mult = (mult < 5) ? 2 : ((mult < 50) ? 10 : ((mult < 500) ? 100 : 1000));
-
-					info.peak = info.peak + (mult * div) - (info.peak % (mult * div));
-
-					data_scale = ctx.height / info.peak;
-
-					/* plot data */
-					for (var i = 0, di = 0; di < lines.length; di++) {
-						if (lines[di] == null)
-							continue;
-
-						var el = ctx.svg.firstElementChild.getElementById(lines[di].line),
-						    pt = '0,' + ctx.height,
-						    y = 0;
-
-						if (!el)
-							continue;
-
-						for (var j = 0; j < values[i].length; j++) {
-							var x = j * ctx.step;
-
-							y = ctx.height - Math.floor(values[i][j] * data_scale);
-							//y -= Math.floor(y % (1 / data_scale));
-
-							y = isNaN(y) ? ctx.height : y;
-
-							pt += ' ' + x + ',' + y;
-						}
-
-						pt += ' ' + ctx.width + ',' + y + ' ' + ctx.width + ',' + ctx.height;
-
-						el.setAttribute('points', pt);
-
-						i++;
-					}
-
-					info.label_25 = 0.25 * info.peak;
-					info.label_50 = 0.50 * info.peak;
-					info.label_75 = 0.75 * info.peak;
-
-					if (typeof(ctx.cb) == 'function')
-						ctx.cb(ctx.svg, info);
+					i++;
 				}
-			}, this));
+
+				/* cut off outdated entries */
+				ctx.fill = Math.min(ctx.fill, data_wanted);
+
+				for (let i = 0; i < values.length; i++) {
+					const len = values[i].length;
+					values[i] = values[i].slice(len - data_wanted, len);
+
+					/* find peaks, averages */
+					info.line_peak[i] = NaN;
+					info.line_average[i] = 0;
+
+					for (let j = 0; j < values[i].length; j++) {
+						info.line_peak[i] = isNaN(info.line_peak[i]) ? values[i][j] : Math.max(info.line_peak[i], values[i][j]);
+						info.line_average[i] += values[i][j];
+					}
+
+					info.line_average[i] = info.line_average[i] / ctx.fill;
+				}
+
+				info.peak = Math.max.apply(Math, info.line_peak);
+
+				/* remember current timestamp, calculate horizontal scale */
+				if (!isNaN(last_timestamp))
+					ctx.timestamp = last_timestamp;
+
+				const size = Math.floor(Math.log2(info.peak));
+				const div = Math.pow(2, size - (size % 10));
+				let mult = info.peak / div;
+				mult = (mult < 5) ? 2 : ((mult < 50) ? 10 : ((mult < 500) ? 100 : 1000));
+
+				info.peak = info.peak + (mult * div) - (info.peak % (mult * div));
+
+				data_scale = ctx.height / info.peak;
+
+				/* plot data */
+				for (let i = 0, di = 0; di < lines.length; di++) {
+					if (lines[di] == null)
+						continue;
+
+					const el = ctx.svg.firstElementChild.getElementById(lines[di].line);
+					let pt = '0,' + ctx.height;
+					let y = 0;
+
+					if (!el)
+						continue;
+
+					for (let j = 0; j < values[i].length; j++) {
+						let x = j * ctx.step;
+
+						y = ctx.height - Math.floor(values[i][j] * data_scale);
+						//y -= Math.floor(y % (1 / data_scale));
+
+						y = isNaN(y) ? ctx.height : y;
+
+						pt += ' ' + x + ',' + y;
+					}
+
+					pt += ' ' + ctx.width + ',' + y + ' ' + ctx.width + ',' + ctx.height;
+
+					el.setAttribute('points', pt);
+
+					i++;
+				}
+
+				info.label_25 = 0.25 * info.peak;
+				info.label_50 = 0.50 * info.peak;
+				info.label_75 = 0.75 * info.peak;
+
+				if (typeof(ctx.cb) == 'function')
+					ctx.cb(ctx.svg, info);
+			}
 		}, this), pollInterval);
 	},
 
-	loadSVG: function(src) {
+	loadSVG(src) {
 		return request.get(src).then(function(response) {
 			if (!response.ok)
 				throw new Error(response.statusText);
@@ -397,10 +415,9 @@ return view.extend({
 		});
 	},
 
-	render: function(data) {
-		var svg = data[0];
+	render([svg]) {
 
-		var v = E('div', { 'class': 'cbi-map', 'id': 'map' }, [
+		const v = E('div', { 'class': 'cbi-map', 'id': 'map' }, [
 			E('h2', _('Connections')),
 			E('div', {'class': 'cbi-map-descr'}, _('This page displays the active connections via this device.')),
 			E('div', { 'class': 'cbi-section' }, [
@@ -507,7 +524,7 @@ return view.extend({
 		]);
 
 		this.updateGraph(svg, [ { line: 'udp' }, { line: 'tcp' }, { line: 'other' } ], function(svg, info) {
-			var G = svg.firstElementChild, tab = svg.parentNode;
+			const G = svg.firstElementChild, tab = svg.parentNode;
 
 			G.getElementById('label_25').firstChild.data = '%d'.format(info.label_25);
 			G.getElementById('label_50').firstChild.data = '%d'.format(info.label_50);
