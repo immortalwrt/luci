@@ -6,22 +6,22 @@
 'require uci';
 'require statistics.rrdtool as rrdtool';
 
-var pollFn = null,
-    activePlugin = null,
-    activeInstance = null;
+let pollFn = null;
+let activePlugin = null;
+let activeInstance = null;
 
 return view.extend({
-	load: function() {
+	load() {
 		return rrdtool.load();
 	},
 
-	updatePluginTab: function(host, span, time, ev) {
-		var container = ev.target,
-		    width = Math.max(200, container.offsetWidth - 100),
-		    plugin = ev.detail.tab,
-		    render_instances = [],
-		    plugin_instances = rrdtool.pluginInstances(host.value, plugin),
-		    cache = {};
+	updatePluginTab(host, span, time, ev) {
+		const container = ev.target;
+		const width = Math.max(200, container.offsetWidth - 100);
+		const plugin = ev.detail.tab;
+		const render_instances = [];
+		const plugin_instances = rrdtool.pluginInstances(host.value, plugin);
+		const cache = {};
 
 		activePlugin = plugin;
 
@@ -31,7 +31,7 @@ return view.extend({
 			])
 		]);
 
-		for (var i = 0; i < plugin_instances.length; i++) {
+		for (let i = 0; i < plugin_instances.length; i++) {
 			if (rrdtool.hasInstanceDetails(host.value, plugin, plugin_instances[i])) {
 				render_instances.push([
 					plugin_instances[i],
@@ -49,9 +49,9 @@ return view.extend({
 
 		Promise.all(render_instances.map(function(instance) {
 			if (instance[0] == '-') {
-				var tasks = [];
+				const tasks = [];
 
-				for (var i = 0; i < plugin_instances.length; i++)
+				for (let i = 0; i < plugin_instances.length; i++)
 					tasks.push(rrdtool.render(plugin, plugin_instances[i], true, host.value, span.value, width, null, cache));
 
 				return Promise.all(tasks).then(function(blobs) {
@@ -62,11 +62,11 @@ return view.extend({
 				return rrdtool.render(plugin, instance[0], false, host.value, span.value, width, null, cache);
 			}
 		})).then(function(blobs) {
-			var multiple = blobs.length > 1;
+			const multiple = blobs.length > 1;
 
 			dom.content(container, E('div', {}, blobs.map(function(blobs, i) {
-				var plugin_instance = i ? render_instances[i][0] : plugin_instances.join('|'),
-				    title = render_instances[i][1];
+				const plugin_instance = i ? render_instances[i][0] : plugin_instances.join('|');
+				const title = render_instances[i][1];
 
 				return E('div', {
 					'class': 'center',
@@ -75,7 +75,7 @@ return view.extend({
 					'data-plugin': plugin,
 					'data-plugin-instance': plugin_instance,
 					'data-is-index': i || render_instances.length == 1 ? null : true,
-					'cbi-tab-active': function(ev) { activeInstance = ev.target.getAttribute('data-plugin-instance') }
+					'cbi-tab-active'(ev) { activeInstance = ev.target.getAttribute('data-plugin-instance') }
 				}, blobs.map(function(blob) {
 					return E('img', {
 						'src': URL.createObjectURL(new Blob([blob], { type: 'image/png' }))
@@ -90,8 +90,8 @@ return view.extend({
 		});
 	},
 
-	updateGraphs: function(host, span, time, container, ev) {
-		var plugin_names = rrdtool.pluginNames(host.value);
+	updateGraphs(host, span, time, container, ev) {
+		const plugin_names = rrdtool.pluginNames(host.value);
 
 		container.querySelectorAll('img').forEach(function(img) {
 			URL.revokeObjectURL(img.src);
@@ -104,7 +104,7 @@ return view.extend({
 			container.parentNode.removeChild(container.previousElementSibling);
 		}
 
-		for (var i = 0; i < plugin_names.length; i++) {
+		for (let i = 0; i < plugin_names.length; i++) {
 			if (!rrdtool.hasDefinition(plugin_names[i]))
 				continue;
 
@@ -122,10 +122,10 @@ return view.extend({
 		ui.tabs.initTabGroup(container.childNodes);
 	},
 
-	refreshGraphs: function(host, span, time, container) {
-		var div = document.querySelector('[data-plugin="%s"][data-plugin-instance="%s"]'.format(activePlugin, activeInstance || '')),
-		    width = Math.max(200, container.offsetWidth - 100),
-		    render_instances = activeInstance.split(/\|/);
+	refreshGraphs(host, span, time, container) {
+		const div = document.querySelector('[data-plugin="%s"][data-plugin-instance="%s"]'.format(activePlugin, activeInstance || ''));
+		const width = Math.max(200, container.offsetWidth - 100);
+		const render_instances = activeInstance.split(/\|/);
 
 		return Promise.all(render_instances.map(function(render_instance) {
 			return rrdtool.render(activePlugin, render_instance || '', div.hasAttribute('data-is-index'), host.value, span.value, width);
@@ -134,7 +134,7 @@ return view.extend({
 		}).then(function(blobs) {
 			return Promise.all(blobs.map(function(blob) {
 				return new Promise(function(resolveFn, rejectFn) {
-					var img = E('img', { 'src': URL.createObjectURL(new Blob([blob], { type: 'image/png' })) });
+					const img = E('img', { 'src': URL.createObjectURL(new Blob([blob], { type: 'image/png' })) });
 					img.onload = function(ev) { resolveFn(img) };
 					img.onerror = function(ev) { resolveFn(img) };
 				});
@@ -142,7 +142,7 @@ return view.extend({
 				while (div.childNodes.length > imgs.length)
 					div.removeChild(div.lastElementChild);
 
-				for (var i = 0; i < imgs.length; i++) {
+				for (let i = 0; i < imgs.length; i++) {
 					if (i < div.childNodes.length) {
 						URL.revokeObjectURL(div.childNodes[i].src);
 						div.childNodes[i].src = imgs[i].src;
@@ -155,8 +155,8 @@ return view.extend({
 		});
 	},
 
-	togglePolling: function(host, span, time, container, ev) {
-		var btn = ev.currentTarget;
+	togglePolling(host, span, time, container, ev) {
+		const btn = ev.currentTarget;
 
 		if (pollFn) {
 			poll.remove(pollFn);
@@ -169,47 +169,47 @@ return view.extend({
 		}
 	},
 
-	render: function() {
-		var hosts = rrdtool.hostInstances();
+	render() {
+		const hosts = rrdtool.hostInstances();
 		return hosts.length ? this.renderGraphs() : this.renderNoData();
 	},
 
-	renderNoData: function() {
+	renderNoData() {
 		ui.showModal(_('No RRD data found'), [
 			E('p', {}, _('There is no RRD data available yet to render graphs.')),
 			E('p', {}, _('You need to configure <em>collectd</em> to gather data into <em>.rrd</em> files.')),
 			E('div', { 'class': 'right' }, [
 				E('button', {
 					'class': 'cbi-button',
-					'click': function(ev) { location.href = 'collectd' }
+					'click'(ev) { location.href = 'collectd' }
 				}, [ _('Set up collectd') ])
 			])
 		]);
 	},
 
-	renderGraphs: function() {
-		var hostSel = E('select', { 'style': 'max-width:170px', 'data-name': 'host' }, rrdtool.hostInstances().map(function(host) {
+	renderGraphs() {
+		const hostSel = E('select', { 'style': 'max-width:170px', 'data-name': 'host' }, rrdtool.hostInstances().map(function(host) {
 			return E('option', {
 				'selected': (rrdtool.opts.host == host) ? 'selected' : null
 			}, [ host ])
 		}));
 
-		var spanSel = E('select', { 'style': 'max-width:170px', 'data-name': 'timespan' }, L.toArray(uci.get('luci_statistics', 'collectd_rrdtool', 'RRATimespans')).map(function(span) {
+		const spanSel = E('select', { 'style': 'max-width:170px', 'data-name': 'timespan' }, L.toArray(uci.get('luci_statistics', 'collectd_rrdtool', 'RRATimespans')).map(function(span) {
 			return E('option', {
 				'selected': (rrdtool.opts.timespan == span) ? 'selected' : null
 			}, [ span ])
 		}));
 
-		var timeSel = E('select', { 'style': 'max-width:170px', 'data-name': 'refresh' }, [
+		const timeSel = E('select', { 'style': 'max-width:170px', 'data-name': 'refresh' }, [
 			E('option', { 'value': 0 }, [ _('Do not refresh') ]),
 			E('option', { 'value': 5 }, [ _('Every 5 seconds') ]),
 			E('option', { 'value': 30 }, [ _('Every 30 seconds') ]),
 			E('option', { 'value': 60 }, [ _('Every minute') ])
 		]);
 
-		var graphDiv = E('div', { 'data-name': 'graphs' });
+		const graphDiv = E('div', { 'data-name': 'graphs' });
 
-		var view = E([], [
+		const view = E([], [
 			E('h2', {}, [ _('Statistics') ]),
 			E('div', {}, [
 				E('p', { 'class': 'controls' }, [
@@ -244,8 +244,8 @@ return view.extend({
 
 		requestAnimationFrame(L.bind(this.updateGraphs, this, hostSel, spanSel, timeSel, graphDiv));
 
-		var resizeTimeout;
-		var rgCallback = L.bind(this.refreshGraphs, this, hostSel, spanSel, timeSel, graphDiv);
+		let resizeTimeout;
+		const rgCallback = L.bind(this.refreshGraphs, this, hostSel, spanSel, timeSel, graphDiv);
 		addEventListener('resize', function() { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(rgCallback, 250); });
 
 		return view;
