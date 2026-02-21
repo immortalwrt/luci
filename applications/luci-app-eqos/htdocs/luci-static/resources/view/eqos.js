@@ -5,15 +5,15 @@
 'require view';
 
 return view.extend({
-	load: function() {
+	load() {
 		return Promise.all([
 			uci.load('eqos'),
 			network.getHostHints()
 		]);
 	},
 
-	render: function(data) {
-		var m, s, o;
+	render(data) {
+		let m, s, o;
 
 		m = new form.Map('eqos', _('EQoS'),
 			_('Network speed control service.'));
@@ -44,10 +44,10 @@ return view.extend({
 
 		o = s.option(form.Value, 'ip', _('IP address'));
 		o.datatype = 'ip4addr';
-		for (var i of Object.entries(data[1]?.hosts))
-			for (var v in i[1].ipaddrs)
+		for (let i of Object.entries(data[1]?.hosts))
+			for (let v in i[1].ipaddrs)
 				if (i[1].ipaddrs[v]) {
-					var ip_addr = i[1].ipaddrs[v], ip_host = i[1].name;
+					const ip_addr = i[1].ipaddrs[v], ip_host = i[1].name;
 					o.value(ip_addr, ip_host ? String.format('%s (%s)', ip_host, ip_addr) : ip_addr)
 				}
 		o.rmempty = false;
