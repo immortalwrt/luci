@@ -35,6 +35,17 @@ for _, v in pairs(nodes_table) do
 	end
 end
 
+local socks_list = {}
+m.uci:foreach(appname, "socks", function(s)
+	if s.enabled == "1" and s.node then
+		socks_list[#socks_list + 1] = {
+			id = "Socks_" .. s[".name"],
+			remark = translate("Socks Config") .. " " .. string.format("[%s %s]", s.port, translate("Port")),
+			group = "Socks"
+		}
+	end
+end)
+
 local dynamicList_write = function(self, section, value)
 	local t = {}
 	local t2 = {}
@@ -198,6 +209,10 @@ o.default = ""
 o:depends({ _hide_node_option = false, use_global_config = false })
 o.template = appname .. "/cbi/nodes_listvalue"
 o.group = {}
+o.remove = function(self, section)
+	m:del(section, self.option)
+	m:del(section, "udp_node")
+end
 
 o = s:option(DummyValue, "_tcp_node_bool", "")
 o.template = "passwall/cbi/hidevalue"
@@ -208,14 +223,36 @@ o = s:option(ListValue, "udp_node", "<a style='color: red'>" .. translate("UDP N
 o.default = ""
 o:value("", translate("Close"))
 o:value("tcp", translate("Same as the tcp node"))
-o:depends({ _tcp_node_bool = "1" })
+o:depends({ _tcp_node_bool = "1", _node_sel_other = "1" })
 o.template = appname .. "/cbi/nodes_listvalue"
 o.group = {"",""}
+o.remove = function(self, section)
+	local v = s.fields["shunt_udp_node"]:formvalue(section)
+	if not f then
+		return m:del(section, self.option)
+	end
+end
+
+o = s:option(ListValue, "shunt_udp_node", "<a style='color: red'>" .. translate("UDP Node") .. "</a>")
+o:value("close", translate("Close"))
+o:value("tcp", translate("Same as the tcp node"))
+o:depends({ _tcp_node_bool = "1", _node_sel_shunt = "1" })
+o.cfgvalue = function(self, section)
+	local v = m:get(section, "udp_node") or ""
+	if v == "" then v = "close" end
+	if v ~= "close" and v ~= "tcp" then v = "tcp" end
+	return v
+end
+o.write = function(self, section, value)
+	if value == "close" then value = "" end
+	return m:set(section, "udp_node", value)
+end
 
 o = s:option(DummyValue, "_udp_node_bool", "")
 o.template = "passwall/cbi/hidevalue"
 o.value = "1"
 o:depends({ udp_node = "",  ['!reverse'] = true })
+o:depends({ shunt_udp_node = "tcp" })
 
 ---- TCP Proxy Drop Ports
 local TCP_PROXY_DROP_PORTS = m:get("@global_forwarding[0]", "tcp_proxy_drop_ports")
@@ -308,6 +345,17 @@ o = s:option(DummyValue, "switch_mode", " ")
 o.template = appname .. "/global/proxy"
 o:depends({ _tcp_node_bool = "1" })
 
+-- Node → DNS Depends Settings
+o = s:option(DummyValue, "_node_sel_shunt", "")
+o.template = appname .. "/cbi/hidevalue"
+o.value = "1"
+o:depends({ tcp_node = "__always__" })
+
+o = s:option(DummyValue, "_node_sel_other", "")
+o.template = appname .. "/cbi/hidevalue"
+o.value = "1"
+o:depends({ _node_sel_shunt = "1",  ['!reverse'] = true })
+
 ---- DNS
 o = s:option(ListValue, "dns_shunt", "DNS " .. translate("Shunt"))
 o.default = "chinadns-ng"
@@ -333,6 +381,7 @@ end
 if has_xray then
 	o:value("xray", "Xray")
 end
+o:depends({ _tcp_node_bool = "1", _node_sel_other = "1" })
 o.remove = function(self, section)
 	local f = s.fields["tcp_node"]
 	local id_val = f and f:formvalue(section) or ""
@@ -441,7 +490,16 @@ o:depends({xray_dns_mode = "tcp+doh"})
 o:depends({singbox_dns_mode = "doh"})
 
 o = s:option(Value, "remote_dns_client_ip", translate("EDNS Client Subnet"))
+o.description = translate("Notify the DNS server when the DNS query is notified, the location of the client (cannot be a private IP address).") .. "<br />" ..
+		translate("This feature requires the DNS server to support the Edns Client Subnet (RFC7871).")
 o.datatype = "ipaddr"
+o:depends({dns_mode = "sing-box"})
+o:depends({dns_mode = "xray"})
+o:depends({_node_sel_shunt = "1"})
+
+o = s:option(Flag, "remote_fakedns", "FakeDNS", translate("Use FakeDNS work in the domain that proxy."))
+o.default = "0"
+o.rmempty = false
 o:depends({dns_mode = "sing-box"})
 o:depends({dns_mode = "xray"})
 
@@ -472,6 +530,12 @@ o:depends({dns_shunt = "dnsmasq", tcp_proxy_mode = "proxy", chn_list = "direct"}
 
 local tcp = s.fields["tcp_node"]
 local udp = s.fields["udp_node"]
+for k, v in pairs(socks_list) do
+	tcp:value(v.id, v["remark"])
+	tcp.group[#tcp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+	udp:value(v.id, v["remark"])
+	udp.group[#udp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+end
 for k, v in pairs(nodes_table) do
 	if #normal_list == 0 then
 		s.fields["dns_mode"]:depends({ _tcp_node_bool = "1" })
@@ -485,6 +549,7 @@ for k, v in pairs(nodes_table) do
 			udp.group[#udp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
 
 			s.fields["xray_dns_mode"]:depends({ _tcp_node_bool = "1", tcp_node = v.id })
+			s.fields["_node_sel_shunt"]:depends({ tcp_node = v.id })
 		end
 		if v.type == "sing-box" and has_singbox then
 			tcp:value(v.id, v["remark"])
@@ -493,17 +558,13 @@ for k, v in pairs(nodes_table) do
 			udp.group[#udp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
 
 			s.fields["singbox_dns_mode"]:depends({ _tcp_node_bool = "1", tcp_node = v.id })
-		end
-		if has_xray or has_singbox then
-			s.fields["remote_dns_client_ip"]:depends({ tcp_node = v.id })
+			s.fields["_node_sel_shunt"]:depends({ tcp_node = v.id })
 		end
 	else
 		tcp:value(v.id, v["remark"])
 		tcp.group[#tcp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
 		udp:value(v.id, v["remark"])
 		udp.group[#udp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
-
-		s.fields["dns_mode"]:depends({ _tcp_node_bool = "1", tcp_node = v.id })
 	end
 end
 

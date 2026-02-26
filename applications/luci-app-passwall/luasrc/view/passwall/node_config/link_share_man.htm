@@ -1,7 +1,7 @@
 <%+cbi/valueheader%>
 <%
 local api = require "luci.passwall.api"
-local appname = 'passwall'
+local appname = api.appname
 local map = self.map
 
 local has_ss = api.is_finded("ss-redir")
@@ -25,7 +25,9 @@ local ss_type = get_core("ss_type", {{has_ss,"shadowsocks-libev"},{has_ss_rust,"
 local trojan_type = get_core("trojan_type", {{has_trojan_plus,"trojan-plus"},{has_singbox,"sing-box"},{has_xray,"xray"}})
 local vmess_type = get_core("vmess_type", {{has_xray,"xray"},{has_singbox,"sing-box"}})
 local vless_type = get_core("vless_type", {{has_xray,"xray"},{has_singbox,"sing-box"}})
-local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{has_singbox,"sing-box"}})
+local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{has_singbox,"sing-box"}, {has_xray,"xray"}})
+
+local current_node = map:get(section)
 -%>
 <script src="<%=resource%>/view/<%=appname%>/qrcode.min.js"></script>
 <script type="text/javascript">//<![CDATA[
@@ -122,7 +124,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 
 	function buildUrl(btn, urlname, sid) {
 		var opt = {
-			base: "cbid.passwall",
+			base: "cbid.<%=appname%>",
 			client: true,
 			get: function (opt) {
 				var id = this.base + "." + opt;
@@ -241,6 +243,9 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 			}
 
 			var params = "";
+
+			opt.get(dom_prefix + "tcp_fast_open")?.checked && (params += "&tfo=1");
+
 			var v_plugin_dom = opt.get(dom_prefix + "plugin");
 			if (v_plugin_dom) {
 				var v_plugin = v_plugin_dom.value;
@@ -268,11 +273,11 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 						var ws_maxEarlyData = opt.get(dom_prefix + "ws_maxEarlyData").value;
 						params += "?ed=" + ws_maxEarlyData;
 					}
-				} else if (v_transport === "h2") {
-					v_transport = "http";
-					params += opt.query("host", dom_prefix + "h2_host");
-					params += opt.query("path", dom_prefix + "h2_path");
+				} else if (v_transport === "http") {
+					params += opt.query("host", dom_prefix + "http_host");
+					params += opt.query("path", dom_prefix + "http_path");
 				} else if (v_transport === "raw" || v_transport === "tcp") {
+					v_transport = "tcp";
 					params += opt.query("headerType", dom_prefix + "tcp_guise");
 					params += opt.query("host", dom_prefix + "tcp_guise_http_host");
 					params += opt.query("path", dom_prefix + "tcp_guise_http_path");
@@ -288,6 +293,13 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 					params += opt.query("path", dom_prefix + "grpc_serviceName");
 					params += opt.query("serviceName", dom_prefix + "grpc_serviceName");
 					params += opt.query("mode", dom_prefix + "grpc_mode");
+				} else if (v_transport === "xhttp") {
+					params += opt.query("host", dom_prefix + "xhttp_host");
+					params += opt.query("path", dom_prefix + "xhttp_path");
+					params += opt.query("mode", dom_prefix + "xhttp_mode");
+					if (opt.get(dom_prefix + "use_xhttp_extra").checked) {
+						params += opt.query("extra", dom_prefix + "xhttp_extra");
+					}
 				}
 				params += "&type=" + v_transport;
 
@@ -308,8 +320,12 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 					params += opt.query("alpn", dom_prefix + "alpn");
 					params += opt.query("sni", dom_prefix + "tls_serverName");
 					params += opt.query("allowinsecure", dom_prefix + "tls_allowInsecure");
+					params += opt.query("pcs", dom_prefix + "tls_CertSha");
+					params += opt.query("vcn", dom_prefix + "tls_CertByName");
 					params += opt.query("ech", dom_prefix + "ech_config");
 				}
+
+				opt.get(dom_prefix + "uot")?.checked && (params += "&udp=1");
 
 				if (opt.get(dom_prefix + "shadowtls")?.checked) {
 					let st_plugin_str = "";
@@ -376,10 +392,11 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 					var ws_maxEarlyData = opt.get(dom_prefix + "ws_maxEarlyData").value;
 					info.path = info.path + "?ed=" + ws_maxEarlyData;
 				}
-			} else if (v_transport === "h2") {
-				info.host = opt.get(dom_prefix + "h2_host").value;
-				info.path = opt.get(dom_prefix + "h2_path").value;
+			} else if (v_transport === "http") {
+				info.host = opt.get(dom_prefix + "http_host").value;
+				info.path = opt.get(dom_prefix + "http_path").value;
 			} else if (v_transport === "raw" || v_transport === "tcp") {
+				v_transport = "tcp";
 				info.type = opt.get(dom_prefix + "tcp_guise").value;
 				if (info.type === "http") {
 					info.host = opt.get(dom_prefix + "tcp_guise_http_host").value;
@@ -407,6 +424,9 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				info.tls = "tls";
 				info.sni = opt.get(dom_prefix + "tls_serverName").value;
 			}
+
+			opt.get(dom_prefix + "tcp_fast_open")?.checked && (info.tfo = "1");
+
 			url = b64EncodeUnicode(JSON.stringify(info));
 		} else if ((v_type === "sing-box" || v_type === "Xray") && opt.get(dom_prefix + "protocol").value === "vless") {
 			protocol = "vless";
@@ -425,11 +445,11 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 					var ws_maxEarlyData = opt.get(dom_prefix + "ws_maxEarlyData").value;
 					params += encodeURIComponent("?ed=" + ws_maxEarlyData);
 				}
-			} else if (v_transport === "h2") {
-				v_transport = "http";
-				params += opt.query("host", dom_prefix + "h2_host");
-				params += opt.query("path", dom_prefix + "h2_path");
+			} else if (v_transport === "http") {
+				params += opt.query("host", dom_prefix + "http_host");
+				params += opt.query("path", dom_prefix + "http_path");
 			} else if (v_transport === "raw" || v_transport === "tcp") {
+				v_transport = "tcp";
 				params += opt.query("headerType", dom_prefix + "tcp_guise");
 				params += opt.query("host", dom_prefix + "tcp_guise_http_host");
 				params += opt.query("path", dom_prefix + "tcp_guise_http_path");
@@ -486,8 +506,12 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				params += opt.query("alpn", dom_prefix + "alpn");
 				params += opt.query("sni", dom_prefix + "tls_serverName");
 				params += opt.query("allowinsecure", dom_prefix + "tls_allowInsecure");
+				params += opt.query("pcs", dom_prefix + "tls_CertSha");
+				params += opt.query("vcn", dom_prefix + "tls_CertByName");
 				params += opt.query("ech", dom_prefix + "ech_config");
 			}
+
+			opt.get(dom_prefix + "tcp_fast_open")?.checked && (params += "&tfo=1");
 
 			params += "#" + encodeURI(v_alias.value);
 			if (params[0] == "&") {
@@ -510,11 +534,11 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 					var ws_maxEarlyData = opt.get(dom_prefix + "ws_maxEarlyData").value;
 					params += "?ed=" + ws_maxEarlyData;
 				}
-			} else if (v_transport === "h2") {
-				v_transport = "http";
-				params += opt.query("host", dom_prefix + "h2_host");
-				params += opt.query("path", dom_prefix + "h2_path");
+			} else if (v_transport === "http") {
+				params += opt.query("host", dom_prefix + "http_host");
+				params += opt.query("path", dom_prefix + "http_path");
 			} else if (v_transport === "raw" || v_transport === "tcp") {
+				v_transport = "tcp";
 				params += opt.query("headerType", dom_prefix + "tcp_guise");
 				params += opt.query("host", dom_prefix + "tcp_guise_http_host");
 				params += opt.query("path", dom_prefix + "tcp_guise_http_path");
@@ -550,19 +574,26 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				params += opt.query("alpn", dom_prefix + "alpn");
 				params += opt.query("sni", dom_prefix + "tls_serverName");
 				params += opt.query("allowinsecure", dom_prefix + "tls_allowInsecure");
+				params += opt.query("pcs", dom_prefix + "tls_CertSha");
+				params += opt.query("vcn", dom_prefix + "tls_CertByName");
 				params += opt.query("ech", dom_prefix + "ech_config");
 			}
+
+			opt.get(dom_prefix + "tcp_fast_open")?.checked && (params += "&tfo=1");
+
 			params += "#" + encodeURI(v_alias.value);
 			if (params[0] == "&") {
 				params = params.substring(1);
 			}
 			url += params;
-		} else if ((v_type === "Hysteria2") || (v_type === "sing-box" && opt.get(dom_prefix + "protocol").value === "hysteria2")) {
+		} else if ((v_type === "Hysteria2") || ((v_type === "sing-box" || v_type === "Xray") && opt.get(dom_prefix + "protocol").value === "hysteria2")) {
 			protocol = "hysteria2"
 			var v_port = opt.get(dom_prefix + "port");
 			var params = "";
 			params += opt.query("sni", dom_prefix + "tls_serverName");
 			params += opt.query("insecure", dom_prefix + "tls_allowInsecure");
+			params += opt.query("pcs", dom_prefix + "tls_CertSha");
+			params += opt.query("vcn", dom_prefix + "tls_CertByName");
 
 			var v_password = null;
 
@@ -685,9 +716,9 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 		return server.replace(/^\[/, '').replace(/\]$/, '');
 	}
 
-	function fromUrl(btn, urlname, sid) {
+	function fromUrl(btn, urlname, sid, cacheData) {
 		var opt = {
-			base: 'cbid.passwall',
+			base: 'cbid.<%=appname%>',
 			client: true,
 			get: function (opt) {
 				var obj;
@@ -793,9 +824,21 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 		}
 		opt.base = "cbid." + urlname + "." + sid;
 		opt.client = urlname.indexOf("server") === -1;
-		var ssrurl = prompt('<%:Paste Share URL Here%>', '');
-		if (ssrurl === null || ssrurl === "") {
-			return false;
+		var ssrurl = null;
+		if (cacheData) {
+			ssrurl = cacheData.ssrurl
+		} else {
+			ssrurl = prompt('<%:Paste Share URL Here%>', '');
+			if (ssrurl === null || ssrurl === "") {
+				return false;
+			}
+			sessionStorage.setItem("fromUrl", JSON.stringify({
+				timestamp: Date.now(),
+				savetime: 60 * 1000,
+				urlname: urlname,
+				sid: sid,
+				ssrurl: ssrurl
+			}));
 		}
 		ssrurl = ssrurl.replace(/&amp;/gi, '&').replace(/\s*#\s*/, '#').trim();  //一些奇葩的链接用"&amp;"当做"&"，"#"前后带空格
 		s.innerHTML = "";
@@ -915,11 +958,14 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				pluginOpts = pluginParams.join(";");
 			}
 
-			if (has_xray && ((ss_type !== "xray" && ss_type !== "sing-box" && queryParam.type) || ss_type == "xray")) {
+			const needUpgrade = ss_type !== "Xray" && ss_type !== "sing-box" &&
+					queryParam.type && queryParam.type !== "tcp" &&
+					queryParam.headerType && queryParam.headerType !== "none";
+			if (has_xray && (ss_type == "xray" || needUpgrade || queryParam.type === "xhttp")) {
 				dom_prefix = "xray_"
 				opt.set('type', "Xray");
 				opt.set(dom_prefix + 'protocol', "shadowsocks");
-			} else if (has_singbox && ((ss_type !== "xray" && ss_type !== "sing-box" && queryParam.type) || ss_type == "sing-box")) {
+			} else if (has_singbox && (ss_type == "sing-box" || needUpgrade)) {
 				dom_prefix = "singbox_"
 				opt.set('type', "sing-box");
 				opt.set(dom_prefix + 'protocol', "shadowsocks");
@@ -948,6 +994,7 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 			opt.set(dom_prefix + 'password', password || "");
 			opt.set(dom_prefix + 'method', method || "");
 			opt.set(dom_prefix + 'ss_method', method || "");
+			opt.set(dom_prefix + 'tcp_fast_open', queryParam.tfo);
 			if (plugin && plugin != "none") {
 				plugin = (plugin === "simple-obfs") ? "obfs-local" : plugin;
 				opt.set(dom_prefix + 'plugin_enabled', true);
@@ -994,6 +1041,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 						}
 						opt.set(dom_prefix + 'ech', !!queryParam.ech);
 						opt.set(dom_prefix + 'ech_config', queryParam.ech || '');
+						opt.set(dom_prefix + 'tls_CertSha', queryParam.pcs || '');
+						opt.set(dom_prefix + 'tls_CertByName', queryParam.vcn || '');
 					}
 
 					if (queryParam.security == "reality") {
@@ -1076,7 +1125,15 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				} else if (queryParam.type === "grpc") {
 					opt.set(dom_prefix + 'grpc_serviceName', (queryParam.serviceName || queryParam.path) || "");
 					opt.set(dom_prefix + 'grpc_mode', queryParam.mode || "gun");
+				} else if (queryParam.type === "xhttp") {
+					opt.set(dom_prefix + 'xhttp_host', queryParam.host || "");
+					opt.set(dom_prefix + 'xhttp_path', queryParam.path || "");
+					opt.set(dom_prefix + 'xhttp_mode', queryParam.mode || "auto");
+					opt.set(dom_prefix + 'use_xhttp_extra', !!queryParam.extra);
+					opt.set(dom_prefix + 'xhttp_extra', queryParam.extra || "");
 				}
+
+				opt.set(dom_prefix + 'uot', queryParam.udp);
 
 				if (queryParam["shadow-tls"]) {
 					//解析SS Shadow-TLS 插件参数
@@ -1228,11 +1285,15 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				tls_serverName = tls_serverName || "";
 				opt.set(dom_prefix + 'tls_serverName', tls_serverName);
 				opt.set(dom_prefix + 'alpn', queryParam.alpn || 'default');
+				opt.set(dom_prefix + 'tls_CertSha', queryParam.pcs || '');
+				opt.set(dom_prefix + 'tls_CertByName', queryParam.vcn || '');
 			}
 			opt.set(dom_prefix + 'tls_allowInsecure', true);
 			if ((queryParam.allowinsecure ?? '0') === '0' && (queryParam.insecure ?? '0') === '0') {
 				opt.set(dom_prefix + 'tls_allowInsecure', false);
 			}
+
+			opt.set(dom_prefix + 'tcp_fast_open', queryParam.tfo);
 
 			if (m.hash) {
 				opt.set('remarks', decodeURIComponent(m.hash.substr(1)));
@@ -1328,6 +1389,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 			} else if (ssm.net === "grpc") {
 				opt.set(dom_prefix + 'grpc_serviceName', ssm.path);
 			}
+
+			opt.set(dom_prefix + 'tcp_fast_open', ssm.tfo);
 		}
 		if (ssu[0] === "vless") {
 			if (vless_type == "sing-box" && has_singbox) {
@@ -1384,6 +1447,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 					}
 					opt.set(dom_prefix + 'ech', !!queryParam.ech);
 					opt.set(dom_prefix + 'ech_config', queryParam.ech || '');
+					opt.set(dom_prefix + 'tls_CertSha', queryParam.pcs || '');
+					opt.set(dom_prefix + 'tls_CertByName', queryParam.vcn || '');
 				}
 
 				if (queryParam.security == "reality") {
@@ -1477,6 +1542,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 				opt.set(dom_prefix + 'httpupgrade_path', queryParam.path || "");
 			}
 
+			opt.set(dom_prefix + 'tcp_fast_open', queryParam.tfo);
+
 			if (m.hash) {
 				opt.set('remarks', decodeURIComponent(m.hash.substr(1)));
 			}
@@ -1499,9 +1566,10 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 					queryParam[decodeURIComponent(params[0])] = decodeURIComponent(params[1] || '');
 				}
 			}
-			if (hysteria2_type == "sing-box" && has_singbox) {
-				opt.set('type', "sing-box");
-				dom_prefix = "singbox_"
+			if ((hysteria2_type == "sing-box" && has_singbox) || (hysteria2_type == "xray" && has_xray)) {
+				var is_singbox = hysteria2_type == "sing-box" && has_singbox;
+				opt.set('type', is_singbox ? "sing-box" : "Xray");
+				dom_prefix = is_singbox ? "singbox_" : "xray_";
 				opt.set(dom_prefix + 'protocol', "hysteria2");
 				opt.set(dom_prefix + 'hysteria2_auth_password', decodeURIComponent(password));
 				if (queryParam["obfs-password"] || queryParam["obfs_password"]) {
@@ -1529,6 +1597,8 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 			if (queryParam.insecure && queryParam.insecure == "1") {
 				opt.set(dom_prefix + 'tls_allowInsecure', true);
 			}
+			opt.set(dom_prefix + 'tls_CertSha', queryParam.pcs || '');
+			opt.set(dom_prefix + 'tls_CertByName', queryParam.vcn || '');
 			if (m.hash) {
 				opt.set('remarks', decodeURIComponent(m.hash.substr(1)));
 			}
@@ -1644,22 +1714,68 @@ local hysteria2_type = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{
 			return false;
 		}
 		s.innerHTML = "<font color='green'><%:Import Finished %></font>";
-		return false;
+		sessionStorage.removeItem("fromUrl");
+		return true;
 	}
 
 	function exportConfigFile(btn, sid) {
 		window.open('<%=api.url("gen_client_config")%>?id=' + sid, "_blank")
 	}
 
+	document.addEventListener("DOMContentLoaded", function () {
+		setTimeout(function () {
+			const fromUrlCache = JSON.parse(sessionStorage.getItem("fromUrl"));
+			if (fromUrlCache && fromUrlCache.savetime && (Date.now() - fromUrlCache.timestamp) < fromUrlCache.savetime) {
+				fromUrl(null, fromUrlCache.urlname, fromUrlCache.sid, fromUrlCache)
+			} else {
+				sessionStorage.removeItem("fromUrl");
+			}
+		}, 500);
+	})
+
 //]]></script>
-<input type="button" class="btn cbi-button cbi-button-apply" value='<%:From Share URL%>' onclick="return fromUrl(this, '<%=self.option%>', '<%=self.value%>')" />
-<input type="button" class="btn cbi-button cbi-button-apply" value='<%:Build Share URL%>' onclick="return exportUrl(this, '<%=self.option%>', '<%=self.value%>')" />
-<input type="button" class="btn cbi-button cbi-button-apply" value='<%:Generate QRCode%>' onclick="return genQrcode(this, '<%=self.option%>', '<%=self.value%>')" />
-<input type="button" class="btn cbi-button cbi-button-apply" value='<%:Export Config File%>' onclick="return exportConfigFile(this, '<%=self.value%>')" />
-<div id="qrcode_div" style="margin-top: 1rem;display:none">
-	<div id="qrcode" style="display:flex;justify-content:center;"></div>
-</div>
-<div style="text-align:center;">
-	<span id="<%=self.option%>-status"></span>
+<style>
+.share-toolbar {
+	display: inline-block;
+	text-align: center;
+	padding: 5px 0 5px;
+	white-space: nowrap;
+}
+@media screen and (max-width: 500px) {
+	.share-toolbar {
+		white-space: normal;
+	}
+}
+.toolbar-buttons .cbi-button {
+	margin-right: 2px;
+	margin-bottom: 2px;
+}
+.toolbar-buttons .cbi-button:last-child {
+	margin-right: 0;
+}
+.status-text {
+	display: none;
+}
+.status-text:not(:empty) {
+	display: inline-block;
+	line-height: 1;
+	padding: 5px 0;
+}
+</style>
+<div class="share-toolbar">
+	<div class="toolbar-buttons">
+		<% if not current_node.protocol or not current_node.protocol:find("^_") then -%>
+		<input id="fromUrlBtn" type="button" class="btn cbi-button cbi-button-apply" value='<%:From Share URL%>' onclick="return fromUrl(this, '<%=self.option%>', '<%=self.value%>')" />
+		<input id="exportUrlBtn" type="button" class="btn cbi-button cbi-button-apply" value='<%:Build Share URL%>' onclick="return exportUrl(this, '<%=self.option%>', '<%=self.value%>')" />
+		<input id="genQrcodeBtn" type="button" class="btn cbi-button cbi-button-apply" value='<%:Generate QRCode%>' onclick="return genQrcode(this, '<%=self.option%>', '<%=self.value%>')" />
+		<% end -%>
+		<input id="exportConfigFileBtn" type="button" class="btn cbi-button cbi-button-apply" value='<%:Export Config File%>' onclick="return exportConfigFile(this, '<%=self.value%>')" />
+	</div>
+	<div id="qrcode_div" style="padding:5px 0;display:none">
+		<div id="qrcode" style="display:flex;justify-content:center;"></div>
+	</div>
+	<div style="text-align:center;padding:0;min-height:0;line-height:1;">
+		<span id="<%=self.option%>-status" class="status-text"></span>
+	</div>
 </div>
 <%+cbi/valuefooter%>

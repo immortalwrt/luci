@@ -17,16 +17,6 @@ function get_ip_port_from(str)
 	return result_ip, result_port
 end
 
-local new_port
-local function get_new_port()
-	if new_port then
-		new_port = tonumber(sys.exec(string.format("echo -n $(/usr/share/%s/app.sh get_new_port %s tcp)", appname, new_port + 1)))
-	else
-		new_port = tonumber(sys.exec(string.format("echo -n $(/usr/share/%s/app.sh get_new_port auto tcp)", appname)))
-	end
-	return new_port
-end
-
 local var = api.get_args(arg)
 local haproxy_path = var["-path"]
 local haproxy_conf = var["-conf"]
@@ -118,7 +108,7 @@ uci:foreach(appname, "haproxy_config", function(t)
 			if health_check_type == "passwall_logic" then
 				if server_node.type ~= "Socks" then
 					local relay_port = server_node.port
-					new_port = get_new_port()
+					local new_port = api.get_new_port()
 					local config_file = string.format("haproxy_%s_%s.json", t[".name"], new_port)
 					sys.call(string.format('/usr/share/%s/app.sh run_socks "%s"> /dev/null',
 						appname,
@@ -207,7 +197,7 @@ listen %s
 		f_out:write("	" .. server_conf .. "\n")
 
 		if o.export ~= "0" then
-			sys.call(string.format("/usr/share/passwall/app.sh add_ip2route %s %s", o.origin_address, o.export))
+			sys.call(string.format(". /usr/share/passwall/utils.sh ; add_ip2route %s %s", o.origin_address, o.export))
 		end
 
 		log(string.format("  | - 出口节点：%s:%s，权重：%s", o.origin_address, o.origin_port, o.lbweight))

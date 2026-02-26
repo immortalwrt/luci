@@ -120,8 +120,7 @@ o = s:option(ListValue, _n("flow"), translate("flow"))
 o.default = ""
 o:value("", translate("Disable"))
 o:value("xtls-rprx-vision")
-o:depends({ [_n("protocol")] = "vless", [_n("tls")] = true, [_n("transport")] = "raw" })
-o:depends({ [_n("protocol")] = "vless", [_n("tls")] = true, [_n("transport")] = "xhttp" })
+o:depends({ [_n("protocol")] = "vless" })
 
 o = s:option(Flag, _n("tls"), translate("TLS"))
 o.default = 0
@@ -244,7 +243,7 @@ end
 
 o = s:option(Flag, _n("ech"), translate("ECH"))
 o.default = "0"
-o:depends({ [_n("tls")] = true, [_n("flow")] = "", [_n("reality")] = false })
+o:depends({ [_n("tls")] = true, [_n("reality")] = false })
 
 o = s:option(TextValue, _n("ech_key"), translate("ECH Key"))
 o.default = ""
@@ -360,6 +359,10 @@ o = s:option(Value, _n("grpc_serviceName"), "ServiceName")
 o:depends({ [_n("transport")] = "grpc" })
 
 o = s:option(Flag, _n("acceptProxyProtocol"), translate("acceptProxyProtocol"), translate("Whether to receive PROXY protocol, when this node want to be fallback or forwarded by proxy, it must be enable, otherwise it cannot be used."))
+o.default = "0"
+o:depends({ [_n("custom")] = false })
+
+o = s:option(Flag, _n("tcp_fast_open"), "TCP " .. translate("Fast Open"))
 o.default = "0"
 o:depends({ [_n("custom")] = false })
 
