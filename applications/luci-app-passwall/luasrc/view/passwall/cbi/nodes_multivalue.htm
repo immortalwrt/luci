@@ -52,22 +52,34 @@ for _, item in ipairs(values) do
 		selected_count = selected_count + 1
 	end
 end
+
+local function idSafe(id)
+	return (id
+		:gsub("^%s+", "")
+		:gsub("%s+$", "")
+		:gsub("%s+", "-")
+		:gsub("[%z\1-\31\127]", "")
+	)
+end
 %>
 
 <div id="<%=cbid%>" class="cbi-input-select" style="display:inline-block;">
+	<select id="<%=cbid%>.ref" class="cbi-input-select" style="display:none !important;">
+		<option value>placeholder</option>
+	</select>
 	<!-- 搜索框 -->
 	<input type="text" id="<%=cbid%>.search"
 		class="mv_search_input cbi-input-text"
-		placeholder="<%:Search nodes...%>" />
+		placeholder="🔍 <%:Search nodes...%>" inputmode="search" enterkeyhint="done" />
 	<!-- 主容器 -->
-	<div class="mv_list_container">
+	<div class="mv_list_container" id="<%=cbid%>.panel">
 		<ul class="cbi-multi mv_node_list" id="<%=cbid%>.node_list">
 			<% for _, gname in ipairs(group_order) do local items = groups[gname] %>
-			<li class="group-block" data-group="<%=gname%>">
+			<li class="group-block" data-group="<%=idSafe(gname)%>">
 				<!-- 组标题 -->
 				<div class="group-title">
-					<span id="arrow-<%=self.option%>-<%=gname%>" class="mv-arrow-right"></span>
-					<b style="margin-left:8px;"><%=gname%></b>
+					<span id="arrow-<%=self.option%>-<%=idSafe(gname)%>" class="mv-arrow-right"></span>
+					<b style="margin-left:8px;"><%=pcdata(gname)%></b>
 					<%
 						local g_selected = 0
 						for _, it in ipairs(items) do
@@ -76,12 +88,12 @@ end
 							end
 						end
 					%>
-					<span id="group-count-<%=self.option%>-<%=gname%>" style="margin-left:8px;color:#007bff;">
+					<span id="group-count-<%=self.option%>-<%=idSafe(gname)%>" style="margin-left:8px;">
 						(<%=g_selected%>/<%=#items%>)
 					</span>
 				</div>
 				<!-- 组内容 -->
-				<ul id="group-<%=self.option%>-<%=gname%>" class="group-items" style="display:none;"
+				<ul id="group-<%=self.option%>-<%=idSafe(gname)%>" class="group-items" style="display:none;"
 					data-items='<%=json.stringify(items)%>'
 					data-selected='<%=json.stringify(selected)%>'>
 				</ul>
@@ -96,7 +108,6 @@ end
 		<span id="count-<%=self.option%>" style="color:#666;"><%:Selected:%> <span style='color:red;'><%=selected_count%>/<%=total_count%></span></span>
 	</div>
 </div>
-<%+cbi/valuefooter%>
 
 <script type="text/javascript">
 //<![CDATA[
@@ -117,3 +128,5 @@ end
 })();
 //]]>
 </script>
+
+<%+cbi/valuefooter%>

@@ -1,27 +1,6 @@
 #!/bin/sh
 
-CONFIG=passwall
-LOG_FILE=/tmp/log/$CONFIG.log
-
-echolog() {
-	local d="$(date "+%Y-%m-%d %H:%M:%S")"
-	#echo -e "$d: $1"
-	echo -e "$d: $1" >> $LOG_FILE
-}
-
-config_n_get() {
-	local ret=$(uci -q get "${CONFIG}.${1}.${2}" 2>/dev/null)
-	echo "${ret:=$3}"
-}
-
-lua_api() {
-	local func=${1}
-	[ -z "${func}" ] && {
-		echo "nil"
-		return
-	}
-	echo $(lua -e "local api = require 'luci.passwall.api' print(api.${func})")
-}
+. /usr/share/passwall/utils.sh
 
 test_url() {
 	local url=$1
@@ -77,23 +56,13 @@ url_test_node() {
 				[ -n "${_username}" ] && [ -n "${_password}" ] && curlx="socks5h://${_username}:${_password}@${_address}:${_port}"
 			}
 		else
-			local _tmp_port=$(/usr/share/${CONFIG}/app.sh get_new_port 61080 tcp)
+			local _tmp_port=$(get_new_port 48900 tcp,udp)
 			/usr/share/${CONFIG}/app.sh run_socks flag="url_test_${node_id}" node=${node_id} bind=127.0.0.1 socks_port=${_tmp_port} config_file=url_test_${node_id}.json
 			local curlx="socks5h://127.0.0.1:${_tmp_port}"
 		fi
 		sleep 1s
-		# 兼容 curl 8.6 time_starttransfer 错误
-		local _cmd="-V 2>/dev/null | head -n 1 | awk '{print \$2}' | cut -d. -f1,2 | tr -d ' \\n'"
-		local _curl="/usr/bin/curl"
-		local curl_ver=$(lua_api "get_bin_version_cache(\"${_curl}\", \"${_cmd}\")")
-
-		local curl_arg="-w %{http_code}:%{time_starttransfer} http://"
-		[ "${curl_ver}" = "8.6" ] && curl_arg="-w %{http_code}:%{time_appconnect} https://"
-
-		local chn_list=$(config_n_get @global[0] chn_list direct)
-		local probeUrl="www.google.com/generate_204"
-		[ "${chn_list}" = "proxy" ] && probeUrl="www.baidu.com"
-		result=$(${_curl} --max-time 5 -o /dev/null -I -skL -x ${curlx} ${curl_arg}${probeUrl})
+		local probeUrl=$(config_t_get global_other url_test_url https://www.google.com/generate_204)
+		result=$(curl --connect-timeout 3 --max-time 5 -o /dev/null -I -skL -w "%{http_code}:%{time_pretransfer}" -x ${curlx} "${probeUrl}")
 		# 结束 SS 插件进程
 		local pid_file="/tmp/etc/${CONFIG}/url_test_${node_id}_plugin.pid"
 		[ -s "$pid_file" ] && kill -9 "$(head -n 1 "$pid_file")" >/dev/null 2>&1

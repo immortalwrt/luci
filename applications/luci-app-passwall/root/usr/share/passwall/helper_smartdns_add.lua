@@ -1,6 +1,5 @@
-require "luci.sys"
 local api = require "luci.passwall.api"
-local appname = "passwall"
+local appname = api.appname
 
 local var = api.get_args(arg)
 local FLAG = var["-FLAG"]
@@ -24,6 +23,8 @@ local NO_PROXY_IPV6 = var["-NO_PROXY_IPV6"]
 local NO_LOGIC_LOG = var["-NO_LOGIC_LOG"]
 local NFTFLAG = var["-NFTFLAG"]
 local SUBNET = var["-SUBNET"]
+local LISTEN_PORT = var["-LISTEN_PORT"]
+local LOCAL_PORT = var["-LOCAL_PORT"]
 
 local uci = api.uci
 local sys = api.sys
@@ -38,6 +39,11 @@ local TMP_CONF_FILE = FLAG_PATH .. "/smartdns.conf"
 local config_lines = {}
 local tmp_lines = {}
 local USE_GEOVIEW = uci:get(appname, "@global_rules[0]", "enable_geoview")
+local IS_SHUNT_NODE = uci:get(appname, TCP_NODE, "protocol") == "_shunt"
+
+if IS_SHUNT_NODE then
+	REMOTE_FAKEDNS = uci:get(appname, TCP_NODE, "fakedns") or "0"
+end
 
 local function log(...)
 	if NO_LOGIC_LOG == "1" then
@@ -96,8 +102,11 @@ local function get_geosite(list_arg, out_path)
 	local geosite_path = uci:get(appname, "@global_rules[0]", "v2ray_location_asset") or "/usr/share/v2ray/"
 	geosite_path = geosite_path:match("^(.*)/") .. "/geosite.dat"
 	if not is_file_nonzero(geosite_path) then return 1 end
-	if api.is_finded("geoview") and list_arg and out_path then
-		sys.exec("geoview -type geosite -append=true -input " .. geosite_path .. " -list '" .. list_arg .. "' -output " .. out_path)
+	local bin = api.finded_com("geoview")
+	if bin and list_arg and out_path then
+		local cmd = string.format("%q -type geosite -append=true -input %q -list %q -output %q -lowmem=true",
+			bin, geosite_path, list_arg, out_path)
+		sys.call(cmd)
 		return 0
 	end
 	return 1
@@ -108,9 +117,9 @@ if not fs.access(FLAG_PATH) then
 end
 
 local LOCAL_EXTEND_ARG = ""
-if LOCAL_GROUP == "nil" then
-	LOCAL_GROUP = nil
-	log("  * 注意：国内分组名未设置，可能会导致 DNS 分流错误！")
+if LOCAL_GROUP == "null" or LOCAL_GROUP == "" then
+	log("  * 注意：SmartDNS 国内分组名未设置，DNS 将无法正常工作！！！")
+	os.exit(1)
 else
 	--从smartdns配置中读取参数
 	local custom_conf_path = "/etc/smartdns/custom.conf"
@@ -122,7 +131,19 @@ else
 		{key = "rr_ttl", config_key = "rr-ttl", prefix = "-rr-ttl "},
 		{key = "rr_ttl_min", config_key = "rr-ttl-min", prefix = "-rr-ttl-min "},
 		{key = "rr_ttl_max", config_key = "rr-ttl-max", prefix = "-rr-ttl-max "},
-		{key = "rr_ttl_reply_max", config_key = "rr-ttl-reply-max", prefix = "-rr-ttl-reply-max "}
+		{key = "rr_ttl_reply_max", config_key = "rr-ttl-reply-max", prefix = "-rr-ttl-reply-max "},
+		{
+			key = "force_aaaa_soa",
+			config_key = "force-qtype-SOA",
+			prefix = "-address ",
+			get_value = function(custom_config)
+				local soa = custom_config["force-qtype-SOA"]
+				return ((soa and soa:match("(^|%s)28(%s|$)"))
+					or custom_config["force-AAAA-SOA"] == "yes"
+					or uci:get("smartdns", "@smartdns[0]", "force_aaaa_soa") == "1")
+					and "#6" or "-6"
+			end
+		}
 	}
 	-- 从 custom.conf 中读取值，以最后出现的值为准
 	local custom_config = {}
@@ -131,7 +152,7 @@ else
 		for line in f_in:lines() do
 			line = api.trim(line)
 			if line ~= "" and not line:match("^#") then
-				local param, value = line:match("^(%S+)%s+(%S+)$")
+				local param, value = line:match("^(%S+)%s+(.+)$")
 				if param and value then custom_config[param] = value end
 			end
 		end
@@ -139,7 +160,12 @@ else
 	end
 	-- 从 smartdns 配置中读取值，优先级以 custom.conf 为准
 	for _, opt in ipairs(options) do
-		local val = custom_config[opt.config_key] or uci:get("smartdns", "@smartdns[0]", opt.key) or opt.default
+		local val
+		if opt.get_value then
+			val = opt.get_value(custom_config)
+		else
+			val = custom_config[opt.config_key] or uci:get("smartdns", "@smartdns[0]", opt.key) or opt.default
+		end
 		if val == "yes" then val = "1" elseif val == "no" then val = "0" end
 		if opt.yes_no then
 			local arg = (val == "1" and opt.arg_yes or opt.arg_no)
@@ -165,9 +191,12 @@ end
 local force_https_soa = uci:get(appname, "@global[0]", "force_https_soa") or 1
 local proxy_server_name = "passwall-proxy-server"
 config_lines = {
+	tonumber(LISTEN_PORT) ~= 0 and "bind [::]:" .. LISTEN_PORT .. "@lo" or "",
+	(tonumber(LOCAL_PORT) ~= 0 and LOCAL_GROUP) and "bind [::]:" .. LOCAL_PORT .. "@lo -group " ..  LOCAL_GROUP or "",
 	tonumber(force_https_soa) == 1 and "force-qtype-SOA 65" or "force-qtype-SOA -,65",
 	"server 114.114.114.114 -bootstrap-dns",
-	DNS_MODE == "socks" and string.format("proxy-server socks5://%s -name %s", REMOTE_PROXY_SERVER, proxy_server_name) or nil
+	is_file_nonzero("/etc/hosts") and "hosts-file /etc/hosts" or "",
+	DNS_MODE == "socks" and string.format("proxy-server socks5://%s -name %s", REMOTE_PROXY_SERVER, proxy_server_name) or ""
 }
 if DNS_MODE == "socks" then
 	for w in string.gmatch(REMOTE_DNS, '[^|]+') do
@@ -225,7 +254,7 @@ if DNS_MODE == "socks" then
 		end
 		table.insert(config_lines, server_param)
 	end
-	REMOTE_FAKEDNS = 0
+	if not IS_SHUNT_NODE then REMOTE_FAKEDNS = "0" end
 else
 	local server_param = string.format("server %s -group %s -exclude-default-group", TUN_DNS:gsub("#", ":"), REMOTE_GROUP)
 	table.insert(config_lines, server_param)
@@ -243,9 +272,7 @@ if DEFAULT_DNS_GROUP then
 	local domain_rules_str = "domain-rules /./ -nameserver " .. DEFAULT_DNS_GROUP
 	if DEFAULT_DNS_GROUP == REMOTE_GROUP then
 		domain_rules_str = domain_rules_str .. " -speed-check-mode none -d no -no-serve-expired"
-		if NO_PROXY_IPV6 == "1" then
-			domain_rules_str = domain_rules_str .. " -address #6"
-		end
+		domain_rules_str = domain_rules_str .. " -address " .. (NO_PROXY_IPV6 == "1" and "#6" or "-6")
 	elseif DEFAULT_DNS_GROUP == LOCAL_GROUP then
 		domain_rules_str = domain_rules_str .. (LOCAL_EXTEND_ARG ~= "" and " " .. LOCAL_EXTEND_ARG or "")
 	end
@@ -305,16 +332,22 @@ local file_vpslist = TMP_ACL_PATH .. "/vpslist"
 if not is_file_nonzero(file_vpslist) then
 	local f_out = io.open(file_vpslist, "w")
 	local written_domains = {}
-	uci:foreach(appname, "nodes", function(t)
-		local function process_address(address)
-			if address == "engage.cloudflareclient.com" then return end
-			if datatypes.hostname(address) and not written_domains[address] then
-				f_out:write(address .. "\n")
-				written_domains[address] = true
-			end
+	local function process_address(address)
+		if address == "engage.cloudflareclient.com" then return end
+		if datatypes.hostname(address) and not written_domains[address] then
+			f_out:write(address .. "\n")
+			written_domains[address] = true
 		end
+	end
+	uci:foreach(appname, "nodes", function(t)
 		process_address(t.address)
 		process_address(t.download_address)
+	end)
+	uci:foreach(appname, "subscribe_list", function(t)  --订阅链接
+		local url, _ = api.get_domain_port_from_url(t.url or "")
+		if url and url ~= "" then
+			process_address(url)
+		end
 	end)
 	f_out:close()
 end
@@ -429,6 +462,7 @@ if USE_PROXY_LIST == "1" and is_file_nonzero(file_proxy_host) then
 		domain_rules_str = domain_rules_str .. " -address #6"
 		domain_rules_str = REMOTE_FAKEDNS ~= "1" and (domain_rules_str .. " " .. set_type .. " " .. table.concat(sets, ",")) or domain_rules_str
 	else
+		domain_rules_str = domain_rules_str .. " -address -6"
 		table.insert(sets, "#6:" .. setflag .. "passwall_black6")
 		domain_rules_str = REMOTE_FAKEDNS ~= "1" and (domain_rules_str .. " -d no " .. set_type .. " " .. table.concat(sets, ",")) or domain_rules_str
 	end
@@ -453,6 +487,7 @@ if USE_GFW_LIST == "1" and is_file_nonzero(RULES_PATH .. "/gfwlist") then
 		domain_rules_str = domain_rules_str .. " -address #6"
 		domain_rules_str = REMOTE_FAKEDNS ~= "1" and (domain_rules_str .. " " .. set_type .. " " .. table.concat(sets, ",")) or domain_rules_str
 	else
+		domain_rules_str = domain_rules_str .. " -address -6"
 		table.insert(sets, "#6:" .. setflag .. "passwall_gfw6")
 		domain_rules_str = REMOTE_FAKEDNS ~= "1" and (domain_rules_str .. " -d no " .. set_type .. " " .. table.concat(sets, ",")) or domain_rules_str
 	end
@@ -493,6 +528,7 @@ if CHN_LIST ~= "0" and is_file_nonzero(RULES_PATH .. "/chnlist") then
 			domain_rules_str = domain_rules_str .. " -address #6"
 			domain_rules_str = REMOTE_FAKEDNS ~= "1" and (domain_rules_str .. " " .. set_type .. " " .. table.concat(sets, ",")) or domain_rules_str
 		else
+			domain_rules_str = domain_rules_str .. " -address -6"
 			table.insert(sets, "#6:" .. setflag .. "passwall_chn6")
 			domain_rules_str = REMOTE_FAKEDNS ~= "1" and (domain_rules_str .. " -d no " .. set_type .. " " .. table.concat(sets, ",")) or domain_rules_str
 		end
@@ -503,7 +539,7 @@ if CHN_LIST ~= "0" and is_file_nonzero(RULES_PATH .. "/chnlist") then
 end
 
 --分流规则
-if uci:get(appname, TCP_NODE, "protocol") == "_shunt" then
+if IS_SHUNT_NODE then
 	local white_domain, lookup_white_domain = {}, {}
 	local shunt_domain, lookup_shunt_domain = {}, {}
 	local file_white_host = FLAG_PATH .. "/shunt_direct_host"
@@ -627,6 +663,7 @@ if uci:get(appname, TCP_NODE, "protocol") == "_shunt" then
 					and domain_rules_str
 					or (domain_rules_str .. " " .. set_type .. " " .. table.concat(sets, ","))
 		else
+			domain_rules_str = domain_rules_str .. " -address -6"
 			table.insert(sets, "#6:" .. setflag .. "passwall_shunt6")
 			domain_rules_str = (not only_global and REMOTE_FAKEDNS == "1")
 					and domain_rules_str
@@ -655,4 +692,4 @@ end
 
 fs.symlink(TMP_CONF_FILE, SMARTDNS_CONF)
 sys.call(string.format('echo "conf-file %s" >> /etc/smartdns/custom.conf', string.gsub(SMARTDNS_CONF, appname, appname .. "*")))
-log("  - 请让SmartDNS作为Dnsmasq的上游或重定向！")
+log("  - SmartDNS已作为Dnsmasq上游，如果你自行配置了错误的DNS流程，将会导致域名(直连/代理域名)分流失效！！！")

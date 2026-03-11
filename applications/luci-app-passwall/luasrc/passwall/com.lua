@@ -2,12 +2,12 @@ local _M = {}
 
 local function gh_release_url(self)
 	--return "https://api.github.com/repos/" .. self.repo .. "/releases/latest"
-	return "https://github.com/xiaorouji/openwrt-passwall-packages/releases/download/api-cache/" .. string.lower(self.name) .. "-release-api.json"
+	return "https://github.com/Openwrt-Passwall/openwrt-passwall-packages/releases/download/api-cache/" .. string.lower(self.name) .. "-release-api.json"
 end
 
 local function gh_pre_release_url(self)
 	--return "https://api.github.com/repos/" .. self.repo .. "/releases?per_page=1"
-	return "https://github.com/xiaorouji/openwrt-passwall-packages/releases/download/api-cache/" .. string.lower(self.name) .. "-pre-release-api.json"
+	return "https://github.com/Openwrt-Passwall/openwrt-passwall-packages/releases/download/api-cache/" .. string.lower(self.name) .. "-pre-release-api.json"
 end
 
 -- 排序顺序定义
@@ -45,8 +45,17 @@ _M["sing-box"] = {
 	default_path = "/usr/bin/sing-box",
 	match_fmt_str = "linux%%-%s",
 	file_tree = {
-		x86_64 = "amd64",
-		mips64el = "mips64le"
+		x86_64 = "amd64%-musl",
+		x86     = "386%-musl",
+		aarch64 = "arm64%-musl",
+		rockchip = "arm64%-musl",
+		mips    = "mips%-softfloat",
+		mips64  = "mips64%-softfloat",
+		mipsel  = "mipsle%-softfloat%-musl",
+		mips64el = "mips64le%-softfloat",
+		armv7   = "armv7%-musl",
+		armv8   = "arm64%-musl",
+		riscv64 = "riscv64%-musl"
 	}
 }
 
