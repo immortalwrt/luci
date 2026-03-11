@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-02-20 00:34+0000\n"
+"PO-Revision-Date: 2026-03-09 19:11+0000\n"
 "Last-Translator: EESF-2 <eesf-2@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/openwrt/luciapplicationssqm/zh_Hant/>\n"
@@ -8,29 +8,29 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16.1-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:133
 msgid "Advanced Configuration"
 msgstr "進階配置"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:199
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:203
 msgid "Advanced Linklayer Options"
 msgstr "進階連結層選項"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:183
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:187
 msgid ""
 "Advanced option string to pass to the egress queueing disciplines; no error "
 "checking, use very carefully."
 msgstr "傳遞到出站佇列規則的進階選項字串；沒有錯誤檢查，請謹慎使用。"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:180
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:184
 msgid ""
 "Advanced option string to pass to the ingress queueing disciplines; no error "
 "checking, use very carefully."
 msgstr "傳遞到入站佇列規則的進階選項字串；沒有錯誤檢查，請謹慎使用。"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:199
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:203
 msgid ""
 "Advanced options will only be used as long as this box is checked (only "
 "needed if MTU > 1500)."
@@ -48,13 +48,13 @@ msgstr "基本設定"
 msgid ""
 "Create log file for this SQM instance under /var/run/sqm/${Interface_name}."
 "[start|stop]-sqm.log."
-msgstr "建立日誌檔案 (/var/run/sqm/${Interface_name}.[start|stop]-sqm.log)。"
+msgstr "建立紀錄檔案 (/var/run/sqm/${Interface_name}.[start|stop]-sqm.log)。"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:160
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:164
 msgid "Dangerous Configuration"
 msgstr "危險配置"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:160
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:164
 msgid "Dangerous options will only be used as long as this box is checked."
 msgstr "僅選取此框時才會使用危險選項。"
 
@@ -68,11 +68,11 @@ msgid ""
 "selectively"
 msgstr "下載速度 (kbit/s) (傳入) 設為 0 以選擇性停用傳入整形"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:154
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:158
 msgid "ECN (egress)"
 msgstr "ECN (傳出)"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:148
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:152
 msgid "ECN (ingress)"
 msgstr "ECN (傳入)"
 
@@ -82,17 +82,27 @@ msgstr "啟用 SQM"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:100
 msgid "Enable debug logging"
-msgstr "啟用偵錯日誌"
+msgstr "啟用偵錯紀錄"
+
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:136
+msgid "Enable multi-queue config"
+msgstr ""
+
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:136
+msgid ""
+"Enable multi-queue qdisc on supported hardware. If .qos script does not "
+"support mq this option is ignored."
+msgstr ""
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:78
 msgid "Enable this SQM instance."
 msgstr "啟用 SQM 實例。"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:148
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:152
 msgid "Explicit congestion notification (ECN) status on inbound packets"
 msgstr "傳入封包上的顯式擁塞通知 (ECN) 狀態"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:154
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:158
 msgid "Explicit congestion notification (ECN) status on outbound packets"
 msgstr "傳出封包上的顯式擁塞通知 (ECN) 狀態"
 
@@ -100,27 +110,27 @@ msgstr "傳出封包上的顯式擁塞通知 (ECN) 狀態"
 msgid "Grant UCI access for luci-app-sqm"
 msgstr "授予 luci-app-sqm 存取 UCI 的權限"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:168
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:172
 msgid "Hard limit on egress queues; leave empty for default."
 msgstr "傳出佇列的硬限制；預設留空。"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:164
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:168
 msgid "Hard limit on ingress queues; leave empty for default."
 msgstr "傳入佇列的硬限制；預設留空。"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:168
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:172
 msgid "Hard queue limit (egress)"
 msgstr "硬佇列限制 (傳出)"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:164
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:168
 msgid "Hard queue limit (ingress)"
 msgstr "硬佇列限制 (傳入)"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:142
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:146
 msgid "Ignore DSCP (ingress)"
 msgstr "忽略 DSCP (傳入)"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:142
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:146
 msgid "Ignore DSCP markings on inbound packets"
 msgstr "忽略傳入封包的 DSCP 標記"
 
@@ -128,15 +138,15 @@ msgstr "忽略傳入封包的 DSCP 標記"
 msgid "Interface name"
 msgstr "介面名稱"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:176
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:180
 msgid "Latency target (egress)"
 msgstr "延遲目標 (傳出)"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:172
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:176
 msgid "Latency target (ingress)"
 msgstr "延遲目標 (傳入)"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:176
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:180
 msgid ""
 "Latency target for egress, e.g. 5ms [units: s, ms, or us]; leave empty for "
 "automatic selection, put in the word default for the qdisc's default."
@@ -144,7 +154,7 @@ msgstr ""
 "傳出的延遲目標，例如 5ms [單位: s、ms、或us]；留空以進行自動選擇，在 qdisc 的"
 "預設值中輸入default。"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:172
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:176
 msgid ""
 "Latency target for ingress, e.g 5ms [units: s, ms, or us]; leave empty for "
 "automatic selection, put in the word default for the qdisc's default."
@@ -156,11 +166,11 @@ msgstr ""
 msgid "Link Layer Adaptation"
 msgstr "連結層適應"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:187
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:191
 msgid "Link layer"
 msgstr "連結層"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:218
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:222
 msgid "Linklayer adaptation mechanism"
 msgstr "連結層適應機制"
 
@@ -174,42 +184,43 @@ msgstr ""
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:103
 msgid "Log verbosity"
-msgstr "日誌詳細程度"
+msgstr "紀錄詳細程度"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:203
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:207
 msgid ""
 "Maximal Size for size and rate calculations, tcMTU (byte); needs to be >= "
 "interface MTU + overhead"
 msgstr "用於大小和速率計算的最大大小，tcMTU (位元組) ;需要>= 介面 MTU + 開銷"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:203
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:207
 msgid "Maximum packet size"
 msgstr "最大封包大小"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:213
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:217
 msgid ""
 "Minimal packet size, MPU (byte); needs to be > 0 for ethernet size tables"
 msgstr "最小封包大小，MPU (位元組)；乙太網路大小表需要> 0"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:213
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:217
 msgid "Minimum packet size"
 msgstr "最小封包大小"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:208
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:212
 msgid ""
 "Number of entries in size/rate tables, TSIZE; for ATM choose TSIZE = (tcMTU "
 "+ 1) / 16"
-msgstr "大小 / 費率表中的條目數，TSIZE；對於 ATM，選擇 TSIZE = (tcMTU + 1) / 16"
+msgstr ""
+"大小 / 費率表中的條目數，TSIZE；對於 ATM，選擇 TSIZE = (tcMTU + 1) / 16"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:193
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:197
 msgid "Per Packet Overhead (bytes)"
 msgstr "每個封包的開銷 (bytes)"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:183
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:187
 msgid "Qdisc options (egress)"
 msgstr "Qdisc 選項 (傳出)"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:180
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:184
 msgid "Qdisc options (ingress)"
 msgstr "Qdisc 選項 (傳入)"
 
@@ -229,7 +240,7 @@ msgstr "排隊規則"
 msgid "Queues"
 msgstr "佇列"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:208
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:212
 msgid "Rate table size"
 msgstr "速率表大小"
 
@@ -241,11 +252,11 @@ msgstr "SQM QoS"
 msgid "Smart Queue Management"
 msgstr "智慧佇列管理"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:136
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:140
 msgid "Squash DSCP (ingress)"
 msgstr "壓縮 DSCP (傳入)"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:136
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:140
 msgid "Squash DSCP markings on inbound packets"
 msgstr "壓縮傳入封包上的 DSCP 標記"
 
@@ -275,13 +286,13 @@ msgstr "上傳速度 (kbit/s) (傳出) 設為 0 以有選擇地禁用傳出整�
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:103
 msgid "Verbosity of SQM's output into the system log."
-msgstr "SQM 輸出到系統日誌的詳細程度。"
+msgstr "SQM 輸出到系統紀錄的詳細程度。"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:187
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:191
 msgid "Which link layer technology to account for"
 msgstr "應該考慮哪種連結層技術"
 
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:218
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:222
 msgid "Which linklayer adaptation mechanism to use; for testing only"
 msgstr "使用哪種連結層適配機制；僅用於測試"
 
@@ -295,9 +306,9 @@ msgstr ""
 "好的混合 (公平佇列)，主動佇列管理 (AQM) 並設定網路介面優先順序。"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:107
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:149
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:155
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:188
-#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:219
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:153
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:159
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:192
+#: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:223
 msgid "default"
 msgstr "預設"
