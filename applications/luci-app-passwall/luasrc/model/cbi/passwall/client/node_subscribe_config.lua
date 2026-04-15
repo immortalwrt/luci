@@ -133,6 +133,37 @@ o.validate = function(self, value)
 	return value:gsub("%s+", ""):gsub("%z", "")
 end
 
+o = s:option(ListValue, "domain_resolver", translate("Domain DNS Resolve"))
+o.description = translate("If the node address is a domain name, this DNS will be used for resolution.") .. "<br>" ..
+		translate("Supports only Xray or Sing-box node types.") .. "<br>" .. string.format('<font color="red">%s</font>',
+		translate("Note: For node-specific DNS only. Keep Auto to avoid extra overhead."))
+o:value("", translate("Auto"))
+o:value("tcp", "TCP")
+o:value("udp", "UDP")
+o:value("https", "DoH")
+
+o = s:option(Value, "domain_resolver_dns", "DNS")
+o.datatype = "or(ipaddr,ipaddrport)"
+o:value("114.114.114.114")
+o:value("223.5.5.5:53")
+o.default = o.keylist[1]
+o:depends({ domain_resolver = "tcp" })
+o:depends({ domain_resolver = "udp" })
+
+o = s:option(Value, "domain_resolver_dns_https", "DNS")
+o:value("https://120.53.53.53/dns-query", "DNSPod")
+o:value("https://223.5.5.5/dns-query", "AliDNS")
+o.default = o.keylist[1]
+o:depends({ domain_resolver = "https" })
+
+o = s:option(ListValue, "domain_strategy", translate("Domain Strategy"), translate("If is domain name, The requested domain name will be resolved to IP before connect."))
+o.default = ""
+o:value("", translate("Auto"))
+o:value("UseIPv4v6", translate("Prefer IPv4"))
+o:value("UseIPv6v4", translate("Prefer IPv6"))
+o:value("UseIPv4", translate("IPv4 Only"))
+o:value("UseIPv6", translate("IPv6 Only"))
+
 o = s:option(Flag, "allowInsecure", translate("allowInsecure"))
 o.default = "0"
 o.rmempty = false
@@ -202,15 +233,6 @@ if #hysteria2_type > 0 then
 		o:value(value)
 	end
 end
-
-o = s:option(ListValue, "domain_strategy", "Sing-box " .. translate("Domain Strategy"), translate("Set the default domain resolution strategy for the sing-box node."))
-o.default = "global"
-o:value("global", translate("Use global config"))
-o:value("", translate("Auto"))
-o:value("prefer_ipv4", translate("Prefer IPv4"))
-o:value("prefer_ipv6", translate("Prefer IPv6"))
-o:value("ipv4_only", translate("IPv4 Only"))
-o:value("ipv6_only", translate("IPv6 Only"))
 
 o = s:option(Flag, "boot_update", translate("Update Once on Boot"), translate("Updates the subscription the first time PassWall runs automatically after each system boot."))
 o.default = 0

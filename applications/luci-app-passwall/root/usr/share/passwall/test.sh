@@ -57,10 +57,10 @@ url_test_node() {
 			}
 		else
 			local _tmp_port=$(get_new_port 48900 tcp,udp)
-			/usr/share/${CONFIG}/app.sh run_socks flag="url_test_${node_id}" node=${node_id} bind=127.0.0.1 socks_port=${_tmp_port} config_file=url_test_${node_id}.json
+			NO_REC_PROCESS=1 /usr/share/${CONFIG}/app.sh run_socks flag="url_test_${node_id}" node=${node_id} bind=127.0.0.1 socks_port=${_tmp_port} config_file=url_test_${node_id}.json
 			local curlx="socks5h://127.0.0.1:${_tmp_port}"
 		fi
-		sleep 1s
+		sleep 2s
 		local probeUrl=$(config_t_get global_other url_test_url https://www.google.com/generate_204)
 		result=$(curl --connect-timeout 3 --max-time 5 -o /dev/null -I -skL -w "%{http_code}:%{time_pretransfer}" -x ${curlx} "${probeUrl}")
 		# 结束 SS 插件进程

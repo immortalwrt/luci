@@ -1807,14 +1807,14 @@ msgstr "缓冲区大小"
 msgid "Buffer size for every connection (kB)"
 msgstr "每一个连接的缓冲区大小（kB）"
 
-msgid "Handshake Timeout"
-msgstr "握手超时 "
-
 msgid "Idle Timeout"
-msgstr "空闲超时 "
+msgstr "空闲超时"
 
-msgid "Hop Interval"
-msgstr "端口跳跃时间 "
+msgid "Hop Interval(second)"
+msgstr "端口跳跃间隔（秒）"
+
+msgid "Supports a fixed value or a random range (e.g., 30, 5-30), minimum 5."
+msgstr "支持固定值或随机范围（如 30 或 5-30），最小 5 秒。"
 
 msgid "HeartbeatPeriod(second)"
 msgstr "心跳周期（单位：秒）"
@@ -1936,6 +1936,18 @@ msgstr "延迟（ms）"
 msgid "If is domain name, The requested domain name will be resolved to IP before connect."
 msgstr "如果是域名，域名将在请求发出之前解析为 IP。"
 
+msgid "Domain DNS Resolve"
+msgstr "域名 DNS 解析"
+
+msgid "If the node address is a domain name, this DNS will be used for resolution."
+msgstr "如果节点地址是域名，则将使用此 DNS 进行解析。"
+
+msgid "Note: For node-specific DNS only. Keep Auto to avoid extra overhead."
+msgstr "注意：仅用于节点专用 DNS，通常请保持自动，以免增加开销。"
+
+msgid "Supports only Xray or Sing-box node types."
+msgstr "仅支持 Xray 或 Sing-box 类型节点。"
+
 msgid "Chain Proxy"
 msgstr "链式代理"
 
@@ -1949,14 +1961,11 @@ msgid ""
 "Chained proxy works only with Xray or Sing-box nodes.<br>"
 "You can only use manual or imported nodes as chained nodes."
 msgstr ""
-"链式代理仅支持 Xray 与 Sing-box 节点。<br>"
+"链式代理仅支持 Xray 或 Sing-box 节点。<br>"
 "仅支持手动添加或导入的节点用作链式节点。"
 
 msgid "Only work with using the %s node."
 msgstr "与使用 %s 节点时生效。"
-
-msgid "Set the default domain resolution strategy for the sing-box node."
-msgstr "为 sing-box 节点设置默认的域名解析策略。"
 
 msgid "Total Lines"
 msgstr "总行数："

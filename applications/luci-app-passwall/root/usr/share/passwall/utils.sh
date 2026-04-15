@@ -357,6 +357,7 @@ set_cache_var() {
 	shift 1
 	local val="$@"
 	[ -n "${key}" ] && [ -n "${val}" ] && {
+		[ ! -d $TMP_PATH ] && mkdir -p $TMP_PATH
 		sed -i "/${key}=/d" $TMP_PATH/var >/dev/null 2>&1
 		echo "${key}=\"${val}\"" >> $TMP_PATH/var
 		eval ${key}=\"${val}\"
@@ -455,6 +456,7 @@ ln_run() {
 			${file_func:-echolog " - ${ln_name}"} "$@" 2>&1 | logger -t PASSWALL_${protocol}_${ln_name} &
 		fi
 	fi
+	[ -n "$NO_REC_PROCESS" ] && return
 	process_count=$(ls $TMP_SCRIPT_FUNC_PATH | wc -l)
 	process_count=$((process_count + 1))
 	echo "${file_func:-echolog "  - ${ln_name}"} $@ >${output}" > $TMP_SCRIPT_FUNC_PATH/$process_count

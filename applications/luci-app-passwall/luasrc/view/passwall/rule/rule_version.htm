@@ -4,11 +4,13 @@ local fs = api.fs
 local has_old_geoip = fs.access("/tmp/bak_v2ray/geoip.dat")
 local has_old_geosite = fs.access("/tmp/bak_v2ray/geosite.dat")
 -%>
-<script src="<%=resource%>/view/<%=api.appname%>/Sortable.min.js?v=26.1.9"></script>
+<script src="<%=resource%>/view/<%=api.appname%>/Sortable.min.js?v=1.15.7"></script>
 
 <style>
 	table .cbi-button-up,
-	table .cbi-button-down {
+	table .cbi-button-down,
+	.td.cbi-section-actions .cbi-button-up,
+	.td.cbi-section-actions .cbi-button-down {
 		display: none !important;
 	}
 
