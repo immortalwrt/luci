@@ -42,7 +42,7 @@ while [ 1 -eq 1 ]; do
 			restart_count=$((restart_count + 1))
 			echo "$restart_count" > "$stats_file"
 			#echo "${cmd} 进程挂掉，重启" >> /tmp/log/passwall.log
-			eval "$cmd 2>&1 &"
+			sh -c "nohup $cmd 2>&1 &"
 			sleep 1
 		fi
 	done

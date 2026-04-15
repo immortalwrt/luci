@@ -121,7 +121,6 @@ o = s:option(ListValue, _n("flow"), translate("flow"))
 o.default = ""
 o:value("", translate("Disable"))
 o:value("xtls-rprx-vision")
-o:value("xtls-rprx-vision-udp443")
 o:depends({ [_n("protocol")] = "vless" })
 
 ---- [[ hysteria2 ]]
@@ -352,33 +351,6 @@ o:depends({ [_n("transport")] = "mkcp" })
 
 o = s:option(Value, _n("mkcp_domain"), translate("Camouflage Domain"), translate("Use it together with the DNS disguised type. You can fill in any domain."))
 o:depends({ [_n("mkcp_guise")] = "dns" })
-
-o = s:option(Value, _n("mkcp_mtu"), translate("KCP MTU"))
-o.default = "1350"
-o:depends({ [_n("transport")] = "mkcp" })
-
-o = s:option(Value, _n("mkcp_tti"), translate("KCP TTI"))
-o.default = "20"
-o:depends({ [_n("transport")] = "mkcp" })
-
-o = s:option(Value, _n("mkcp_uplinkCapacity"), translate("KCP uplinkCapacity"))
-o.default = "5"
-o:depends({ [_n("transport")] = "mkcp" })
-
-o = s:option(Value, _n("mkcp_downlinkCapacity"), translate("KCP downlinkCapacity"))
-o.default = "20"
-o:depends({ [_n("transport")] = "mkcp" })
-
-o = s:option(Flag, _n("mkcp_congestion"), translate("KCP Congestion"))
-o:depends({ [_n("transport")] = "mkcp" })
-
-o = s:option(Value, _n("mkcp_readBufferSize"), translate("KCP readBufferSize"))
-o.default = "1"
-o:depends({ [_n("transport")] = "mkcp" })
-
-o = s:option(Value, _n("mkcp_writeBufferSize"), translate("KCP writeBufferSize"))
-o.default = "1"
-o:depends({ [_n("transport")] = "mkcp" })
 
 o = s:option(Value, _n("mkcp_seed"), translate("KCP Seed"))
 o:depends({ [_n("transport")] = "mkcp" })
