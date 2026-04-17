@@ -100,21 +100,17 @@ function get_new_port()
 end
 
 function exec_call(cmd)
-	local process = io.popen(cmd .. '; echo -e "\n$?"')
-	local lines = {}
-	local result = ""
-	local return_code
-	for line in process:lines() do
-		lines[#lines + 1] = line
+	math.randomseed(os.time())
+	local tag = "\x01__RC__" .. tostring(math.random(100000, 999999)) .. "\x01"
+	local f = io.popen('(' .. cmd .. '); printf "\\n' .. tag .. '%d" "$?"')
+	local out = f:read("*a") or ""
+	f:close()
+	local rc = out:match(tag .. "(%d+)%s*$")
+	if not rc then
+		return 255, trim(out)
 	end
-	process:close()
-	if #lines > 0 then
-		return_code = lines[#lines]
-		for i = 1, #lines - 1 do
-			result = result .. lines[i] .. ((i == #lines - 1) and "" or "\n")
-		end
-	end
-	return tonumber(return_code), trim(result)
+	out = out:gsub("\n?" .. tag .. "%d+%s*$", "")
+	return tonumber(rc), trim(out)
 end
 
 function base64Decode(text)
@@ -949,6 +945,28 @@ function parseURL(url_str)
 	return res
 end
 
+function parseDoH(doh_str)
+	doh_str = trim(doh_str)
+	if doh_str == "" then return nil end
+
+	local url_part, ip_part
+	if doh_str:find(",", 1, true) then
+		url_part, ip_part = doh_str:match("^([^,]+),(.+)$")
+	else
+		url_part = doh_str
+	end
+
+	local res = parseURL(url_part)
+	if not res then return nil end
+
+	res.url = url_part
+	if ip_part and ip_part ~= "" and is_ip(ip_part) then
+		res.hostip = ip_part
+	end
+
+	return res
+end
+
 local default_file_tree = {
 	x86_64  = "amd64",
 	x86     = "386",
@@ -1530,4 +1548,46 @@ function cleanEmptyTables(t)
 		end
 	end
 	return next(t) and t or nil
+end
+
+function fetch_cert_sha256(host, port, timeout)
+	if not host or not datatypes.hostname(host) then return "" end
+	port = tonumber(port) or 443
+	timeout = tonumber(timeout) or 5
+	local xray = finded_com("xray")
+	local cmd
+	if xray then
+		cmd = string.format(
+			"timeout %d %q tls ping %s:%d 2>/dev/null " ..
+			"| awk 'tolower($0) ~ /without sni/ {f=1} tolower($0) ~ /with sni/ {f=0} " ..
+			"f && tolower($0) ~ /cert.*leaf.*sha256/ {sub(/.*:/,\"\"); gsub(/[[:space:]]/,\"\"); print; exit}'",
+			timeout, xray, host, port
+		)
+	else
+		cmd = string.format(
+			"timeout %d openssl s_client -connect %s:%d -servername %s -showcerts </dev/null 2>/dev/null " ..
+			"| awk 'BEGIN{c=0}/BEGIN CERT/{c++} c==1{print} /END CERT/{if(c==1)exit}' " ..
+			"| openssl x509 -outform der 2>/dev/null " ..
+			"| sha256sum 2>/dev/null",
+			timeout, host, port, host
+		)
+	end
+	local out = trim(sys.exec(cmd))
+	local fp = out:match("^([0-9a-fA-F]+)")
+	if not fp then return "" end
+	return fp:upper()
+end
+
+function vps_domain_exclude(domain)
+	if trim(domain) == "" then return true end
+	local map = {
+		["engage.cloudflareclient.com"] = 1,
+		["google.com"] = 1, ["www.google.com"] = 1,
+		["youtube.com"] = 1, ["www.youtube.com"] = 1,
+		["github.com"] = 1, ["telegram.org"] = 1,
+		["cloudflare.com"] = 1, ["www.cloudflare.com"] = 1,
+		["bing.com"] = 1, ["www.bing.com"] = 1, ["x.com"] = 1
+	}
+	if map[domain] then return true end
+	return false
 end

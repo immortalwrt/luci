@@ -1,7 +1,8 @@
 <%
 local api = require "luci.passwall.api"
+local appname = api.appname
 -%>
-<script src="<%=resource%>/view/<%=api.appname%>/Sortable.min.js?v=1.15.7"></script>
+<script src="<%=resource%>/view/<%=appname%>/Sortable.min.js?v=1.15.7"></script>
 
 <style>
 table .cbi-button-up,
@@ -33,6 +34,34 @@ table .cbi-button-down,
 .dragging-row {
 	background-color: rgba(131, 191, 255, 0.7) !important;
 	box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+@media screen and (max-width: 1152px) {
+	#cbi-<%=appname%>-haproxy_config .cbi-section-table-titles {
+		display: none !important;
+	}
+}
+
+@media screen and (min-width: 1152px) {
+	#cbi-<%=appname%>-haproxy_config input[id*=".<%=appname%>."][id$=".haproxy_port"],
+	#cbi-<%=appname%>-haproxy_config input[id*=".<%=appname%>."][id$=".lbweight"] {
+		width: 100px !important;
+		min-width: unset !important;
+		max-width: unset !important;
+		text-align: center !important;
+	}
+
+	#cbi-<%=appname%>-haproxy_config select[id*=".<%=appname%>."][id$=".export"] {
+		width: 130px !important;
+		min-width: unset !important;
+		max-width: unset !important;
+	}
+
+	#cbi-<%=appname%>-haproxy_config select[id*=".<%=appname%>."][id$=".backup"] {
+		width: 100px !important;
+		min-width: unset !important;
+		max-width: unset !important;
+	}
 }
 </style>
 <script type="text/javascript">
@@ -85,7 +114,7 @@ table .cbi-button-down,
 	//节点列表添加拖拽排序
 	document.addEventListener("DOMContentLoaded", function () {
 		function initSortableForTable() {
-			var section = document.getElementById("cbi-<%=api.appname%>-haproxy_config");
+			var section = document.getElementById("cbi-<%=appname%>-haproxy_config");
 			if (!section) return;
 
 			hideSortColumn(section);
@@ -139,8 +168,8 @@ table .cbi-button-down,
 			var rows = root.querySelectorAll("tr.cbi-section-table-row");
 			rows.forEach(function (tr) {
 				var id = tr.id || "";
-				if (id.startsWith("cbi-<%=api.appname%>-"))
-					id = id.replace("cbi-<%=api.appname%>-", "");
+				if (id.startsWith("cbi-<%=appname%>-"))
+					id = id.replace("cbi-<%=appname%>-", "");
 				order.push(id);
 			});
 			return order;
