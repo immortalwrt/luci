@@ -139,9 +139,6 @@ msgstr "%s 不能为空。"
 msgid "Filter Mode"
 msgstr "过滤模式"
 
-msgid "A/AAAA type"
-msgstr "A/AAAA 类型"
-
 msgid "TCP node must be '%s' type to use FakeDNS."
 msgstr "TCP 节点必须是 '%s' 类型才能使用 FakeDNS。"
 
@@ -177,6 +174,9 @@ msgstr "请求协议"
 
 msgid "Remote DNS DoH"
 msgstr "远程 DNS DoH"
+
+msgid "Format: URL[,IP] (optional IP to map the domain in the URL)"
+msgstr "格式：URL[,IP]（IP 可选，用于绑定 URL 中的域名）"
 
 msgid "Notify the DNS server when the DNS query is notified, the location of the client (cannot be a private IP address)."
 msgstr "用于 DNS 查询时通知 DNS 服务器，客户端所在的地理位置（不能是私有 IP 地址）。"
@@ -927,6 +927,9 @@ msgstr "内置实现"
 
 msgid "Health Check Inter"
 msgstr "健康检查节点间隔时间"
+
+msgid "Note: Frequent health checks increase CPU usage; an interval ≥ 60 seconds is recommended."
+msgstr "注意：检测过于频繁会增加 CPU 负载，建议间隔 ≥60 秒。"
 
 msgid "When the URL test is used, the load balancing node will be converted into a Socks node. when node list set customizing, must be a Socks node, otherwise the health check will be invalid."
 msgstr "当使用 URL 测试时，负载均衡节点将转换成 Socks 节点。下面的节点列表自定义时必须为 Socks 节点，否则健康检查将无效。"
@@ -1852,17 +1855,17 @@ msgstr "TLS 证书名称（CertName）"
 msgid "TLS is used to verify the leaf certificate name."
 msgstr "TLS 用于验证 leaf 证书的 name。"
 
+msgid "Fetch Manually"
+msgstr "手动获取"
+
+msgid "Fetch Failed"
+msgstr "获取失败"
+
 msgid "ECH Config"
 msgstr "ECH 配置"
 
 msgid "ECH Key"
 msgstr "ECH 密钥"
-
-msgid "ECH Query Policy"
-msgstr "ECH 查询策略"
-
-msgid "Controls the policy used when performing DNS queries for ECH configuration."
-msgstr "控制使用 DNS 查询 ECH 配置时的策略。"
 
 msgid "ECH Query Domain"
 msgstr "ECH 查询域名"

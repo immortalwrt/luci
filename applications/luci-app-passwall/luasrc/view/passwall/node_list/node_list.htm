@@ -278,10 +278,10 @@ table td, .table .td {
 		ajaxList = [];
 	}
 
-	function to_add_node(protocol) {
+	function to_add_node() {
 		ajaxAbortAll();
 		const dom = document.getElementsByClassName("cbi-tab")[0];
-		const current_group = dom.getAttribute("group_name")
+		const current_group = dom ? (dom.getAttribute("group_name") || "default") : "default";
 		window.location.href = '<%=api.url("add_node")%>?redirect=1&group=' + current_group;
 	}
 
@@ -962,10 +962,10 @@ table td, .table .td {
 						} else {
 							innerHTML = innerHTML.split("{{tcping}}").join('<span class="tcping_value" cbiid="{{id}}"><a href="javascript:void(0)" style="color:inherit">---</a></span>');
 						}
-						if (o["protocol"] && o["protocol"] !== '_shunt') {
-							innerHTML = innerHTML.split("{{url_test}}").join('<span class="ping"><a href="javascript:void(0)" onclick="javascript:urltest_node(\'{{id}}\', this)" title="<%:TLS handshake test, latency for reference only%>"><%:Test%></a></span>');
-						} else {
+						if (o["protocol"] && o["protocol"] === '_shunt') {
 							innerHTML = innerHTML.split("{{url_test}}").join('<span class="ping" cbiid="{{id}}">---</span>');
+						} else {
+							innerHTML = innerHTML.split("{{url_test}}").join('<span class="ping"><a href="javascript:void(0)" onclick="javascript:urltest_node(\'{{id}}\', this)" title="<%:TLS handshake test, latency for reference only%>"><%:Test%></a></span>');
 						}
 						innerHTML = innerHTML.split("{{id}}").join(o[".name"]);
 						innerHTML = innerHTML.split("{{group}}").join(o["group"] || "");

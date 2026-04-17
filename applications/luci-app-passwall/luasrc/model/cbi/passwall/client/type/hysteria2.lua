@@ -54,7 +54,6 @@ o = s:option(Flag, _n("tls_allowInsecure"), translate("allowInsecure"), translat
 o.default = "0"
 
 o = s:option(Value, _n("tls_pinSHA256"), translate("PinSHA256"),translate("Certificate fingerprint"))
-o.rewrite_option = o.option
 
 o = s:option(Value, _n("up_mbps"), translate("Max upload Mbps"))
 o.rewrite_option = o.option

@@ -376,9 +376,11 @@ if api.compare_versions(os.date("%Y.%m.%d"), "<", "2026.6.1") then
 end
 
 if api.compare_versions(xray_version, ">=", "26.1.31") then
-	o = s:option(Value, _n("tls_CertSha"), translate("TLS Chain Fingerprint (SHA256)"), translate("Once set, connects only when the server’s chain fingerprint matches."))
+	o = s:option(Value, _n("tls_pinSHA256"), translate("TLS Chain Fingerprint (SHA256)"))
 	o:depends({ [_n("tls")] = true, [_n("reality")] = false })
 	o:depends({ [_n("protocol")] = "hysteria2" })
+	o.description = translate("Once set, connects only when the server’s chain fingerprint matches.") ..
+			string.format("<a href='javascript:void(0)' onclick='javascript:fetchCertSha256(this)'>%s</a>", "→ " .. translate("Fetch Manually"))
 
 	o = s:option(Value, _n("tls_CertByName"), translate("TLS Certificate Name (CertName)"), translate("TLS is used to verify the leaf certificate name."))
 	o:depends({ [_n("tls")] = true, [_n("reality")] = false })
@@ -398,13 +400,6 @@ o:depends({ [_n("ech")] = true })
 o.validate = function(self, value)
 	return api.trim(value:gsub("[\r\n]", ""))
 end
-
-o = s:option(ListValue, _n("ech_ForceQuery"), translate("ECH Query Policy"), translate("Controls the policy used when performing DNS queries for ECH configuration."))
-o.default = "full"
-o:value("none")
-o:value("half")
-o:value("full")
-o:depends({ [_n("ech")] = true })
 
 -- [[ REALITY部分 ]] --
 o = s:option(Value, _n("reality_publicKey"), translate("Public Key"))
@@ -512,6 +507,11 @@ o:depends({ [_n("transport")] = "mkcp" })
 
 o = s:option(Value, _n("mkcp_domain"), translate("Camouflage Domain"), translate("Use it together with the DNS disguised type. You can fill in any domain."))
 o:depends({ [_n("mkcp_guise")] = "dns" })
+
+o = s:option(Value, _n("mkcp_mtu"), translate("KCP MTU"))
+o.datatype = "uinteger"
+o.default = 1350
+o:depends({ [_n("transport")] = "mkcp" })
 
 o = s:option(Value, _n("mkcp_seed"), translate("KCP Seed"))
 o:depends({ [_n("transport")] = "mkcp" })

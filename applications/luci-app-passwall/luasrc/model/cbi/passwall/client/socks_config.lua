@@ -9,7 +9,7 @@ if not arg[1] or not m:get(arg[1]) then
 	luci.http.redirect(m.redirect)
 end
 
-m:append(Template(appname .. "/cbi/nodes_multivalue_com"))
+m:append(Template(appname .. "/cbi/nodes_dynamiclist_com"))
 m:append(Template(appname .. "/cbi/nodes_listvalue_com"))
 
 local has_singbox = api.finded_com("sing-box")
@@ -96,43 +96,27 @@ o.datatype = "min(1)"
 o.default = 1
 o:depends("enable_autoswitch", true)
 
-o = s:option(MultiValue, "autoswitch_backup_node", translate("List of backup nodes"))
+o = s:option(DynamicList, "autoswitch_backup_node", translate("List of backup nodes"))
 o:depends("enable_autoswitch", true)
-o.widget = "checkbox"
-o.template = appname .. "/cbi/nodes_multivalue"
+o.template = appname .. "/cbi/nodes_dynamiclist"
 o.group = {}
+o.write = function(self, section, value)
+	local n = s.fields["node"]:formvalue(section)
+	local v = type(value) == "table" and value or { value }
+	local t = {}
+	for _, x in ipairs(v) do
+		if x and x ~= n then t[#t+1] = x end
+	end
+	return DynamicList.write(self, section, t)
+end
 for i, v in pairs(nodes_table) do
 	if v.protocol ~= "_shunt" then
 		o:value(v.id, v.remark)
-		o.group[#o.group+1] = v.group or ""
+		o.group[#o.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
 		s.fields["enable_autoswitch"]:depends({ node = v.id })
 	end
 	socks_node:value(v.id, v["remark"])
 	socks_node.group[#socks_node.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
-end
--- 读取旧 DynamicList
-function o.cfgvalue(self, section)
-	return m.uci:get_list(appname, section, "autoswitch_backup_node") or {}
-end
--- 写入保持 DynamicList
-function o.write(self, section, value)
-	local old = m.uci:get_list(appname, section, "autoswitch_backup_node") or {}
-	local new, set = {}, {}
-	for v in value:gmatch("%S+") do
-		new[#new + 1] = v
-		set[v] = 1
-	end
-	for _, v in ipairs(old) do
-		if not set[v] then
-			m.uci:set_list(appname, section, "autoswitch_backup_node", new)
-			return
-		end
-		set[v] = nil
-	end
-	for _ in pairs(set) do
-		m.uci:set_list(appname, section, "autoswitch_backup_node", new)
-		return
-	end
 end
 
 o = s:option(Flag, "autoswitch_restore_switch", translate("Restore Switch"), translate("When detects main node is available, switch back to the main node."))
