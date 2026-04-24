@@ -1,0 +1,75 @@
+#!/bin/sh
+# Copyright (C) 2026 huchd0 <https://github.com/huchd0/luci-app-netwiz>
+# Licensed under the GNU General Public License v3.0
+
+case "$1" in
+    list)
+        echo '{ "set_network": { "mode": "string", "arg1": "string", "arg2": "string", "arg3": "string", "arg4": "string" } }'
+        exit 0
+        ;;
+    call)
+        case "$2" in
+            set_network)
+                input=$(cat)
+                mode=$(echo "$input" | jsonfilter -e '@.mode')
+                arg1=$(echo "$input" | jsonfilter -e '@.arg1')
+                arg2=$(echo "$input" | jsonfilter -e '@.arg2')
+                arg3=$(echo "$input" | jsonfilter -e '@.arg3')
+                arg4=$(echo "$input" | jsonfilter -e '@.arg4')
+
+                cleanup_lan_for_wan_modes() {
+                    uci delete network.lan.gateway 2>/dev/null
+                    uci delete network.lan.dns 2>/dev/null
+                    uci set dhcp.lan.ignore='0'
+                }
+
+                if [ "$mode" = "wan_dhcp" ]; then
+                    cleanup_lan_for_wan_modes
+                    uci set network.wan.proto='dhcp'
+                    uci commit network
+                    uci commit dhcp
+                elif [ "$mode" = "wan_static" ]; then
+                    cleanup_lan_for_wan_modes
+                    uci set network.wan.proto='static'
+                    uci set network.wan.ipaddr="$arg1"
+                    uci set network.wan.gateway="$arg2"
+                    uci set network.wan.netmask="$arg3"
+                    uci commit network
+                    uci commit dhcp
+                elif [ "$mode" = "pppoe" ]; then
+                    cleanup_lan_for_wan_modes
+                    uci set network.wan.proto='pppoe'
+                    uci set network.wan.username="$arg1"
+                    uci set network.wan.password="$arg2"
+                    uci commit network
+                    uci commit dhcp
+                elif [ "$mode" = "lan" ]; then
+                    uci set network.lan.proto='static'
+                    uci set network.lan.ipaddr="$arg1"
+                    uci set network.lan.netmask="$arg3"
+                    if [ -n "$arg2" ]; then
+                        uci set network.lan.gateway="$arg2"
+                    else
+                        uci delete network.lan.gateway 2>/dev/null
+                    fi
+                    
+                    if [ "$arg4" = "1" ]; then
+                        uci set dhcp.lan.ignore='1'
+                        [ -n "$arg2" ] && uci set network.lan.dns="$arg2"
+                    else
+                        uci set dhcp.lan.ignore='0'
+                        uci delete network.lan.dns 2>/dev/null
+                    fi
+                    uci commit network
+                    uci commit dhcp
+                fi
+                
+                echo '{"result":0}'
+
+                ( sleep 3; /etc/init.d/network restart; /etc/init.d/dnsmasq restart ) >/dev/null 2>&1 &
+                exit 0
+                ;;
+        esac
+        ;;
+esac
+exit 1

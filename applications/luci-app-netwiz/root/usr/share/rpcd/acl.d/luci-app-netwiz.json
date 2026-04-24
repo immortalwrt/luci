@@ -1,0 +1,23 @@
+{
+    "luci-app-netwiz": {
+        "description": "Grant access to Network Setup Wizard",
+        "read": {
+            "uci": [
+                "network",
+                "dhcp"
+            ],
+            "ubus": {
+                "network.interface": [
+                    "dump"
+                ]
+            }
+        },
+        "write": {
+            "ubus": {
+                "netwiz": [
+                    "set_network"
+                ]
+            }
+        }
+    }
+}
