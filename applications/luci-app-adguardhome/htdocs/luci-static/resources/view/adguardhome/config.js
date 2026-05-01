@@ -139,6 +139,13 @@ return view.extend({
 				' ' + _('Modify at your own risk.'),
 		);
 
+		const enabledOpt = mainSect.taboption(
+			'general',
+			form.Flag,
+			'enabled',
+			_('Enable'),
+		);
+
 		const configFileOpt = mainSect.taboption(
 			'general',
 			form.Value,
