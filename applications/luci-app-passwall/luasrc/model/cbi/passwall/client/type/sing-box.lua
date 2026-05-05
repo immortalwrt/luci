@@ -43,6 +43,8 @@ local security_list = { "none", "auto", "aes-128-gcm", "chacha20-poly1305", "zer
 
 local singbox_tags = luci.sys.exec(singbox_bin .. " version  | grep 'Tags:' | awk '{print $2}'")
 
+local singbox_version = api.get_app_version("sing-box"):match("[^v]+")
+
 o = s:option(ListValue, _n("protocol"), translate("Protocol"))
 o:value("socks", "Socks")
 o:value("http", "HTTP")
@@ -89,6 +91,7 @@ if not arg_select_proto:find("_") then
 	load_normal_options = true
 end
 
+local netdev_list = api.get_network_devices()
 local node_list = api.get_node_list()
 
 if load_urltest_options then -- [[ URLTest Start ]]
@@ -194,8 +197,10 @@ end -- [[ URLTest End ]]
 
 if load_iface_options then -- [[ 自定义接口 Start ]]
 	o = s:option(Value, _n("iface"), translate("Interface"))
-	o.default = "eth1"
 	o:depends({ [_n("protocol")] = "_iface" })
+	for _, d in ipairs(netdev_list) do
+		o:value(d.name, d.label)
+	end
 end
 
 
@@ -351,19 +356,32 @@ end
 if singbox_tags:find("with_quic") then
 	o = s:option(Value, _n("hysteria2_hop"), translate("Port hopping range"))
 	o.description = translate("Format as 1000:2000 or 1000-2000 Multiple groups are separated by commas (,).")
-	o:depends({ [_n("protocol")] = "hysteria2" })
+	o:depends({ [_n("protocol")] = "hysteria2", [_n("hysteria2_realms")] = false })
 
-	o = s:option(Value, _n("hysteria2_hop_interval"), translate("Hop Interval(Second)"), translate("Supports a fixed value or a random range (e.g., 30, 5-30), minimum 5."))
+	o = s:option(Value, _n("hysteria2_hop_interval"), translate("Hop Interval(second)"), translate("Supports a fixed value or a random range (e.g., 30, 5-30), minimum 5."))
 	o.datatype = "or(uinteger,portrange)"
 	o.placeholder = "30"
 	o.default = "30"
-	o:depends({ [_n("protocol")] = "hysteria2" })
+	o:depends({ [_n("protocol")] = "hysteria2", [_n("hysteria2_realms")] = false })
 
-	o = s:option(Value, _n("hysteria2_up_mbps"), translate("Max upload Mbps"))
-	o:depends({ [_n("protocol")] = "hysteria2" })
+	o = s:option(Flag, _n("hysteria2_realms"), translate("Realms"))
+	o.default = "0"
+	if api.compare_versions(singbox_version, ">=", "1.14.0") then
+		o:depends({ [_n("protocol")] = "hysteria2"})
+	else
+		o:depends({ [_n("protocol")] = "__hide"})
+	end
 
-	o = s:option(Value, _n("hysteria2_down_mbps"), translate("Max download Mbps"))
-	o:depends({ [_n("protocol")] = "hysteria2" })
+	o = s:option(Value, _n("hysteria2_realm_url"), translate("Realm URL"), translate("Example:") .. "realm://public@realm.hy2.io/your-realm-name")
+	o:depends({ [_n("hysteria2_realms")] = "1" })
+
+	o = s:option(DynamicList, _n("hysteria2_realm_stun"), translate("Realm STUN"))
+	o.default = { "stun.sip.us:3478", "stun.nextcloud.com:3478", "global.stun.twilio.com:3478" }
+	o:depends({ [_n("hysteria2_realms")] = "1" })
+
+	o = s:option(Value, _n("hysteria2_auth_password"), translate("Auth Password"))
+	o.password = true
+	o:depends({ [_n("protocol")] = "hysteria2"})
 
 	o = s:option(ListValue, _n("hysteria2_obfs_type"), translate("Obfs Type"))
 	o:value("", translate("Disable"))
@@ -373,8 +391,20 @@ if singbox_tags:find("with_quic") then
 	o = s:option(Value, _n("hysteria2_obfs_password"), translate("Obfs Password"))
 	o:depends({ [_n("hysteria2_obfs_type")] = "salamander" })
 
-	o = s:option(Value, _n("hysteria2_auth_password"), translate("Auth Password"))
-	o.password = true
+	o = s:option(Value, _n("hysteria2_up_mbps"), translate("Max upload Mbps"))
+	o:depends({ [_n("protocol")] = "hysteria2" })
+
+	o = s:option(Value, _n("hysteria2_down_mbps"), translate("Max download Mbps"))
+	o:depends({ [_n("protocol")] = "hysteria2" })
+
+	o = s:option(Value, _n("hysteria2_idle_timeout"), translate("Idle Timeout"), translate("Example:") .. "30s (4s~120s)")
+	o:depends({ [_n("protocol")] = "hysteria2"})
+
+	o = s:option(Value, _n("hysteria2_keep_alive_period"), translate("QUIC KeepAlive interval"), translate("Example:") .. "10s (2s~60s)")
+	o:depends({ [_n("protocol")] = "hysteria2"})
+
+	o = s:option(Flag, _n("hysteria2_disable_mtu_discovery"), translate("Disable MTU detection"))
+	o.default = "0"
 	o:depends({ [_n("protocol")] = "hysteria2"})
 end
 
@@ -469,7 +499,7 @@ o.default = "0"
 o:depends({ [_n("tls")] = true, [_n("flow")] = "", [_n("reality")] = false })
 o:depends({ [_n("protocol")] = "tuic" })
 o:depends({ [_n("protocol")] = "hysteria" })
-o:depends({ [_n("protocol")] = "hysteria2" })
+o:depends({ [_n("protocol")] = "hysteria2", [_n("hysteria2_realms")] = false })
 o:depends({ [_n("protocol")] = "naive" })
 
 o = s:option(TextValue, _n("ech_config"), translate("ECH Config"))
@@ -777,10 +807,14 @@ local protocols = s.fields[_n("protocol")].keylist
 if #protocols > 0 then
 	for i, v in ipairs(protocols) do
 		if not v:find("^_") then
-			s.fields[_n("address")]:depends({ [_n("protocol")] = v })
-			s.fields[_n("port")]:depends({ [_n("protocol")] = v })
-			s.fields[_n("domain_resolver")]:depends({ [_n("protocol")] = v })
-			s.fields[_n("domain_strategy")]:depends({ [_n("protocol")] = v })
+			local depends_condition = { [_n("protocol")] = v }
+			if v == "hysteria2" then
+				depends_condition[_n("hysteria2_realms")] = false
+			end
+			s.fields[_n("address")]:depends(depends_condition)
+			s.fields[_n("port")]:depends(depends_condition)
+			s.fields[_n("domain_resolver")]:depends(depends_condition)
+			s.fields[_n("domain_strategy")]:depends(depends_condition)
 		end
 	end
 end
@@ -793,16 +827,24 @@ if not load_shunt_options then
 	if not (load_iface_options or load_urltest_options) then
 		-- Special node cannot be use pre-proxy.
 		o:value("1", translate("Preproxy Node"))
+		o:value("3", translate("Outbound Interface"))
 	end
 	o:value("2", translate("Landing Node"))
 
 	o1 = s:option(ListValue, _n("preproxy_node"), translate("Preproxy Node"), translate("Only support a layer of proxy."))
-	o1:depends({ [_n("chain_proxy")] = "1" })
+	o1:depends({ [_n("chain_proxy")] = "1", [_n("hysteria2_realms")] = false })
 	o1.template = appname .. "/cbi/nodes_listvalue"
 	o1.group = {}
 
+	o3 = s:option(Value, _n("outbound_iface"), translate("Outbound Interface"))
+	o3:depends({ [_n("chain_proxy")] = "3" })
+	o3:value("", translate("All"))
+	for _, d in ipairs(netdev_list) do
+		o3:value(d.name, d.label)
+	end
+
 	o2 = s:option(ListValue, _n("to_node"), translate("Landing Node"), translate("Only support a layer of proxy."))
-	o2:depends({ [_n("chain_proxy")] = "2" })
+	o2:depends({ [_n("chain_proxy")] = "2", [_n("hysteria2_realms")] = false })
 	o2.template = appname .. "/cbi/nodes_listvalue"
 	o2.group = {}
 
