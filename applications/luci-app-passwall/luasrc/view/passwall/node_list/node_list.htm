@@ -874,6 +874,8 @@ table td, .table .td {
 				p = "URLTest";
 			} else if (protocol == "_shunt") {
 				p = "<%:Shunt%>";
+			} else if (protocol == "_iface") {
+				p = "<%:Interface%>";
 			} else if (protocol == "vmess") {
 				p = "VMess";
 			} else if (protocol == "vless") {
@@ -910,7 +912,11 @@ table td, .table .td {
 		} else {
 			port_s = o["hysteria_hop"] || o["hysteria2_hop"];
 		}
-		str += type + "：" + remarks;
+		if ((o.type === "Hysteria2" || o.protocol === 'hysteria2') && o.hysteria2_realms) {
+			str += type + " Realm：" + remarks;
+		} else {
+			str += type + "：" + remarks;
+		}
 		return str;
 	}
 
@@ -952,7 +958,7 @@ table td, .table .td {
 						var newDom = node_template.cloneNode(true);
 						newDom.classList.add("cbi-rowstyle-" + (i % 2 + 1));
 						var innerHTML = newDom.innerHTML;
-						if (auto_detection_time != "icmp" && o["address"] && o["port"]) {
+						if (auto_detection_time != "icmp" && o["address"]) {
 							innerHTML = innerHTML.split("{{ping}}").join('<span class="ping"><a href="javascript:void(0)" onclick="javascript:ping_node(\'{{id}}\', this, \'icmp\')"><%:Test%></a></span>');
 						} else {
 							innerHTML = innerHTML.split("{{ping}}").join('<span class="ping_value" cbiid="{{id}}"><a href="javascript:void(0)" style="color:inherit">---</a></span>');
@@ -962,7 +968,8 @@ table td, .table .td {
 						} else {
 							innerHTML = innerHTML.split("{{tcping}}").join('<span class="tcping_value" cbiid="{{id}}"><a href="javascript:void(0)" style="color:inherit">---</a></span>');
 						}
-						if (o["protocol"] && o["protocol"] === '_shunt') {
+						let is_realm = (o.type === "Hysteria2" || o.protocol === 'hysteria2') && o.hysteria2_realms || false;
+						if (o["protocol"] === '_shunt' || is_realm) {
 							innerHTML = innerHTML.split("{{url_test}}").join('<span class="ping" cbiid="{{id}}">---</span>');
 						} else {
 							innerHTML = innerHTML.split("{{url_test}}").join('<span class="ping"><a href="javascript:void(0)" onclick="javascript:urltest_node(\'{{id}}\', this)" title="<%:TLS handshake test, latency for reference only%>"><%:Test%></a></span>');
@@ -971,11 +978,13 @@ table td, .table .td {
 						innerHTML = innerHTML.split("{{group}}").join(o["group"] || "");
 						let node_remarks = get_remarks_name(o);
 						if (show_node_info == "1") {
-							if (o["address"] && o["port"]) {
+							let _port = o["port"] || o["hysteria_hop"] || o["hysteria2_hop"];
+							if (_port) _port = _port.replace(/:/g, '-');
+							if (o["address"] && _port) {
 								let _address = o["address"]
 								if (o["full_address"])
 									_address = o["full_address"]
-								node_remarks += "<br>" + _address + ":" + o["port"]
+								node_remarks += "<br>" + _address + ":" + _port
 							}
 						}
 						innerHTML = innerHTML.split("{{remarks}}").join(node_remarks);

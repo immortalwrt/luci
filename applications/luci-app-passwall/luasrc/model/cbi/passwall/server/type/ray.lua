@@ -128,6 +128,14 @@ o = s:option(Value, _n("hysteria2_auth_password"), translate("Auth Password"))
 o.password = true
 o:depends({ [_n("protocol")] = "hysteria2"})
 
+o = s:option(ListValue, _n("hysteria2_obfs_type"), translate("Obfs Type"))
+o:value("", translate("Disable"))
+o:value("salamander")
+o:depends({ [_n("protocol")] = "hysteria2" })
+
+o = s:option(Value, _n("hysteria2_obfs_password"), translate("Obfs Password"))
+o:depends({ [_n("hysteria2_obfs_type")] = "salamander" })
+
 o = s:option(Flag, _n("hysteria2_ignore_client_bandwidth"), translate("Client BBR Flow Control"))
 o.default = 0
 o:depends({ [_n("protocol")] = "hysteria2" })
@@ -137,14 +145,6 @@ o:depends({ [_n("protocol")] = "hysteria2", [_n("hysteria2_ignore_client_bandwid
 
 o = s:option(Value, _n("hysteria2_down_mbps"), translate("Max download Mbps"))
 o:depends({ [_n("protocol")] = "hysteria2", [_n("hysteria2_ignore_client_bandwidth")] = false })
-
-o = s:option(ListValue, _n("hysteria2_obfs_type"), translate("Obfs Type"))
-o:value("", translate("Disable"))
-o:value("salamander")
-o:depends({ [_n("protocol")] = "hysteria2" })
-
-o = s:option(Value, _n("hysteria2_obfs_password"), translate("Obfs Password"))
-o:depends({ [_n("hysteria2_obfs_type")] = "salamander" })
 
 ---- [[ TLS ]]
 o = s:option(Flag, _n("tls"), translate("TLS"))
@@ -483,8 +483,11 @@ o:depends({ [_n("outbound_node")] = "_socks"})
 o:depends({ [_n("outbound_node")] = "_http"})
 
 o = s:option(Value, _n("outbound_node_iface"), translate("Interface"))
-o.default = "eth1"
 o:depends({ [_n("outbound_node")] = "_iface"})
+local netdev_list = api.get_network_devices()
+for _, d in ipairs(netdev_list) do
+	o:value(d.name, d.label)
+end
 
 o = s:option(TextValue, _n("custom_config"), translate("Custom Config"))
 o.rows = 10

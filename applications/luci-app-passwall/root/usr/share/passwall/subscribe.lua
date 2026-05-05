@@ -10,6 +10,8 @@ local appname = 'passwall'
 local api = require ("luci.passwall.api")
 local datatypes = require "luci.cbi.datatypes"
 
+loadfile("/usr/share/" .. appname .. "/clash_subconverter.lua")()
+
 -- these global functions are accessed all the time by the event handler
 -- so caching them is worth the effort
 local tinsert = table.insert
@@ -22,10 +24,8 @@ local UrlDecode = api.UrlDecode
 local uci = api.uci
 local fs = api.fs
 
-local has_ss = api.is_finded("ss-redir")
 local has_ss_rust = api.is_finded("sslocal")
 local has_ssr = api.is_finded("ssr-local") and api.is_finded("ssr-redir")
-local has_trojan_plus = api.is_finded("trojan-plus")
 local has_singbox = api.finded_com("sing-box")
 local has_xray = api.finded_com("xray")
 local has_hysteria2 = api.finded_com("hysteria")
@@ -34,17 +34,15 @@ local DEFAULT_FILTER_KEYWORD_MODE = uci:get(appname, "@global_subscribe[0]", "fi
 local DEFAULT_FILTER_KEYWORD_DISCARD_LIST = uci:get(appname, "@global_subscribe[0]", "filter_discard_list") or {}
 local DEFAULT_FILTER_KEYWORD_KEEP_LIST = uci:get(appname, "@global_subscribe[0]", "filter_keep_list") or {}
 -- 取节点使用core类型（节点订阅页面未设置时，自动取默认）
-local DEFAULT_SS_TYPE = api.get_core("ss_type", {{has_ss,"shadowsocks-libev"},{has_ss_rust,"shadowsocks-rust"},{has_singbox,"sing-box"},{has_xray,"xray"}})
-local DEFAULT_TROJAN_TYPE =  api.get_core("trojan_type", {{has_trojan_plus,"trojan-plus"},{has_singbox,"sing-box"},{has_xray,"xray"}})
+local DEFAULT_SS_TYPE = api.get_core("ss_type", {{has_ss_rust,"shadowsocks-rust"},{has_singbox,"sing-box"},{has_xray,"xray"}})
+local DEFAULT_TROJAN_TYPE =  api.get_core("trojan_type", {{has_singbox,"sing-box"},{has_xray,"xray"}})
 local DEFAULT_VMESS_TYPE = api.get_core("vmess_type", {{has_xray,"xray"},{has_singbox,"sing-box"}})
 local DEFAULT_VLESS_TYPE = api.get_core("vless_type", {{has_xray,"xray"},{has_singbox,"sing-box"}})
 local DEFAULT_HYSTERIA2_TYPE = api.get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{has_singbox,"sing-box"},{has_xray,"xray"}})
 local core_has = {
 	["xray"] = has_xray,
 	["sing-box"] = has_singbox,
-	["shadowsocks-libev"] = has_ss,
 	["shadowsocks-rust"] = has_ss_rust,
-	["trojan-plus"] = has_trojan_plus,
 	["hysteria2"] = has_hysteria2
 }
 -- 判断是否过滤节点关键字
@@ -482,9 +480,7 @@ end
 
 -- 设置 ss 协议实现类型
 local function set_ss_implementation(ss_type, result)
-	if ss_type == "shadowsocks-libev" and has_ss then
-		result.type = "SS"
-	elseif ss_type == "shadowsocks-rust" and has_ss_rust then
+	if ss_type == "shadowsocks-rust" and has_ss_rust then
 		result.type = 'SS-Rust'
 	elseif ss_type == "xray" and has_xray then
 		result.type = 'Xray'
@@ -663,9 +659,14 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 			result.httpupgrade_host = info.host
 			result.httpupgrade_path = info.path
 		end
-		if not info.security then result.security = "auto" end
+		result.security = info.security or info.scy or "auto"
 		if info.tls == "tls" or info.tls == "1" then
 			result.tls = "1"
+			result.alpn = info.alpn
+			if info.fp and info.fp ~= "" then
+				result.utls = "1"
+				result.fingerprint = info.fp
+			end
 			result.tls_serverName = (info.sni and info.sni ~= "") and info.sni or info.host
 			result.tls_pinSHA256 = info.pcs
 			result.tls_CertByName = info.vcn
@@ -830,20 +831,6 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 				end
 			end
 
-			if result.type == "SS" then
-				local aead2022_methods = { "2022-blake3-aes-128-gcm", "2022-blake3-aes-256-gcm", "2022-blake3-chacha20-poly1305" }
-				local aead2022 = false
-				for k, v in ipairs(aead2022_methods) do
-					if method:lower() == v:lower() then
-						aead2022 = true
-					end
-				end
-				if aead2022 then
-					-- shadowsocks-libev 不支持2022加密
-					result.error_msg = "shadowsocks-libev 不支持2022加密。"
-				end
-			end
-
 			if params.type then
 				params.type = string.lower(params.type)
 				if result.type == "sing-box" and params.type == "raw" then
@@ -857,7 +844,7 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 				else
 					result.transport = params.type
 				end
-				if result.type ~= "SS-Rust" and result.type ~= "SS" then
+				if result.type ~= "SS-Rust" then
 					if params.type == 'ws' then
 						result.ws_host = params.host
 						result.ws_path = params.path
@@ -1001,9 +988,7 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 			end
 		end
 	elseif szType == "trojan" then
-		if sub_trojan_type == "trojan-plus" and has_trojan_plus then
-			result.type = "Trojan-Plus"
-		elseif sub_trojan_type == "sing-box" and has_singbox then
+		if sub_trojan_type == "sing-box" and has_singbox then
 			result.type = 'sing-box'
 			result.protocol = 'trojan'
 		elseif sub_trojan_type == "xray" and has_xray then
@@ -1412,22 +1397,19 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 		local insecure = params.allowinsecure or params.insecure
 		result.tls_allowInsecure = (insecure == "1" or insecure == "0") and insecure or (sub_allowinsecure and "1" or "0")
 		result.hysteria2_hop = params.mport
+		if params["obfs-password"] or params["obfs_password"] then
+			result.hysteria2_obfs_type = "salamander"
+			result.hysteria2_obfs_password = params["obfs-password"] or params["obfs_password"]
+		end
 
 		if (sub_hysteria2_type == "sing-box" and has_singbox) or (sub_hysteria2_type == "xray" and has_xray) then
 			local is_singbox = sub_hysteria2_type == "sing-box" and has_singbox
 			result.type = is_singbox and 'sing-box' or 'Xray'
 			result.protocol = "hysteria2"
-			if params["obfs-password"] or params["obfs_password"] then
-				result.hysteria2_obfs_type = "salamander"
-				result.hysteria2_obfs_password = params["obfs-password"] or params["obfs_password"]
-			end
 			result.use_finalmask = (params.fm and params.fm ~= "") and "1" or nil
 			result.finalmask = (params.fm and params.fm ~= "") and api.base64Encode(params.fm) or nil
 		elseif has_hysteria2 then
 			result.type = "Hysteria2"
-			if params["obfs-password"] or params["obfs_password"] then
-				result.hysteria2_obfs = params["obfs-password"] or params["obfs_password"]
-			end
 		else
 			log("跳过 Hysteria2 节点，因未适配到 Hysteria2 核心程序，或未正确设置节点使用类型。")
 			return nil
@@ -1485,7 +1467,7 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 		end
 		result.tls_serverName = params.sni
 		result.tls_disable_sni = params.disable_sni
-		result.tuic_alpn = params.alpn or "default"
+		result.tuic_alpn = params.alpn or "h3"
 		result.tuic_congestion_control = params.congestion_control or "cubic"
 		result.tuic_udp_relay_mode = params.udp_relay_mode or "native"
 		local insecure = params.allowinsecure or params.insecure or params.allow_insecure
@@ -1636,11 +1618,14 @@ local function curl(url, file, ua, mode)
 	local curl_args = {
 		"-fskL", "-w %{http_code}", "--retry 3", "--connect-timeout 3", "-H 'Accept-Encoding: identity'"
 	}
-	if ua and ua ~= "" and ua ~= "curl" then
-		ua = (ua == "passwall") and ("passwall/" .. api.get_version()) or ua
-		curl_args[#curl_args + 1] = '--user-agent "' .. ua .. '"'
+
+	ua = (ua and ua ~= "") and ua or "passwall"
+	ua = (ua == "passwall") and ("passwall/" .. api.get_version()) or ua
+	curl_args[#curl_args + 1] = '--user-agent "' .. ua .. '"'
+	if not ua:lower():find("clash", 1, true) then
+		curl_args[#curl_args + 1] = get_headers()
 	end
-	curl_args[#curl_args + 1] = get_headers()
+
 	local return_code, result
 	if mode == "direct" then
 		return_code, result = api.curl_base(url, file, curl_args)
@@ -1769,12 +1754,12 @@ local function select_node(nodes, config, parentConfig)
 				end
 			end
 		end
-		-- 第一优先级 类型 + 备注 + IP + 端口
+		-- 第一优先级 类型 + 备注 + IP + 端口 + 分组
 		if not server then
 			for index, node in pairs(nodes) do
 				if config.currentNode.type and config.currentNode.remarks and config.currentNode.address and config.currentNode.port then
 					if node.type and node.remarks and node.address and node.port then
-						if node.type == config.currentNode.type and node.remarks == config.currentNode.remarks and (node.address .. ':' .. node.port == config.currentNode.address .. ':' .. config.currentNode.port) then
+						if node.type == config.currentNode.type and node.remarks == config.currentNode.remarks and (node.address .. ':' .. node.port == config.currentNode.address .. ':' .. config.currentNode.port) and node.group == config.currentNode.group then
 							if config.log == nil or config.log == true then
 								log('更新【' .. config.remarks .. '】第一匹配节点：' .. node.remarks)
 							end
@@ -1785,12 +1770,12 @@ local function select_node(nodes, config, parentConfig)
 				end
 			end
 		end
-		-- 第二优先级 类型 + IP + 端口
+		-- 第二优先级 类型 + IP + 端口 + 分组
 		if not server then
 			for index, node in pairs(nodes) do
 				if config.currentNode.type and config.currentNode.address and config.currentNode.port then
 					if node.type and node.address and node.port then
-						if node.type == config.currentNode.type and (node.address .. ':' .. node.port == config.currentNode.address .. ':' .. config.currentNode.port) then
+						if node.type == config.currentNode.type and (node.address .. ':' .. node.port == config.currentNode.address .. ':' .. config.currentNode.port) and node.group == config.currentNode.group then
 							if config.log == nil or config.log == true then
 								log('更新【' .. config.remarks .. '】第二匹配节点：' .. node.remarks)
 							end
@@ -1801,12 +1786,12 @@ local function select_node(nodes, config, parentConfig)
 				end
 			end
 		end
-		-- 第三优先级 IP + 端口
+		-- 第三优先级 IP + 端口 + 分组
 		if not server then
 			for index, node in pairs(nodes) do
 				if config.currentNode.address and config.currentNode.port then
 					if node.address and node.port then
-						if node.address .. ':' .. node.port == config.currentNode.address .. ':' .. config.currentNode.port then
+						if node.address .. ':' .. node.port == config.currentNode.address .. ':' .. config.currentNode.port and node.group == config.currentNode.group then
 							if config.log == nil or config.log == true then
 								log('更新【' .. config.remarks .. '】第三匹配节点：' .. node.remarks)
 							end
@@ -1817,12 +1802,12 @@ local function select_node(nodes, config, parentConfig)
 				end
 			end
 		end
-		-- 第四优先级 IP
+		-- 第四优先级 IP + 分组
 		if not server then
 			for index, node in pairs(nodes) do
 				if config.currentNode.address then
 					if node.address then
-						if node.address == config.currentNode.address then
+						if node.address == config.currentNode.address and node.group == config.currentNode.group then
 							if config.log == nil or config.log == true then
 								log('更新【' .. config.remarks .. '】第四匹配节点：' .. node.remarks)
 							end
@@ -1833,12 +1818,12 @@ local function select_node(nodes, config, parentConfig)
 				end
 			end
 		end
-		-- 第五优先级备注
+		-- 第五优先级备注 + 分组
 		if not server then
 			for index, node in pairs(nodes) do
 				if config.currentNode.remarks then
 					if node.remarks then
-						if node.remarks == config.currentNode.remarks then
+						if node.remarks == config.currentNode.remarks and node.group == config.currentNode.group then
 							if config.log == nil or config.log == true then
 								log('更新【' .. config.remarks .. '】第五匹配节点：' .. node.remarks)
 							end
@@ -1898,7 +1883,7 @@ local function update_node(manual)
 		local list = v["list"]
 		local sub_cfg = v["sub_cfg"]
 		local domain_resolver, domain_resolver_dns, domain_resolver_dns_https, domain_strategy
-		local preproxy_node_group, to_node_group, chain_node_type = "", "", ""
+		local preproxy_node_group, to_node_group, outbound_iface_group, chain_node_type = "", "", "", ""
 		-- Subscription Group Chain Agent
 		local function valid_chain_node(node)
 			if not node then return "" end
@@ -1919,6 +1904,8 @@ local function update_node(manual)
 			domain_strategy = (sub_cfg.domain_strategy and map[sub_cfg.domain_strategy]) and sub_cfg.domain_strategy or nil
 			preproxy_node_group = (sub_cfg.chain_proxy == "1") and valid_chain_node(sub_cfg.preproxy_node) or ""
 			to_node_group = (sub_cfg.chain_proxy == "2") and valid_chain_node(sub_cfg.to_node) or ""
+			outbound_iface_group = (sub_cfg.chain_proxy == "3") and sub_cfg.outbound_iface or ""
+			chain_node_type = (outbound_iface_group ~= "") and "iface" or chain_node_type
 		end
 		for _, vv in ipairs(list) do
 			local cfgid = uci:section(appname, "nodes", api.gen_short_uuid())
@@ -1956,6 +1943,9 @@ local function update_node(manual)
 						elseif to_node_group ~= "" then
 							uci:set(appname, cfgid, "chain_proxy", "2")
 							uci:set(appname, cfgid, "to_node", to_node_group)
+						elseif outbound_iface_group ~= "" then
+							uci:set(appname, cfgid, "chain_proxy", "3")
+							uci:set(appname, cfgid, "outbound_iface", outbound_iface_group)
 						end
 					end
 				end
@@ -2121,6 +2111,7 @@ local execute = function()
 			local cfgid = value[".name"]
 			local remark = value.remark or ""
 			local url = value.url or ""
+			local tmp_file, ua
 
 			local url_is_local
 			if fs.access(url) then
@@ -2129,7 +2120,7 @@ local execute = function()
 				url_is_local = true
 				tmp_file = url
 			else
-				local ua = value.user_agent
+				ua = value.user_agent
 				local access_mode = value.access_mode
 				local result = (not access_mode) and "自动" or (access_mode == "direct" and "直连" or (access_mode == "proxy" and "代理" or "自动"))
 				log('正在订阅:【' .. remark .. '】' .. url .. ' [' .. result .. ']')
@@ -2152,6 +2143,7 @@ local execute = function()
 					if not manual_sub and old_md5 == new_md5 then
 						log('订阅:【' .. remark .. '】没有变化，无需更新。')
 					else
+						raw_data = parseClashNode(raw_data)
 						parse_link(raw_data, "2", remark, value)
 						uci:set(appname, cfgid, "md5", new_md5)
 					end

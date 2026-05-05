@@ -132,7 +132,7 @@ local function start()
 					end
 				end
 				bin = ln_run("/usr/bin/microsocks", "microsocks_" .. id, string.format("-i :: -p %s %s", port, auth), log_path)
-			elseif type == "SS" or type == "SSR" then
+			elseif type == "SSR" then
 				if user.custom == "1" and user.config_str then
 					config = jsonc.parse(api.base64Decode(user.config_str))
 				else
@@ -188,12 +188,6 @@ local function start()
 					config = require(require_dir .. "util_hysteria2").gen_config_server(user)
 				end
 				bin = ln_run(api.get_app_path("hysteria"), "hysteria", "-c " .. config_file .. " server", log_path)
-			elseif type == "Trojan" then
-				config = require(require_dir .. "util_trojan").gen_config_server(user)
-				bin = ln_run("/usr/sbin/trojan", "trojan", "-c " .. config_file, log_path)
-			elseif type == "Trojan-Plus" then
-				config = require(require_dir .. "util_trojan").gen_config_server(user)
-				bin = ln_run("/usr/sbin/trojan-plus", "trojan-plus", "-c " .. config_file, log_path)
 			end
 
 			if next(config) then

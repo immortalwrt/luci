@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-passwall
-PKG_VERSION:=26.5.3
+PKG_VERSION:=26.5.20
 PKG_RELEASE:=1
 
 PKG_CONFIG_DEPENDS:= \
@@ -19,7 +19,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Shadow_TLS \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Simple_Obfs \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_SingBox \
-	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_tuic_client \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geodata \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geoview \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Plugin \
@@ -30,7 +29,7 @@ LUCI_TITLE:=LuCI support for PassWall
 LUCI_PKGARCH:=all
 LUCI_DEPENDS:=+coreutils +coreutils-base64 +coreutils-nohup +curl \
 	+chinadns-ng +dns2socks +ip-full +libuci-lua +lua +luci-compat +luci-lib-jsonc \
-	+microsocks +resolveip +tcping +unzip +ipt2socks \
+	+microsocks +resolveip +tcping +lyaml +unzip +ipt2socks \
 	+kmod-nft-socket +kmod-nft-tproxy +kmod-nft-nat \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Brook:brook \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Haproxy:haproxy \
@@ -41,7 +40,6 @@ LUCI_DEPENDS:=+coreutils +coreutils-base64 +coreutils-nohup +curl \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Shadow_TLS:shadow-tls \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Simple_Obfs:simple-obfs-client \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_SingBox:sing-box \
-	+PACKAGE_$(PKG_NAME)_INCLUDE_tuic_client:tuic-client \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geodata:v2ray-geoip \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geodata:v2ray-geosite \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geoview:geoview \
@@ -88,11 +86,6 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_Simple_Obfs
 config PACKAGE_$(PKG_NAME)_INCLUDE_SingBox
 	bool "Include Sing-Box"
 	default y if aarch64||arm||i386||x86_64
-
-config PACKAGE_$(PKG_NAME)_INCLUDE_tuic_client
-	bool "Include tuic-client"
-	depends on aarch64||arm||i386||x86_64
-	default n
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geodata
 	bool "Include V2ray_Geodata"
