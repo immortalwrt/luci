@@ -103,8 +103,8 @@ function gen_outbound(flag, node, tag, proxy_table)
 		local run_socks_instance = true
 		if proxy_table ~= nil and type(proxy_table) == "table" then
 			proxy_tag = proxy_table.tag or nil
-			fragment = proxy_table.fragment or nil
-			record_fragment = proxy_table.record_fragment or nil
+			fragment = (proxy_table.fragment and node.protocol ~= "naive" and not node.hysteria2_realms) and true or nil
+			record_fragment = (proxy_table.record_fragment and node.protocol ~= "naive" and not node.hysteria2_realms) and true or nil
 			run_socks_instance = proxy_table.run_socks_instance
 		end
 
@@ -226,7 +226,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 				enabled = true,
 				disable_sni = (node.tls_disable_sni == "1") and true or false, --不要在 ClientHello 中发送服务器名称.
 				server_name = node.tls_serverName, --用于验证返回证书上的主机名，除非设置不安全。它还包含在 ClientHello 中以支持虚拟主机，除非它是 IP 地址。
-				insecure = (node.tls_allowInsecure == "1") and true or false, --接受任何服务器证书。
+				insecure = node.tls_allowInsecure == "1" or (node.tls_pinSHA256 and node.tls_pinSHA256 ~= ""), --接受任何服务器证书。(兼顾 xray 的 pinnedPeerCertSha256 )
 				alpn = alpn, --支持的应用层协议协商列表，按优先顺序排列。如果两个对等点都支持 ALPN，则选择的协议将是此列表中的一个，如果没有相互支持的协议则连接将失败。
 				--min_version = "1.2",
 				--max_version = "1.3",
@@ -472,6 +472,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 						table.insert(server_ports, range)
 					end
 				end
+				result.server_port = nil
 			end
 			protocol_table = {
 				server_ports = next(server_ports) and server_ports or nil,
@@ -485,9 +486,9 @@ function gen_outbound(flag, node, tag, proxy_table)
 				obfs = node.hysteria_obfs,
 				auth = (node.hysteria_auth_type == "base64") and node.hysteria_auth_password or nil,
 				auth_str = (node.hysteria_auth_type == "string") and node.hysteria_auth_password or nil,
-				recv_window_conn = tonumber(node.hysteria_recv_window_conn),
-				recv_window = tonumber(node.hysteria_recv_window),
-				disable_mtu_discovery = (node.hysteria_disable_mtu_discovery == "1") and true or false,
+				recv_window_conn = tonumber(node.hysteria_recv_window_conn),  --1.14 将变更为 stream_receive_window
+				recv_window = tonumber(node.hysteria_recv_window),  --1.14 将变更为 connection_receive_window
+				disable_mtu_discovery = (node.hysteria_disable_mtu_discovery == "1") and true or false,  --1.14 将变更为 disable_path_mtu_discovery
 				tls = tls
 			}
 		end
@@ -511,13 +512,12 @@ function gen_outbound(flag, node, tag, proxy_table)
 				heartbeat = (tonumber(node.tuic_heartbeat) or 3) .. "s",
 				tls = tls
 			}
-			if node.tuic_alpn and node.tuic_alpn ~= "default" then
-				local alpn = {}
-				string.gsub(node.tuic_alpn, '[^,]+', function(w)
-					table.insert(alpn, w)
-				end)
-				if #alpn > 0 then protocol_table.tls.alpn = alpn end
-			end
+			node.tuic_alpn = (node.tuic_alpn and node.tuic_alpn ~= "default") and node.tuic_alpn or "h3"
+			local alpn = {}
+			string.gsub(node.tuic_alpn, '[^,]+', function(w)
+				table.insert(alpn, w)
+			end)
+			if #alpn > 0 then protocol_table.tls.alpn = alpn end
 		end
 
 		if node.protocol == "hysteria2" then
@@ -529,6 +529,10 @@ function gen_outbound(flag, node, tag, proxy_table)
 						table.insert(server_ports, range)
 					end
 				end
+				result.server_port = nil
+			end
+			if node.hysteria2_realms then
+				server_ports = {}
 			end
 			local interval, interval_max
 			if next(server_ports) then
@@ -561,7 +565,29 @@ function gen_outbound(flag, node, tag, proxy_table)
 					password = node.hysteria2_obfs_password
 				} or nil,
 				password = node.hysteria2_auth_password or nil,
-				tls = tls
+				idle_timeout = (function(t)
+					if not version_ge_1_14_0 then return nil end
+					t = tonumber(tostring(t or "30"):match("^%d+"))
+					return (t and t >= 4 and t <= 120) and t or 30
+				end)(node.hysteria2_idle_timeout),
+				keep_alive_period = (function(t)
+					if not version_ge_1_14_0 then return nil end
+					t = tonumber(tostring(t or "0"):match("^%d+"))
+					return (t and t >= 2 and t <= 60) and t or nil
+				end)(node.hysteria2_keep_alive_period),
+				disable_path_mtu_discovery = version_ge_1_14_0 and (tonumber(node.hysteria2_disable_mtu_discovery) == 1) or nil,
+				tls = tls,
+				realm = node.hysteria2_realms and (function()
+					result.server = nil
+					result.server_port = nil
+					local realm = api.parse_realm_uri(node.hysteria2_realm_url)
+					if realm then
+						realm.server_url = realm.server_url and "https://" .. realm.server_url or nil
+						realm.stun_servers = realm.stun_servers or node.hysteria2_realm_stun
+						return realm
+					end
+					return nil
+				end)() or nil
 			}
 		end
 
@@ -847,10 +873,10 @@ function gen_config_server(node)
 					auth_str = (node.hysteria_auth_type == "string") and node.hysteria_auth_password or nil,
 				}
 			},
-			recv_window_conn = node.hysteria_recv_window_conn and tonumber(node.hysteria_recv_window_conn) or nil,
-			recv_window_client = node.hysteria_recv_window_client and tonumber(node.hysteria_recv_window_client) or nil,
-			max_conn_client = node.hysteria_max_conn_client and tonumber(node.hysteria_max_conn_client) or nil,
-			disable_mtu_discovery = (node.hysteria_disable_mtu_discovery == "1") and true or false,
+			recv_window_conn = node.hysteria_recv_window_conn and tonumber(node.hysteria_recv_window_conn) or nil, --1.14 to stream_receive_window
+			recv_window_client = node.hysteria_recv_window_client and tonumber(node.hysteria_recv_window_client) or nil, --1.14 to connection_receive_window
+			max_conn_client = node.hysteria_max_conn_client and tonumber(node.hysteria_max_conn_client) or nil,  --1.14 to max_concurrent_streams
+			disable_mtu_discovery = (node.hysteria_disable_mtu_discovery == "1") and true or false,  --1.14 to disable_path_mtu_discover
 			tls = tls
 		}
 	end
@@ -898,7 +924,17 @@ function gen_config_server(node)
 				}
 			},
 			ignore_client_bandwidth = (node.hysteria2_ignore_client_bandwidth == "1") and true or false,
-			tls = tls
+			tls = tls,
+			realm = node.hysteria2_realms and (function()
+				local realm = api.parse_realm_uri(node.hysteria2_realm_url)
+				if realm then
+					realm.server_url = realm.server_url and "https://" .. realm.server_url or nil
+					realm.stun_servers = realm.stun_servers or node.hysteria2_realm_stun
+					realm.stun_domain_resolver = "direct"
+					return realm
+				end
+				return nil
+			end)() or nil
 		}
 	end
 
@@ -1268,7 +1304,9 @@ function gen_config(var)
 			else
 				ut_nodes = _node.urltest_node
 			end
-			if #ut_nodes == 0 then return nil end
+
+			api.log("  - 加载 Sing-Box URLTest 节点【" .. (_node.remarks or "") .. "】，子节点数量：" .. #(ut_nodes or {}))
+
 			local valid_nodes = {}
 			for i = 1, #(ut_nodes or {}) do
 				local ut_node_id = ut_nodes[i]
@@ -1399,6 +1437,10 @@ function gen_config(var)
 						default_outTag = to_outbound.tag
 					end
 				end
+			end
+			if node.chain_proxy == "3" and node.outbound_iface then
+				outbound.detour = nil
+				outbound.bind_interface = node.outbound_iface
 			end
 			return default_outTag, last_insert_outbound
 		end
@@ -1968,6 +2010,10 @@ function gen_config(var)
 		}
 	end
 
+	route.default_domain_resolver = {
+		server = "direct"
+	}
+
 	if not dns.rules then dns.rules = {} end
 
 	for i, v in pairs(GLOBAL.DNS_SERVER) do
@@ -2064,19 +2110,15 @@ function gen_config(var)
 			type = "direct",
 			tag = "direct",
 			routing_mark = 255,
-			domain_resolver = {
-				server = "direct",
-				strategy = "prefer_ipv6"
-			}
 		})
 		for index, value in ipairs(config.outbounds) do
 			if not value["_flag_proxy_tag"] and not value.detour and value["_id"] and value.server and (value.server_port or value.server_ports) and not no_run then
 				sys.call(string.format("echo '%s' >> %s", value["_id"], api.TMP_PATH .. "/direct_node_list"))
 			end
-			if not value.detour and value.server then
+			if not value.detour and not value.bind_interface and value.server then
 				value.detour = "direct"
 			end
-			if value.server and not api.datatypes.hostname(value.server) then
+			if (value.server and not api.datatypes.hostname(value.server)) and not value.realm then
 				value.domain_resolver = nil
 			end
 			for k, v in pairs(config.outbounds[index]) do
