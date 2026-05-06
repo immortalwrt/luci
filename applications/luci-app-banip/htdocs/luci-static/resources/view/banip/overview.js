@@ -255,7 +255,7 @@ return view.extend({
 		o.optional = true;
 		o.retain = true;
 
-		o = s.taboption('general', form.Value, 'ban_fetchparm', _('Download Parameters'), _('Override the pre-configured download options for the selected download utility.'));
+		o = s.taboption('general', form.Value, 'ban_fetchparm', _('Download Parameters'), _('Override the pre-configured download options for the selected download utility. The output flag, e.g. \'-o\' for curl or \'-O\' for wget, must be the last parameter.'));
 		o.depends('ban_autodetect', '0');
 		o.optional = true;
 		o.retain = true;
