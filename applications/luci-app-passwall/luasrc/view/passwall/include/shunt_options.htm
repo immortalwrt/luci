@@ -53,7 +53,7 @@
 			}
 		}
 	}
-	document.addEventListener("DOMContentLoaded", function () {
+	document.addEventListener("DOMContentLoaded", () => setTimeout(() => {
 		refresh_depends();
 		const table_dom = document.getElementById("cbi-passwall-shunt_option_list");
 		if (table_dom) {
@@ -71,6 +71,6 @@
 				}
 			}
 		}
-	});
+	}, 100));
 	//]]>
 </script>

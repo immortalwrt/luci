@@ -308,6 +308,22 @@ return view.extend({
 		o.optional = true;
 		o.rmempty = true;
 
+		o = s.taboption('additional', form.Value, 'adb_fetchparm', _('Download Parameters'), _('Override the pre-configured download options for the selected download utility. The output flag, e.g. \'-o\' for curl or \'-O\' for wget, must be the last parameter.'));
+		o.optional = true;
+		o.rmempty = true;
+
+		o = s.taboption('additional', form.ListValue, 'adb_fetchretry', _('Download Retries'), _('Number of download attempts in case of an error (not supported by uclient-fetch).'));
+		o.value('1');
+		o.value('3');
+		o.value('5');
+		o.value('10');
+		o.value('20');
+		o.default = '5';
+		o.placeholder = _('-- default --');
+		o.create = true;
+		o.optional = true;
+		o.rmempty = true;
+
 		o = s.taboption('additional', form.Flag, 'adb_fetchinsecure', _('Download Insecure'), _('Don\'t check SSL server certificates during download.'));
 		o.default = 0;
 		o.rmempty = true;
@@ -617,7 +633,7 @@ return view.extend({
 		o.rmempty = true;
 
 		o = s.taboption('adv_dns', form.Value, 'adb_dnstimeout', _('DNS Restart Timeout'), _('Timeout to wait for a successful DNS backend restart.'));
-		o.placeholder = '20';
+		o.placeholder = '30';
 		o.datatype = 'range(5,60)';
 		o.rmempty = true;
 

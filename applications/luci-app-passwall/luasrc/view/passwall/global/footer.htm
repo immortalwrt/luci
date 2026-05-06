@@ -16,6 +16,22 @@ local appname = api.appname
 	display: none !important;
 	visibility: hidden !important;
 }
+
+@media screen and (max-width: 1152px) {
+	#cbi-<%=appname%>-socks .cbi-section-table-titles {
+		display: none !important;
+	}
+}
+
+@media screen and (min-width: 1152px) {
+	#cbi-<%=appname%>-socks input[id*=".<%=appname%>."][id$=".port"],
+	#cbi-<%=appname%>-socks input[id*=".<%=appname%>."][id$=".http_port"] {
+		width: 100px !important;
+		min-width: unset !important;
+		max-width: unset !important;
+		text-align: center !important;
+	}
+}
 </style>
 <script type="text/javascript">
 	//<![CDATA[
@@ -212,7 +228,7 @@ local appname = api.appname
 		};
 	})();
 
-	document.addEventListener("DOMContentLoaded", function () {
+	document.addEventListener("DOMContentLoaded", () => setTimeout(() => {
 		const hiddenSelect = document.getElementById("cbid.<%=appname%>.<%=self.global_cfgid%>.tcp_node");
 		let o_val = hiddenSelect.value
 		const o_hasItem = shunt_list.find(element => element.id == o_val);
@@ -252,6 +268,6 @@ local appname = api.appname
 				shunt_taboption.appendChild(shunt_option_list);
 			}
 		}
-	});
+	}, 100));
 	//]]>
 </script>

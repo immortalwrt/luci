@@ -136,7 +136,7 @@ function parse_uri(uri) {
 		case 'hysteria':
 			/* https://github.com/HyNetwork/hysteria/wiki/URI-Scheme */
 			url = parseURL('http://' + uri[1]) || {};
-			params = url.searchParams;
+			params = url.searchParams || {};
 
 			if (!sing_features.with_quic || (params.protocol && params.protocol !== 'udp')) {
 				log(sprintf('Skipping unsupported %s node: %s.', uri[0], urldecode(url.hash) || url.hostname));
@@ -168,7 +168,7 @@ function parse_uri(uri) {
 		case 'hy2':
 			/* https://v2.hysteria.network/docs/developers/URI-Scheme/ */
 			url = parseURL('http://' + uri[1]) || {};
-			params = url.searchParams;
+			params = url.searchParams || {};
 
 			if (!sing_features.with_quic) {
 				log(sprintf('Skipping unsupported %s node: %s.', uri[0], urldecode(url.hash) || url.hostname));
@@ -318,7 +318,7 @@ function parse_uri(uri) {
 		case 'vless':
 			/* https://github.com/XTLS/Xray-core/discussions/716 */
 			url = parseURL('http://' + uri[1]) || {};
-			params = url.searchParams;
+			params = url.searchParams || {};
 
 			/* Unsupported protocol */
 			if (params.type === 'kcp') {

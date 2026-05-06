@@ -65,6 +65,15 @@ stop() {
 restart() {
 	set_lock
 	[ $? == 1 ] && echolog "脚本已经在运行，不重复运行，退出." && exit 0
+	rule_lock=${LOCK_FILE_DIR}/${CONFIG}_rule_update.lock
+	sub_lock=${LOCK_FILE_DIR}/${CONFIG}_subscribe.lock
+	for i in $(seq 1 300); do
+		if [ ! -f "$rule_lock" ] && [ ! -f "$sub_lock" ]; then
+			break
+		fi
+		sleep 2
+	done
+	rm -f "$rule_lock" "$sub_lock"
 	$APP_FILE stop
 	$APP_FILE start $1
 	unset_lock
