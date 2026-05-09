@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-05 15:10+0000\n"
+"PO-Revision-Date: 2026-04-29 17:47+0000\n"
 "Last-Translator: Hyeonjeong Lee <h9101654@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsprivoxy/ko/>\n"
@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 5.17.1-dev\n"
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:236
 msgid ""
@@ -51,7 +51,7 @@ msgstr ""
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:151
 msgid "Boot delay"
-msgstr ""
+msgstr "부팅 지연 시간"
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:873
 msgid "CGI user interface"
@@ -109,7 +109,7 @@ msgstr ""
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:599
 msgid "Enable proxy authentication forwarding"
-msgstr ""
+msgstr "프록시 인증 전달 활성화"
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:135
 msgid ""
@@ -129,6 +129,8 @@ msgid ""
 "Enabling this option is NOT recommended if there is no parent proxy that "
 "requires authentication!"
 msgstr ""
+"인증이 필요한 상위 프록시가 없다면 이 옵션을 활성화하는 것을 권장하지 않습니"
+"다!"
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:368
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:404
@@ -152,7 +154,7 @@ msgstr ""
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:91
 msgid "Forwarding"
-msgstr ""
+msgstr "전달"
 
 #: applications/luci-app-privoxy/root/usr/share/rpcd/acl.d/luci-app-privoxy.json:3
 msgid "Grant UCI access for luci-app-privoxy"
@@ -260,7 +262,7 @@ msgstr ""
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:535
 msgid "Maximum size (in KB) of the buffer for content filtering."
-msgstr ""
+msgstr "콘텐츠 필터링 버퍼의 최대 크기 (KB 단위)를 지정합니다."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:97
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:100
@@ -307,7 +309,7 @@ msgstr ""
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:518
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:527
 msgid "Please read Privoxy manual for details!"
-msgstr ""
+msgstr "자세한 내용은 Privoxy 매뉴얼을 참조하세요!"
 
 #: applications/luci-app-privoxy/luasrc/controller/privoxy.lua:92
 msgid "Please update to the current version!"
@@ -384,7 +386,7 @@ msgstr ""
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:612
 msgid "Syntax: target_pattern http_parent[:port]"
-msgstr ""
+msgstr "입력 형식: 대상_패턴 상위_HTTP[:포트]"
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:59
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:62
@@ -401,6 +403,8 @@ msgstr ""
 msgid ""
 "The address and TCP port on which Privoxy will listen for client requests."
 msgstr ""
+"Privoxy가 클라이언트의 요청을 받기 위해 수신 대기할 주소와 TCP 포트를 지정합"
+"니다."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:770
 msgid ""
@@ -469,7 +473,7 @@ msgstr ""
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:85
 msgid ""
 "This tab controls the security-relevant aspects of Privoxy's configuration."
-msgstr ""
+msgstr "이 탭에서는 Privoxy 설정 중 보안과 관련된 요소를 제어합니다."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:618
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:633
@@ -477,14 +481,16 @@ msgid ""
 "Through which SOCKS proxy (and optionally to which parent HTTP proxy) "
 "specific requests should be routed."
 msgstr ""
+"특정 요청을 보낼 SOCKS 프록시 (및 선택 사항으로 상위 HTTP 프록시)를 지정합니"
+"다."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:610
 msgid "To which parent HTTP proxy specific requests should be routed."
-msgstr ""
+msgstr "특정 요청을 보낼 상위 HTTP 프록시를 지정합니다."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:341
 msgid "User customizations"
-msgstr ""
+msgstr "사용자 정의 설정"
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:166
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:543
@@ -555,7 +561,7 @@ msgstr ""
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:600
 msgid "Whether or not proxy authentication through Privoxy should work."
-msgstr ""
+msgstr "Privoxy를 통한 프록시 인증의 작동 여부를 설정합니다."
 
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:582
 msgid "Whether or not the web-based actions file editor may be used."
@@ -581,7 +587,7 @@ msgstr ""
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:516
 #: applications/luci-app-privoxy/luasrc/model/cbi/privoxy.lua:525
 msgid "Who can access what."
-msgstr ""
+msgstr "어떤 대상이 무엇에 접근할 수 있는지 설정합니다."
 
 #: applications/luci-app-privoxy/luasrc/controller/privoxy.lua:49
 #: applications/luci-app-privoxy/luasrc/controller/privoxy.lua:87
