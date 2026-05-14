@@ -142,7 +142,12 @@ return dm2.dv.extend({
 					}
 					return ports;
 				})(),
-				command: c.Config?.Cmd ? c.Config?.Cmd.join(' ') : '',
+				command: c.Config?.Cmd ? c.Config?.Cmd.map(arg => {
+					if (arg.includes(' ') || arg.includes('"') || arg.includes("'")) {
+						return '"' + arg.replace(/"/g, '\\"') + '"';
+					}
+					return arg;
+				}).join(' ') : '',
 				hostname: c.Config?.Hostname || '',
 				publish_all: hostConfig.PublishAllPorts ? 1 : 0,
 				device: (hostConfig.Devices || []).map(d => d.PathOnHost + ':' + d.PathInContainer + (d.CgroupPermissions ? ':' + d.CgroupPermissions : '')),
@@ -772,7 +777,7 @@ return dm2.dv.extend({
 					Tty: toBool(get('tty')),
 					OpenStdin: toBool(get('interactive')),
 					Env: get('env'),
-					Cmd: command ? command.split(' ') : null,
+					Cmd: command ? (command.match(/(?:[^\s"]+|"[^"]*")+/g) || []).map(arg => arg.replace(/^"|"$/g, '')) : null,
 					Image: get('image'),
 					HostConfig: {
 						CpuShares: toInt(get('cpu_shares')),

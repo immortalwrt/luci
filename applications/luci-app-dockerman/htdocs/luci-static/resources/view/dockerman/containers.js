@@ -177,6 +177,7 @@ return dm2.dv.extend({
 	buildContainerActions(cont, idx) {
 		const view = this;
 		const isRunning = cont?.State === 'running';
+		const isRestarting = cont?.State === 'restarting';
 		const isPaused = cont?.State === 'paused';
 		const btns = [
 			E('button', {
@@ -252,7 +253,7 @@ return dm2.dv.extend({
 					dm2.Types['container'].sub['stop'].i18n,
 					{showOutput: true, showSuccess: false}
 				),
-				'disabled' : !(isRunning || isPaused) ? true : null
+				'disabled' : !(isRunning || isPaused || isRestarting) ? true : null
 			}, [dm2.Types['container'].sub['stop'].e]),
 
 			E('button', {
@@ -264,7 +265,7 @@ return dm2.dv.extend({
 					dm2.Types['container'].sub['kill'].i18n,
 					{showOutput: true, showSuccess: false}
 				),
-				'disabled' : !(isRunning || isPaused) ? true : null
+				'disabled' : !(isRunning || isPaused || isRestarting) ? true : null
 			}, [dm2.Types['container'].sub['kill'].e]),
 
 			E('button', {

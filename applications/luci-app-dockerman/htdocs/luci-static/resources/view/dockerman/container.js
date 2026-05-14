@@ -306,7 +306,7 @@ return dm2.dv.extend({
 				Name: name,
 				NetworkID: netid,
 				DNSNames: net?.DNSNames || '',
-				IPv4Address: net?.IPAMConfig?.IPv4Address || '',
+				IPv4Address: net?.IPAMConfig?.IPv4Address || net?.IPAddress || '',
 				IPv6Address: net?.IPAMConfig?.IPv6Address || '',
 			});
 		}
@@ -315,6 +315,7 @@ return dm2.dv.extend({
 	},
 
 	render([this_container, images, networks, cpus_mem, ps_top, stats_data, changes_data]) {
+		this.networks = networks;
 		const view = this;
 		const containerName = this_container.Name?.substring(1) || this_container.Id || '';
 		const containerIdShort = (this_container.Id || '').substring(0, 12);
@@ -359,7 +360,7 @@ return dm2.dv.extend({
 		}
 
 		// Stop button
-		if (containerStatus === 'running' || containerStatus === 'paused') {
+		if (containerStatus === 'running' || containerStatus === 'paused' || containerStatus === 'restarting') {
 			const stopBtn = E('button', {
 				'class': 'cbi-button cbi-button-reset',
 				'click': (ev) => this.executeAction(ev, 'stop', this_container.Id)
@@ -368,7 +369,7 @@ return dm2.dv.extend({
 		}
 
 		// Kill button
-		if (containerStatus === 'running') {
+		if (containerStatus === 'running' || containerStatus === 'restarting') {
 			const killBtn = E('button', {
 				'class': 'cbi-button',
 				'style': 'background-color: #dc3545;',
@@ -1849,7 +1850,7 @@ return dm2.dv.extend({
 				dm2.network_disconnect,
 				{
 					id: networkID,
-					body: { Container: view.containerId, Force: false }
+					body: { Container: this_container.Id, Force: false }
 				},
 				_('Disconnect network'),
 				{
@@ -1927,7 +1928,7 @@ return dm2.dv.extend({
 
 							ui.hideModal();
 
-							const body = { Container: view.containerId };
+							const body = { Container: this_container.Id };
 							body.EndpointConfig = { IPAMConfig: { IPv4Address: ip4Address } }; //, IPv6Address: ip6Address || null
 
 							view.executeDockerAction(
