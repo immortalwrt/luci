@@ -138,9 +138,12 @@ return dm2.dv.extend({
 				publish: (() => {
 					const ports = [];
 					for (const [containerPort, bindings] of Object.entries(hostConfig.PortBindings || {})) {
-						if (Array.isArray(bindings) && bindings.length > 0 && bindings[0]?.HostPort) {
-							const hostPort = bindings[0].HostPort;
-							ports.push(hostPort + ':' + containerPort);
+						if (Array.isArray(bindings) && bindings.length > 0) {
+							for (const b of bindings) {
+								if (!b?.HostPort) continue;
+								const ip = (b.HostIp && b.HostIp !== '0.0.0.0' && b.HostIp !== '::') ? b.HostIp : '';
+								ports.push((ip ? ip + ':' : '') + b.HostPort + ':' + containerPort);
+							}
 						}
 					}
 					return ports;
@@ -816,8 +819,32 @@ return dm2.dv.extend({
 							(Array.isArray(publish) ? publish : [publish])
 							.filter(p => p && typeof p === 'string' && p.trim().length > 0)
 							.map(p => {
-								const m = p.match(/^(\d+):(\d+)\/(tcp|udp)$/);
-								if (m) return [`${m[2]}/${m[3]}`, [{ HostPort: m[1] }]];
+								// hostIp:hostPort:cPort/proto (e.g. 192.168.1.100:8080:80/tcp)
+								const m = p.match(/^([^:]+):(\d+):(\d+)\/(tcp|udp)$/);
+								if (m) {
+									const hostIp   = m[1];
+									const hostPort = m[2];
+									const cPort    = m[3];
+									const proto    = m[4];
+									return [`${cPort}/${proto}`, [{ HostIp: hostIp, HostPort: hostPort }]];
+								}
+								// [ipv6]:hostPort:cPort/proto (e.g. [::1]:8080:80/tcp)
+								const m6 = p.match(/^\[([^\]]+)\]:(\d+):(\d+)\/(tcp|udp)$/);
+								if (m6) {
+									const hostIp   = m6[1];
+									const hostPort = m6[2];
+									const cPort    = m6[3];
+									const proto    = m6[4];
+									return [`${cPort}/${proto}`, [{ HostIp: hostIp, HostPort: hostPort }]];
+								}
+								// hostPort:cPort/proto (e.g. 8080:80/tcp)
+								const m2 = p.match(/^(\d+):(\d+)\/(tcp|udp)$/);
+								if (m2) {
+									const hostPort = m2[1];
+									const cPort    = m2[2];
+									const proto    = m2[3];
+									return [`${cPort}/${proto}`, [{ HostPort: hostPort }]];
+								}
 								return null;
 							}).filter(Boolean)
 						) : undefined,
