@@ -73,7 +73,8 @@ return dm2.dv.extend({
 			const hostConfig = c.HostConfig || {};
 			const resolvedImage = resolveImageId(c.Image) || resolveImageId(c.Config?.Image) || c.Image || c.Config?.Image || '';
 			const builtInNetworks = new Set(['none', 'bridge', 'host']);
-			const [netnames, nets] = Object.entries(c.NetworkSettings?.Networks || {});
+			// Object.entries returns [[name, obj], ...] — pick the first network
+			const [[firstName, firstNet] = []] = Object.entries(c.NetworkSettings?.Networks || {});
 
 			containerData.container = {
 				name: c.Name?.substring(1) || '',
@@ -82,20 +83,22 @@ return dm2.dv.extend({
 				image: resolvedImage,
 				privileged: hostConfig.Privileged ? 1 : 0,
 				restart_policy: hostConfig.RestartPolicy?.Name || 'unless-stopped',
-				network: (() => {
-					return (netnames && (netnames.length > 0)) ? netnames[0] : '';
+				network: firstName || '',
+				network_aliases: (() => {
+					if (!firstName || builtInNetworks.has(firstName)) return '';
+					return (firstNet?.Aliases || []).join(', ');
 				})(),
 				ipv4: (() => {
-					if (builtInNetworks.has(netnames[0])) return '';
-					return (nets && (nets.length > 0)) ? nets[0]?.IPAddress || '' : '';
+					if (!firstName || builtInNetworks.has(firstName)) return '';
+					return firstNet?.IPAddress || '';
 				})(),
 				ipv6: (() => {
-					if (builtInNetworks.has(netnames[0])) return '';
-					return (nets && (nets.length > 0)) ? nets[0]?.GlobalIPv6Address || '' : '';
+					if (!firstName || builtInNetworks.has(firstName)) return '';
+					return firstNet?.GlobalIPv6Address || '';
 				})(),
 				ipv6_lla: (() => {
-					if (builtInNetworks.has(netnames[0])) return '';
-					return (nets && (nets.length > 0)) ? nets[0]?.LinkLocalIPv6Address || '' : '';
+					if (!firstName || builtInNetworks.has(firstName)) return '';
+					return firstNet?.LinkLocalIPv6Address || '';
 				})(),
 				link: hostConfig.Links || [],
 				dns: hostConfig.Dns || [],
@@ -270,6 +273,11 @@ return dm2.dv.extend({
 		o = s.option(form.Value, 'ipv6_lla', _('IPv6 Link-Local Address'));
 		o.rmempty = true;
 		o.datatype = 'ip6ll';
+		o.validate = not_with_a_docker_net;
+
+		o = s.option(form.Value, 'network_aliases', _('Network Aliases'));
+		o.rmempty = true;
+		o.placeholder = 'database,db (CSV)';
 		o.validate = not_with_a_docker_net;
 
 		o = s.option(form.DynamicList, 'link', _('Links with other containers'));
@@ -762,6 +770,7 @@ return dm2.dv.extend({
 				const name = get('name');
 				// const pull = toBool(get('pull'));
 				const network = get('network');
+				const network_aliases = get('network_aliases');
 				const publish = get('publish');
 				const command = get('command');
 				// const publish_all = toBool(get('publish_all'));
@@ -829,7 +838,10 @@ return dm2.dv.extend({
 						Sysctls: sysctl ? listToKv(sysctl) : undefined,
 					},
 					NetworkingConfig: {
-						EndpointsConfig: { [network]: { IPAMConfig: { IPv4Address: get('ipv4') || null, IPv6Address: get('ipv6') || null } } },
+						EndpointsConfig: { [network]: { 
+							IPAMConfig: { IPv4Address: get('ipv4') || null, IPv6Address: get('ipv6') || null },
+							Aliases: network_aliases ? network_aliases.split(',').map(a => a.trim()).filter(Boolean) : null
+						} },
 					}
 				};
 
