@@ -193,6 +193,7 @@ return dm2.dv.extend({
 					}
 					return list;
 				})(),
+				log_driver: hostConfig.LogConfig?.Type || '',
 			};
 		}
 
@@ -747,6 +748,14 @@ return dm2.dv.extend({
 		o.placeholder='max-size=1m';
 		o.depends('advanced', 1);
 
+		o = s.option(form.ListValue, 'log_driver', _('Log driver'));
+		o.rmempty = true;
+		o.value('', _('Default (daemon)'));
+		o.value('local', _('local'));
+		o.value('json-file', _('json-file'));
+		o.value('syslog', _('syslog'));
+		o.value('none', _('none'));
+		o.depends('advanced', 1);
 
 		this.map = m;
 
@@ -771,6 +780,7 @@ return dm2.dv.extend({
 			.then(() => {
 				const get = (opt) => map.data.get('json', 'container', opt);
 				const name = get('name');
+				const log_driver = get('log_driver');
 				// const pull = toBool(get('pull'));
 				const network = get('network');
 				const network_aliases = get('network_aliases');
@@ -810,10 +820,13 @@ return dm2.dv.extend({
 								CgroupPermissions: parts[2] || 'rwm'
 							};
 						}) : undefined,
-						LogConfig: log_opt ? {
+						LogConfig: log_driver ? {
+							Type: log_driver,
+							Config: listToKv(log_opt)
+						} : (log_opt ? {
 							Type: 'json-file',
 							Config: listToKv(log_opt)
-						} : undefined,
+						} : undefined),
 						NetworkMode: network,
 						PortBindings: publish ? Object.fromEntries(
 							(Array.isArray(publish) ? publish : [publish])
