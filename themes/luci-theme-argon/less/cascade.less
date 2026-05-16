@@ -257,6 +257,11 @@ select[multiple="multiple"] {
   margin: 5em auto;
 }
 
+.alert-message {
+  transform: none;
+  position: static;
+}
+
 .alert-message>h4 {
   font-size: 110%;
   font-weight: bold;
@@ -268,6 +273,11 @@ select[multiple="multiple"] {
 
 .alert-message .btn {
   padding: .3rem .6rem;
+}
+
+#maincontent > .alert-message {
+  position: fixed;
+  transform: translate(-50%, -50%);
 }
 
 .container .alert,
@@ -464,14 +474,16 @@ table>thead>tr>th,
   flex: 1 1 auto;
 }
 
-tr>td,
-tr>th,
-.tr>.td,
-.tr>.th,
-.cbi-section-table-row::before,
-#cbi-wireless>#wifi_assoclist_table>.tr:nth-child(2) {
-  border-top: thin solid #ddd;
-  padding: 1.1em 1.25rem;
+body:not([data-page="admin-dashboard"]) {
+  tr>td,
+  tr>th,
+  .tr>.td,
+  .tr>.th,
+  .cbi-section-table-row::before,
+  #cbi-wireless>#wifi_assoclist_table>.tr:nth-child(2) {
+    border-top: thin solid #ddd;
+    padding: 1.1em 1.25rem;
+  }
 }
 
 #cbi-wireless .td,
@@ -1431,7 +1443,6 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
   cursor: pointer;
   user-select: none;
   font-size: 0;
-  color: #8898aa;
   background-color: currentColor;
   mask-image: var(--dropdown-arrow-icon);
   mask-repeat: no-repeat;
@@ -2493,6 +2504,26 @@ pre.command-output {
   padding: 1.5rem;
 }
 
+.alert-message.spinning,
+.modal.alert-message.spinning {
+  position: relative;
+
+  &::before {
+    height: 16px;
+    width: 16px;
+    position: absolute;
+    top: 2rem;
+    left: 0.5rem;
+  }
+}
+
+.cbi-dropdown.cbi-button-positive>ul>li[display="0"] {
+  color: #fff;
+}
+
+.cbi-dropdown[open]>ul.dropdown>li[selected] {
+  color: #000;
+}
 
 /* page fix */
 @import url("page-fix.less");
