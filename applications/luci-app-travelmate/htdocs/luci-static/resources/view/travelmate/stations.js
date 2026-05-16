@@ -121,8 +121,6 @@ function handleSectionsAdd(iface) {
 			uci.set('travelmate', sid, 'device', w_sections[i].device);
 			uci.set('travelmate', sid, 'ssid', w_sections[i].ssid);
 			uci.set('travelmate', sid, 'bssid', w_sections[i].bssid);
-			uci.set('travelmate', sid, 'con_start_expiry', '0');
-			uci.set('travelmate', sid, 'con_end_expiry', '0');
 			if (vpn_stdservice && vpn_stdiface) {
 				uci.set('travelmate', sid, 'vpn', '1');
 				uci.set('travelmate', sid, 'vpnservice', vpn_stdservice);
@@ -136,7 +134,7 @@ function handleSectionsAdd(iface) {
 	update travelmate sections
 */
 function handleSectionsVal(action, section_id, option, value) {
-	let date, oldValue, w_device, w_ssid, w_bssid, t_sections;
+	let w_device, w_ssid, w_bssid, t_sections;
 
 	w_device = uci.get('wireless', section_id, 'device');
 	w_ssid = uci.get('wireless', section_id, 'ssid');
@@ -148,15 +146,6 @@ function handleSectionsVal(action, section_id, option, value) {
 			if (action === 'get') {
 				return t_sections[i][option];
 			} else if (action === 'set') {
-				if (option === 'enabled') {
-					oldValue = t_sections[i][option];
-					if (oldValue !== value && value === '0') {
-						date = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000).toISOString().substring(0, 19).replace(/-/g, '.').replace('T', '-');
-						uci.set('travelmate', t_sections[i]['.name'], 'con_end', date);
-					} else if (oldValue !== value && value === '1') {
-						uci.unset('travelmate', t_sections[i]['.name'], 'con_end');
-					}
-				}
 				return uci.set('travelmate', t_sections[i]['.name'], option, value);
 			} else if (action === 'del') {
 				return uci.unset('travelmate', t_sections[i]['.name'], option);
@@ -169,11 +158,12 @@ function handleSectionsVal(action, section_id, option, value) {
 	update travelmate status
 */
 function handleStatus() {
+	let parseErrCount = 0;
 	poll.add(function () {
-		L.resolveDefault(fs.stat('/var/state/travelmate.refresh'), null).then(function (res) {
+		L.resolveDefault(fs.stat('/var/run/travelmate/travelmate.refresh'), null).then(function (res) {
 			if (res) {
-				return L.resolveDefault(fs.read_direct('/var/state/travelmate.refresh'), null).then(async function (res) {
-					fs.remove('/var/state/travelmate.refresh');
+				return L.resolveDefault(fs.read_direct('/var/run/travelmate/travelmate.refresh'), null).then(async function (res) {
+					fs.remove('/var/run/travelmate/travelmate.refresh');
 					if (res && res === 'ui_reload') {
 						location.reload();
 					} else if (res && res === 'cfg_reload') {
@@ -196,17 +186,29 @@ function handleStatus() {
 				});
 			}
 		});
-		return L.resolveDefault(fs.stat('/tmp/trm_runtime.json'), null).then(function (res) {
+		return L.resolveDefault(fs.stat('/var/run/travelmate/travelmate.runtime.json'), null).then(function (res) {
 			if (res) {
-				return L.resolveDefault(fs.read_direct('/tmp/trm_runtime.json'), null).then(function (res) {
+				return L.resolveDefault(fs.read_direct('/var/run/travelmate/travelmate.runtime.json'), null).then(function (res) {
 					if (res) {
-						let info = JSON.parse(res);
+						let info = null;
+						try {
+							info = JSON.parse(res);
+							parseErrCount = 0;
+						} catch (e) {
+							parseErrCount++;
+							if (parseErrCount >= 5) {
+								ui.addNotification(null, E('p', _('Unable to parse the travelmate runtime information!')), 'error');
+								poll.stop();
+							}
+							return;
+						}
 						if (info) {
+							const vpnMatch = (info.data.ext_hooks || '').match(/vpn:\s*(.)/);
 							let t_device, t_ssid, t_bssid, newUplinkView, uplinkColor,
 								uplinkId = info.data.station_id.trim().split('/'),
 								oldUplinkView = document.getElementsByName('uplinkStation'),
 								w_sections = uci.sections('wireless', 'wifi-iface'),
-								vpnStatus = info.data.ext_hooks.substr(13, 1);
+								vpnStatus = vpnMatch ? vpnMatch[1] : '✘';
 							t_device = uplinkId[0];
 							t_bssid = uplinkId[uplinkId.length - 1];
 							for (let i = 1; i < uplinkId.length - 1; i++) {
@@ -552,28 +554,6 @@ return view.extend({
 			return handleSectionsVal('get', section_id, 'bssid');
 		}
 
-		o = s.taboption('travelmate', form.Value, '_con_start', _('Connection Start'));
-		o.modalonly = true;
-		o.uciconfig = 'travelmate';
-		o.ucisection = 'uplink';
-		o.ucioption = 'con_start';
-		o.rmempty = true;
-		o.readonly = true;
-		o.cfgvalue = function (section_id) {
-			return handleSectionsVal('get', section_id, 'con_start');
-		}
-
-		o = s.taboption('travelmate', form.Value, '_con_end', _('Connection End'));
-		o.modalonly = true;
-		o.uciconfig = 'travelmate';
-		o.ucisection = 'uplink';
-		o.ucioption = 'con_end';
-		o.rmempty = true;
-		o.readonly = true;
-		o.cfgvalue = function (section_id) {
-			return handleSectionsVal('get', section_id, 'con_end');
-		}
-
 		o = s.taboption('travelmate', form.Flag, '_opensta', _('Auto Added Open Uplink'),
 			_('This option is selected by default if this uplink was added automatically and counts as \'Open Uplink\'.'));
 		o.rmempty = true;
@@ -616,42 +596,6 @@ return view.extend({
 		}
 		o.remove = function (section_id, value) {
 			return handleSectionsVal('set', section_id, 'macaddr', value);
-		}
-
-		o = s.taboption('travelmate', form.Value, '_con_start_expiry', _('Connection Start Expiry'),
-			_('Automatically disable the uplink after <em>n</em> minutes, e.g. for timed connections.<br /> \
-			The default of \'0\' disables this feature.'));
-		o.modalonly = true;
-		o.uciconfig = 'travelmate';
-		o.ucisection = 'uplink';
-		o.ucioption = 'con_start_expiry';
-		o.rmempty = false;
-		o.placeholder = '0';
-		o.default = '0';
-		o.datatype = 'range(0,720)';
-		o.cfgvalue = function (section_id) {
-			return handleSectionsVal('get', section_id, 'con_start_expiry');
-		}
-		o.write = function (section_id, value) {
-			return handleSectionsVal('set', section_id, 'con_start_expiry', value);
-		}
-
-		o = s.taboption('travelmate', form.Value, '_con_end_expiry', _('Connection End Expiry'),
-			_('Automatically (re-)enable the uplink after <em>n</em> minutes, e.g. after failed login attempts.<br /> \
-			The default of \'0\' disables this feature.'));
-		o.modalonly = true;
-		o.uciconfig = 'travelmate';
-		o.ucisection = 'uplink';
-		o.ucioption = 'con_end_expiry';
-		o.rmempty = false;
-		o.placeholder = '0';
-		o.default = '0';
-		o.datatype = 'range(0,720)';
-		o.cfgvalue = function (section_id) {
-			return handleSectionsVal('get', section_id, 'con_end_expiry');
-		}
-		o.write = function (section_id, value) {
-			return handleSectionsVal('set', section_id, 'con_end_expiry', value);
 		}
 
 		o = s.taboption('travelmate', form.FileUpload, '_script', _('Auto Login Script'),
@@ -823,7 +767,7 @@ return view.extend({
 
 			return L.resolveDefault(fs.exec_direct('/etc/init.d/travelmate', ['scan', radio]))
 				.then(L.bind(function () {
-					return L.resolveDefault(fs.read_direct('/var/run/travelmate.scan'), '')
+					return L.resolveDefault(fs.read_direct('/var/run/travelmate/travelmate.scan'), '')
 						.then(L.bind(function (res) {
 							let lines, strength, channel, bssid, wpa, cipher, auth, tbl_ssid, ssid, rows = [];
 
