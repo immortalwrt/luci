@@ -181,7 +181,7 @@ msgstr "保存设置时出错: %s"
 msgid ""
 "Essential configuration for Subnet Routing (Site-to-Site) and Exit Node "
 "features."
-msgstr "子网路由和出口节点的基本配置。"
+msgstr "子网路由（局域网间互通）和出口节点的基本配置。"
 
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:278
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:376
@@ -231,7 +231,7 @@ msgstr "主机名"
 
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:427
 msgid "How to enable Site-to-Site?"
-msgstr ""
+msgstr "如何实现站点到站点（即多局域网互通）？"
 
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:446
 msgid ""
@@ -254,9 +254,7 @@ msgstr "无效日期"
 msgid ""
 "It automatically creates the tailscale interface, sets up firewall zones for "
 "LAN <-> Tailscale forwarding,"
-msgstr ""
-"子网路由和出口节点的基本配置。会自动tailscale接口，设置防火墙区域LAN <-> "
-"Tailscale转发"
+msgstr "将自动创建Tailscale接口并设置防火墙区域用于LAN <-> Tailscale转发"
 
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:93
 msgid "Just now"
@@ -293,7 +291,7 @@ msgstr "登出失败: %s"
 
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:87
 msgid "N/A"
-msgstr "N/A"
+msgstr "不可用"
 
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:216
 msgid "NOT RUNNING"
@@ -305,11 +303,11 @@ msgstr "网络设备"
 
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:245
 msgid "No peer devices found."
-msgstr "未找到对等设备。"
+msgstr "未找到节点设备。"
 
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:377
 msgid "None"
-msgstr ""
+msgstr "无"
 
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:88
 msgid "Now"
@@ -331,7 +329,7 @@ msgstr "在线"
 msgid ""
 "Optional: Specify a custom control server URL (e.g., a Headscale instance, "
 "%s)."
-msgstr ""
+msgstr "可选：指定一个自定义控制服务器 URL (例如，一个 Headscale 实例, %s)。"
 
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:459
 msgid ""
@@ -371,7 +369,7 @@ msgstr "正在请求 Tailscale 登录 URL... 请稍候。"
 msgid ""
 "Select an exit node from the list. If enabled, Allow LAN Access is enabled "
 "implicitly."
-msgstr ""
+msgstr "列表中选择出口节点。一旦开启，默认局域网之间可以互访"
 
 #: applications/luci-app-tailscale-community/htdocs/luci-static/resources/view/tailscale.js:19
 msgid ""
@@ -507,4 +505,4 @@ msgstr "前"
 msgid ""
 "and enables Masquerading and MSS Clamping (MTU fix) to ensure stable "
 "connections."
-msgstr "并启用地址伪装和 MSS钳制确保连接稳定。"
+msgstr "并启用伪装和MSS钳制（MTU修复）功能，以确保连接稳定。"
