@@ -286,7 +286,6 @@ return view.extend({
 		o.optional = true;
 		o.rmempty = false;
 		o.modalonly = true;
-		o.modalonly = true;
 
 		return m.render();
 	},
