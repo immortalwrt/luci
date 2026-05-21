@@ -44,8 +44,8 @@ function gen_outbound(flag, node, tag, proxy_table)
 		local run_socks_instance = true
 		if proxy_table ~= nil and type(proxy_table) == "table" then
 			proxy_tag = proxy_table.tag or nil
-			fragment = proxy_table.fragment or nil
-			noise = proxy_table.noise or nil
+			fragment = (proxy_table.fragment and not node.hysteria2_realms) and true or nil
+			noise = (proxy_table.noise and not node.hysteria2_realms) and true or nil
 			run_socks_instance = proxy_table.run_socks_instance
 		end
 
@@ -165,7 +165,11 @@ function gen_outbound(flag, node, tag, proxy_table)
 								if not node.tls_CertByName then return "" end
 								return node.tls_CertByName
 							end)(),
-					echConfigList = (node.ech == "1") and node.ech_config or nil
+					echConfigList = (node.ech == "1") and node.ech_config or nil,
+					certificates = (node.tls_certificate == "1" and node.tls_certificate_pem ~= "") and {
+						certificate = api.split(node.tls_certificate_pem, "\n"),
+						usage = "verify"
+					} or nil
 				} or nil,
 				realitySettings = (node.stream_security == "reality") and {
 					serverName = node.tls_serverName,
@@ -274,14 +278,36 @@ function gen_outbound(flag, node, tag, proxy_table)
 						udp[#udp+1] = c
 						finalmask.udp = udp
 					elseif TP == "hysteria" then
+						local udp = {}
 						if node.hysteria2_obfs_type and node.hysteria2_obfs_type ~= "" then
-							finalmask.udp = {{
-								type = node.hysteria2_obfs_type,
+							local o = {
+								type = "salamander",
 								settings = node.hysteria2_obfs_password and {
-									password = node.hysteria2_obfs_password
+									password = node.hysteria2_obfs_password,
+									packetSize = node.hysteria2_obfs_type == "gecko" and "512-1200" or nil
 								} or nil
-							}}
+							}
+							udp[#udp+1] = o
 						end
+						if node.hysteria2_realms then
+							local realm = api.parse_realm_uri(node.hysteria2_realm_url)
+							local url, stun
+							if realm then
+								if realm.token and realm.server_url and realm.realm_id then
+									url = "realm://" .. realm.token .. "@" .. realm.server_url .. "/" .. realm.realm_id
+								end
+								stun = realm.stun_servers or node.hysteria2_realm_stun
+							end
+							local r = {
+								type = "realm",
+								settings = {
+									url = url,
+									stunServers = stun
+								}
+							}
+							udp[#udp+1] = r
+						end
+						finalmask.udp = udp
 						local up = tonumber(node.hysteria2_up_mbps) or 0
 						local down = tonumber(node.hysteria2_down_mbps) or 0
 						finalmask.quicParams = {
@@ -391,6 +417,13 @@ function gen_outbound(flag, node, tag, proxy_table)
 
 		if node.protocol == "wireguard" then
 			result.settings.kernelMode = false
+			if node.finalmask and node.finalmask ~= "" then
+				local ok, fm = pcall(jsonc.parse, api.base64Decode(node.finalmask))
+				if ok and type(fm) == "table" then
+					result.streamSettings = result.streamSettings or {}
+					result.streamSettings.finalmask = fm
+				end
+			end
 		end
 
 		local alpn = {}
@@ -704,14 +737,36 @@ function gen_config_server(node)
 							udp[#udp+1] = c
 							finalmask.udp = udp
 						elseif node.transport == "hysteria" then
+							local udp = {}
 							if node.hysteria2_obfs_type and node.hysteria2_obfs_type ~= "" then
-								finalmask.udp = {{
-									type = node.hysteria2_obfs_type,
+								local o = {
+									type = "salamander",
 									settings = node.hysteria2_obfs_password and {
-										password = node.hysteria2_obfs_password
+										password = node.hysteria2_obfs_password,
+										packetSize = node.hysteria2_obfs_type == "gecko" and "512-1200" or nil
 									} or nil
-								}}
+								}
+								udp[#udp+1] = o
 							end
+							if node.hysteria2_realms then
+								local realm = api.parse_realm_uri(node.hysteria2_realm_url)
+								local url, stun
+								if realm then
+									if realm.token and realm.server_url and realm.realm_id then
+										url = "realm://" .. realm.token .. "@" .. realm.server_url .. "/" .. realm.realm_id
+									end
+									stun = realm.stun_servers or node.hysteria2_realm_stun
+								end
+								local r = {
+									type = "realm",
+									settings = {
+										url = url,
+										stunServers = stun
+									}
+								}
+								udp[#udp+1] = r
+							end
+							finalmask.udp = udp
 							local ignore = tonumber(node.hysteria2_ignore_client_bandwidth) == 1
 							local up = (not ignore) and tonumber(node.hysteria2_up_mbps) or 0
 							local down = (not ignore) and tonumber(node.hysteria2_down_mbps) or 0
@@ -742,7 +797,7 @@ function gen_config_server(node)
 	}
 
 	local alpn = {}
-	if node.alpn then
+	if node.alpn and node.alpn ~= "default" then
 		string.gsub(node.alpn, '[^' .. "," .. ']+', function(w)
 			table.insert(alpn, w)
 		end)
@@ -1753,13 +1808,14 @@ function gen_config(var)
 					-- remote dns outbound rules
 					if value.outboundTag == "blackhole" then
 						table.insert(remote_dns_out_rules, {
-							action = "reject",
+							action = "return",
+							rCode = 0,
 							domain = api.clone(value.domain)
 						})
 					else
 						table.insert(remote_dns_out_rules, {
 							action = "hijack",
-							qtype = "1,28",
+							qType = "1,28",
 							domain = api.clone(value.domain)
 						})
 					end
@@ -1826,7 +1882,7 @@ function gen_config(var)
 			if remote_dns_outbound.settings.rules then
 				table.insert(remote_dns_out_rules, {
 					action = "hijack",
-					qtype = "1,28"
+					qType = "1,28"
 				})
 				table.insert(remote_dns_out_rules, {
 					action = "direct"
