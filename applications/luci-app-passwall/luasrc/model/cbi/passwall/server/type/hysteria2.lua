@@ -1,7 +1,5 @@
 local m, s = ...
 
-local api = require "luci.passwall.api"
-
 if not api.finded_com("hysteria") then
 	return
 end
@@ -10,21 +8,24 @@ local fs = api.fs
 
 local type_name = "Hysteria2"
 
+-- [[ Hysteria2 ]]
+
+s.fields["type"]:value(type_name, "Hysteria2")
+
+if s.val["type"] and s.val["type"] ~= type_name then
+	return
+end
+
 local option_prefix = "hysteria2_"
 
 local function _n(name)
 	return option_prefix .. name
 end
 
--- [[ Hysteria2 ]]
-
-s.fields["type"]:value(type_name, "Hysteria2")
-
 o = s:option(Flag, _n("custom"), translate("Use Custom Config"))
 
 o = s:option(Value, _n("port"), translate("Listen Port"))
 o.datatype = "port"
-o.rmempty = false
 o:depends({ [_n("custom")] = false })
 
 o = s:option(Flag, _n("realms"), translate("Realms"))
@@ -49,12 +50,14 @@ o:depends({ [_n("custom")] = false })
 o = s:option(ListValue, _n("obfs_type"), translate("Obfs Type"))
 o:value("", translate("Disable"))
 o:value("salamander")
+o:value("gecko")
 o.rewrite_option = o.option
 o:depends({ [_n("custom")] = false })
 
 o = s:option(Value, _n("obfs_password"), translate("Obfs Password"))
 o.rewrite_option = o.option
 o:depends({ [_n("obfs_type")] = "salamander" })
+o:depends({ [_n("obfs_type")] = "gecko" })
 
 o = s:option(Flag, _n("udp"), translate("UDP"))
 o.default = "1"
