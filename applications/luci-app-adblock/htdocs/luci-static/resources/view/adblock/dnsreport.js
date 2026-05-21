@@ -217,19 +217,24 @@ function handleAction(ev) {
 							L.resolveDefault(fs.exec_direct('/etc/init.d/adblock', ['report', 'gen', top_count, res_count, search]), '');
 							let attempts = 0;
 							let poller = setInterval(function () {
-								attempts++;
 								L.resolveDefault(fs.read('/var/run/adblock/adblock.report'), '').then(function (res) {
-									if (res && res.trim()) {
+									res = (res || '').trim();
+									if (res === '1') {
 										clearInterval(poller);
 										ui.hideModal();
 										location.reload();
-									} else if (attempts >= 40) {
-										clearInterval(poller);
-										document.querySelectorAll('.cbi-page-actions button').forEach(function (btn) {
-											btn.disabled = false;
-										});
-										document.getElementById('refresh').classList.remove('spinning');
-										ui.addNotification(null, E('p', _('Failed to generate adblock report!')), 'error');
+									} else if (res === '0') {
+										// keep polling
+									} else {
+										attempts++;
+										if (attempts >= 10) {
+											clearInterval(poller);
+											document.querySelectorAll('.cbi-page-actions button').forEach(function (btn) {
+												btn.disabled = false;
+											});
+											document.getElementById('refresh').classList.remove('spinning');
+											ui.addNotification(null, E('p', _('Failed to generate adblock report!')), 'error');
+										}
 									}
 								});
 							}, 3000);
