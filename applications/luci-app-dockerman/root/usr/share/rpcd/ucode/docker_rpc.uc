@@ -290,7 +290,7 @@ function run_ttyd(request) {
 
 	const id = request.args.id || '';
 	const cmd = request.args.cmd || '/bin/sh';
-	const port = request.args.port || 7682;
+	const port = int(request.args.port) || 7682;
 	const uid = request.args.uid || '';
 
 	if (!id) {

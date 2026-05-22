@@ -1086,7 +1086,7 @@ return dm2.dv.extend({
 
 			o = s.taboption('wsconsole', form.DummyValue, 'wsconsole_controls', _('WebSocket Console'));
 			o.render = L.bind(function() {
-				const status = this.getContainerStatus();
+				const status = this.getContainerStatus(this_container);
 				const isRunning = status === 'running';
 
 				if (!isRunning) {
@@ -1327,6 +1327,7 @@ return dm2.dv.extend({
 			.then(() => {
 				const this_container = map.data.get('json', 'cont');
 				const id = this_container?.Id;
+				const nc = gethc('NanoCpus');
 				/* In the container edit context, there are not many items we
 				can change - duplicate the container */
 				const createBody = {
@@ -1335,11 +1336,11 @@ return dm2.dv.extend({
 					Memory: toInt(gethc('Memory')),
 					MemorySwap: toInt(gethc('MemorySwap')),
 					MemoryReservation: toInt(gethc('MemoryReservation')),
-					BlkioWeight: toInt(gethc('blkio_weight')),
+					BlkioWeight: toInt(gethc('BlkioWeight')),
 
 					CpuPeriod: toInt(gethc('CpuPeriod')),
 					CpuQuota: toInt(gethc('CpuQuota')),
-					NanoCPUs: toInt(gethc('NanoCpus') * (10 ** 9)), // unit: 10^-9, input: float
+					NanoCPUs: nc ? Math.round(nc * 1e9) : undefined, // unit: 10^-9, input: float
 					OomKillDisable: toBool(gethc('OomKillDisable')),
 
 					RestartPolicy: { Name: get('restart_policy') || this_container.HostConfig?.RestartPolicy?.Name },
