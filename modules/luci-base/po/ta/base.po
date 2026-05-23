@@ -755,6 +755,10 @@ msgstr "ADSL2+ (G.992.5) இணைப்பு மீ"
 msgid "ANSI T1.413"
 msgstr "ANSI T1.413"
 
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:66
+msgid "AP Isolation"
+msgstr ""
+
 #: protocols/luci-proto-3g/htdocs/luci-static/resources/protocol/3g.js:95
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:65
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:65
@@ -1759,6 +1763,10 @@ msgstr "பேட்மேன் சாதனம்"
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_hardif.js:10
 msgid "Batman Interface"
 msgstr "பேட்மேன் இடைமுகம்"
+
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:11
+msgid "Batman VLAN Interface"
+msgstr ""
 
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv.js:81
 msgid ""
@@ -3019,6 +3027,7 @@ msgstr "இலக்கு மண்டலம்"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:260
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:334
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:369
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:48
 #: protocols/luci-proto-external/htdocs/luci-static/resources/protocol/external.js:29
 msgid "Device"
 msgstr "சாதனம்"
@@ -3691,6 +3700,16 @@ msgstr "<Abbr தலைப்பு = \"பரந்த மர நெறிம�
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:892
 msgid "Enable <abbr title=\"Stateless Address Auto Config\">SLAAC</abbr>"
 msgstr "<Abbr தலைப்பு = \"நிலையற்ற முகவரி ஆட்டோ கட்டமைப்பு\"> ச்லாக் </abbr> ஐ இயக்கு"
+
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:67
+msgid ""
+"Enable AP Isolation to isolate wireless clients connected to this Batman "
+"VLAN on this AP from wireless clients connected to this Batman VLAN on "
+"different APs. To isolate all wireless clients connected to this Batman VLAN "
+"on all APs from each other, be sure to enable this option on all APs, and be "
+"sure to enable additional wireless client isolation options ('isolate' and "
+"'bridge_isolate') for all associated wireless interfaces on all APs."
+msgstr ""
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:279
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:495
@@ -5606,6 +5625,12 @@ msgstr ""
 msgid ""
 "If left unspecified, the device will announce itself as DNS server unless "
 "the <em>Local IPv6 DNS server</em> option is disabled."
+msgstr ""
+
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:49
+msgid ""
+"If not listed, please open the drop-down list and type in the name of the "
+"Batman VLAN device in the 'custom' field."
 msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1270
@@ -9034,6 +9059,12 @@ msgstr "பி.கே.டி.எச்."
 msgid "Please enter your username and password."
 msgstr "உங்கள் பயனர்பெயர் மற்றும் கடவுச்சொல்லை உள்ளிடவும்."
 
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:63
+msgid ""
+"Please open the drop-down list and select or type in the name of the Batman "
+"VLAN device."
+msgstr ""
+
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4935
 msgid "Please select the file to upload."
 msgstr "பதிவேற்ற கோப்பைத் தேர்ந்தெடுக்கவும்."
@@ -10480,6 +10511,10 @@ msgstr ""
 "பட வடிவமைப்பு சோதனை தோல்வியுற்றாலும் படத்தை ஒளிரச் செய்ய 'ஃபோர்ச் மேம்படுத்தல்' என்பதைத் "
 "தேர்ந்தெடுக்கவும். ஃபார்ம்வேர் சரியானது மற்றும் உங்கள் சாதனத்திற்கான பொருள் என்று நீங்கள் "
 "உறுதியாக நம்பினால் மட்டுமே பயன்படுத்தவும்!"
+
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:52
+msgid "Select Batman VLAN device…"
+msgstr ""
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3158
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3389
