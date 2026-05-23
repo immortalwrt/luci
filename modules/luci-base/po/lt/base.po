@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"PO-Revision-Date: 2026-05-07 13:14+0000\n"
+"PO-Revision-Date: 2026-05-22 21:12+0000\n"
 "Last-Translator: Džiugas Januševičius <dziugas1959@hotmail.com>\n"
 "Language-Team: Lithuanian <https://hosted.weblate.org/projects/openwrt/luci/"
 "lt/>\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "(n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.17.1\n"
+"X-Generator: Weblate 2026.6.dev0\n"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1330
 msgid "!known (not known)"
@@ -625,6 +625,10 @@ msgstr "„ADSL2+ (G.992.5) Annex M“"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1669
 msgid "ANSI T1.413"
 msgstr "„ANSI T1.413“"
+
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:66
+msgid "AP Isolation"
+msgstr "Prieigos taško izoliavimas"
 
 #: protocols/luci-proto-3g/htdocs/luci-static/resources/protocol/3g.js:95
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:65
@@ -1607,6 +1611,10 @@ msgstr "„Batman“ įrenginys"
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_hardif.js:10
 msgid "Batman Interface"
 msgstr "„Batman“ sąsajas ir/arba sietuvas"
+
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:11
+msgid "Batman VLAN Interface"
+msgstr ""
 
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv.js:81
 msgid ""
@@ -2824,6 +2832,7 @@ msgstr "Paskirties/Kelionės tikslo zona"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:281
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:355
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:391
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:48
 #: protocols/luci-proto-external/htdocs/luci-static/resources/protocol/external.js:29
 msgid "Device"
 msgstr "Įrenginys"
@@ -3483,6 +3492,16 @@ msgid "Enable <abbr title=\"Stateless Address Auto Config\">SLAAC</abbr>"
 msgstr ""
 "Įjungti <abbr title=\"angl. Stateless Address Auto Config | liet. "
 "Neįsimenamasis automatinis adreso konfigūravimas\">„SLAAC“</abbr>"
+
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:67
+msgid ""
+"Enable AP Isolation to isolate wireless clients connected to this Batman "
+"VLAN on this AP from wireless clients connected to this Batman VLAN on "
+"different APs. To isolate all wireless clients connected to this Batman VLAN "
+"on all APs from each other, be sure to enable this option on all APs, and be "
+"sure to enable additional wireless client isolation options ('isolate' and "
+"'bridge_isolate') for all associated wireless interfaces on all APs."
+msgstr ""
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:190
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:412
@@ -5323,6 +5342,12 @@ msgstr ""
 "įtakos išsiunčiamiems lygiarangiams ar nuorodų vietiniams lygiarangiams, "
 "aptiktiems naudojant daugiaadresinės transliacijas."
 
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:49
+msgid ""
+"If not listed, please open the drop-down list and type in the name of the "
+"Batman VLAN device in the 'custom' field."
+msgstr ""
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1128
 msgid ""
 "If set, downstream subnets are only allocated from the given IPv6 prefix "
@@ -5874,7 +5899,7 @@ msgstr "Invertuoti atitikmenį"
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:223
 msgctxt "VLAN port state"
 msgid "Is Primary VLAN"
-msgstr "Yra pagrindinis „VLAN“"
+msgstr "Yra pirminis/pagrindinis „VLAN“"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1213
 msgid "Isolate Clients"
@@ -8633,6 +8658,12 @@ msgstr ""
 "Prašome įvesti savo naudotojo/vartotojo vardą (t.y. slapyvardį) ir "
 "slaptažodį."
 
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:63
+msgid ""
+"Please open the drop-down list and select or type in the name of the Batman "
+"VLAN device."
+msgstr ""
+
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4632
 msgid "Please select the file to upload."
 msgstr "Pasirinkite failą, kurį norite įkelti."
@@ -9947,6 +9978,10 @@ msgstr ""
 "Programos ir moduliai diegiami per „opkg“, jeigu Jūsų įteiktas failas "
 "baigiasi „*.ipk“, tada sustokite!"
 
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:52
+msgid "Select Batman VLAN device…"
+msgstr ""
+
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2983
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3182
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3358
@@ -10578,7 +10613,7 @@ msgstr "Paleidimas"
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/view/modemmanager/status.js:90
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:139
 msgid "State"
-msgstr "Būklė/Būsena"
+msgstr "Būklę/Būseną"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:35
 msgid "Static IPv4 Routes"
@@ -10633,7 +10668,7 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:499
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:101
 msgid "Stop"
-msgstr "Sustabdyti"
+msgstr "Stabdyti"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:136
 msgid "Stop WPS"
@@ -11880,8 +11915,8 @@ msgstr "„Tunelio“ – Tinklo protokolo, skirto šifruoti/pereiti į kitą ti
 #: modules/luci-compat/luasrc/model/network.lua:1431
 msgid "Tunnel Interface"
 msgstr ""
-"„Tunelio“ – Tinklo protokolo, skirto šifruoti/pereiti į kitą tinklą sąsają "
-"ir/arba sietuvą"
+"„Tunelio“ – Tinklo protokolas, skirtas šifruoti/pereiti į kito tinklo sąsaja "
+"ir/arba sietuvas"
 
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/464xlat.js:44
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/dslite.js:57
@@ -12032,7 +12067,7 @@ msgstr "Nepavyko paleisti iš naujo užkardos: %s"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:372
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:56
 msgid "Unable to save contents: %s"
-msgstr "Nepavyko išsaugoti turinį: %s"
+msgstr "Nepavyko išsaugoti turinių: %s"
 
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:14
 msgid "Unable to set allowed mode list."
@@ -12166,7 +12201,7 @@ msgstr "Lygiarangis be pavadinimo"
 
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:151
 msgid "Up"
-msgstr "Viršun"
+msgstr "Viršun/Aukštyn"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4724
 msgid "Upload"

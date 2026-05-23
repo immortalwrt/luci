@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2026-01-27 05:23+0000\n"
-"Last-Translator: Максим Горпиніч <gorpinicmaksim0@gmail.com>\n"
+"PO-Revision-Date: 2026-05-15 10:43+0000\n"
+"Last-Translator: Dan <jonweblin2205@protonmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationspackage-manager/uk/>\n"
 "Language: uk\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.5.dev0\n"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:861
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:926
@@ -36,15 +36,15 @@ msgstr "Дії"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:796
 msgid "Allow overwriting conflicting package files"
-msgstr "Дозволити перезапис файлів пакунків, які конфліктують"
+msgstr "Дозволити перезапис конфліктних файлів пакунків"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:975
 msgid "Automatically remove unused dependencies"
-msgstr "Автоматичне видалення невикористовуваних залежностей"
+msgstr "Автоматично видаляти невикористовувані залежності"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1246
 msgid "Available"
-msgstr "В наявності"
+msgstr "Доступно"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:898
 msgid ""
@@ -63,11 +63,11 @@ msgid ""
 "custom repository entries. The configuration in the other files may be "
 "changed but is usually not preserved by <em>sysupgrade</em>."
 msgstr ""
-"Нижче наведено список різних файлів конфігурації, котрі використовуються "
+"Нижче наведено список різних файлів конфігурації, які використовуються "
 "<em>opkg</em>. Використовуйте <em>opkg.conf</em> для глобальних налаштувань "
 "і <em>customfeeds.conf</em> для записів власного репозиторію. Конфігурацію в "
 "інших файлах може бути змінено, але вона зазвичай не зберігається при "
-"<em>оновленні системи</em>."
+"<em>sysupgrade</em>."
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:804
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:850
@@ -101,11 +101,11 @@ msgstr "Подробиці про пакет <em>%h</em>"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1170
 msgid "Disk space"
-msgstr "Дисковий простір"
+msgstr "Місце на диску"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1058
 msgid "Dismiss"
-msgstr "Закрити"
+msgstr "Відхилити"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1200
 msgid "Display LuCI translation packages"
@@ -129,7 +129,7 @@ msgstr "Відображається %d-%d із %d"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1183
 msgid "Download and install package"
-msgstr "Завантажити та інсталювати пакети"
+msgstr "Завантажити та інсталювати пакет"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1036
 msgid "Errors"
@@ -145,7 +145,7 @@ msgstr "Фільтр"
 
 #: applications/luci-app-package-manager/root/usr/share/rpcd/acl.d/luci-app-package-manager.json:3
 msgid "Grant access to package management"
-msgstr "Надайте доступ до керування пакетами"
+msgstr "Надати доступ до керування пакетами"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1230
 msgid "Hide all translation packages"
@@ -160,12 +160,12 @@ msgstr "Інсталювати"
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1161
 msgid "Install additional software and upgrade existing packages with %s."
 msgstr ""
-"Встановіть додаткове програмне забезпечення та оновіть існуючі пакети за "
+"Інсталюйте додаткове програмне забезпечення та оновлюйте наявні пакети за "
 "допомогою %s."
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:784
 msgid "Install suggested translation packages as well"
-msgstr "Встановлювати запропоновані пакети перекладу також"
+msgstr "Інсталювати також запропоновані пакети перекладу"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:302
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:525
@@ -180,7 +180,7 @@ msgid ""
 "Really attempt to install <em>%h</em>?"
 msgstr ""
 "Інсталяція пакетів з ненадійних джерел є потенційною загрозою безпеці! "
-"Дійсно спробувати інсталювати <em>%h</em>?"
+"Справді спробувати інсталювати <em>%h</em>?"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:290
 msgid "Install…"
@@ -201,7 +201,7 @@ msgstr "MD5"
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:844
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1070
 msgid "Manually install package"
-msgstr "Інсталяція пакета вручну"
+msgstr "Інсталювати пакет вручну"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:513
 msgid "Needs upgrade"
@@ -222,7 +222,7 @@ msgstr "Немає пакетів"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:375
 msgid "No packages matching \"<strong>%h</strong>\"."
-msgstr "Немає пакетів, що відповідають \"<strong>%h</strong>\"."
+msgstr "Немає пакетів, що відповідають «<strong>%h</strong>»."
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:545
 msgid "Not available"
@@ -238,7 +238,7 @@ msgstr "Гаразд"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1261
 msgid "Package name"
-msgstr "Назва пакунку"
+msgstr "Назва пакунка"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1185
 msgid "Package name or URL…"
@@ -251,7 +251,7 @@ msgstr "Попередня сторінка"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:841
 msgid "Really attempt to install <em>%h</em>?"
-msgstr "Дійсно спробувати інсталювати <em>%h</em>?"
+msgstr "Справді спробувати інсталювати <em>%h</em>?"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:989
 msgid "Remove"
@@ -278,8 +278,7 @@ msgstr "Потрібна версія %h %h, інстальовано %h"
 msgid ""
 "Required dependency package <em>%h</em> is not available in any repository."
 msgstr ""
-"Необхідний за залежністю пакет <em>%h</em> не доступний ні в одному "
-"репозиторії."
+"Потрібний залежний пакет <em>%h</em> недоступний у жодному репозиторії."
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:511
 msgid "Requires update to %h %h"
@@ -309,7 +308,7 @@ msgstr "Розмір"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1263
 msgid "Size (%s)"
-msgstr "Розмір (.ipk)"
+msgstr "Розмір (%s)"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1158
 #: applications/luci-app-package-manager/root/usr/share/luci/menu.d/luci-app-package-manager.json:3
@@ -323,7 +322,7 @@ msgstr "Пропоновані переклади"
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:744
 msgid "Suggested translations require approx. %1024mB additional space."
 msgstr ""
-"Запропоновані переклади потребують приблизно %1024мБ додаткового місця."
+"Запропоновані переклади потребують приблизно %1024mB додаткового місця."
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1041
 msgid "The <em>%s %h</em> command failed with code <code>%d</code>."
@@ -339,15 +338,14 @@ msgstr ""
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:837
 msgid "The package <em>%h</em> is not available in any configured repository."
-msgstr ""
-"Пакет <em>%h</em> не доступний ні в одному сконфігурованому репозиторії."
+msgstr "Пакет <em>%h</em> недоступний у жодному налаштованому репозиторії."
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:533
 msgid ""
 "The repository version of package <em>%h</em> is not compatible, require %s "
 "but only %s is available."
 msgstr ""
-"Версія пакету <em>%h</em> у репозиторії несумісна, потрібно %s, але доступна "
+"Версія пакета <em>%h</em> у репозиторії несумісна, потрібно %s, але доступна "
 "лише %s."
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1177
@@ -356,7 +354,7 @@ msgstr "Введіть текст для фільтра…"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1060
 msgid "Unable to execute <em>%s %s</em> command: %s"
-msgstr "Неможливо виконати команду <em>%s %s</em>: %s"
+msgstr "Не вдалося виконати команду <em>%s %s</em>: %s"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:891
 msgid "Unable to read %s: %s"
@@ -381,7 +379,7 @@ msgstr "Оновлення…"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1194
 msgid "Upload Package…"
-msgstr "Відвантажити пакет…"
+msgstr "Вивантажити пакет…"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:761
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:967
@@ -406,12 +404,12 @@ msgstr "усі"
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1213
 msgctxt "Display translation packages"
 msgid "filtered"
-msgstr "фільтрувати"
+msgstr "відфільтровані"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:1239
 msgctxt "Display translation packages"
 msgid "none"
-msgstr "ні"
+msgstr "жодні"
 
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:677
 #: applications/luci-app-package-manager/htdocs/luci-static/resources/view/package-manager.js:956

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-05-03 08:19+0000\n"
+"PO-Revision-Date: 2026-05-21 05:04+0000\n"
 "Last-Translator: Dan <jonweblin2205@protonmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationspbr/uk/>\n"
@@ -9,7 +9,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.17.1\n"
+"X-Generator: Weblate 2026.6.dev0\n"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:326
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:447
@@ -18,7 +18,7 @@ msgstr "%s"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:405
 msgid "%s binary cannot be found"
-msgstr "Бінарний файл %s не вдалося знайти"
+msgstr "Двійковий файл %s не вдалося знайти"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:49
 msgid ""
@@ -26,13 +26,13 @@ msgid ""
 "anything in this section! Change any of the settings below with extreme "
 "caution!%s"
 msgstr ""
-"%sУВАГА:%s Будь ласка, переконайтеся, що ви ознайомилися з %sREADME%s перед "
-"тим, як змінювати будь-що в цьому розділі! Вносьте зміни до будь-яких "
-"налаштувань нижче з максимальною обережністю!%s"
+"%sУВАГА:%s Перш ніж щось змінювати в цьому розділі, обовʼязково ознайомтеся "
+"з %sREADME%s! Будь-які налаштування нижче змінюйте з максимальною "
+"обережністю!%s"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/status/include/72_pbr.js:27
 msgid "Active"
-msgstr "Активне"
+msgstr "Активний"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:117
 msgid "AdGuardHome ipset"
@@ -51,12 +51,11 @@ msgid ""
 "Adds 'ignore' to the list of interfaces for policies. See the %sREADME%s for "
 "details."
 msgstr ""
-"Додає «ігнорувати» до списку інтерфейсів для політик. Перегляньте %sREADME%s "
-"для деталей."
+"Додає «ignore» до списку інтерфейсів для політик. Деталі — у %sREADME%s."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:47
 msgid "Advanced Configuration"
-msgstr "Розширена Конфігурація"
+msgstr "Розширена конфігурація"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:144
 msgid ""
@@ -65,6 +64,10 @@ msgid ""
 "than tun* or tap* or specific use cases of WireGuard servers. See the "
 "%sREADME%s for details."
 msgstr ""
+"Дозволяє вказати список імен інтерфейсів, які явно підтримуються службою. "
+"Може бути корисно, якщо ваші OpenVPN-тунелі мають опцію dev, відмінну від "
+"tun*/tap*, або для специфічних сценаріїв із серверами WireGuard. Деталі — у "
+"%sREADME%s."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:160
 msgid ""
@@ -73,6 +76,10 @@ msgid ""
 "servers, which have a listen_port defined, are handled automatically, do not "
 "add those here.See the %sREADME%s for details."
 msgstr ""
+"Дозволяє вказати список імен інтерфейсів, які служба буде ігнорувати. Може "
+"бути корисно для OpenVPN-сервера, що працює на пристрої OpenWrt. WireGuard-"
+"сервери з визначеним listen_port обробляються автоматично — їх тут додавати "
+"не треба. Деталі — у %sREADME%s."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:44
 msgid "Basic Configuration"
@@ -84,11 +91,11 @@ msgstr "Ланцюг"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:495
 msgid "Command failed: '%s'"
-msgstr "Помилка команди: \"%s\""
+msgstr "Помилка команди: «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:72
 msgid "Condensed output"
-msgstr "Скорочений вихід"
+msgstr "Стиснутий вивід"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:402
 msgid "Config (%s) validation failure"
@@ -96,15 +103,15 @@ msgstr "Помилка перевірки конфігурації (%s)"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:69
 msgid "Controls both system log and console output verbosity."
-msgstr "Контролює багатослівність виведення системного журналу та консолі."
+msgstr "Керує докладністю виведення системного журналу та консолі."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:409
 msgid "Custom User File Includes"
-msgstr "Користувацький файл користувача включає"
+msgstr "Включення користувацьких файлів"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:450
 msgid "Custom user file '%s' not found or empty"
-msgstr "Спеціальний файл користувача \"%s\" не знайдено або порожній"
+msgstr "Користувацький файл «%s» не знайдено або порожній"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:341
 msgid "DNS Policies"
@@ -120,15 +127,15 @@ msgstr "Тегування DSCP"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:186
 msgid "Default ICMP Interface"
-msgstr "Інтерфейс ICMP за замовчуванням"
+msgstr "Типовий інтерфейс ICMP"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:500
 msgid "Default fw4 chain '%s' is missing"
-msgstr "Стандартний ланцюжок fw4 «%s» відсутній"
+msgstr "Типовий ланцюжок fw4 «%s» відсутній"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:499
 msgid "Default fw4 table '%s' is missing"
-msgstr "Стандартна таблиця fw4 «%s» відсутня"
+msgstr "Типова таблиця fw4 «%s» відсутня"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:652
 msgid "Disable"
@@ -138,7 +145,7 @@ msgstr "Вимкнути"
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:135
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:243
 msgid "Disabled"
-msgstr "Відключено"
+msgstr "Вимкнено"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:646
 msgid "Disabling %s service"
@@ -146,8 +153,7 @@ msgstr "Вимкнення служби %s"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:253
 msgid "Display these protocols in protocol column in Web UI."
-msgstr ""
-"Відображати ці протоколи в стовпці протоколів веб-інтерфейсу користувача."
+msgstr "Показувати ці протоколи у стовпці протоколів вебінтерфейсу."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:352
 msgid ""
@@ -167,11 +173,11 @@ msgstr "Набір Dnsmasq nft"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:86
 msgid "Do not enforce policies when their gateway is down"
-msgstr "Не застосовуйте політики, коли їхній шлюз не працює"
+msgstr "Не застосовувати політики, коли їхній шлюз неактивний"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:699
 msgid "Donate to the Project"
-msgstr "Зробіть пожертву на проект"
+msgstr "Підтримати проєкт"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:633
 msgid "Enable"
@@ -191,11 +197,11 @@ msgstr "Увімкнення служби %s"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:452
 msgid "Error running custom user file '%s'"
-msgstr "Помилка запуску спеціального файлу користувача \"%s\""
+msgstr "Помилка запуску користувацького файлу «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:508
 msgid "Errors encountered, please check %s"
-msgstr "Виявлено помилки, будь ласка, перевірте %s"
+msgstr "Виявлено помилки, перегляньте %s"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:541
 msgid "Errors encountered, please check the %sREADME%s"
@@ -206,36 +212,36 @@ msgid ""
 "FW Mask used by the service. High mask is used to avoid conflict with SQM/"
 "QoS. Change with caution together with"
 msgstr ""
-"Маска FW, яка використовується службою. Висока маска використовується, щоб "
-"уникнути конфлікту з SQM/QoS. Змінюйте з обережністю разом з"
+"Маска fwmark, яку використовує служба. Висока маска дозволяє уникнути "
+"конфлікту з SQM/QoS. Змінюйте обережно разом з"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:506
 msgid "Failed to create temporary file with mktemp mask: '%s'"
-msgstr "Не вдалося створити тимчасовий файл з маскою mktemp: '%s'"
+msgstr "Не вдалося створити тимчасовий файл з маскою mktemp: «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:491
 msgid "Failed to download '%s'"
-msgstr "Не вдалося завантажити \"%s\""
+msgstr "Не вдалося завантажити «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:489
 msgid "Failed to download '%s', HTTPS is not supported"
-msgstr "Не вдалося завантажити \"%s\", HTTPS не підтримується"
+msgstr "Не вдалося завантажити «%s», HTTPS не підтримується"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:484
 msgid "Failed to install fw4 nft file '%s'"
-msgstr "Не вдалося встановити файл fw4 nft \"%s\""
+msgstr "Не вдалося встановити файл fw4 nft «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:449
 msgid "Failed to reload '%s'"
-msgstr "Не вдалося перезавантажити \"%s\""
+msgstr "Не вдалося перезавантажити «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:480
 msgid "Failed to resolve '%s'"
-msgstr "Не вдалося вирішити \"%s\""
+msgstr "Не вдалося розвʼязати «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:448
 msgid "Failed to set up '%s'"
-msgstr "Не вдалося налаштувати \"%s\""
+msgstr "Не вдалося налаштувати «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:456
 msgid "Failed to set up any gateway"
@@ -243,11 +249,11 @@ msgstr "Не вдалося налаштувати жодного шлюзу"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:187
 msgid "Force the ICMP protocol interface."
-msgstr "Примусовий інтерфейс протоколу ICMP."
+msgstr "Примусово використовувати цей інтерфейс для протоколу ICMP."
 
 #: applications/luci-app-pbr/root/usr/share/rpcd/acl.d/luci-app-pbr.json:3
 msgid "Grant UCI and file access for luci-app-pbr"
-msgstr "Надайте UCI та доступ до файлів для luci-app-pbr"
+msgstr "Надати доступ до UCI та файлів для luci-app-pbr"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:133
 msgid "IPv6 Support"
@@ -259,7 +265,7 @@ msgstr "Ігноровані інтерфейси"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/status/include/72_pbr.js:39
 msgid "Inactive"
-msgstr "Неактивний"
+msgstr "Неактивно"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/status/include/72_pbr.js:41
 msgid "Inactive (Disabled)"
@@ -271,27 +277,27 @@ msgstr "Несумісний параметр DHCP 6 для інтерфейсу
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:497
 msgid "Incompatible custom user file detected '%s'"
-msgstr "Виявлено несумісний файл користувача \"%s\""
+msgstr "Виявлено несумісний користувацький файл «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:349
 msgid ""
 "Incompatible nft calls detected in user include file, disabling fw4 nft file "
 "support"
 msgstr ""
-"Виявлено несумісні виклики nft у файлі включення користувача, що вимикає "
-"підтримку файлів fw4 nft"
+"У користувацькому файлі включення виявлено несумісні виклики nft — "
+"вимикається підтримка файлів fw4 nft"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:179
 msgid "Insert"
-msgstr "Вставка"
+msgstr "Вставити"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:474
 msgid "Insertion failed for IPv4 for policy '%s'"
-msgstr "Помилка вставки для IPv4 для політики \"%s\""
+msgstr "Помилка вставки для IPv4 для політики «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:471
 msgid "Insertion failed for both IPv4 and IPv6 for policy '%s'"
-msgstr "Помилка вставки як для IPv4, так і для IPv6 для політики \"%s\""
+msgstr "Помилка вставки як для IPv4, так і для IPv6 для політики «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:324
 msgid "Installed AdGuardHome (%s) doesn't support 'ipset_file' option."
@@ -303,7 +309,7 @@ msgstr "Інтерфейс"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:442
 msgid "Interface '%s' has no assigned DNS"
-msgstr "Інтерфейс '%s' не має призначеного DNS"
+msgstr "Інтерфейс «%s» не має призначеного DNS"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:318
 msgid ""
@@ -312,8 +318,8 @@ msgid ""
 "%sREADME%s."
 msgstr ""
 "Внутрішня невідповідність версій (пакет: %s, програма luci: %s, luci rpcd: "
-"%s), можливо, вам потрібно оновити пакети або перезавантажити пристрій, будь "
-"ласка, перевірте %sREADME%s."
+"%s); можливо, потрібно оновити пакети або перезавантажити пристрій. "
+"Перегляньте %sREADME%s."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:340
 msgid "Invalid OpenVPN config for %s interface"
@@ -330,11 +336,11 @@ msgstr "Локальні адреси / пристрої"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:287
 msgid "Local ports"
-msgstr "Місцеві порти"
+msgstr "Локальні порти"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:465
 msgid "Mismatched IP family between in policy '%s'"
-msgstr "Невідповідна група IP-адрес у політиці \"%s\""
+msgstr "Незбіг сімейства IP у політиці «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/status/include/72_pbr.js:52
 msgid "Mode"
@@ -343,7 +349,7 @@ msgstr "Режим"
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:279
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:359
 msgid "Name"
-msgstr "Ім'я"
+msgstr "Імʼя"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:262
 msgid ""
@@ -352,11 +358,11 @@ msgid ""
 "Placeholders below represent just the format/syntax and will not be used if "
 "fields are left blank. For more information on options, check the %sREADME%s."
 msgstr ""
-"Ім’я, інтерфейс і принаймні ще одне поле є обов’язковим. Кілька локальних і "
+"Імʼя, інтерфейс і принаймні ще одне поле є обовʼязковими. Кілька локальних і "
 "віддалених адрес/пристроїв/доменів і портів можна розділити пробілом. "
-"Заповнювачі нижче представляють лише формат/синтаксис і не "
-"використовуватимуться, якщо поля залишаються порожніми. Для отримання "
-"додаткової інформації про параметри перегляньте %sREADME%s."
+"Заповнювачі нижче показують лише формат/синтаксис і не "
+"використовуватимуться, якщо поля залишити порожніми. Докладніше про "
+"параметри — у %sREADME%s."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:343
 msgid ""
@@ -364,33 +370,33 @@ msgid ""
 "addresses/devices can be space separated. For more information on options, "
 "check the %sREADME%s."
 msgstr ""
-"Поля імені, локальної адреси та віддаленого DNS є обов’язковими. Кілька "
-"локальних адрес/пристроїв можна розділити пробілом. Для отримання додаткової "
-"інформації про параметри перегляньте %sREADME%s."
+"Поля імені, локальної адреси та віддаленого DNS є обовʼязковими. Кілька "
+"локальних адрес/пристроїв можна розділити пробілом. Докладніше про параметри "
+"— у %sREADME%s."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:513
 msgid "Netifd setup: failed to delete fw4 netifd nft file '%s'"
-msgstr ""
+msgstr "Налаштування Netifd: не вдалося видалити nft-файл fw4 netifd «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:510
 msgid "Netifd setup: failed to install fw4 netifd nft file '%s'"
-msgstr "Налаштування Netifd: не вдалося встановити nft-файл fw4 netifd '%s'"
+msgstr "Налаштування Netifd: не вдалося встановити nft-файл fw4 netifd «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:519
 msgid "Netifd setup: invalid value of netifd_interface_default option '%s'"
 msgstr ""
 "Налаштування Netifd: недійсне значення параметра netifd_interface_default "
-"'%s'"
+"«%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:522
 msgid "Netifd setup: invalid value of netifd_interface_default6 option '%s'"
 msgstr ""
 "Налаштування Netifd: недійсне значення параметра netifd_interface_default6 "
-"'%s'"
+"«%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:516
 msgid "Netifd setup: required option '%s' is missing"
-msgstr "Налаштування Netifd: відсутня обов'язкова опція '%s'"
+msgstr "Налаштування Netifd: відсутня обовʼязкова опція «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:189
 msgid "No Change"
@@ -412,11 +418,11 @@ msgstr "Шлях"
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:293
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:707
 msgid "Please %sdonate%s to support development of this project."
-msgstr "Будь ласка, %sпожертвуйте%s для підтримки розвитку цього проєкту."
+msgstr "%sПожертвуйте%s на підтримку розвитку цього проєкту."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:102
 msgid "Please check the %sREADME%s before changing this option."
-msgstr "Будь ласка, перевірте %sREADME%s перед зміною цього параметра."
+msgstr "Перегляньте %sREADME%s перед зміною цього параметра."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:356
 msgid ""
@@ -453,26 +459,26 @@ msgstr "Політики"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:445
 msgid "Policy '%s' has an unknown interface"
-msgstr "Політика \"%s\" має невідомий інтерфейс"
+msgstr "Політика «%s» має невідомий інтерфейс"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:440
 msgid "Policy '%s' has no assigned DNS"
-msgstr "Політика \"%s\" не має призначеного DNS"
+msgstr "Політика «%s» не має призначеного DNS"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:439
 msgid "Policy '%s' has no assigned interface"
-msgstr "Політика \"%s\" не має призначеного інтерфейсу"
+msgstr "Політика «%s» не має призначеного інтерфейсу"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:437
 msgid "Policy '%s' has no source/destination parameters"
-msgstr "Політика \"%s\" не має параметрів джерела/призначення"
+msgstr "Політика «%s» не має параметрів джерела/призначення"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:486
 msgid ""
 "Policy '%s' refers to URL which can't be downloaded in 'secure_reload' mode"
 msgstr ""
-"Політика \"%s\" стосується URL-адреси, яку не можна завантажити в режимі "
-"\"secure_reload\""
+"Політика «%s» посилається на URL-адресу, яку не можна завантажити в режимі "
+"«secure_reload»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/status/include/72_pbr.js:11
 msgid "Policy Based Routing"
@@ -484,11 +490,11 @@ msgstr "Маршрутизація на основі політики – кон
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:239
 msgid "Policy Based Routing - Status"
-msgstr "Маршрутизація на основі політики – статус"
+msgstr "Маршрутизація на основі політики – стан"
 
 #: applications/luci-app-pbr/root/usr/share/luci/menu.d/luci-app-pbr.json:3
 msgid "Policy Routing"
-msgstr "Політика маршрутизації"
+msgstr "Маршрутизація за політиками"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:305
 msgid "Protocol"
@@ -522,11 +528,11 @@ msgstr "Віддалені порти"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:501
 msgid "Required binary '%s' is missing"
-msgstr "Відсутній необхідний двійковий файл \"%s\""
+msgstr "Відсутній необхідний двійковий файл «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:457
 msgid "Resolver '%s'"
-msgstr "Розв'язати '%s'"
+msgstr "Резолвер «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:413
 msgid "Resolver set (%s) is not supported on this system"
@@ -552,7 +558,7 @@ msgstr ""
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:595
 msgid "Restart"
-msgstr "Перезавантажити"
+msgstr "Перезапустити"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:589
 msgid "Restarting %s service"
@@ -567,24 +573,24 @@ msgid ""
 "Run the following user files after setting up but before restarting DNSMASQ. "
 "See the %sREADME%s for details."
 msgstr ""
-"Запустіть наступні файли користувача після налаштування, але перед "
-"перезапуском DNSMASQ. Перегляньте %sREADME%s для деталей."
+"Запускати наведені користувацькі файли після налаштування, але перед "
+"перезапуском DNSMASQ. Деталі — у %sREADME%s."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:248
 msgid "Running"
-msgstr "Запуск"
+msgstr "Запущено"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:81
 msgid "See the %sREADME%s for details."
-msgstr "Перегляньте %sREADME%s для деталей."
+msgstr "Деталі — у %sREADME%s."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:176
 msgid "Select Add for -A/add and Insert for -I/Insert."
-msgstr "Виберіть Додати для -A/add і Вставити для -I/Insert."
+msgstr "Виберіть «Додати» для -A/add і «Вставити» для -I/Insert."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:678
 msgid "Service Control"
-msgstr "Контроль служби"
+msgstr "Керування службою"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:531
 msgid "Service Errors"
@@ -593,35 +599,35 @@ msgstr "Помилки служби"
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:207
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:218
 msgid "Service FW Mask"
-msgstr "Сервіс FW Mask"
+msgstr "Маска fwmark служби"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:280
 msgid "Service Gateways"
-msgstr "Сервісні шлюзи"
+msgstr "Шлюзи служби"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:243
 msgid "Service Status"
-msgstr "Стан сервісу"
+msgstr "Стан служби"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:373
 msgid "Service Warnings"
-msgstr "Сервісні попередження"
+msgstr "Попередження служби"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:389
 msgid ""
 "Set DSCP tags (in range between 1 and 63) for specific interfaces. See the "
 "%sREADME%s for details."
 msgstr ""
-"Встановіть теги DSCP (у діапазоні від 1 до 63) для певних інтерфейсів. "
-"Перегляньте %sREADME%s для деталей."
+"Встановити теги DSCP (у діапазоні від 1 до 63) для певних інтерфейсів. "
+"Деталі — у %sREADME%s."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:459
 msgid "Skipping IPv6 policy '%s' as IPv6 support is disabled"
-msgstr "Пропускання політики IPv6 «%s», оскільки підтримку IPv6 вимкнено"
+msgstr "Пропускаємо політику IPv6 «%s», оскільки підтримку IPv6 вимкнено"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:576
 msgid "Start"
-msgstr "Запустити"
+msgstr "Почати"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:570
 msgid "Starting %s service"
@@ -633,17 +639,17 @@ msgid ""
 "starting mark is used to avoid conflict with SQM/QoS. Change with caution "
 "together with"
 msgstr ""
-"Початкова позначка (інтерфейс висхідного каналу) FW для позначок, що "
-"використовуються сервісом. Висока початкова позначка використовується для "
-"уникнення конфлікту з SQM/QoS. Змінюйте обережно разом з"
+"Початкова мітка fwmark (висхідний інтерфейс) для міток, які використовує "
+"служба. Висока початкова мітка дозволяє уникнути конфлікту з SQM/QoS. "
+"Змінюйте обережно разом з"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/status/include/72_pbr.js:50
 msgid "Status"
-msgstr "Статус"
+msgstr "Стан"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:614
 msgid "Stop"
-msgstr "Стій"
+msgstr "Зупинити"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:262
 msgid "Stopped (Disabled)."
@@ -651,7 +657,7 @@ msgstr "Зупинено (вимкнено)."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:260
 msgid "Stopped."
-msgstr "Зупинився."
+msgstr "Зупинено."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:608
 msgid "Stopping %s service"
@@ -659,11 +665,11 @@ msgstr "Зупинка служби %s"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:80
 msgid "Strict enforcement"
-msgstr "Суворе дотримання"
+msgstr "Суворе застосування"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:87
 msgid "Strictly enforce policies when their gateway is down"
-msgstr "Суворо дотримуватись політики, коли їхній шлюз не працює"
+msgstr "Суворо застосовувати політики, коли їхній шлюз неактивний"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:142
 msgid "Supported Interfaces"
@@ -675,23 +681,23 @@ msgstr "Підтримувані протоколи"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:71
 msgid "Suppress/No output"
-msgstr "Придушити/немає виводу"
+msgstr "Без виводу"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:451
 msgid "Syntax error in custom user file '%s'"
-msgstr "Синтаксична помилка в спеціальному файлі користувача \"%s\""
+msgstr "Синтаксична помилка в користувацькому файлі «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:284
 msgid "The %s indicates default gateway. See the %sREADME%s for details."
-msgstr "%s вказує на шлюз за умовчанням. Перегляньте %sREADME%s для деталей."
+msgstr "%s позначає типовий шлюз. Деталі — у %sREADME%s."
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:422
 msgid ""
 "The %s interface not found, you need to set the "
 "'pbr.config.uplink_interface' option"
 msgstr ""
-"Інтерфейс %s не знайдено, вам потрібно встановити опцію "
-"'pbr.config.uplink_interface'"
+"Інтерфейс %s не знайдено, потрібно встановити опцію "
+"«pbr.config.uplink_interface»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:97
 msgid "The %s is not supported on this system."
@@ -719,11 +725,11 @@ msgstr "Для схеми file:// потрібен curl, але він не ви
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:428
 msgid "The ipset name '%s' is longer than allowed 31 characters"
-msgstr "Довжина імені ipset '%s' перевищує дозволений 31 символ"
+msgstr "Довжина імені ipset «%s» перевищує дозволений 31 символ"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:431
 msgid "The nft set name '%s' is longer than allowed 255 characters"
-msgstr "Ім’я набору nft «%s» перевищує дозволені 255 символів"
+msgstr "Імʼя набору nft «%s» перевищує дозволені 255 символів"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:346
 msgid "The principal package (pbr) is outdated, please update it"
@@ -735,15 +741,15 @@ msgstr "Не вдалося отримати статус %s"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:434
 msgid "Unexpected exit or service termination: '%s'"
-msgstr "Неочікуваний вихід або завершення служби: \"%s\""
+msgstr "Неочікуваний вихід або завершення служби: «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:503
 msgid "Unknown IPv6 Link type for device '%s'"
-msgstr "Невідомий тип посилання IPv6 для пристрою \"%s\""
+msgstr "Невідомий тип каналу IPv6 для пристрою «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:476
 msgid "Unknown entry in policy '%s'"
-msgstr "Невідомий запис у політиці '%s'"
+msgstr "Невідомий запис у політиці «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:538
 msgid "Unknown error"
@@ -755,11 +761,11 @@ msgstr "Невідоме повідомлення"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:462
 msgid "Unknown packet mark for interface '%s'"
-msgstr "Невідома позначка пакета для інтерфейсу \"%s\""
+msgstr "Невідома мітка пакета для інтерфейсу «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:468
 msgid "Unknown protocol in policy '%s'"
-msgstr "Невідомий протокол у політиці \"%s\""
+msgstr "Невідомий протокол у політиці «%s»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:380
 msgid "Unknown warning"
@@ -767,29 +773,31 @@ msgstr "Невідоме попередження"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:201
 msgid "Uplink Interface Table FW Mark"
-msgstr "Таблиця інтерфейсу висхідного каналу FW Mark"
+msgstr "Мітка fwmark таблиці висхідного інтерфейсу"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:525
 msgid ""
 "Uplink/WAN interface is still down, increase value of "
 "'procd_boot_trigger_delay' option"
 msgstr ""
+"Інтерфейс Uplink/WAN досі неактивний, збільшіть значення опції "
+"«procd_boot_trigger_delay»"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:454
 msgid ""
 "Use of 'curl' is detected in custom user file '%s', but 'curl' isn't "
 "installed"
 msgstr ""
-"Використання 'curl' виявлено в спеціальному файлі користувача '%s', але "
-"'curl' не встановлено"
+"У користувацькому файлі «%s» виявлено використання «curl», але «curl» не "
+"встановлено"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:112
 msgid "Use resolver set support for domains"
-msgstr "Використовуйте підтримку набору резолверів для доменів"
+msgstr "Використовувати підтримку набору резолверів для доменів"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:73
 msgid "Verbose output"
-msgstr "Детальний висновок"
+msgstr "Докладний вивід"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/status/include/72_pbr.js:51
 msgid "Version"
@@ -801,15 +809,15 @@ msgstr "Версія %s"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:224
 msgid "WAN Table FW Mark"
-msgstr "WAN Table FW Mark"
+msgstr "Мітка fwmark таблиці WAN"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:365
 msgid "Warnings encountered, please check %s"
-msgstr "Виявлено попередження, будь ласка, перевірте %s"
+msgstr "Виявлено попередження, перегляньте %s"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:383
 msgid "Warnings encountered, please check the %sREADME%s"
-msgstr "Виявлено попередження, будь ласка, перевірте %sREADME%s"
+msgstr "Виявлено попередження, перегляньте %sREADME%s"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:62
 msgid "Web UI Configuration"
@@ -817,7 +825,7 @@ msgstr "Конфігурація веб-інтерфейсу"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/pbr/overview.js:314
 msgid "all"
-msgstr "все"
+msgstr "усі"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/pbr/status.js:252
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/status/include/72_pbr.js:31
@@ -836,4 +844,4 @@ msgstr "режим nft"
 
 #: applications/luci-app-pbr/htdocs/luci-static/resources/view/status/include/72_pbr.js:35
 msgid "unknown"
-msgstr "невідомий"
+msgstr "невідомо"
