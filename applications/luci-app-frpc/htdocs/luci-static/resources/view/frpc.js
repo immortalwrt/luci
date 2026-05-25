@@ -104,7 +104,7 @@ function setParams(o, params) {
 				const d = {};
 				for (let vkey in v)
 					d[vkey] = v[vkey];
-				for (let od of o.deps) {
+				for (let od of (o.deps || [])) {
 					for (let dkey in od) {
 						d[dkey] = od[dkey];
 					}
