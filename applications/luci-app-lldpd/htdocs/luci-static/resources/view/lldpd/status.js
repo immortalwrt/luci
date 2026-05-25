@@ -156,10 +156,9 @@ return L.view.extend({
 
 	/** @private */
 	renderNumber(v) {
-		if (parseInt(v))
-			return v;
-
-		return '&#8211;';
+		if (v === undefined || v === null)
+			return '&#8211;';
+		return parseInt(v);
 	},
 
 	/** @private */
