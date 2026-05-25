@@ -32,7 +32,6 @@ function renderMwan3Status(status) {
 				css = 'success';
 				time = '%t'.format(status.interfaces[iface].online);
 				tname = _('Uptime');
-				css = 'success';
 				break;
 			case 'offline':
 				state = _('Offline');
