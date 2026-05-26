@@ -171,9 +171,9 @@ return view.extend({
 			.catch(function(e) { ui.addNotification(null, E('p', e.message)) });
 	},
 
-	HandleStopDDnsRule(m, section_id, ev) {
+	handleStopDDnsRule(m, section_id, ev) {
 		return fs.exec('/usr/lib/ddns/dynamic_dns_lucihelper.sh',
-							[ '-S', section_id, '--', 'start' ])
+							[ '-S', section_id, '--', 'stop' ])
 			.then(L.bind(m.render, m))
 			.catch(function(e) { ui.addNotification(null, E('p', e.message)) });
 	},
@@ -551,7 +551,7 @@ return view.extend({
 				},
 				stop_opt = {
 					'class': 'cbi-button cbi-button-neutral stop',
-					'click': ui.createHandlerFn(_this, 'HandleStopDDnsRule', m, section_id),
+					'click': ui.createHandlerFn(_this, 'handleStopDDnsRule', m, section_id),
 					'title': _('Stop this service'),
 				};
 
