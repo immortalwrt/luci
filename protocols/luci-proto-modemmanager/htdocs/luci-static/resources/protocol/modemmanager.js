@@ -83,7 +83,7 @@ return network.registerProtocol('modemmanager', {
 		o.value('mschapv2', 'MSCHAPv2');
 		o.value('eap', 'EAP');
 		o.value('', _('None'));
-		o.default = 'none';
+		o.default = '';
 
 		o = s.taboption('general', form.ListValue, 'allowedmode', _('Allowed network technology'),
 			_('Setting the allowed network technology.'));
@@ -187,19 +187,11 @@ return network.registerProtocol('modemmanager', {
 		o.default = '';
 
 		o = s.taboption('general', form.Value, 'init_username', _('Initial EPS Bearer Username'));
-		o.depends('init_allowedauth', 'pap');
-		o.depends('init_allowedauth', 'chap');
-		o.depends('init_allowedauth', 'mschap');
-		o.depends('init_allowedauth', 'mschapv2');
-		o.depends('init_allowedauth', 'eap');
+		o.depends({'init_epsbearer': 'custom', 'init_allowedauth': '.+'});
 		o.default = '';
 
 		o = s.taboption('general', form.Value, 'init_password', _('Initial EPS Bearer Password'));
-		o.depends('init_allowedauth', 'pap');
-		o.depends('init_allowedauth', 'chap');
-		o.depends('init_allowedauth', 'mschap');
-		o.depends('init_allowedauth', 'mschapv2');
-		o.depends('init_allowedauth', 'eap');
+		o.depends({'init_epsbearer': 'custom', 'init_allowedauth': '.+'});
 		o.default = '';
 		o.password = true;
 
