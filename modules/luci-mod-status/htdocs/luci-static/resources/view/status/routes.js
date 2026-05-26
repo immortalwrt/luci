@@ -66,6 +66,7 @@ return view.extend({
 					const cmp_addr = address || target;
 					if (!cmp_addr) continue;
 
+					if (typeof cmp_mask !== 'number') continue;
 					if (applyMask(cmp_addr, cmp_mask, v6) !== applyMask(addr, cmp_mask, v6) || mask < cmp_mask)
 						continue;
 
@@ -85,7 +86,7 @@ return view.extend({
 		const res = [];
 
 		for (const line of nbs.trim().split(/\n/)) {
-			const [, addr = null, f = [], state = null] = line.match(/^([0-9a-f:.]+) (.+) (\S+) *$/);
+			const [, addr = null, f = [], state = null] = (line.match(/^([0-9a-f:.]+) (.+) (\S+) *$/) || []);
 			const flags = f?.trim?.().split?.(/\s+/);
 			let vendor;
 
@@ -120,7 +121,7 @@ return view.extend({
 		const res = [];
 
 		for (const line of routes.trim().split(/\n/)) {
-			const [, type = 'unicast', d, f = [] ] = line.match(/^(?:([a-z_]+|\d+) )?(default|[0-9a-f:./]+) (.+)$/);
+			const [, type = 'unicast', d, f = [] ] = (line.match(/^(?:([a-z_]+|\d+) )?(default|[0-9a-f:./]+) (.+)$/) || []);
 			const dest = d == 'default' ? (v6 ? '::/0' : '0.0.0.0/0') : d;
 			const flags = f?.trim?.().split?.(/\s+/);
 

@@ -67,6 +67,7 @@ return view.extend({
 					const cmp_addr = address || target;
 					if (!cmp_addr) continue;
 
+					if (typeof cmp_mask !== 'number') continue;
 					if (applyMask(cmp_addr, cmp_mask, v6) !== applyMask(addr, cmp_mask, v6) || mask < cmp_mask)
 						continue;
 
@@ -94,10 +95,10 @@ return view.extend({
 
 		for (const n of this.parseJSON(nbs)) {
 			let vendor;
-			if (n.dst.match(/^fe[89a-f][0-9a-f]:/))
+			if (n.dst?.match(/^fe[89a-f][0-9a-f]:/))
 				continue;
 
-			if (n.state.find(f => {return f == 'FAILED'}))
+			if ((n.state || []).some(f => f === 'FAILED'))
 				continue;
 
 			for (let mac in macs) {
