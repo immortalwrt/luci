@@ -197,7 +197,7 @@ function expandAndFormatMAC(macs) {
 	return result.length ? result : null;
 }
 
-function isValidMAC(sid, s) {
+function isValidMAC(s) {
 	if (!s) return true;
 
 	for (const mac of L.toArray(s))
@@ -1002,7 +1002,7 @@ return view.extend({
 					return _('The MAC address %h is already used by another static lease in the same DHCP pool')
 						.format(host_macs.find(lm => this_macs.includes(lm)));
 			}
-			return isValidMAC(section_id, value);
+			return isValidMAC(value);
 		}
 		Object.keys(hosts).forEach(function(mac) {
 			let vendor;
