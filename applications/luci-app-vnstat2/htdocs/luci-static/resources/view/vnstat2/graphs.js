@@ -8,8 +8,21 @@
 'require uci';
 'require rpc';
 
-var RefreshIfaces = "";
+var RefreshIfaces = [];
 var RefreshTabs = ['s', 't', '5', 'h', 'd', 'm', 'y'];
+
+function setBlobImage(srcImg, blob) {
+	const prev = srcImg.src;
+	const next = URL.createObjectURL(blob);
+
+	srcImg.onload = function() {
+		if (prev && prev.startsWith('blob:'))
+			URL.revokeObjectURL(prev);
+		srcImg.onload = null;
+	};
+
+	srcImg.src = next;
+}
 
 const callServiceList = rpc.declare({
 	object: 'service',
@@ -24,7 +37,9 @@ function RefreshGraphs() {
 	RefreshTabs.forEach(function (id) {
 		RefreshIfaces.forEach(function (iface) {
 			fs.exec_direct('/usr/bin/vnstati', [ '-' + id, '-i', iface, '-o', '-' ], 'blob').then(function(res) {
-				document.getElementById('graph_' + id + '_' + iface).src = URL.createObjectURL(res);
+				var img = document.getElementById('graph_' + id + '_' + iface);
+				if (img)
+					setBlobImage(img, res);
 			});
 		});
 	});
@@ -74,7 +89,7 @@ return view.extend({
 		ifaces.forEach(function(iface) {
 			fs.exec_direct('/usr/bin/vnstati', [ '-'+style, '-i', iface, '-o', '-' ], 'blob').then(function(res) {
 				var img = tab.querySelector('img[data-iface="%s"]'.format(iface));
-				img.src = URL.createObjectURL(res);
+				setBlobImage(img, res);
 				img.alt = _('Could not load graph, no data available: ') + iface;
 				img.align = 'middle';
 				img.style.visibility = 'visible';
