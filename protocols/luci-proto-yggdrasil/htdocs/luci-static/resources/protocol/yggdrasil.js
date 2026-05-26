@@ -311,7 +311,7 @@ return network.registerProtocol('yggdrasil',
 				form.HiddenValue,
 				'hidden_value',
 				' ',
-				_('%s is an independent project that aims to reduce latency of a connection over Yggdrasil network transparently, utilizing NAT traversal to bypass intermediary nodes.'.format('<a href="https://github.com/one-d-wide/yggdrasil-jumper">Yggdrasil Jumper</a>'))
+				_('%s is an independent project that aims to reduce latency of a connection over Yggdrasil network transparently, utilizing NAT traversal to bypass intermediary nodes.').format('<a href="https://github.com/one-d-wide/yggdrasil-jumper">Yggdrasil Jumper</a>')
 					+ ' ' + _('It periodically probes for active sessions and automatically establishes direct peerings over internet with remote nodes running Yggdrasil Jumper without requiring firewall or port configuration.')
 			);
 
@@ -329,7 +329,7 @@ return network.registerProtocol('yggdrasil',
 			// Unlock enable option if jumper is installed
 			callIsJumperInstalled().then(function(isInstalled) {
 				if (isInstalled) {
-					var o = s.children.find(function(o) { return o.option == "jumper_enable"; });
+					var o = s.children.find(function(enableOpt) { return enableOpt.option == "jumper_enable"; });
 					o.readonly = false;
 					// Explicit rerendering request isn't needed because the protocol tab
 					// is constructed only after all async functions is done
