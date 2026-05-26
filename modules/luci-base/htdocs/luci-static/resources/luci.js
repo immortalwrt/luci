@@ -257,7 +257,7 @@
 					res = res.apply(this, callArgs);
 
 					if (symStack && symStack.length > 1)
-						symStack.shift(protoCtx);
+						symStack.shift();
 					else
 						delete superContext[slotIdx];
 				}
@@ -571,8 +571,9 @@
 		}
 
 		requestQueue.length = 0;
+		const requestBaseURL = Request.expandURL(classes.rpc.getBaseURL());
 
-		Request.request(rpcBaseURL, reqopt).then(reply => {
+		Request.request(requestBaseURL, reqopt).then(reply => {
 			let json = null, req = null;
 
 			try { json = reply.json() }
@@ -1583,7 +1584,7 @@
 			else if (this.elem(html)) {
 				elem = html;
 			}
-			else if (html.charCodeAt(0) === 60) {
+			else if (typeof(html) === 'string' && html.charCodeAt(0) === 60) {
 				elem = this.parse(html);
 			}
 			else {
@@ -2673,6 +2674,9 @@
 		 * has no sub-features.
 		 */
 		hasSystemFeature() {
+			if (!this.isObject(sysFeatures))
+				return null;
+
 			const ft = sysFeatures[arguments[0]];
 
 			if (arguments.length == 2)
@@ -2831,7 +2835,7 @@
 		 * @returns {string}
 		 * Return the joined URL path.
 		 */
-		path(prefix = '', parts) {
+		path(prefix = '', ...parts) {
 			const url = [ prefix ];
 
 			for (let i = 0; i < parts.length; i++){				
