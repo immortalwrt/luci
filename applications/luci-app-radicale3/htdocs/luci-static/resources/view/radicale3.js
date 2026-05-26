@@ -451,7 +451,7 @@ return view.extend({
 		s.tab('main', _('Main'));
 
 		o = s.taboption('main', form.ListValue, 'level', _('Log Level'));
-		s.rmempty = true;
+		o.rmempty = true;
 		o.value('', _('Default (info)'));
 		o.value('trace', _('Trace'));
 		o.value('debug', _('Debug'));
