@@ -698,15 +698,16 @@ return view.extend({
 
 		// Set Tags
 		o = tagstab.taboption('settags', form.SectionValue, '__settags__', form.TableSection, 'match', null,
-			_(`Encountering chosen DHCP ${dhcp_option_code}s (or also its ${dhcp_value_code}) from clients triggers dnsmasq to set alphanumeric ${tagcodestring}s.`) + '<br />' +
-			_(`In other words: "${tag_match_code_name} these ${dhcp_option_code}s to set this ${tagcodestring}" or "These ${dhcp_option_code}s set this ${tagcodestring}".`) + '<br />' +
-			_(`Internally, these configuration entries are called ${tag_match_code_name}.`) + '<br />' +
-			_(`Matching option syntax: ${tag_match_option_syntax}.`) + ' ' +
-			_(`Prefix named (IPv6) options with ${dhcp_optioncolon_code}.`) + ' ' +
-			_(`Wildcards (${wildcard_code}) allowed.`) + '<br /><br />' +
-			_(`Match ${dhcp_option_client_arch}, Tag ${tag_name_efi_ia32}, sets tag ${tag_name_efi_ia32}`) + ' ' +
+			_(`Encountering chosen DHCP %s (or also its %s) from clients triggers dnsmasq to set alphanumeric %s.`).format(dhcp_option_code, dhcp_value_code, tagcodestring) + '<br />' +
+			_('In other words: "%s these %s to set this %s".').format(tag_match_code_name, dhcp_option_code, tagcodestring) + '<br />' +
+			_('Or "These %s set this %s".').format(dhcp_option_code, tagcodestring) + '<br />' +
+			_('Internally, these configuration entries are called %s.').format(tag_match_code_name) + '<br />' +
+			_('Matching option syntax: %s.').format(tag_match_option_syntax) + ' ' +
+			_('Prefix named (IPv6) options with %s.').format(dhcp_optioncolon_code) + ' ' +
+			_('Wildcards (%s) allowed.').format(wildcard_code) + '<br /><br />' +
+			_('Match %s, Tag %s, sets  a tag of the same name').format(dhcp_option_client_arch, tag_name_efi_ia32) + ' ' +
 			_('when number %s appears in the list of architectures sent by the client in option %s.').format('<code>6</code>', '<code>93</code>') + '<br />' +
-			_(`Use the %s Button to add a new ${tag_match_code_name}.`).format(_('<em>Add</em>')) );
+			_('Use the %s Button to add a new %s.').format(_('<em>Add</em>'), tag_match_code_name) );
 		ss = o.subsection;
 		ss.addremove = true;
 		ss.anonymous = true;
