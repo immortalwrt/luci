@@ -571,9 +571,8 @@
 		}
 
 		requestQueue.length = 0;
-		const requestBaseURL = Request.expandURL(classes.rpc.getBaseURL());
 
-		Request.request(requestBaseURL, reqopt).then(reply => {
+		Request.request(rpcBaseURL, reqopt).then(reply => {
 			let json = null, req = null;
 
 			try { json = reply.json() }
@@ -2835,7 +2834,7 @@
 		 * @returns {string}
 		 * Return the joined URL path.
 		 */
-		path(prefix = '', ...parts) {
+		path(prefix = '', parts) {
 			const url = [ prefix ];
 
 			for (let i = 0; i < parts.length; i++){				

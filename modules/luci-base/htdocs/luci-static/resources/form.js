@@ -752,18 +752,15 @@ const CBIMap = CBIAbstractElement.extend(/** @lends LuCI.form.Map.prototype */ {
 	 * @param {Event} ev
 	 * @param {number} n
 	 */
-	checkDepends(ev, n, cache) {
-		if (cache == null)
-			cache = Object.create(null);
-
+	checkDepends(ev, n) {
 		let changed = false;
 
 		for (let i = 0, s = this.children[0]; (s = this.children[i]) != null; i++)
-			if (s.checkDepends(ev, n, cache))
+			if (s.checkDepends(ev, n))
 				changed = true;
 
 		if (changed && (n ?? 0) < 10)
-			this.checkDepends(ev, (n ?? 0) + 1, cache);
+			this.checkDepends(ev, (n ?? 10) + 1);
 
 		ui.tabs.updateTabs(ev, this.root);
 	},
@@ -775,11 +772,8 @@ const CBIMap = CBIAbstractElement.extend(/** @lends LuCI.form.Map.prototype */ {
 	 * @param {string} section_id
 	 * @returns {boolean}
 	 */
-	isDependencySatisfied(depends, config_name, section_id, cache) {
+	isDependencySatisfied(depends, config_name, section_id) {
 		let def = false;
-
-		if (cache == null)
-			cache = Object.create(null);
 
 		if (!Array.isArray(depends) || !depends.length)
 			return true;
@@ -798,17 +792,8 @@ const CBIMap = CBIAbstractElement.extend(/** @lends LuCI.form.Map.prototype */ {
 					istat = false;
 				}
 				else {
-					const key = `${config_name}::${section_id}::${dep}`;
-					let val;
-
-					if (key in cache) {
-						val = cache[key];
-					}
-					else {
-						const res = this.lookupOption(dep, section_id, config_name);
-						val = (res && res[0].isActive(res[1])) ? res[0].formvalue(res[1]) : null;
-						cache[key] = val;
-					}
+					const res = this.lookupOption(dep, section_id, config_name);
+					const val = (res && res[0].isActive(res[1])) ? res[0].formvalue(res[1]) : null;
 
 					const equal = contains
 						? isContained(val, depends[i][dep])
@@ -1797,9 +1782,9 @@ const CBIAbstractValue = CBIAbstractElement.extend(/** @lends LuCI.form.Abstract
 	 * @param {string} section_id
 	 * @returns {boolean}
 	 */
-	checkDepends(section_id, cache) {
+	checkDepends(section_id) {
 		const config_name = this.uciconfig ?? this.section.uciconfig ?? this.map.config;
-		const active = this.map.isDependencySatisfied(this.deps, config_name, section_id, cache);
+		const active = this.map.isDependencySatisfied(this.deps, config_name, section_id);
 
 		if (active)
 			this.updateDefaultValue(section_id);
@@ -5173,7 +5158,6 @@ const CBIFlagValue = CBIValue.extend(/** @lends LuCI.form.Flag.prototype */ {
 		else if (!this.retain) {
 			return Promise.resolve(this.remove(section_id));
 		}
-		return Promise.resolve();
 	},
 });
 
@@ -6111,9 +6095,9 @@ const CBISectionValue = CBIValue.extend(/** @lends LuCI.form.SectionValue.protot
 	 * @param {string} section_id
 	 * @returns {null}
 	 */
-	checkDepends(section_id, cache) {
-		this.subsection.checkDepends(section_id, cache);
-		return CBIValue.prototype.checkDepends.apply(this, [ section_id, cache ]);
+	checkDepends(section_id) {
+		this.subsection.checkDepends(section_id);
+		return CBIValue.prototype.checkDepends.apply(this, [ section_id ]);
 	},
 
 	/**
