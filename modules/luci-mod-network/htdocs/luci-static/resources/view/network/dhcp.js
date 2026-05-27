@@ -653,7 +653,7 @@ return view.extend({
 			_('A %s does not do anything by itself. It is a label that other directives test against.', 'A tag does not do anything by itself').format(tagcodestring) + '<br />' +
 			_('Note: invalid %s combinations may cause dnsmasq to crash silently.', 'invalid tag combinations may cause crashes').format(tag_named_ov_string) + '<br /><br />' +
 			_('Prepend a %s with %s to invert their domain of application, e.g. to send options to a host lacking a %s.', 'prepend a tag with ! to invert their meaning').format(tagcodestring, exclamationmark_invert, tagcodestring) + '<br /><br />' +
-			_('Use the %s button to add a new %s.', 'use the add button to add a new tag').format( _(`<em>${addtag}</em>`), tagcodestring ) );
+			_('Use the %s button to add a new %s.', 'use the add button to add a new tag').format( _('<em>%s</em>').format(addtag), tagcodestring ) );
 		ss = o.subsection;
 		ss.placeholder = _('tag name');
 		ss.sortable = true;
@@ -698,7 +698,7 @@ return view.extend({
 
 		// Set Tags
 		o = tagstab.taboption('settags', form.SectionValue, '__settags__', form.TableSection, 'match', null,
-			_(`Encountering chosen DHCP %s (or also its %s) from clients triggers dnsmasq to set alphanumeric %s.`).format(dhcp_option_code, dhcp_value_code, tagcodestring) + '<br />' +
+			_('Encountering chosen DHCP %s (or also its %s) from clients triggers dnsmasq to set alphanumeric %s.').format(dhcp_option_code, dhcp_value_code, tagcodestring) + '<br />' +
 			_('In other words: "%s these %s to set this %s".').format(tag_match_code_name, dhcp_option_code, tagcodestring) + '<br />' +
 			_('Or "These %s set this %s".').format(dhcp_option_code, tagcodestring) + '<br />' +
 			_('Internally, these configuration entries are called %s.').format(tag_match_code_name) + '<br />' +
