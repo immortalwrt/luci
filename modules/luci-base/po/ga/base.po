@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-05-02 19:29+0000\n"
+"PO-Revision-Date: 2026-05-18 21:24+0000\n"
 "Last-Translator: Aindriú Mac Giolla Eoin <aindriu80@gmail.com>\n"
 "Language-Team: Irish <https://hosted.weblate.org/projects/openwrt/luci/ga/>\n"
 "Language: ga\n"
@@ -8,7 +8,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=5; plural=n==1 ? 0 : n==2 ? 1 : (n>2 && n<7) ? 2 :"
 "(n>6 && n<11) ? 3 : 4;\n"
-"X-Generator: Weblate 5.17.1\n"
+"X-Generator: Weblate 2026.6.dev0\n"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1330
 msgid "!known (not known)"
@@ -601,6 +601,10 @@ msgstr "ADSL2+ (G.992.5) Iarscríbhinn M"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1669
 msgid "ANSI T1.413"
 msgstr "ANSI T1.413"
+
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:66
+msgid "AP Isolation"
+msgstr "Leithlisiú AP"
 
 #: protocols/luci-proto-3g/htdocs/luci-static/resources/protocol/3g.js:95
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:65
@@ -1576,6 +1580,10 @@ msgstr "Gléas Batman"
 msgid "Batman Interface"
 msgstr "Comhéadan Batman"
 
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:11
+msgid "Batman VLAN Interface"
+msgstr "Comhéadan VLAN Batman"
+
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv.js:81
 msgid ""
 "Batman-adv has a built-in layer 2 fragmentation for unicast data flowing "
@@ -2278,7 +2286,7 @@ msgstr "Ceangal caillte"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:338
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:160
 msgid "Connections"
-msgstr "Naisc"
+msgstr "Ceangail"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:5157
 msgid "Connectivity change"
@@ -2775,6 +2783,7 @@ msgstr "Crios ceann scríbe"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:281
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:355
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:391
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:48
 #: protocols/luci-proto-external/htdocs/luci-static/resources/protocol/external.js:29
 msgid "Device"
 msgstr "Gléas"
@@ -3417,6 +3426,23 @@ msgstr "Cumasaigh <abbr title=\"Prótacal Crann a Chuimsíonn\">STP</abbr>"
 msgid "Enable <abbr title=\"Stateless Address Auto Config\">SLAAC</abbr>"
 msgstr ""
 "Cumasaigh <abbr title=\"Uathchumraíocht Seoltaí Gan Stát\">SLAAC</abbr>"
+
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:67
+msgid ""
+"Enable AP Isolation to isolate wireless clients connected to this Batman "
+"VLAN on this AP from wireless clients connected to this Batman VLAN on "
+"different APs. To isolate all wireless clients connected to this Batman VLAN "
+"on all APs from each other, be sure to enable this option on all APs, and be "
+"sure to enable additional wireless client isolation options ('isolate' and "
+"'bridge_isolate') for all associated wireless interfaces on all APs."
+msgstr ""
+"Cumasaigh Aonrú AP chun cliaint gan sreang atá ceangailte leis an VLAN "
+"Batman seo ar an AP seo a leithlisiú ó chliaint gan sreang atá ceangailte "
+"leis an VLAN Batman seo ar APanna difriúla. Chun gach cliant gan sreang atá "
+"ceangailte leis an VLAN Batman seo ar gach AP a leithlisiú óna chéile, bí "
+"cinnte an rogha seo a chumasú ar gach AP, agus bí cinnte roghanna breise "
+"leithlisithe cliant gan sreang ('isolate' agus 'bridge_isolate') a chumasú "
+"do gach comhéadan gan sreang gaolmhar ar gach AP."
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:190
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:412
@@ -5223,6 +5249,14 @@ msgstr ""
 "Má tá sé folamh, ceadfar gach nasc atá ag teacht isteach (réamhshocraithe). "
 "Ní dhéanann sé seo difear do phiaraí atá ag imeacht, ná do phiaraí nasc-"
 "áitiúla a aimsítear trí multicast."
+
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:49
+msgid ""
+"If not listed, please open the drop-down list and type in the name of the "
+"Batman VLAN device in the 'custom' field."
+msgstr ""
+"Mura bhfuil sé liostaithe, oscail an liosta anuas agus clóscríobh ainm "
+"ghléas VLAN Batman sa réimse 'saincheaptha'."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1128
 msgid ""
@@ -8489,6 +8523,13 @@ msgstr "Pkts."
 msgid "Please enter your username and password."
 msgstr "Cuir isteach d'ainm úsáideora agus do phasfhocal."
 
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:63
+msgid ""
+"Please open the drop-down list and select or type in the name of the Batman "
+"VLAN device."
+msgstr ""
+"Oscail an liosta anuas agus roghnaigh nó clóscríobh ainm ghléas Batman VLAN."
+
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4632
 msgid "Please select the file to upload."
 msgstr "Roghnaigh an comhad le uaslódáil le do thoil."
@@ -9788,6 +9829,10 @@ msgstr ""
 "Roghnaigh 'Force upgrade' chun an íomhá a splancadh fiú má theipeann ar "
 "sheiceáil fhormáid na híomhá. Bain úsáid as ach amháin má tá tú cinnte go "
 "bhfuil an dochtearraí ceart agus i gceist le do gléas!"
+
+#: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv_vlan.js:52
+msgid "Select Batman VLAN device…"
+msgstr "Roghnaigh gléas VLAN Batman…"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:2983
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3182

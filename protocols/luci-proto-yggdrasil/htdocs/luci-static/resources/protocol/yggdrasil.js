@@ -33,13 +33,13 @@ function validateYggdrasilListenUri(section_id,value) {
 	if (value.length == 0) {
 		return true;
 	};
-	if (!value.match(/^(tls|tcp|unix|quic):\/\//))
+	if (!value.match(/^(tls|tcp|quic|unix|ws):\/\//))
 		return _('Unsupported URI scheme in %s').format(value);
 	return true;
 };
 
 function validateYggdrasilPeerUri(section_id,value) {
-	if (!value.match(/^(tls|tcp|unix|quic|socks|sockstls):\/\//))
+	if (!value.match(/^(tls|tcp|quic|socks|sockstls|unix|ws|wss):\/\//))
 		return _('URI scheme %s not supported').format(value);
 	return true;
 };
@@ -98,7 +98,7 @@ function updateActivePeers(ifname) {
 
 				cell = row.insertCell(-1)
 				cell.className = "td"
-				cell.textContent = '%.2f ms'.format(peer.latency_ms / 10**6);
+				cell.textContent = '%.2f ms'.format(peer.latency / 10**6);
 
 				cell = row.insertCell(-1)
 				cell.className = "td"
@@ -276,7 +276,9 @@ return network.registerProtocol('yggdrasil',
 			o=ss.option(form.Value,"address",_("Peer URI"));
 			o.placeholder="tls://0.0.0.0:0"
 			o.validate=validateYggdrasilPeerUri;
-			ss.option(widgets.NetworkSelect,"interface",_("Peer interface"));
+
+			o=ss.option(widgets.DeviceSelect,"interface",_("Peer interface"));
+			o.noaliases=true;
 
 			o=s.taboption('peers', form.SectionValue, '_interfaces', form.TableSection, 'yggdrasil_%s_interface'.format(this.sid), _("Multicast rules"))
 			ss=o.subsection;
@@ -286,6 +288,7 @@ return network.registerProtocol('yggdrasil',
 
 			o=ss.option(widgets.DeviceSelect,"interface",_("Devices"));
 			o.multiple=true;
+			o.noaliases=true;
 
 			ss.option(form.Flag,"beacon",_("Send multicast beacon"));
 
@@ -308,7 +311,7 @@ return network.registerProtocol('yggdrasil',
 				form.HiddenValue,
 				'hidden_value',
 				' ',
-				_('%s is an independent project that aims to reduce latency of a connection over Yggdrasil network transparently, utilizing NAT traversal to bypass intermediary nodes.'.format('<a href="https://github.com/one-d-wide/yggdrasil-jumper">Yggdrasil Jumper</a>'))
+				_('%s is an independent project that aims to reduce latency of a connection over Yggdrasil network transparently, utilizing NAT traversal to bypass intermediary nodes.').format('<a href="https://github.com/one-d-wide/yggdrasil-jumper">Yggdrasil Jumper</a>')
 					+ ' ' + _('It periodically probes for active sessions and automatically establishes direct peerings over internet with remote nodes running Yggdrasil Jumper without requiring firewall or port configuration.')
 			);
 
@@ -326,7 +329,7 @@ return network.registerProtocol('yggdrasil',
 			// Unlock enable option if jumper is installed
 			callIsJumperInstalled().then(function(isInstalled) {
 				if (isInstalled) {
-					var o = s.children.find(function(o) { return o.option == "jumper_enable"; });
+					var o = s.children.find(function(enableOpt) { return enableOpt.option == "jumper_enable"; });
 					o.readonly = false;
 					// Explicit rerendering request isn't needed because the protocol tab
 					// is constructed only after all async functions is done

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2025-12-26 15:12+0000\n"
-"Last-Translator: Максим Горпиніч <gorpinicmaksim0@gmail.com>\n"
+"PO-Revision-Date: 2026-05-12 09:06+0000\n"
+"Last-Translator: Oleksandr Yurov <oyurov@icloud.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsdcwapd/uk/>\n"
 "Language: uk\n"
@@ -9,7 +9,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 2026.5-dev\n"
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:68
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:120
@@ -28,7 +28,7 @@ msgstr "Канали даних"
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:49
 msgid "Define data channels over which outbound filtered packets will flow."
 msgstr ""
-"Визначте канали даних, через які будуть передаватися відфільтровані вихідні "
+"Визначення каналів даних, якими передаватимуться відфільтровані вихідні "
 "пакети."
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:145
@@ -36,12 +36,12 @@ msgid ""
 "Define filter rules to apply to outbound packets. Matching packets will flow "
 "over the data channel."
 msgstr ""
-"Визначте правила фільтрації для вихідних пакетів. Збігаються пакети будуть "
-"проходити по каналу даних."
+"Визначення правил фільтрації, що застосовуються до вихідних пакетів. Пакети, "
+"які відповідають правилам, передаватимуться каналом даних."
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:93
 msgid "Define primary channels and their corresponding data channels."
-msgstr "Визначте первинні канали та відповідні їм канали даних."
+msgstr "Визначення основних каналів та відповідних їм каналів даних."
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:178
 msgid "Destination port"
@@ -50,7 +50,7 @@ msgstr "Порт призначення"
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:27
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:28
 msgid "Dual Channel Wi-Fi AP Daemon"
-msgstr "Двоканальний Wi-Fi AP Daemon"
+msgstr "Служба двоканальної точки доступу Wi-Fi"
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:28
 #: applications/luci-app-dcwapd/root/usr/share/luci/menu.d/luci-app-dcwapd.json:3
@@ -81,7 +81,7 @@ msgstr "Загальні налаштування"
 
 #: applications/luci-app-dcwapd/root/usr/share/rpcd/acl.d/luci-app-dcwapd.json:3
 msgid "Grant UCI access for luci-app-dcwapd"
-msgstr "Надайте доступ UCI для luci-app-dcwapd"
+msgstr "Надати доступ до UCI для luci-app-dcwapd"
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:79
 msgid "Interfaces"
@@ -89,7 +89,7 @@ msgstr "Інтерфейси"
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:191
 msgid "MAC Address"
-msgstr "MAC-Адреса"
+msgstr "MAC-адреса"
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:151
 msgid "Packet size"
@@ -106,11 +106,11 @@ msgstr "SSID"
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:184
 msgid "Select filters to apply to matching MAC addresses."
-msgstr "Виберіть фільтри для застосування до відповідних MAC-адрес."
+msgstr "Вибір фільтрів, що застосовуються до відповідних MAC-адрес."
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:157
 msgid "Source IP"
-msgstr "Джерело IP"
+msgstr "IP-адреса джерела"
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:163
 msgid "Source port"
@@ -118,7 +118,7 @@ msgstr "Порт джерела"
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:44
 msgid "Specify the temporary directory for dcwapd file storage."
-msgstr "Вкажіть тимчасовий каталог для зберігання файлів dcwapd."
+msgstr "Тимчасовий каталог для зберігання файлів dcwapd."
 
 #: applications/luci-app-dcwapd/htdocs/luci-static/resources/view/dcwapd/dcwapd.js:44
 msgid "Temp Directory"
@@ -129,5 +129,6 @@ msgid ""
 "With %s you can use two simultaneous Wi-Fi connections to decrease wireless "
 "traffic congestion and increase throughput."
 msgstr ""
-"З %s ви можете використовувати два одночасних з’єднання Wi-Fi, щоб зменшити "
-"перевантаження бездротового трафіку та збільшити пропускну здатність."
+"За допомогою %s можна використовувати два одночасних підключення Wi-Fi, щоб "
+"зменшити перевантаження бездротового трафіку та збільшити пропускну "
+"здатність."
