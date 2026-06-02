@@ -97,16 +97,14 @@ return view.extend({
 					} catch (e) {
 						info = null;
 						parseErrCount++;
+						if (parseErrCount >= 5) {
+							ui.addNotification(null, E('p', _('Unable to parse the adblock runtime information!')), 'error');
+							poll.stop();
+						}
 						if (status) {
 							status.textContent = '-';
-							buttons.forEach(function (btn) {
-								btn.disabled = false;
-							});
+							buttons.forEach(btn => btn.disabled = false);
 							status.classList.remove('spinning');
-							if (parseErrCount >= 5) {
-								ui.addNotification(null, E('p', _('Unable to parse the adblock runtime information!')), 'error');
-								poll.stop();
-							}
 						}
 						return;
 					}
@@ -122,13 +120,10 @@ return view.extend({
 							}
 						} else {
 							status.classList.remove("spinning");
-							if (document.getElementById('btn_suspend')) {
-								if (info.adblock_status === 'paused') {
-									document.querySelector('#btn_suspend').textContent = 'Resume';
-								}
-								if (info.adblock_status === 'enabled') {
-									document.querySelector('#btn_suspend').textContent = 'Suspend';
-								}
+							const btnSuspend = document.getElementById('btn_suspend');
+							if (btnSuspend) {
+								if (info.adblock_status === 'paused') btnSuspend.textContent = _('Resume');
+								if (info.adblock_status === 'enabled') btnSuspend.textContent = _('Suspend');
 							}
 							buttons.forEach(function (btn) {
 								btn.disabled = false;
@@ -153,7 +148,7 @@ return view.extend({
 			runtime information and buttons
 		*/
 		s = m.section(form.NamedSection, 'global');
-		s.render = L.bind(function (view, section_id) {
+		s.render = function (view, section_id) {
 			return E('div', { 'class': 'cbi-section' }, [
 				E('h3', _('Information')),
 				E('div', { 'class': 'cbi-value' }, [
@@ -193,7 +188,7 @@ return view.extend({
 					E('div', { 'class': 'cbi-value-field', 'id': 'sys', 'style': 'margin-bottom:-5px;color:#37c;' }, '-')
 				])
 			]);
-		}, o, this);
+		};
 
 		/*
 			tabbed config section
@@ -703,7 +698,7 @@ return view.extend({
 		/*
 			feed selection tab
 		*/
-		let chain, descr;
+		let size, descr;
 		let feeds = null;
 
 		if (result[0] && result[0].trim() !== "") {
@@ -731,9 +726,9 @@ return view.extend({
 			o = s.taboption('feeds', form.MultiValue, 'adb_feed', _('Blocklist Feed'));
 			const feedKeys = Object.keys(feeds);
 			for (const feed of feedKeys) {
-				chain = feeds[feed].size?.trim() || 'in';
-				descr = feeds[feed].descr?.trim() || '-';
-				o.value(feed.trim(), feed.trim() + ' (' + chain + ', ' + descr + ')');
+				size = String(feeds[feed].size ?? '').trim() || '-';
+				descr = String(feeds[feed].descr ?? '').trim() || '-';
+				o.value(feed.trim(), feed.trim() + ' (' + size + ', ' + descr + ')');
 			}
 			o.optional = true;
 			o.rmempty = true;
@@ -803,7 +798,7 @@ return view.extend({
 			action buttons
 		*/
 		s = m.section(form.NamedSection, 'global');
-		s.render = L.bind(function () {
+		s.render = function () {
 			return E('div', { 'class': 'cbi-page-actions' }, [
 				E('button', {
 					'class': 'btn cbi-button cbi-button-negative important',
@@ -839,7 +834,7 @@ return view.extend({
 					}
 				}, [_('Save & Restart')])
 			]);
-		});
+		};
 		return m.render();
 	},
 	handleSaveApply: null,
