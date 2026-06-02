@@ -202,11 +202,11 @@ return view.extend({
 		o = s.option(form.Value, 'buffer_size', _('Ingress buffer size'), _('Unit: bytes, Kb, Mb; Max 2097152 bytes'));
 		o.placeholder = '4Kb';
 
-		o = s.option(form.Value, 'buffer_messages', _('Buffer message amount'), _('-1 is all.'));
+		o = s.option(form.Value, 'buffer_messages', _('Buffer message amount'), _('-1 is all'));
 		o.datatype = 'or(-1, and(min(1),uinteger))';
 		o.placeholder = '1';
 
-		o = s.option(form.Value, 'buffer_time', _('Buffer time limit'), _('-1 is unlimited.'));
+		o = s.option(form.Value, 'buffer_time', _('Buffer time limit'), _('-1 is unlimited'));
 		o.datatype = 'or(-1, and(min(1),uinteger))';
 		o.placeholder = '1';
 
@@ -214,7 +214,7 @@ return view.extend({
 		o.datatype = 'or(and(max(-1),uinteger), and(min(1),uinteger))';
 		o.placeholder = '0';
 
-		o = s.option(form.Value, 'mcsub_renew', _('Renew multicast subscription periodicity'), _('Unit: seconds; 0 is skip.'));
+		o = s.option(form.Value, 'mcsub_renew', _('Renew multicast subscription periodicity'), _('Unit: seconds; 0 is skip'));
 		o.datatype = 'or(0, range(30, 64000))';
 		o.placeholder = '0';
 

@@ -1,0 +1,35 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+[ "$ACTION" = ifup -o "$ACTION" = ifupdate ] || exit 0
+
+check_udpxy() {
+    local cfg="$1"
+    local net ipfile newip oldip
+
+    config_get net "$cfg" source_network
+    [ "$INTERFACE" = "$net" ] || return 0
+
+    newip="$(ubus call network.interface.$net status 2>/dev/null | jsonfilter -e '@["ipv4-address"][0].address')"
+
+    ipfile="/tmp/udpxy-${net}.ip"
+
+    if [ -z "$newip" ]; then
+        rm -f "$ipfile" 2>/dev/null
+        return 0
+    fi
+
+    oldip="$(cat "$ipfile" 2>/dev/null)"
+
+    [ "$newip" = "$oldip" ] && return 0
+
+    echo "$newip" > "$ipfile"
+
+    logger -t udpxy "IP changed on $net: $oldip → $newip"
+
+    /etc/init.d/udpxy restart
+}
+
+config_load udpxy 2>/dev/null || exit 0
+config_foreach check_udpxy udpxy
