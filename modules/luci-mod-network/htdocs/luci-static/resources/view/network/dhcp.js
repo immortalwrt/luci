@@ -197,7 +197,7 @@ function expandAndFormatMAC(macs) {
 	return result.length ? result : null;
 }
 
-function isValidMAC(sid, s) {
+function isValidMAC(s) {
 	if (!s) return true;
 
 	for (const mac of L.toArray(s))
@@ -647,13 +647,13 @@ return view.extend({
 
 		// Match Tags
 		o = tagstab.taboption('matchtags', form.SectionValue, '__tags__', form.TableSection, 'tag', null,
-			_(`A ${tagcodestring} is an alphanumeric label.`) + ' ' + _(`They are attached to a DHCP client or transaction.`) + '<br />' +
-			_(`dnsmasq conditionally applies chosen DHCP options when a specific ${tagcodestring} is encountered.`) + '<br />' +
-			_(`In other words: "This ${tagcodestring} gets these ${tag_named_ov_string}".`) + '<br />' +
-			_(`${tagcodestring}s do not do anything by themselves. They are labels that other directives test against.`) + '<br />' +
-			_(`Note: invalid ${tag_named_ov_string} combinations may cause dnsmasq to crash silently.`) + '<br /><br />' +
-			_(`Prepend a ${tagcodestring} with ${exclamationmark_invert} to invert their domain of application, e.g. to send options to a host lacking a ${tagcodestring}.`) + '<br /><br />' +
-			_(`Use the %s button to add a new ${tagcodestring}.`).format( _(`<em>${addtag}</em>`) ) );
+			_('A %s is an alphanumeric label.', 'A tag is an alphanumeric label').format(tagcodestring) + ' ' + _('They filter which options apply to which hosts.') + '<br />' +
+			_('dnsmasq conditionally applies chosen DHCP options when a specific %s is encountered.', 'when a specific tag is encountered').format(tagcodestring) + '<br />' +
+			_('In other words: "This %s gets these %s".', 'this tag gets these options').format(tagcodestring, tag_named_ov_string) + '<br />' +
+			_('A %s does not do anything by itself. It is a label that other directives test against.', 'A tag does not do anything by itself').format(tagcodestring) + '<br />' +
+			_('Note: invalid %s combinations may cause dnsmasq to crash silently.', 'invalid tag combinations may cause crashes').format(tag_named_ov_string) + '<br /><br />' +
+			_('Prepend a %s with %s to invert their domain of application, e.g. to send options to a host lacking a %s.', 'prepend a tag with ! to invert their meaning').format(tagcodestring, exclamationmark_invert, tagcodestring) + '<br /><br />' +
+			_('Use the %s button to add a new %s.', 'use the add button to add a new tag').format( _('<em>%s</em>').format(addtag), tagcodestring ) );
 		ss = o.subsection;
 		ss.placeholder = _('tag name');
 		ss.sortable = true;
@@ -698,15 +698,16 @@ return view.extend({
 
 		// Set Tags
 		o = tagstab.taboption('settags', form.SectionValue, '__settags__', form.TableSection, 'match', null,
-			_(`Encountering chosen DHCP ${dhcp_option_code}s (or also its ${dhcp_value_code}) from clients triggers dnsmasq to set alphanumeric ${tagcodestring}s.`) + '<br />' +
-			_(`In other words: "${tag_match_code_name} these ${dhcp_option_code}s to set this ${tagcodestring}" or "These ${dhcp_option_code}s set this ${tagcodestring}".`) + '<br />' +
-			_(`Internally, these configuration entries are called ${tag_match_code_name}.`) + '<br />' +
-			_(`Matching option syntax: ${tag_match_option_syntax}.`) + ' ' +
-			_(`Prefix named (IPv6) options with ${dhcp_optioncolon_code}.`) + ' ' +
-			_(`Wildcards (${wildcard_code}) allowed.`) + '<br /><br />' +
-			_(`Match ${dhcp_option_client_arch}, Tag ${tag_name_efi_ia32}, sets tag ${tag_name_efi_ia32}`) + ' ' +
+			_('Encountering chosen DHCP %s (or also its %s) from clients triggers dnsmasq to set alphanumeric %s.').format(dhcp_option_code, dhcp_value_code, tagcodestring) + '<br />' +
+			_('In other words: "%s these %s to set this %s".').format(tag_match_code_name, dhcp_option_code, tagcodestring) + '<br />' +
+			_('Or "These %s set this %s".').format(dhcp_option_code, tagcodestring) + '<br />' +
+			_('Internally, these configuration entries are called %s.').format(tag_match_code_name) + '<br />' +
+			_('Matching option syntax: %s.').format(tag_match_option_syntax) + ' ' +
+			_('Prefix named (IPv6) options with %s.').format(dhcp_optioncolon_code) + ' ' +
+			_('Wildcards (%s) allowed.').format(wildcard_code) + '<br /><br />' +
+			_('Match %s, Tag %s, sets  a tag of the same name').format(dhcp_option_client_arch, tag_name_efi_ia32) + ' ' +
 			_('when number %s appears in the list of architectures sent by the client in option %s.').format('<code>6</code>', '<code>93</code>') + '<br />' +
-			_(`Use the %s Button to add a new ${tag_match_code_name}.`).format(_('<em>Add</em>')) );
+			_('Use the %s Button to add a new %s.').format(_('<em>Add</em>'), tag_match_code_name) );
 		ss = o.subsection;
 		ss.addremove = true;
 		ss.anonymous = true;
@@ -1002,7 +1003,7 @@ return view.extend({
 					return _('The MAC address %h is already used by another static lease in the same DHCP pool')
 						.format(host_macs.find(lm => this_macs.includes(lm)));
 			}
-			return isValidMAC(section_id, value);
+			return isValidMAC(value);
 		}
 		Object.keys(hosts).forEach(function(mac) {
 			let vendor;

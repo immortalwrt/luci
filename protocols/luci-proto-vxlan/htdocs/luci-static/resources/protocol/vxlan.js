@@ -127,7 +127,7 @@ return network.registerProtocol('vxlan', {
 		o = s.taboption('general', form.Value, 'vid', _('VXLAN network identifier'),
 			_('VNI') + ': ' + _('ID used to identify the VXLAN uniquely'));
 		o.optional = true;
-		o.datatype = 'range(1, 16777216)';
+		o.datatype = 'range(1, 16777215)';
 
 		o = s.taboption('general', widgets.NetworkSelect, 'tunlink', _('Bind interface'), _('Bind the tunnel to this interface (optional).'));
 		o.exclude = s.section;
@@ -198,7 +198,7 @@ return network.registerProtocol('vxlan', {
 		o.datatype = 'string';
 		o.optional = true;
 
-		o = ss.option(form.Value, 'lladr', _('Layer 2 Address'),
+		o = ss.option(form.Value, 'lladdr', _('Layer 2 Address'),
 			_('L2 (MAC) address of peer. Uses source-address learning when %s is specified')
 			.format('<code>00:00:00:00:00:00</code>'));
 		o.editable = true;
@@ -245,12 +245,12 @@ return network.registerProtocol('vxlan', {
 
 		o = ss.option(form.Value, 'vni', _('VNI'), _('the VXLAN Network Identifier (or VXLAN Segment ID) to use to connect to the remote VXLAN tunnel endpoint'));
 		o.editable = true;
-		o.datatype = 'range(1, 16777216)';
+		o.datatype = 'range(1, 16777215)';
 		o.optional = true;
 
 		o = ss.option(form.Value, 'src_vni', _('Source VNI'), _('the source VNI Network Identifier (or VXLAN Segment ID) this entry belongs to. Used only when the VXLAN device is in external or collect metadata mode '));
 		o.editable = true;
-		o.datatype = 'range(1, 16777216)';
+		o.datatype = 'range(1, 16777215)';
 		o.optional = true;
 
 	}

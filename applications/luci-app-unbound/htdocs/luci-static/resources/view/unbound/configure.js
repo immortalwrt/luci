@@ -257,7 +257,7 @@ return view.extend({
 
 			const qrs = s.taboption('resource', form.Flag, 'query_min_strict', _('Strict Minimize'),
 				_("Strict version of 'query minimize' but it can break DNS"));
-			qrs.taboptional = true;
+			qrs.optional = true;
 			qrs.depends('query_minimize', '1');
 
 			const eds = s.taboption('resource', form.Value, 'edns_size', _('EDNS Size'),

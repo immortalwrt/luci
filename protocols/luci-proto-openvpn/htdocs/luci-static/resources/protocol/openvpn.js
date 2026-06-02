@@ -30,13 +30,6 @@ const openvpnOptions = [
 		placeholder: '1194',
 		label: _('TCP/UDP port # for both local and remote')
 	},
-	{
-		tab: 'general',
-		type: form.Flag,
-		name: 'nobind',
-		label: _('Do not bind to local address and port'),
-		default: 0
-	},
 	// --client Options error: specify only one of --tls-server, --tls-client, or --secret
 	// --client also needs DCO(?)
 	{
@@ -554,14 +547,6 @@ const openvpnOptions = [
 	{
 		tab: 'networking',
 		type: form.Value,
-		name: 'port',
-		datatype: 'port',
-		label: _('TCP/UDP port # for both local and remote'),
-		placeholder: 1194
-	},
-	{
-		tab: 'networking',
-		type: form.Value,
 		name: 'lport',
 		datatype: 'port',
 		label: _('TCP/UDP port # for local'),
@@ -1030,13 +1015,6 @@ const openvpnOptions = [
 	},
 	{
 		tab: 'cryptography',
-		type: form.Value,
-		name: 'replay_window',
-		label: _('Replay protection sliding window size'),
-		placeholder: '64 15'
-	},
-	{
-		tab: 'cryptography',
 		type: form.Flag,
 		name: 'mute_replay_warnings',
 		label: _('Silence the output of replay warnings'),
@@ -1179,7 +1157,6 @@ const openvpnOptions = [
 		tab: 'cryptography',
 		type: form.Flag,
 		name: 'single_session',
-		datatype: 'uinteger',
 		label: _('Allow only one session'),
 		default: 0
 	},
@@ -1187,7 +1164,6 @@ const openvpnOptions = [
 		tab: 'cryptography',
 		type: form.Flag,
 		name: 'tls_exit',
-		datatype: 'uinteger',
 		label: _('Exit on TLS negotiation failure'),
 		default: 0
 	},
@@ -1742,7 +1718,6 @@ return network.registerProtocol('openvpn', {
 		krp.default = '';
 		krp.monospace = true;
 		krp.readonly = true;
-		krp.readonly = true;
 		krp.rows = 2;
 		krp.wrap = 90;
 		krp.write = function(sid, value) { return; };
@@ -1855,6 +1830,7 @@ return network.registerProtocol('openvpn', {
 		ovconf.cfgvalue = function(sid) {
 			attachDragDrop(sid);
 			const config_name = `/etc/openvpn/${sid}/${sid}_config.cfg`;
+			/* call unset if there is no on-disk config.cfg file for this profile */
 			return fs.read(config_name).then(readresult => {
 				attachDragDrop(sid);
 				if (readresult == null || readresult === '') {

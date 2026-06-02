@@ -15,7 +15,12 @@ const luci_helper = '/usr/lib/ddns/dynamic_dns_lucihelper.sh';
 const ddns_version_file = '/usr/share/ddns/version';
 
 
+function shellquote(value) {
+	if (value == null)
+		value = '';
 
+	return "'" + replace(value, "'", "'\\''") + "'";
+}
 
 function get_dateformat() {
 	return uci.get('ddns', 'global', 'ddns_dateformat') || '%F %R';
@@ -126,9 +131,9 @@ const methods = {
 					if (forceDnsTcp == 1) push(command, '-t');
 					// if (isGlue == 1) push(command, '-g');
 
-					push(command, '-l', lookupHost);
-					push(command, '-S', section);
-					if (length(dnsServer) > 0) push(command, '-d', dnsServer);
+					push(command, '-l', shellquote(lookupHost));
+					push(command, '-S', shellquote(section));
+					if (length(dnsServer) > 0) push(command, '-d', shellquote(dnsServer));
 					push(command, '-- get_registered_ip');
 
 					const result = system(`${join(' ', command)}`);
@@ -221,50 +226,40 @@ const methods = {
 
 			const hasCommand = (command) => { return (system(`command -v ${command} 1>/dev/null`) == 0) ? true : false };
 
-			const hasWget = () => hasCommand('wget');
+			const hasWget = () => {
+				return cache.has_wget ??= hasCommand('wget');
+			};
 
 			const hasWgetSsl = () => {
-				if (cache['has_wgetssl']) return cache['has_wgetssl'];
-				const result = hasWget() && system(`wget 2>&1 | grep -iqF 'https'`) == 0 ? true : false;
-				cache['has_wgetssl'] = result;
-				return result;
+				return cache.has_wgetssl ??= hasWget() && system(`wget 2>&1 | grep -iqF 'https'`) == 0 ? true : false;
 			};
 
 			const hasGNUWgetSsl = () => {
-				if (cache['has_gnuwgetssl']) return cache['has_gnuwgetssl'];
-				const result = hasWget() && system(`wget -V 2>&1 | grep -iqF '+https'`) == 0 ? true : false;
-				cache['has_gnuwgetssl'] = result;
-				return result;
+				return cache.has_gnuwgetssl ??= hasWget() && system(`wget -V 2>&1 | grep -iqF '+https'`) == 0 ? true : false;
 			};
 
 			const hasCurl = () => {
-				if (cache['has_curl']) return cache['has_curl'];
-				const result = hasCommand('curl');
-				cache['has_curl'] = result;
-				return result;
+				return cache.has_curl ??= hasCommand('curl');
 			};
 
 			const hasCurlSsl = () => {
-				return system(`curl -V 2>&1 | grep -qF 'https'`) == 0 ? true : false;
+				return cache.has_curl_ssl ??= system(`curl -V 2>&1 | grep -qF 'https'`) == 0 ? true : false;
 			};
 
 			const hasFetch = () => {
-				if (cache['has_fetch']) return cache['has_fetch'];
-				const result = hasCommand('uclient-fetch');
-				cache['has_fetch'] = result;
-				return result;
+				return cache.has_fetch ??= hasCommand('uclient-fetch');
 			};
 
 			const hasFetchSsl = () => {
-				return stat('/lib/libustream-ssl.so') == 0 ? true : false;
+				return cache.has_fetch_ssl ??= stat('/lib/libustream-ssl.so') ? true : false;
 			};
 
 			const hasCurlPxy = () => {
-				return system(`grep -i 'all_proxy' /usr/lib/libcurl.so*`) == 0 ? true : false;
+				return cache.has_curl_proxy ??= system(`grep -i 'all_proxy' /usr/lib/libcurl.so*`) == 0 ? true : false;
 			};
 
 			const hasBbwget = () => {
-				return system(`wget -V 2>&1 | grep -iqF 'busybox'`) == 0 ? true : false;
+				return cache.has_bbwget ??= system(`wget -V 2>&1 | grep -iqF 'busybox'`) == 0 ? true : false;
 			};
 
 

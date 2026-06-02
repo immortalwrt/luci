@@ -266,7 +266,7 @@ return baseclass.extend({
 			else if (x && y && x[0] != y[0])
 				return +x[0] - +y[0];
 			else
-				return a > b;
+				return a < b ? -1 : a > b ? 1 : 0;
 		});
 	},
 

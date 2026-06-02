@@ -207,10 +207,10 @@ var CBIZoneSelect = form.ListValue.extend({
 						emptyval.parentNode.removeChild(emptyval);
 				}
 				else {
-					const anyval = node.querySelector('[data-value="*"]') || '';
-					let emptyval = node.querySelector('[data-value=""]') || '';
+					const anyval = node.querySelector('[data-value="*"]');
+					let emptyval = node.querySelector('[data-value=""]');
 
-					if (emptyval == null && anyval) {
+					if (!emptyval && anyval) {
 						emptyval = anyval.cloneNode(true);
 						emptyval.removeAttribute('display');
 						emptyval.removeAttribute('selected');
@@ -559,7 +559,7 @@ var CBINetworkSelect = form.ListValue.extend({
 			if (values.indexOf(name) == -1)
 				continue;
 
-			if (rv.length)
+			if (rv.firstChild)
 				L.dom.append(rv, ' ');
 
 			L.dom.append(rv, this.renderIfaceBadge(network));

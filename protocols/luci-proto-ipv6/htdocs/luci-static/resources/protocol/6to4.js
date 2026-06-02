@@ -14,7 +14,7 @@ return network.registerProtocol('6to4', {
 	},
 
 	getPackageName: function() {
-		return '6rd';
+		return '6to4';
 	},
 
 	isFloating: function() {

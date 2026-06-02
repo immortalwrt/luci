@@ -459,7 +459,7 @@ return view.extend({
 				let form_data = new FormData();
 				form_data.append('sessionid', rpc.getSessionID());
 				form_data.append('filename', '/tmp/firmware.bin');
-				form_data.append('filemode', 600);
+				form_data.append('filemode', 0o600);
 				form_data.append('filedata', response.blob());
 
 				ui.showModal(_('Uploading...'), [

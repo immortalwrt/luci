@@ -225,6 +225,7 @@ return view.extend({
 		o = s.option(form.Flag, 'enabled', _('Enable'));
 		o.modalonly = false;
 		o.default = o.enabled;
+		o.rmempty = false;
 		o.editable = true;
 		o.tooltip = function(section_id) {
 			const weekdays = uci.get('firewall', section_id, 'weekdays');
@@ -405,6 +406,7 @@ return view.extend({
 		o = s.taboption('general', form.ListValue, 'target', _('Action'));
 		o.modalonly = true;
 		o.default = 'ACCEPT';
+		o.rmempty = false;
 		o.value('DROP', _('drop'));
 		o.value('ACCEPT', _('accept'));
 		o.value('REJECT', _('reject'));

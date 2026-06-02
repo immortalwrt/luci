@@ -7,7 +7,7 @@
 
 const scope = this;
 
-uci.loadPackage('luci').catch();
+uci.loadPackage('luci').catch(() => {});
 
 const callSessionAccess = rpc.declare({
 	object: 'session',
@@ -1309,6 +1309,12 @@ const CBIAbstractSection = CBIAbstractElement.extend(/** @lends LuCI.form.Abstra
 		const sids = this.cfgsections();
 
 		for (let i = 0, sid = sids[0]; (sid = sids[i]) != null; i++) {
+			/*
+			 * do not remove elements that are not rendered yet
+			 */
+			if (!this.map.findElement('data-section-id', sid))
+				continue;
+
 			for (let j = 0, o = this.children[0]; (o = this.children[j]) != null; j++) {
 				let isActive = o.isActive(sid);
 				const isSatisfied = o.checkDepends(sid);
@@ -2143,7 +2149,7 @@ const CBIAbstractValue = CBIAbstractElement.extend(/** @lends LuCI.form.Abstract
 			const cval = this.cfgvalue(section_id);
 			const fval = this.formvalue(section_id);
 
-			if (fval == null || fval == '') {
+			if (fval == null || fval == '' || (fval == this.default && (this.optional || this.rmempty))) {
 				if (this.rmempty || this.optional) {
 					return Promise.resolve(this.remove(section_id));
 				}
@@ -2761,7 +2767,7 @@ const CBITableSection = CBITypedSection.extend(/** @lends LuCI.form.TableSection
 	 * @param {string} name
 	 * @returns {null}
 	 */
-	handleClone(section_id, put_next, name) {
+	handleClone(section_id, put_next, ev, name) {
 		let config_name = this.uciconfig || this.map.config;
 
 		this.map.data.clone(config_name, this.sectiontype, section_id, put_next, name);

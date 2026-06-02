@@ -1265,24 +1265,18 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	 * @returns {document}
 	 */
 	getScrollParent(element) {
-		let parent = element;
-		let style = getComputedStyle(element);
-		const excludeStaticParent = (style.position === 'absolute');
+		let parent = element.parentElement;
 
-		if (style.position === 'fixed')
-			return document.body;
-
-		while ((parent = parent.parentElement) != null) {
-			style = getComputedStyle(parent);
-
-			if (excludeStaticParent && style.position === 'static')
-				continue;
+		while (parent) {
+			const style = getComputedStyle(parent);
 
 			if (/(auto|scroll)/.test(style.overflow + style.overflowY + style.overflowX))
 				return parent;
+
+			parent = parent.parentElement;
 		}
 
-		return document.body;
+		return document.scrollingElement || document.documentElement;
 	},
 
 
@@ -1349,13 +1343,11 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 
 			window.requestAnimationFrame(() => {
 				const containerRect = scrollParent.getBoundingClientRect();
-				const itemHeight = li[Math.max(0, li.length - 2)].getBoundingClientRect().height;
-				let fullHeight = 0;
+				const itemHeight = li.length ? li[Math.max(0, li.length - 2)].getBoundingClientRect().height : 0;
+				const visibleItems = (items == -1 ? li.length : items);
+				const fullHeight = itemHeight * visibleItems;
 				const spaceAbove = rect.top - containerRect.top;
 				const spaceBelow = containerRect.bottom - rect.bottom;
-
-				for (let i = 0; i < (items == -1 ? li.length : items); i++)
-					fullHeight += li[i].getBoundingClientRect().height;
 
 				if (fullHeight <= spaceBelow) {
 					ul.style.top = `${rect.height}px`;
@@ -1597,7 +1589,7 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 	/**
 	 * @private
 	 * @param {Node} sb
-	 * @param {string[]} values
+	 * @param {Object<string, boolean>} values
 	 */
 	setValues(sb, values) {
 		const ul = sb.querySelector('ul');
@@ -1927,7 +1919,7 @@ const UIDropdown = UIElement.extend(/** @lends LuCI.ui.Dropdown.prototype */ {
 					const li = active.nextElementSibling;
 					this.setFocus(sb, li);
 					if (this.options.create && li == li.parentNode.lastElementChild) {
-						const input = li.querySelector('input:not([type="hidden"]):not([type="checkbox"]');
+						const input = li.querySelector('input:not([type="hidden"]):not([type="checkbox"])');
 						if (input) input.focus();
 					}
 					ev.preventDefault();
@@ -3461,8 +3453,7 @@ const UIFileUpload = UIElement.extend(/** @lends LuCI.ui.FileUpload.prototype */
 		const rows = E('ul');
 
 		list.sort((a, b) => {
-			return L.naturalCompare(a.type == 'directory', b.type == 'directory') ||
-				   L.naturalCompare(a.name, b.name);
+			return (b.type == 'directory') - (a.type == 'directory') || L.naturalCompare(a.name, b.name);
 		});
 
 		for (let i = 0; i < list.length; i++) {
@@ -4452,7 +4443,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 					if (element.parentNode) {
 						element.parentNode.removeChild(element);
 					}
-				});
+				}, 0);
 			}
 		}
 
@@ -4809,7 +4800,7 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 		getActiveTabId(pane) {
 			const path = this.getPathForPane(pane);
 			const p = +(this.getActiveTabState().paths[path]);
-			return p ?? 0;
+			return isNaN(p) ? 0 : p;
 		},
 
 		/**
@@ -5064,11 +5055,26 @@ const UI = baseclass.extend(/** @lends LuCI.ui.prototype */ {
 
 		return new Promise((resolveFn, rejectFn) => {
 			const img = new Image();
+			let timer = window.setTimeout(() => {
+				timer = null;
+				rejectFn();
+			}, 1000);
 
-			img.onload = resolveFn;
-			img.onerror = rejectFn;
+			img.onload = ev => {
+				if (timer !== null)
+					window.clearTimeout(timer);
+				timer = null;
+				img.onload = img.onerror = null;
+				resolveFn(ev);
+			};
 
-			window.setTimeout(rejectFn, 1000);
+			img.onerror = ev => {
+				if (timer !== null)
+					window.clearTimeout(timer);
+				timer = null;
+				img.onload = img.onerror = null;
+				rejectFn(ev);
+			};
 
 			img.src = target;
 		});

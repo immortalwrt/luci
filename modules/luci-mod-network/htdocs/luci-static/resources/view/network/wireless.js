@@ -679,6 +679,7 @@ return view.extend({
 			const badge = row.querySelector('[data-name="_badge"] > div');
 			const stat = row.querySelector('[data-name="_stat"]');
 			const btns = row.querySelectorAll('.cbi-section-actions button');
+			if (btns.length < 3) return;
 			const busy = btns[0].classList.contains('spinning') || btns[1].classList.contains('spinning') || btns[2].classList.contains('spinning');
 
 			if (radioDev) {
@@ -866,7 +867,7 @@ return view.extend({
 		s.load = function() {
 			return network.getWifiDevices().then(L.bind(function(radios) {
 				this.radios = radios.sort(function(a, b) {
-					return a.getName() > b.getName();
+					return a.getName().localeCompare(b.getName());
 				});
 
 				const tasks = [];

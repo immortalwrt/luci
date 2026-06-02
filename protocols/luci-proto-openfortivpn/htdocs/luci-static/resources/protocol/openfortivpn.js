@@ -170,7 +170,10 @@ return network.registerProtocol('openfortivpn', {
 
 		o = s.taboption("advanced", form.Value, 'local_ip', _("Local IP address"));
 		o.placeholder = '192.168.0.5'
-		o.dataype = 'ipaddr'
+		o.datatype = 'ipaddr'
+		o.optional = true;
+
+		o = s.taboption('advanced', form.Value, 'realm', _("Realm"), _("Optional. Specify the realm if your VPN gateway uses custom login portals."));
 		o.optional = true;
 
 	}

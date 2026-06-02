@@ -29,9 +29,16 @@ function handleAction(ev) {
 				E('button', {
 					'class': 'btn cbi-button-action',
 					'click': ui.createHandlerFn(this, function (ev) {
+						const domain = document.getElementById('blocklist').value.trim().toLowerCase();
+						if (!domain
+							|| domain.length > 253
+							|| /[^a-z0-9.-]|^-|-$|\.\.|\.$/.test(domain)) {
+							ui.addNotification(null, E('p', _('Invalid input, please submit a single valid (sub-)domain.')), 'warning');
+							ui.hideModal();
+							return;
+						}
 						L.resolveDefault(fs.read_direct('/etc/adblock/adblock.blocklist'), '')
 							.then(function (res) {
-								const domain = document.getElementById('blocklist').value.trim().toLowerCase().replace(/[^a-z0-9.-]/g, '');
 								const pattern = new RegExp('^' + domain.replace(/[.]/g, '\\.') + '$', 'm');
 								if (res.search(pattern) === -1) {
 									const blocklist = res + domain + '\n';
@@ -67,9 +74,16 @@ function handleAction(ev) {
 				E('button', {
 					'class': 'btn cbi-button-action',
 					'click': ui.createHandlerFn(this, function (ev) {
+						const domain = document.getElementById('allowlist').value.trim().toLowerCase();
+						if (!domain
+							|| domain.length > 253
+							|| /[^a-z0-9.-]|^-|-$|\.\.|\.$/.test(domain)) {
+							ui.addNotification(null, E('p', _('Invalid input, please submit a single valid (sub-)domain.')), 'warning');
+							ui.hideModal();
+							return;
+						}
 						L.resolveDefault(fs.read_direct('/etc/adblock/adblock.allowlist'), '')
 							.then(function (res) {
-								const domain = document.getElementById('allowlist').value.trim().toLowerCase().replace(/[^a-z0-9.-]/g, '');
 								const pattern = new RegExp('^' + domain.replace(/[.]/g, '\\.') + '$', 'm');
 								if (res.search(pattern) === -1) {
 									const allowlist = res + domain + '\n';
@@ -116,44 +130,54 @@ function handleAction(ev) {
 			E('div', { 'class': 'right' }, [
 				E('button', {
 					'class': 'btn cbi-button',
-					'click': ui.hideModal
+					'click': function () {
+						if (window._adbSearchPoller) {
+							clearInterval(window._adbSearchPoller);
+							window._adbSearchPoller = null;
+						}
+						ui.hideModal();
+					}
 				}, _('Cancel')),
 				' ',
 				E('button', {
 					'class': 'btn cbi-button-action',
 					'click': ui.createHandlerFn(this, function (ev) {
 						const domain = document.getElementById('search').value.trim().toLowerCase().replace(/[^a-z0-9.-]/g, '');
-						if (domain) {
-							document.getElementById('run').classList.add("spinning");
-							document.getElementById('search').value = domain;
-							document.getElementById('result').textContent = _('The search is running, please wait...');
+						document.getElementById('run').classList.add("spinning");
+						document.getElementById('search').value = domain;
+						document.getElementById('result').textContent = _('The search is running, please wait...');
 
-							if (window._adbSearchPoller) {
-								clearInterval(window._adbSearchPoller);
-								window._adbSearchPoller = null;
-							}
-							L.resolveDefault(fs.write('/var/run/adblock/adblock.search', ''), '').then(function () {
-								L.resolveDefault(fs.exec_direct('/etc/init.d/adblock', ['search', domain]), '');
-								let attempts = 0;
-								window._adbSearchPoller = setInterval(function () {
-									attempts++;
-									L.resolveDefault(fs.read('/var/run/adblock/adblock.search'), '').then(function (res) {
-										if (res && res.trim()) {
-											clearInterval(window._adbSearchPoller);
-											window._adbSearchPoller = null;
-											document.getElementById('result').textContent = res.trim();
-											document.getElementById('run').classList.remove("spinning");
-											document.getElementById('search').value = '';
-										} else if (attempts >= 40) {
-											clearInterval(window._adbSearchPoller);
-											window._adbSearchPoller = null;
-											document.getElementById('result').textContent = _('No Search results!');
-											document.getElementById('run').classList.remove("spinning");
-										}
-									});
-								}, 3000);
-							});
+						const modal = ev.target.closest('.modal');
+						const buttons = modal ? modal.querySelectorAll('button') : [];
+						buttons.forEach(function (btn) { btn.disabled = true; });
+
+						if (window._adbSearchPoller) {
+							clearInterval(window._adbSearchPoller);
+							window._adbSearchPoller = null;
 						}
+						L.resolveDefault(fs.write('/var/run/adblock/adblock.search', ''), '').then(function () {
+							L.resolveDefault(fs.exec_direct('/etc/init.d/adblock', ['search', domain]), '');
+							let attempts = 0;
+							window._adbSearchPoller = setInterval(function () {
+								attempts++;
+								L.resolveDefault(fs.read('/var/run/adblock/adblock.search'), '').then(function (res) {
+									if (res && res.trim()) {
+										clearInterval(window._adbSearchPoller);
+										window._adbSearchPoller = null;
+										document.getElementById('result').textContent = res.trim();
+										document.getElementById('run').classList.remove("spinning");
+										document.getElementById('search').value = '';
+										buttons.forEach(function (btn) { btn.disabled = false; });
+									} else if (attempts >= 60) {
+										clearInterval(window._adbSearchPoller);
+										window._adbSearchPoller = null;
+										document.getElementById('result').textContent = _('No Search results!');
+										document.getElementById('run').classList.remove("spinning");
+										buttons.forEach(function (btn) { btn.disabled = false; });
+									}
+								});
+							}, 3000);
+						});
 						document.getElementById('search').focus();
 					})
 				}, _('Search'))
@@ -205,9 +229,8 @@ function handleAction(ev) {
 					'id': 'refresh',
 					'class': 'btn cbi-button-action',
 					'click': function () {
-						document.querySelectorAll('.cbi-page-actions button').forEach(function (btn) {
-							btn.disabled = true;
-						});
+						document.querySelectorAll('.cbi-page-actions button').forEach(b => b.disabled = true);
+						document.querySelectorAll('.modal .right button').forEach(b => b.disabled = true);
 						this.blur();
 						this.classList.add('spinning');
 						const top_count = document.getElementById('top_count').value;
@@ -229,10 +252,8 @@ function handleAction(ev) {
 										attempts++;
 										if (attempts >= 10) {
 											clearInterval(poller);
-											document.querySelectorAll('.cbi-page-actions button').forEach(function (btn) {
-												btn.disabled = false;
-											});
-											document.getElementById('refresh').classList.remove('spinning');
+											ui.hideModal();
+											document.querySelectorAll('.cbi-page-actions button').forEach(b => b.disabled = false);
 											ui.addNotification(null, E('p', _('Failed to generate adblock report!')), 'error');
 										}
 									}
@@ -263,7 +284,7 @@ function handleAction(ev) {
 					'class': 'btn cbi-button',
 					'click': ui.createHandlerFn(this, function (ev) {
 						ui.hideModal();
-						sessionStorage.clear();
+						sessionStorage.removeItem('mapData');
 						location.reload();
 					})
 				}, _('Cancel')),
@@ -482,7 +503,9 @@ return view.extend({
 		}
 
 		/* Draw Pie Chart with Tooltip */
-		const tooltipEl = E('div', {
+		let tooltipEl = document.getElementById('dnsPieTooltip');
+		if (tooltipEl) tooltipEl.remove();
+		tooltipEl = E('div', {
 			id: 'dnsPieTooltip',
 			style: 'position:absolute; padding:6px 10px; background:#333; color:#fff; border-radius:4px; font-size:12px; pointer-events:none; opacity:0; transition:opacity .15s; z-index:9999'
 		});

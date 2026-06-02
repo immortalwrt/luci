@@ -257,7 +257,7 @@
 					res = res.apply(this, callArgs);
 
 					if (symStack && symStack.length > 1)
-						symStack.shift(protoCtx);
+						symStack.shift();
 					else
 						delete superContext[slotIdx];
 				}
@@ -1583,7 +1583,7 @@
 			else if (this.elem(html)) {
 				elem = html;
 			}
-			else if (html.charCodeAt(0) === 60) {
+			else if (typeof(html) === 'string' && html.charCodeAt(0) === 60) {
 				elem = this.parse(html);
 			}
 			else {
@@ -2673,6 +2673,9 @@
 		 * has no sub-features.
 		 */
 		hasSystemFeature() {
+			if (!this.isObject(sysFeatures))
+				return null;
+
 			const ft = sysFeatures[arguments[0]];
 
 			if (arguments.length == 2)

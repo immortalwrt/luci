@@ -88,6 +88,9 @@ return baseclass.extend({
 			return E('em', _('No active leases found'));
 		const machints = host_hints.getMACHints(false);
 		const isReadonlyView = !L.hasViewPermission();
+		this.isMACStatic = Object.create(null);
+		this.isDUIDStatic = Object.create(null);
+		this.isDUIDIAIDStatic = Object.create(null);
 
 		for (const host of uci.sections('dhcp', 'host')) {
 

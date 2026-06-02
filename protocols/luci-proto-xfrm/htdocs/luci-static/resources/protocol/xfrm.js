@@ -25,7 +25,7 @@ return network.registerProtocol('xfrm', {
 		return true;
 	},
 
-	getDevice: function() {
+	getDevices: function() {
 		return null;
 	},
 

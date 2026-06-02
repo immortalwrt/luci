@@ -74,7 +74,7 @@ function renderbox(ifc, ipv6, dhcpv6_stats) {
 			E('div', {}, renderBadge(
 				L.resource('icons/%s.svg').format(dev ? dev.getType() : 'ethernet_disabled'), null,
 				_('Device'), dev ? dev.getI18n() : '-',
-				_('MAC address'), dev.getMAC())
+				_('MAC address'), dev ? dev.getMAC() : '')
 			)
 		])
 	]);
