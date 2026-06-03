@@ -163,6 +163,7 @@ if load_urltest_options then -- [[ URLTest Start ]]
 	o:value("https://www.youtube.com/generate_204", "YouTube")
 	o:value("https://connect.rom.miui.com/generate_204", "MIUI (CN)")
 	o:value("https://connectivitycheck.platform.hicloud.com/generate_204", "HiCloud (CN)")
+	o:value("https://wifi.vivo.com.cn/generate_204", "VIVO (CN)")
 	o.default = o.keylist[3]
 	o.description = translate("The URL used to detect the connection status.")
 
@@ -374,6 +375,12 @@ if singbox_tags:find("with_quic") then
 
 	o = s:option(Value, _n("hysteria2_realm_url"), translate("Realm URL"), translate("Example:") .. "realm://public@realm.hy2.io/your-realm-name")
 	o:depends({ [_n("hysteria2_realms")] = "1" })
+	o.validate = function(self, value)
+		value = api.trim(value)
+		local realm = api.parse_realm_uri(value)
+		if realm then return value end
+		return nil, translate("Invalid Realm URL.")
+	end
 
 	o = s:option(DynamicList, _n("hysteria2_realm_stun"), translate("Realm STUN"))
 	o.default = { "stun.sip.us:3478", "stun.nextcloud.com:3478", "global.stun.twilio.com:3478" }
@@ -391,6 +398,18 @@ if singbox_tags:find("with_quic") then
 
 	o = s:option(Value, _n("hysteria2_obfs_password"), translate("Obfs Password"))
 	o:depends({ [_n("hysteria2_obfs_type")] = "salamander" })
+	o:depends({ [_n("hysteria2_obfs_type")] = "gecko" })
+
+	o = s:option(Value, _n("hysteria2_obfs_MinPacketSize"), translate("Gecko Packet Size (min)"))
+	o.datatype = "uinteger"
+	o.placeholder = "512"
+	o.default = "512"
+	o:depends({ [_n("hysteria2_obfs_type")] = "gecko" })
+
+	o = s:option(Value, _n("hysteria2_obfs_MaxPacketSize"), translate("Gecko Packet Size (max)"))
+	o.datatype = "uinteger"
+	o.placeholder = "1200"
+	o.default = "1200"
 	o:depends({ [_n("hysteria2_obfs_type")] = "gecko" })
 
 	o = s:option(Value, _n("hysteria2_up_mbps"), translate("Max upload Mbps"))
@@ -560,7 +579,6 @@ if singbox_tags:find("with_utls") then
 	o:depends({ [_n("protocol")] = "vless", [_n("tls")] = true })
 	o:depends({ [_n("protocol")] = "vmess", [_n("tls")] = true })
 	o:depends({ [_n("protocol")] = "shadowsocks", [_n("tls")] = true })
-	o:depends({ [_n("protocol")] = "socks", [_n("tls")] = true })
 	o:depends({ [_n("protocol")] = "trojan", [_n("tls")] = true })
 	o:depends({ [_n("protocol")] = "anytls", [_n("tls")] = true })
 
@@ -585,7 +603,6 @@ else o:value("grpc", "gRPC-lite")
 end
 o:depends({ [_n("protocol")] = "vmess" })
 o:depends({ [_n("protocol")] = "vless" })
-o:depends({ [_n("protocol")] = "socks" })
 o:depends({ [_n("protocol")] = "shadowsocks" })
 o:depends({ [_n("protocol")] = "trojan" })
 

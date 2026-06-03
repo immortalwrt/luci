@@ -39,6 +39,18 @@ function gen_config_server(node)
 			stunServers = node.hysteria2_realm_stun
 		} or nil
 	}
+
+	if config.obfs and config.obfs.gecko then
+		local min = tonumber(node.hysteria2_obfs_MinPacketSize) or 512
+		local max = tonumber(node.hysteria2_obfs_MaxPacketSize) or 1200
+		if min <= 0 or min > max or max > 2048 then
+			min = 512
+			max = 1200
+		end
+		config.obfs.gecko.minPacketSize = min
+		config.obfs.gecko.maxPacketSize = max
+	end
+
 	return config
 end
 
@@ -67,7 +79,8 @@ function gen_config(var)
 		server_host = api.get_ipv6_full(server_host)
 	end
 
-	local server = server_host .. ":" .. ((server_port or "") .. "," .. (node.hysteria2_hop or "")):gsub("^[%s,]+", ""):gsub("[%s,]+$", ""):gsub(":", "-")
+	local port_hop = ((server_port or "") .. "," .. (node.hysteria2_hop or "")):gsub("^[%s,]+", ""):gsub("[%s,]+$", ""):gsub(":", "-")
+	local server = server_host .. ":" .. (port_hop ~= "" and port_hop or "443")
 
 	local config = {
 		server = (function()
@@ -155,6 +168,17 @@ function gen_config(var)
 			listen = "0.0.0.0:" .. local_udp_redir_port
 		} or nil
 	}
+
+	if config.obfs and config.obfs.gecko then
+		local min = tonumber(node.hysteria2_obfs_MinPacketSize) or 512
+		local max = tonumber(node.hysteria2_obfs_MaxPacketSize) or 1200
+		if min <= 0 or min > max or max > 2048 then
+			min = 512
+			max = 1200
+		end
+		config.obfs.gecko.minPacketSize = min
+		config.obfs.gecko.maxPacketSize = max
+	end
 
 	return jsonc.stringify(config, 1)
 end
