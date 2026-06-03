@@ -996,7 +996,14 @@ local default_file_tree = {
 
 local function get_api_json(url)
 	local jsonc = require "luci.jsonc"
-	local return_code, content = curl_auto(url, nil, curl_args)
+	local gh_proxy = uci_get_type("global_app", "github_proxy", "0")
+	local return_code, content
+	if gh_proxy == "1" then
+		url = "https://gh-proxy.org/" .. url
+		return_code, content = curl_base(url, nil, curl_args)
+	else
+		return_code, content = curl_auto(url, nil, curl_args)
+	end
 	if return_code ~= 0 or content == "" then return {} end
 	return jsonc.parse(content) or {}
 end
@@ -1113,7 +1120,14 @@ function to_download(app_name, url, size)
 	local _curl_args = clone(curl_args)
 	table.insert(_curl_args, "--speed-limit 51200 --speed-time 15 --max-time 300")
 
-	local return_code, result = curl_auto(url, tmp_file, _curl_args)
+	local gh_proxy = uci_get_type("global_app", "github_proxy", "0")
+	local return_code, result
+	if gh_proxy == "1" then
+		url = "https://gh-proxy.org/" .. url
+		return_code, result = curl_base(url, tmp_file, _curl_args)
+	else
+		return_code, result = curl_auto(url, tmp_file, _curl_args)
+	end
 	result = return_code == 0
 
 	if not result then
@@ -1264,7 +1278,14 @@ end
 function to_check_self()
 	local url = "https://raw.githubusercontent.com/Openwrt-Passwall/openwrt-passwall/main/luci-app-passwall/Makefile"
 	local tmp_file = "/tmp/passwall_makefile"
-	local return_code, result = curl_auto(url, tmp_file, curl_args)
+	local gh_proxy = uci_get_type("global_app", "github_proxy", "0")
+	local return_code, result
+	if gh_proxy == "1" then
+		url = "https://gh-proxy.org/" .. url
+		return_code, result = curl_base(url, tmp_file, curl_args)
+	else
+		return_code, result = curl_auto(url, tmp_file, curl_args)
+	end
 	result = return_code == 0
 	if not result then
 		exec("/bin/rm", {"-f", tmp_file})
@@ -1570,31 +1591,23 @@ function cleanEmptyTables(t)
 	return next(t) and t or nil
 end
 
-function fetch_cert_sha256(host, port, timeout)
-	if not host or not datatypes.hostname(host) then return "" end
+function fetch_cert_sha256(host, port, sni, timeout)
+	if not host then return "" end
 	port = tonumber(port) or 443
+	sni = sni or host
 	timeout = tonumber(timeout) or 5
-	local xray = finded_com("xray")
-	local cmd
-	if xray then
-		cmd = string.format(
-			"timeout %d %q tls ping %s:%d 2>/dev/null " ..
-			"| awk 'tolower($0) ~ /without sni/ {f=1} tolower($0) ~ /with sni/ {f=0} " ..
-			"f && tolower($0) ~ /cert.*leaf.*sha256/ {sub(/.*:/,\"\"); gsub(/[[:space:]]/,\"\"); print; exit}'",
-			timeout, xray, host, port
-		)
-	else
-		cmd = string.format(
-			"timeout %d openssl s_client -connect %s:%d -servername %s -showcerts </dev/null 2>/dev/null " ..
-			"| awk 'BEGIN{c=0}/BEGIN CERT/{c++} c==1{print} /END CERT/{if(c==1)exit}' " ..
-			"| openssl x509 -outform der 2>/dev/null " ..
-			"| sha256sum 2>/dev/null",
-			timeout, host, port, host
-		)
-	end
+	local cmd = string.format(
+		"timeout %d openssl s_client -connect %s:%d -servername %s -showcerts </dev/null 2>/dev/null " ..
+		"| awk 'BEGIN{c=0}/BEGIN CERT/{c++} c==1{print} /END CERT/{if(c==1)exit}' " ..
+		"| openssl x509 -outform der 2>/dev/null " ..
+		"| sha256sum 2>/dev/null",
+		timeout, host, port, sni
+	)
 	local out = trim(sys.exec(cmd))
 	local fp = out:match("^([0-9a-fA-F]+)")
-	if not fp then return "" end
+	if not fp or fp:lower():match("^e3b0c44298fc1c149afbf4c8996fb924") then
+		return ""
+	end
 	return fp:upper()
 end
 
@@ -1613,28 +1626,36 @@ function vps_domain_exclude(domain)
 end
 
 function parse_realm_uri(uri)
-	if type(uri) ~= "string" then return nil end
-	-- realm://token@server/realm_id?query
-	local token, server_url, realm_id, query = trim(uri):match("^realm://([^@]+)@([^/]+)/([^?]*)%??(.*)$")
+	uri = trim(uri)
+	if uri == "" then return nil end
+	-- realm[+http]://token@server/realm_id?query
+	local scheme = (uri:match("^realm%+http://") and "realm+http") or (uri:match("^realm://") and "realm")
+	if not scheme then return nil end
+	uri = uri:gsub("^realm%+http://", ""):gsub("^realm://", "")
+	local token, server_url, realm_id, query = uri:match("^([^@]+)@([^/]+)/([^?]*)%??(.*)$")
 	if not token or not server_url or not realm_id then return nil end
 	realm_id = realm_id:gsub("/+$", "")
+	local address, port = server_url:match("^%[([^%]]+)%]:(%d+)$") --ipv6:port
+	if not address then
+		address, port = server_url:match("^([^:]+):(%d+)$") --ipv4[domain]:port
+	end
+	address = address or server_url:match("^%[([^%]]+)%]$") or server_url
+	port = tonumber(port) or (scheme == "realm+http" and 80 or 443)
 	local realm = {
+		scheme = scheme,
 		token = token,
 		server_url = server_url,
+		address = address,
+		port = port,
 		realm_id = realm_id
 	}
 	-- 解析 query 中的 stun=
-	if query and query ~= "" then
-		local stun_servers = {}
-		for key, value in query:gmatch("([^&=?]+)=([^&]+)") do
-			if key == "stun" and value ~= "" then
-				stun_servers[#stun_servers + 1] = value
-			end
-		end
-		if #stun_servers > 0 then
-			realm.stun_servers = stun_servers
-		end
+	local stun_servers
+	for v in (query or ""):gmatch("[Ss][Tt][Uu][Nn]=([^&]+)") do
+		stun_servers = stun_servers or {}
+		stun_servers[#stun_servers + 1] = v
 	end
+	realm.stun_servers = stun_servers
 	return realm
 end
 
