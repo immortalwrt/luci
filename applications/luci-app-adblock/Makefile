@@ -6,8 +6,8 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=LuCI support for Adblock
 LUCI_DEPENDS:=+luci-base +luci-lib-uqr +adblock
 
-PKG_VERSION:=4.5.5
-PKG_RELEASE:=6
+PKG_VERSION:=4.5.6
+PKG_RELEASE:=1
 PKG_LICENSE:=Apache-2.0
 PKG_MAINTAINER:=Dirk Brenken <dev@brenken.org>
 
