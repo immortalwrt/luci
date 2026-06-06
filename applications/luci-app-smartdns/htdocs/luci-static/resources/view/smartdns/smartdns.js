@@ -52,8 +52,9 @@ function smartdnsServiceStatus() {
 	]);
 }
 
-function smartdnsRenderStatus(isRunning) {
+function smartdnsRenderStatus(res) {
 	let renderHTML = "";
+	let isRunning = res[0];
 
 	const autoSetDnsmasq = uci.get_first('smartdns', 'smartdns', 'auto_set_dnsmasq');
 	const smartdnsPort = uci.get_first('smartdns', 'smartdns', 'port');
