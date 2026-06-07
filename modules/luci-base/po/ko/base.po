@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-10 03:40+0200\n"
-"PO-Revision-Date: 2026-05-22 21:11+0000\n"
-"Last-Translator: Hoseok Seo <ddinghoya@gmail.com>\n"
+"PO-Revision-Date: 2026-06-07 18:23+0000\n"
+"Last-Translator: Hyeonjeong Lee <h9101654@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/openwrt/luci/ko/"
 ">\n"
 "Language: ko\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n == 1 ? 0 : 1;\n"
-"X-Generator: Weblate 2026.6.dev0\n"
+"X-Generator: Weblate 2026.6\n"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1330
 msgid "!known (not known)"
@@ -65,7 +65,7 @@ msgstr ""
 "%s 입력 시 IPv4 요청자에게는 /24, IPv6 요청자에게는 /96 서브넷 정보를 각각 추"
 "가합니다."
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:311
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:314
 msgid ""
 "%s is an independent project that aims to reduce latency of a connection "
 "over Yggdrasil network transparently, utilizing NAT traversal to bypass "
@@ -719,7 +719,7 @@ msgstr "액세스 집중화기"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1048
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1165
 msgid "Access Point"
-msgstr "접속 포인트(AP)"
+msgstr "액세스 포인트(AP)"
 
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv.js:60
 msgid "Access Point Isolation"
@@ -873,7 +873,7 @@ msgstr ""
 msgid "Add local domain suffix to names served from hosts files."
 msgstr "hosts 파일에 등록된 이름 뒤에 로컬 도메인 접미사를 추가합니다."
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:283
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:285
 msgid "Add multicast rule"
 msgstr "멀티캐스트 규칙 추가"
 
@@ -921,11 +921,11 @@ msgstr "상위 서버로 전달되는 DNS 질의에 요청자의 MAC 주소를 �
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:356
 msgid "Add to Blacklist"
-msgstr "블랙리스트에 추가"
+msgstr "차단 목록에 추가"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:356
 msgid "Add to Whitelist"
-msgstr "화이트리스트에 추가"
+msgstr "허용 목록에 추가"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1207
 msgid "Adding an IPv6 to an IPv4 set and vice-versa silently fails."
@@ -938,7 +938,7 @@ msgstr ""
 msgid "Additional Peers"
 msgstr "추가 피어"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:376
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:379
 msgid "Additional configuration settings (in TOML format)."
 msgstr "(TOML 형식) 추가 구성 설정입니다."
 
@@ -1077,7 +1077,7 @@ msgstr "이용 가능한 가장 낮은 주소부터 순차적으로 IP 주소를
 msgid "Allocate IPs sequentially"
 msgstr "IP 순차 할당"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:355
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:358
 msgid "Allocate listen addresses"
 msgstr "수신 주소 할당"
 
@@ -1090,7 +1090,7 @@ msgstr ""
 msgid "Allow AP mode to disconnect STAs based on low ACK condition"
 msgstr "AP 모드가 신호가 약한 기기의 접속을 자동으로 해제하게 허용"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:356
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:359
 msgid ""
 "Allow Yggdrasil Jumper to configure Yggdrasil with proper listen address and "
 "random port automatically."
@@ -1399,7 +1399,7 @@ msgstr "권위 부여(Authoritative)"
 msgid "Authorization Required"
 msgstr "인증이 필요합니다"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:365
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:368
 msgid "Autofill listen addresses"
 msgstr "수신 주소 자동 완성"
 
@@ -1483,7 +1483,7 @@ msgstr "평균:"
 
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv.js:70
 msgid "Avoid Bridge Loops"
-msgstr "브리지 루프 피함"
+msgstr "브리지 루프 방지"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1685
 msgid "B43 + B43C"
@@ -1795,7 +1795,7 @@ msgstr "호 연결 실패"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1206
 msgid "Can be hinted by adding 4 or 6 to the name."
-msgstr "이름에 4나 6을 더하면 힌트를 얻을 수 있습니다."
+msgstr "이름에 4 또는 6을 포함하면 버전을 나타낼 수 있습니다."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:693
 msgid ""
@@ -2103,7 +2103,7 @@ msgstr "명령 실행 실패"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/iptables.js:73
 msgid "Comment"
-msgstr "코멘트"
+msgstr "설명"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:182
 msgid "Common name or numeric ID of the %s in which this route is found"
@@ -2563,7 +2563,7 @@ msgstr "보낸 데이터"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:186
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:199
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:159
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:346
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:349
 msgid "Debug"
 msgstr "디버그(Debug)"
 
@@ -2784,7 +2784,7 @@ msgid "Device unreachable! Still waiting for device..."
 msgstr "장치에 접근할 수 없습니다! 계속 응답 대기 중..."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1378
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:287
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:289
 msgid "Devices"
 msgstr "장치"
 
@@ -3458,7 +3458,7 @@ msgstr "VLAN 기능 활성화"
 msgid "Enable WPS pushbutton, requires WPA(2)-PSK/WPA3-SAE"
 msgstr "WPS 버튼 활성화 [WPA(2)-PSK/WPA3-SAE 방식 필요]"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:319
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:322
 msgid "Enable Yggdrasil Jumper"
 msgstr "Yggdrasil Jumper 활성화"
 
@@ -3692,7 +3692,7 @@ msgstr "삭제 중..."
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:48
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:190
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:156
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:343
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:346
 msgid "Error"
 msgstr "오류(Error)"
 
@@ -3861,7 +3861,7 @@ msgstr "DHCP 로그 상세 기록"
 msgid "Extra SSH command options"
 msgstr ""
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:375
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:378
 msgid "Extra config"
 msgstr "추가 설정"
 
@@ -5355,7 +5355,7 @@ msgstr "실내 전용 채널 선택됨"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:51
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:187
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:158
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:345
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:348
 msgid "Info"
 msgstr "정보(Info)"
 
@@ -5539,7 +5539,7 @@ msgstr "인터페이스 이름"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:109
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:293
 msgid "Interface not present or not connected yet."
-msgstr ""
+msgstr "인터페이스가 존재하지 않거나 아직 연결되지 않았습니다."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:447
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:478
@@ -5659,11 +5659,11 @@ msgstr "잘못된 포트"
 
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:16
 msgid "Invalid private key string %s"
-msgstr ""
+msgstr "잘못된 개인 키 문자열 %s"
 
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:28
 msgid "Invalid public key string %s"
-msgstr ""
+msgstr "잘못된 공개 키 문자열 %s"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:110
 msgid "Invalid server URL"
@@ -5699,7 +5699,7 @@ msgstr ""
 "이미지 파일의 크기가 플래시 메모리 용량을 초과합니다. 이미지 파일을 확인하세"
 "요!"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:312
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:315
 msgid ""
 "It periodically probes for active sessions and automatically establishes "
 "direct peerings over internet with remote nodes running Yggdrasil Jumper "
@@ -5728,7 +5728,7 @@ msgstr "네트워크 접속: %q"
 msgid "Jump to rule"
 msgstr "규칙 이동"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:303
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:306
 msgid "Jumper"
 msgstr "Jumper"
 
@@ -6107,7 +6107,7 @@ msgstr ""
 "지정한 인터페이스에서만 수신 대기하며, 명시적으로 제외하지 않는 한 루프백에서"
 "도 응답합니다."
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:292
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:295
 msgid "Listen to multicast beacons"
 msgstr "멀티캐스트 비콘 수신 대기"
 
@@ -6317,7 +6317,7 @@ msgstr "로그인"
 msgid "Log in…"
 msgstr "로그인…"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:340
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:343
 msgid "Log level"
 msgstr "로그 수준"
 
@@ -6915,7 +6915,7 @@ msgstr "멀티캐스트 모드"
 msgid "Multicast routing"
 msgstr "멀티캐스트 라우팅"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:281
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:283
 msgid "Multicast rules"
 msgstr "멀티캐스트 규칙"
 
@@ -6925,7 +6925,7 @@ msgstr "멀티캐스트-유니캐스트 변환"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1520
 msgid "Must be in %s format."
-msgstr ""
+msgstr "%s 형식이어야 합니다."
 
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:197
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:197
@@ -7501,7 +7501,7 @@ msgstr "IPv6 주소 취득"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/none.js:19
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv.js:87
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:342
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:345
 msgid "Off"
 msgstr "사용 안 함"
 
@@ -7727,7 +7727,7 @@ msgstr ""
 
 #: protocols/luci-proto-xfrm/htdocs/luci-static/resources/protocol/xfrm.js:42
 msgid "Optional. Bind to a specific interface."
-msgstr ""
+msgstr "선택 사항. 특정 인터페이스에 바인드합니다."
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:644
 msgid "Optional. Create routes for Allowed IPs for this peer."
@@ -8125,7 +8125,7 @@ msgstr "패스스루 (물리 장치의 모든 트래픽을 단일 MACVLAN에 전
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:146
 #: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:103
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:58
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:298
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:301
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:19
 msgid "Password"
 msgstr "암호"
@@ -8266,7 +8266,7 @@ msgstr "피어 주소"
 msgid "Peer device name"
 msgstr "피어 장치 이름"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:279
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:280
 msgid "Peer interface"
 msgstr "피어 인터페이스"
 
@@ -8364,7 +8364,7 @@ msgstr "정책: <strong>%h</strong> (%h)"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:31
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:223
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:223
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:294
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:297
 msgid "Port"
 msgstr "포트"
 
@@ -8758,7 +8758,7 @@ msgstr "{etc_ethers} 파일을 읽어서 DHCP 서버를 설정합니다."
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/repokeys.js:76
 msgid "Really delete the following software repository public key?"
-msgstr ""
+msgstr "다음 소프트웨어 저장소 공개 키를 삭제하시겠습니까?"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:551
 msgid "Really switch protocol?"
@@ -8852,7 +8852,7 @@ msgstr "참조"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/channel_analysis.js:438
 msgid "Refresh Channels"
-msgstr "채널 새로고침"
+msgstr "채널 새로 고침"
 
 #: modules/luci-base/htdocs/luci-static/resources/luci.js:2670
 msgid "Refreshing"
@@ -9236,7 +9236,7 @@ msgstr "복원"
 msgid "Restore backup"
 msgstr "백업 복원"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:366
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:369
 msgid ""
 "Retrieve the listener addresses from the Yggdrasil interface configuration."
 msgstr ""
@@ -9658,7 +9658,7 @@ msgid ""
 "conjunction with failure threshold"
 msgstr ""
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:290
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:293
 msgid "Send multicast beacon"
 msgstr "멀티캐스트 비콘 전송"
 
@@ -10203,7 +10203,7 @@ msgstr "시작 우선순위"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2073
 msgid "Start refresh"
-msgstr "새로고침 시작"
+msgstr "새로 고침 시작"
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:5146
 msgid "Starting configuration apply…"
@@ -10286,7 +10286,7 @@ msgstr "WPS 중지"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1982
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2078
 msgid "Stop refresh"
-msgstr "새로고침 중지"
+msgstr "새로 고침 중지"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/25_storage.js:38
 msgid "Storage"
@@ -10714,7 +10714,7 @@ msgstr ""
 "전체 주소를 전달하고, 0은 주소 정보를 포함하지 않지만 요청에 표시를 남겨 상"
 "위 네임서버가 클라이언트 정보를 임의로 추가하는 것을 방지합니다."
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:320
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:323
 msgid ""
 "The checkbox cannot be modified unless the <code>yggdrasil-jumper</code> "
 "package is installed."
@@ -10768,7 +10768,7 @@ msgstr "장비 이름(\"%s\")이 이미 사용 중입니다"
 msgid ""
 "The existing network configuration needs to be changed for LuCI to function "
 "properly."
-msgstr ""
+msgstr "LuCI가 올바르게 작동하려면 기존 네트워크 설정을 변경해야 합니다."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:838
 msgid ""
@@ -10932,7 +10932,7 @@ msgstr ""
 
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:230
 msgid "The private key for your Yggdrasil node"
-msgstr ""
+msgstr "사용자 Yggdrasil 노드의 개인 키입니다"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:777
 msgid ""
@@ -10943,7 +10943,7 @@ msgstr ""
 
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:235
 msgid "The public key for your Yggdrasil node"
-msgstr ""
+msgstr "사용자 Yggdrasil 노드의 공개 키입니다"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1089
 msgid "The query response interval must be lower than the query interval value"
@@ -11319,7 +11319,7 @@ msgstr "신호 방식(Tone)"
 msgid "Total Available"
 msgstr "총 사용 가능"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:347
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:350
 msgid "Trace"
 msgstr "추적(Trace)"
 
@@ -11593,7 +11593,7 @@ msgstr "설정 해제"
 
 #: protocols/luci-proto-xfrm/htdocs/luci-static/resources/protocol/xfrm.js:42
 msgid "Underlying interface"
-msgstr ""
+msgstr "기반 인터페이스"
 
 #: protocols/luci-proto-unet/htdocs/luci-static/resources/protocol/unet.js:8
 msgid "Unet"
@@ -12164,7 +12164,7 @@ msgstr "WPS 상태"
 msgid "Waiting for device..."
 msgstr "장치 응답 대기 중..."
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:344
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:347
 msgid "Warn"
 msgstr "경고(Warn)"
 
