@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-06-10 03:41+0200\n"
-"PO-Revision-Date: 2026-05-18 07:48+0000\n"
+"PO-Revision-Date: 2026-06-03 09:01+0000\n"
 "Last-Translator: Volenski <volenski@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "openwrt/luci/pt_BR/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 2026.6.dev0\n"
+"X-Generator: Weblate 2026.6\n"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1330
 msgid "!known (not known)"
@@ -64,7 +64,7 @@ msgstr ""
 "%s adiciona as sub-redes /24 e /96 do solicitante para solicitantes IPv4 e "
 "IPv6, respectivamente."
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:311
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:314
 msgid ""
 "%s is an independent project that aims to reduce latency of a connection "
 "over Yggdrasil network transparently, utilizing NAT traversal to bypass "
@@ -195,7 +195,7 @@ msgstr "1"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/load.js:236
 msgid "1 Minute Load:"
-msgstr "Carga em 1 Minuto:"
+msgstr "Carga em 1 minuto:"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:325
 msgctxt "nft amount of flags"
@@ -215,7 +215,7 @@ msgstr "12h (12 horas)"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/load.js:256
 msgid "15 Minute Load:"
-msgstr "Carga em 15 Minutos:"
+msgstr "Carga em 15 minutos:"
 
 #: protocols/luci-proto-sstp/htdocs/luci-static/resources/protocol/sstp.js:61
 msgctxt "sstp log level value"
@@ -257,7 +257,7 @@ msgstr "464XLAT (CLAT)"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/load.js:246
 msgid "5 Minute Load:"
-msgstr "Carga em 5 Minutos:"
+msgstr "Carga em 5 minutos:"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1301
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:939
@@ -881,7 +881,7 @@ msgstr ""
 msgid "Add local domain suffix to names served from hosts files."
 msgstr "Adiciona um sufixo de domínio local para equipamentos conhecidos."
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:283
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:285
 msgid "Add multicast rule"
 msgstr "Adicionar regra de multicast"
 
@@ -951,7 +951,7 @@ msgstr ""
 msgid "Additional Peers"
 msgstr "Pares adicionais"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:376
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:379
 msgid "Additional configuration settings (in TOML format)."
 msgstr "Configurações adicionais de configuração (em formato TOML)."
 
@@ -1093,13 +1093,14 @@ msgstr ""
 msgid "Allocate IPs sequentially"
 msgstr "Alocar endereços IP sequencialmente"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:355
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:358
 msgid "Allocate listen addresses"
 msgstr "Alocar endereços de escuta"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:35
 msgid "Allow <abbr title=\"Secure Shell\">SSH</abbr> password authentication"
-msgstr "Permite autenticação <abbr title=\"Shell Seguro\">SSH</abbr> por senha"
+msgstr ""
+"Permite a autenticação por senha via <abbr title=\"Shell Seguro\">SSH</abbr>"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1257
 msgid "Allow AP mode to disconnect STAs based on low ACK condition"
@@ -1107,7 +1108,7 @@ msgstr ""
 "Permitir, em modo AP, a desconexão de estações baseada na baixa qualidade "
 "das confirmações (ACK)"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:356
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:359
 msgid ""
 "Allow Yggdrasil Jumper to configure Yggdrasil with proper listen address and "
 "random port automatically."
@@ -1146,12 +1147,11 @@ msgstr "Permitir recebimento em portas inativas"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:46
 msgid "Allow remote hosts to connect to local SSH forwarded ports"
 msgstr ""
-"Permite que dispositivos remotos se conectem às portas SSH locais "
-"encaminhadas"
+"Permite que hosts remotos se conectem às portas locais de encaminhamento SSH"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:41
 msgid "Allow root logins with password"
-msgstr "Permitir logins como root com a senha"
+msgstr "Permitir logins do root com senha"
 
 #: modules/luci-base/root/usr/share/rpcd/acl.d/luci-base.json:3
 msgid "Allow system feature probing"
@@ -1159,7 +1159,7 @@ msgstr "Permitir detecção dos recursos do sistema"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:41
 msgid "Allow the <em>root</em> user to log in with password"
-msgstr "Permite que o usuário <em>root</em> faça login usando a senha"
+msgstr "Permite que o usuário <em>root</em> faça login com senha"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:609
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:782
@@ -1427,7 +1427,7 @@ msgstr "Autoritário"
 msgid "Authorization Required"
 msgstr "Autenticação necessária"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:365
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:368
 msgid "Autofill listen addresses"
 msgstr "Preencher automaticamente os endereços de escuta"
 
@@ -1688,7 +1688,7 @@ msgstr "Vincule o túnel a esta interface (opcional)."
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:20
 msgid "Bind to Interface"
-msgstr "Vincular à Interface"
+msgstr "Vincular à interface"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:119
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:180
@@ -2619,7 +2619,7 @@ msgstr "Dados Enviados"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:186
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:199
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:159
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:346
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:349
 msgid "Debug"
 msgstr "Depuração (Debug)"
 
@@ -2845,7 +2845,7 @@ msgstr ""
 "O dispositivo está fora de alcance! Ainda aguardando pelo dispositivo..."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1378
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:287
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:289
 msgid "Devices"
 msgstr "Dispositivos"
 
@@ -3244,7 +3244,7 @@ msgid ""
 "Dropbear offers <abbr title=\"Secure Shell\">SSH</abbr> network shell access "
 "and an integrated <abbr title=\"Secure Copy\">SCP</abbr> server"
 msgstr ""
-"Dropbear oferece um acesso shell seguro à rede <abbr title=\"Secure "
+"O Dropbear oferece acesso ao shell de rede via <abbr title=\"Secure "
 "Shell\">SSH</abbr> e um servidor <abbr title=\"Secure Copy\">SCP</abbr> "
 "integrado"
 
@@ -3495,7 +3495,7 @@ msgstr "Ativa o roteamento do segmento IPv6"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:17
 msgid "Enable Instance"
-msgstr "Habilitar Instância"
+msgstr "Ativar instância"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:194
 msgid "Enable Jumbo Frame passthrough"
@@ -3533,7 +3533,7 @@ msgstr "Ative a funcionalidade VLAN"
 msgid "Enable WPS pushbutton, requires WPA(2)-PSK/WPA3-SAE"
 msgstr "Ative o botão WPS. requer WPA(2)-PSK/WPA3-SAE"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:319
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:322
 msgid "Enable Yggdrasil Jumper"
 msgstr "Habilitar Yggdrasil Jumper"
 
@@ -3777,7 +3777,7 @@ msgstr "Apagando..."
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:48
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:190
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:156
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:343
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:346
 msgid "Error"
 msgstr "Erro"
 
@@ -3952,7 +3952,7 @@ msgstr "Registro adicional do DHCP"
 msgid "Extra SSH command options"
 msgstr "Opções adicionais do comando SSH"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:375
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:378
 msgid "Extra config"
 msgstr "Configurações extras"
 
@@ -4452,7 +4452,7 @@ msgstr "Modo gateway"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:46
 msgid "Gateway Ports"
-msgstr "Portas de Gateway"
+msgstr "Portas de gateway"
 
 #: modules/luci-base/htdocs/luci-static/resources/network.js:11
 #: modules/luci-compat/luasrc/model/network.lua:29
@@ -4473,7 +4473,7 @@ msgstr "Geral"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:240
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:122
 msgid "General Settings"
-msgstr "Configurações Gerais"
+msgstr "Configurações gerais"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:628
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1741
@@ -5490,7 +5490,7 @@ msgstr "Canal Exclusivo para Uso Interno Selecionado"
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/syslog.js:51
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:187
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:158
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:345
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:348
 msgid "Info"
 msgstr "Informação (Info)"
 
@@ -5817,7 +5817,7 @@ msgstr "URL do servidor inválida"
 #: modules/luci-base/ucode/template/sysauth.ut:12
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:32
 msgid "Invalid username and/or password! Please try again."
-msgstr "Usuário e/ou senha inválida! Por favor, tente novamente."
+msgstr "Nome de usuário e/ou senha inválidos! Por favor, tente novamente."
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/heartbeat.js:13
 msgid "Invert blinking"
@@ -5844,7 +5844,7 @@ msgstr ""
 "A imagem que está a tentar carregar aparenta nao caber na flash do "
 "equipamento. Por favor verifique o arquivo da imagem!"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:312
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:315
 msgid ""
 "It periodically probes for active sessions and automatically establishes "
 "direct peerings over internet with remote nodes running Yggdrasil Jumper "
@@ -5876,7 +5876,7 @@ msgstr "Conectando-se à Rede: %q"
 msgid "Jump to rule"
 msgstr "Ir para a regra"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:303
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:306
 msgid "Jumper"
 msgstr "Jumper"
 
@@ -6220,7 +6220,7 @@ msgstr "Lista dos domínios com permissão para respostas {rfc_1918_link}."
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:307
 msgid "List of upstream NTP server candidates with which to synchronize."
-msgstr "Lista de servidores NTP upstream candidatos para sincronização."
+msgstr "Lista de servidores NTP de origem com os quais sincronizar."
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:162
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/view/wireguard/status.js:38
@@ -6244,8 +6244,8 @@ msgid ""
 "Listen on up to 10 IPs on the given interface or, if unspecified, on all "
 "interfaces"
 msgstr ""
-"Escuta em até 10 endereços IP na interface especificada ou, se não "
-"especificado, em todas as interfaces"
+"Escuta em até 10 IPs na interface especificada ou, se não especificado, em "
+"todas as interfaces"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:23
 msgid "Listen only on the given interface or, if unspecified, on all"
@@ -6258,7 +6258,7 @@ msgid ""
 "explicitly."
 msgstr "Escute somente nestas interfaces e na interface local (loopback)."
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:292
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:295
 msgid "Listen to multicast beacons"
 msgstr "Escutar por beacons de multicast"
 
@@ -6469,7 +6469,7 @@ msgstr "Entrar"
 msgid "Log in…"
 msgstr "Fazer login…"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:340
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:343
 msgid "Log level"
 msgstr "Nível do registro"
 
@@ -6994,7 +6994,7 @@ msgstr "Atraso após estabelecimento do enlace no monitoramento"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:31
 msgid "More Characters"
-msgstr "Mais Caracteres"
+msgstr "Mais caracteres"
 
 #: modules/luci-base/htdocs/luci-static/resources/form.js:2707
 msgid "More…"
@@ -7077,7 +7077,7 @@ msgstr "Modo multicast"
 msgid "Multicast routing"
 msgstr "Roteamento multicast"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:281
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:283
 msgid "Multicast rules"
 msgstr "Regras de multicast"
 
@@ -7137,7 +7137,7 @@ msgstr "Servidores NTP"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:306
 msgid "NTP server candidates"
-msgstr "Candidatos a servidor NTP"
+msgstr "Servidores NTP candidatos"
 
 #: modules/luci-base/htdocs/luci-static/resources/form.js:2754
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4649
@@ -7672,7 +7672,7 @@ msgstr "Obter Endereço IPv6"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/none.js:19
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv.js:87
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:342
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:345
 msgid "Off"
 msgstr "Desligado"
 
@@ -8326,7 +8326,7 @@ msgstr "Passagem direta (Dispositivo físico espelhado para um único MAC VLAN)"
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:146
 #: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:103
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:58
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:298
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:301
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:19
 msgid "Password"
 msgstr "Senha"
@@ -8472,7 +8472,7 @@ msgstr "Endereços dos pares"
 msgid "Peer device name"
 msgstr "Nome do dispositivo dos pares"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:279
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:280
 msgid "Peer interface"
 msgstr "Interface do par"
 
@@ -8570,7 +8570,7 @@ msgstr "Política: <strong>%h</strong> (%h)"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/dropbear.js:31
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:223
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:223
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:294
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:297
 msgid "Port"
 msgstr "Porta"
 
@@ -8768,8 +8768,8 @@ msgid ""
 "Provide the NTP server to the selected interface or, if unspecified, to all "
 "interfaces"
 msgstr ""
-"Fornece o servidor NTP à interface selecionada ou, se não especificada, a "
-"todas as interfaces"
+"Fornece o servidor NTP para a interface selecionada ou, se não especificado, "
+"para todas as interfaces"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:152
 msgid "Proxy Server"
@@ -9472,7 +9472,7 @@ msgstr "Restaurar"
 msgid "Restore backup"
 msgstr "Restaurar backup"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:366
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:369
 msgid ""
 "Retrieve the listener addresses from the Yggdrasil interface configuration."
 msgstr ""
@@ -9620,7 +9620,7 @@ msgstr ""
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:46
 #: modules/luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json:26
 msgid "Router Password"
-msgstr "Senha do Roteador"
+msgstr "Senha do roteador"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:30
 msgid ""
@@ -9907,7 +9907,7 @@ msgstr ""
 "Enviar requisições de eco do LCP no dado intervalo em segundos. Somente "
 "efetivo em conjunto com o limite de falhas"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:290
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:293
 msgid "Send multicast beacon"
 msgstr "Enviar sinal multicast"
 
@@ -10782,7 +10782,7 @@ msgstr "Tabela"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:247
 msgid "Table Filters"
-msgstr "Filtros de Tabela"
+msgstr "Filtros de tabela"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1206
 msgid "Table IP family"
@@ -10810,7 +10810,7 @@ msgstr "Destino"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js:58
 msgid "Target Platform"
-msgstr "Plataforma-alvo"
+msgstr "Plataforma alvo"
 
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:103
 msgid "Target network"
@@ -11017,7 +11017,7 @@ msgstr ""
 "encaminha nenhuma parte, mas ainda marca a solicitação para que nenhum "
 "servidor de nomes upstream adicione informações do endereço do cliente."
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:320
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:323
 msgid ""
 "The checkbox cannot be modified unless the <code>yggdrasil-jumper</code> "
 "package is installed."
@@ -11698,7 +11698,7 @@ msgstr "Tom"
 msgid "Total Available"
 msgstr "Total disponível"
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:347
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:350
 msgid "Trace"
 msgstr "Rastreamento"
 
@@ -12173,7 +12173,7 @@ msgstr "Usar o DHCP"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:301
 msgid "Use DHCP advertised servers"
-msgstr "Usar servidores anunciados pelo DHCP"
+msgstr "Usar servidores anunciados por DHCP"
 
 #: protocols/luci-proto-relay/htdocs/luci-static/resources/protocol/relay.js:167
 msgid "Use DHCP gateway"
@@ -12568,7 +12568,7 @@ msgstr "Condição geral do WPS"
 msgid "Waiting for device..."
 msgstr "Esperando pelo dispositivo..."
 
-#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:344
+#: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:347
 msgid "Warn"
 msgstr "Aviso"
 
@@ -12587,7 +12587,7 @@ msgstr ""
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:37
 msgid "Weak"
-msgstr "Fraco"
+msgstr "Fraca"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:975
 msgid "Weight"
