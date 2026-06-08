@@ -132,7 +132,7 @@ return view.extend({
 					}
 					if (info) {
 						setText('domains', info.blocked_domains);
-						setText('feeds', info.active_feeds?.join(' '));
+						setText('feeds', info.active_feeds?.join(', '));
 						setText('backend', info.dns_backend);
 						setText('ifaces', info.run_ifaces);
 						setText('run', info.run_information);

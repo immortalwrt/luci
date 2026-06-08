@@ -14,20 +14,20 @@ msgstr ""
 msgid "ACL Settings"
 msgstr "ACL সেটিংস"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:78
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:112
 msgid "ACL group"
 msgstr "ACL গ্রুপ"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:80
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:303
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:114
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:333
 msgid "Access level"
 msgstr "অ্যাক্সেস লেভেল"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:267
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:302
 msgid "Cannot encrypt plaintext password since uhttpd is not installed."
 msgstr "প্লেইনটেক্সট পাসওয়ার্ড এনক্রিপ্ট হচ্ছে না যেহেতু uhttpd ইনস্টল করা নেই।"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:79
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:113
 msgid "Description"
 msgstr "বর্ণনা"
 
@@ -35,41 +35,57 @@ msgstr "বর্ণনা"
 msgid "Grant access to ACL configuration"
 msgstr "ACL কনফিগারেশনে অ্যাক্সেস মঞ্জুর করুন"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:214
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:249
 msgid "Login name"
 msgstr "লগইন নাম"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:204
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:211
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:239
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:246
 msgid "LuCI Logins"
 msgstr "LuCI লগইন"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:211
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:246
 msgid "New account"
 msgstr "নতুন একাউন্ট"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:245
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:280
 msgid "Password value"
 msgstr "পাসওয়ার্ডের মান"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:219
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:254
 msgid "Password variant"
 msgstr "পাসওয়ার্ডের প্রকারভেদ"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:297
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:35
+msgid "Policy: contain digits"
+msgstr ""
+
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:41
+msgid "Policy: contain special characters"
+msgstr ""
+
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:38
+msgid "Policy: contain uppercase/lowercase"
+msgstr ""
+
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:32
+msgid "Policy: min. length of %s characters"
+msgstr ""
+
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:327
 msgid "Read access"
 msgstr "পড়ার অনুমতি"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:289
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:319
 msgid "Session timeout"
 msgstr "সময়সীমা শেষ"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:86
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:120
 msgctxt "Set all permissions in the table below to one of the given values"
 msgid "Set all:"
 msgstr "সব সেট করুন:"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:178
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:213
 msgid ""
 "The LuCI ACL management is in an experimental stage! It does not yet work "
 "reliably with all applications"
@@ -77,66 +93,65 @@ msgstr ""
 "LuCI ACL ব্যবস্থাপনা পরীক্ষামূলক পর্যায়ে রয়েছে! এটি এখনও সব অ্যাপ্লিকেশনের সাথে "
 "নির্ভরতার সাথে কাজ করেনা"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:259
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:294
 msgid "The password may not start with \"$p$\"."
 msgstr "পাসওয়ার্ডের শুরুতে \"$p$\" পরিহার করুন।"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:233
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:268
 msgid "The system account to use the password from"
 msgstr "যে সিস্টেম অ্যাকাউন্টের পাসওয়ার্ড ব্যবহার করবেন"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:233
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:268
 msgid "UNIX account"
 msgstr "UNIX অ্যাকাউন্ট"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:282
-msgid "Unable to encrypt plaintext password: %s"
-msgstr "এই প্লেইনটেক্সট পাসওয়ার্ড এনক্রিপ্ট করা যাচ্ছে না: %s"
-
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:221
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:256
 msgid "Use UNIX password in /etc/shadow"
 msgstr "/etc/shadow তে UNIX পাসওয়ার্ড ব্যবহার করুন"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:222
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:257
 msgid "Use encrypted password hash"
 msgstr "এনক্রিপ্টেড পাসওয়ার্ড হ্যাশ ব্যবহার করুন"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:300
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:330
 msgid "Write access"
 msgstr "পরিবর্তনের অ্যাক্সেস"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:67
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:89
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:110
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:101
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:123
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:144
 msgctxt "No permissions granted"
 msgid "denied"
 msgstr "অস্বীকৃত"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:294
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:324
 msgid "does not expire"
 msgstr "চিরস্থায়ী"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:63
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:95
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:112
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:305
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:97
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:129
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:146
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:335
 msgctxt "All permissions granted"
 msgid "full"
 msgstr "সব"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:307
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:337
 msgctxt "Select individual permissions manually"
 msgid "individual"
 msgstr "পৃথকভাবে"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:65
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:99
 msgctxt "Some permissions granted"
 msgid "partial (%d/%d)"
 msgstr "আংশিক (%d/%d)"
 
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:92
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:111
-#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:306
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:126
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:145
+#: applications/luci-app-acl/htdocs/luci-static/resources/view/system/acl.js:336
 msgctxt "Only read permissions granted"
 msgid "readonly"
 msgstr "শুধুমাত্র পাঠযোগ্য"
+
+#~ msgid "Unable to encrypt plaintext password: %s"
+#~ msgstr "এই প্লেইনটেক্সট পাসওয়ার্ড এনক্রিপ্ট করা যাচ্ছে না: %s"
