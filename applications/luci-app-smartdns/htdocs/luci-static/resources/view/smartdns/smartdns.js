@@ -46,12 +46,6 @@ function getServiceStatus() {
 		});
 }
 
-function smartdnsServiceStatus() {
-	return Promise.all([
-		getServiceStatus()
-	]);
-}
-
 function smartdnsRenderStatus(isRunning) {
 	let renderHTML = "";
 
@@ -125,7 +119,7 @@ return view.extend({
 		s.anonymous = true;
 		s.render = function (section_id) {
 			const renderStatus = function () {
-				return L.resolveDefault(smartdnsServiceStatus()).then(function (res) {
+				return L.resolveDefault(getServiceStatus()).then(function (res) {
 					const view = document.getElementById("service_status");
 					if (view == null) {
 						return;
