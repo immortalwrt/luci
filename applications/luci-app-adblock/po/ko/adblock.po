@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-06-11 08:15+0000\n"
+"PO-Revision-Date: 2026-06-12 06:19+0000\n"
 "Last-Translator: Hyeonjeong Lee <h9101654@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsadblock/ko/>\n"
@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6\n"
+"X-Generator: Weblate 2026.7.dev0\n"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:275
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:286
@@ -166,7 +166,7 @@ msgstr "기준 디렉터리"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:291
 msgid "Base working directory during adblock processing."
-msgstr "광고 차단 처리 중 기본 작업 디렉터리입니다."
+msgstr "광고 차단 작업에 사용할 기본 디렉터리입니다."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/dnsreport.js:335
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:159
@@ -220,8 +220,7 @@ msgstr "카테고리"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:721
 msgid "Changes on this tab needs an adblock service reload to take effect."
-msgstr ""
-"이 탭의 변경 사항을 적용하려면 광고 차단 서비스를 다시 로드해야 합니다."
+msgstr "이 탭의 변경 사항을 적용하려면 adblock 서비스를 다시 불러와야 합니다."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:211
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:263
@@ -482,8 +481,7 @@ msgstr "필수 입력 항목"
 msgid ""
 "Empty the DNS cache before adblock processing starts to reduce the memory "
 "consumption."
-msgstr ""
-"메모리 사용량을 줄이려면 광고 차단 처리가 시작되기 전에 DNS 캐시를 비우세요."
+msgstr "메모리 사용량을 줄이기 위해 광고 차단 작업을 시작하기 전 DNS 캐시를 비웁니다."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:508
 msgid "Enable DNS Bridge"
@@ -585,7 +583,7 @@ msgstr ""
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:511
 msgid "External IPv4 DNS resolver used during bridging."
-msgstr "브리징 중에 외부 IPv4 DNS 해석기가 사용됩니다."
+msgstr "브리징 중에 사용하는 외부 IPv4 DNS 리졸버입니다."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:420
 msgid ""
@@ -613,7 +611,7 @@ msgstr ""
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:538
 msgid "External IPv6 DNS resolver used during bridging."
-msgstr "브리징 중에 외부 IPv6 DNS 해석기가 사용됩니다."
+msgstr "브리징 중에 사용하는 외부 IPv6 DNS 리졸버입니다."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:443
 msgid "External Remote DNS Policy (temporary MAC‑based remote DNS bypass)"
@@ -665,7 +663,7 @@ msgstr "로컬에서 강제로 허용해야 하는 방화벽 포트입니다."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:620
 msgid "Flush DNS Cache"
-msgstr "DNS 캐시 초기화"
+msgstr "DNS 캐시 비우기"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:569
 msgid "Force Local DNS"
@@ -1077,7 +1075,7 @@ msgstr "설정"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:616
 msgid "Shift DNS Blocklist"
-msgstr "이동 DNS 차단 목록"
+msgstr "DNS 차단 목록 이동"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:616
 msgid ""
@@ -1085,9 +1083,9 @@ msgid ""
 "link to this file in memory. As long as your backup directory resides on an "
 "external drive, enable this option to save memory."
 msgstr ""
-"최종 DNS 차단 목록을 백업 디렉터리로 옮기고 메모리에는 해당 파일에 대한 "
-"심볼릭 링크만 설정하세요. 백업 디렉터리가 외장 드라이브에 있는 경우, 메모리 "
-"사용량을 절약하기 위해 이 옵션을 활성화하세요."
+"최종 DNS 차단 목록을 백업 디렉터리로 이동하고, 메모리에는 해당 파일에 대한 "
+"심볼릭 링크만 생성합니다. 백업 디렉터리가 외장 드라이브에 있는 경우, 이 "
+"옵션을 활성화하여 메모리를 절약할 수 있습니다."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/feeds.js:233
 msgid "Size"
@@ -1255,7 +1253,7 @@ msgstr "업로드"
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/feeds.js:85
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/feeds.js:91
 msgid "Upload of the custom feed file failed."
-msgstr "커스텀 피드 파일 업로드에 실패했습니다."
+msgstr "사용자 정의 피드 파일 업로드에 실패했습니다."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/feeds.js:239
 msgid "Varying"
@@ -1273,11 +1271,12 @@ msgid ""
 "file, delete entries, add new ones or make a local backup. To go back to the "
 "maintainers version just clear the custom feed file."
 msgstr ""
-"이 편집기를 사용하면 로컬 사용자 지정 피드 파일을 업로드하거나 초기 파일 "
-"(패키지에 포함된 버전과 1:1로 동일한 복사본)을 작성할 수 있습니다. 파일 "
-"경로는 '/etc/adblock/adblock.custom.feeds'입니다. 이 파일을 편집하여 항목을 "
-"삭제하거나 새 항목을 추가하거나 로컬 백업을 만들 수 있습니다. 관리자 "
-"버전으로 되돌리려면 커스텀 피드 파일을 삭제하면 됩니다."
+"이 편집기를 사용하면 로컬 사용자 정의 피드 파일을 업로드하거나 초기 파일 "
+"(패키지에 포함된 버전의 1:1 사본)을 작성할 수 있습니다. 파일은 '/etc/adblock/"
+"adblock.custom.feeds' 경로에 저장됩니다. 파일이 준비되면 이 파일을 "
+"편집하거나, 항목을 삭제·추가하거나, 로컬 백업을 수행할 수 있습니다. "
+"메인테이너(유지관리자) 버전으로 되돌리려면 사용자 정의 피드 파일의 내용을 "
+"모두 지우세요."
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:600
 msgid "bind"
@@ -1326,7 +1325,7 @@ msgstr "온라인 문서"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:603
 msgid "raw"
-msgstr "원시"
+msgstr "변환 안 함(Raw)"
 
 #: applications/luci-app-adblock/htdocs/luci-static/resources/view/adblock/overview.js:601
 msgid "smartdns"
