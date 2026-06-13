@@ -30,8 +30,8 @@ function renderStatus(isRunning, listen_port, noweb) {
 	if (isRunning) {
 		renderHTML = spanTemp.format('green', _('DDNS-Go'), _('RUNNING'));
 		if (noweb !== '1')
-			renderHTML+= String.format('&#160;<a class="btn cbi-button" href="%s:%s" target="_blank" rel="noreferrer noopener">%s</a>',
-				window.location.origin, listen_port, _('Open Web Interface'));
+			renderHTML+= String.format('&#160;<a class="btn cbi-button" href="http://%s:%s" target="_blank" rel="noreferrer noopener">%s</a>',
+				window.location.hostname, listen_port, _('Open Web Interface'));
 	} else {
 		renderHTML = spanTemp.format('red', _('DDNS-Go'), _('NOT RUNNING'));
 	}
