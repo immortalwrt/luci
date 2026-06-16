@@ -40,6 +40,13 @@ function resolveCipher(cipherRaw) {
 }
 
 /*
+	normalize a bssid to upper case for case-insensitive comparison
+*/
+function normBssid(bssid) {
+	return (bssid || '').toUpperCase();
+}
+
+/*
 	change the status of travelmate stations
 */
 function handleToggle(sid) {
@@ -51,7 +58,7 @@ function handleToggle(sid) {
 	t_sections = uci.sections('travelmate', 'uplink');
 
 	for (let i = 0; i < t_sections.length; i++) {
-		if (t_sections[i].device === w_device && t_sections[i].ssid === w_ssid && t_sections[i].bssid === w_bssid) {
+		if (t_sections[i].device === w_device && t_sections[i].ssid === w_ssid && normBssid(t_sections[i].bssid) === normBssid(w_bssid)) {
 			value = t_sections[i]['enabled'];
 			value = (value == 0 ? 1 : 0);
 			enabled = (value == 0 ? _('No') : _('Yes'));
@@ -83,7 +90,7 @@ function handleRemove(sid) {
 	for (let i = 0; i < t_sections.length; i++) {
 		match = false;
 		for (let j = 0; j < w_sections.length; j++) {
-			if (t_sections[i].device === w_sections[j].device && t_sections[i].ssid === w_sections[j].ssid && t_sections[i].bssid === w_sections[j].bssid) {
+			if (t_sections[i].device === w_sections[j].device && t_sections[i].ssid === w_sections[j].ssid && normBssid(t_sections[i].bssid) === normBssid(w_sections[j].bssid)) {
 				match = true;
 				break;
 			}
@@ -123,7 +130,7 @@ function handleSectionsAdd(iface) {
 		}
 		match = false;
 		for (let j = 0; j < t_sections.length; j++) {
-			if (w_sections[i].device === t_sections[j].device && w_sections[i].ssid === t_sections[j].ssid && w_sections[i].bssid === t_sections[j].bssid) {
+			if (w_sections[i].device === t_sections[j].device && w_sections[i].ssid === t_sections[j].ssid && normBssid(w_sections[i].bssid) === normBssid(t_sections[j].bssid)) {
 				match = true;
 				break;
 			}
@@ -158,7 +165,7 @@ function handleSectionsVal(action, section_id, option, value) {
 	t_sections = uci.sections('travelmate', 'uplink');
 
 	for (let i = 0; i < t_sections.length; i++) {
-		if (t_sections[i].device === w_device && t_sections[i].ssid === w_ssid && t_sections[i].bssid === w_bssid) {
+		if (t_sections[i].device === w_device && t_sections[i].ssid === w_ssid && normBssid(t_sections[i].bssid) === normBssid(w_bssid)) {
 			if (action === 'get') {
 				return t_sections[i][option];
 			} else if (action === 'set') {
@@ -246,7 +253,7 @@ function handleStatus() {
 						uplinkColor = (vpnStatus === '✔' ? 'rgb(68, 170, 68)' : 'rgb(51, 119, 204)');
 						for (let i = 0; i < w_sections.length; i++) {
 							newUplinkView = document.getElementById('cbi-wireless-' + w_sections[i]['.name']);
-							if (t_device === w_sections[i].device && t_ssid === w_sections[i].ssid && t_bssid === (w_sections[i].bssid || '-')) {
+							if (t_device === w_sections[i].device && t_ssid === w_sections[i].ssid && normBssid(t_bssid) === normBssid(w_sections[i].bssid || '-')) {
 								if (oldUplinkView.length === 0 && newUplinkView) {
 									newUplinkView.setAttribute('name', 'uplinkStation');
 									newUplinkView.setAttribute('style', 'text-align: left !important; color: ' + uplinkColor + ' !important;font-weight: bold !important;');
@@ -371,6 +378,10 @@ return view.extend({
 		o = s.taboption('wireless', form.Value, 'bssid', _('BSSID'));
 		o.datatype = 'macaddr';
 		o.readonly = true;
+		o.textvalue = function (section_id) {
+			const bssid = uci.get('wireless', section_id, 'bssid');
+			return bssid ? normBssid(bssid) : null;
+		};
 
 		o = s.taboption('wireless', form.ListValue, 'encryption', _('Encryption'));
 		o.value('sae', _('WPA3 PSK (SAE)'));
@@ -1120,7 +1131,7 @@ return view.extend({
 			}
 			for (let i = 0; i < w_sections.length; i++) {
 				if (w_sections[i].device === device && w_sections[i].ssid === ssid) {
-					if (ignore_bssid === '1' || (ignore_bssid === '0' && w_sections[i].bssid === bssid)) {
+					if (ignore_bssid === '1' || (ignore_bssid === '0' && normBssid(w_sections[i].bssid) === normBssid(bssid))) {
 						ui.addNotification(null, E('p', _('Duplicate wireless entry, the uplink station could not be saved.')), 'error');
 						return ui.hideModal();
 					}
