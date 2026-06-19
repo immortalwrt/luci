@@ -1,0 +1,128 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2026 huchd0 <https://github.com/huchd0/luci-app-netwiz>
+# Licensed under the GNU General Public License v3.0
+# START=15 确保在 network 服务前执行
+START=15
+
+RECOVERY_LOG="/etc/netwiz_recovery.log"
+AUTODETECT_SCRIPT="/usr/libexec/netwiz-autodetect.sh"
+
+boot() {
+    # 处理由于 LAN 口 / 全局设置向导导致的异常断电
+    if [ -f /etc/config/network.netwiz_bak ]; then
+        logger -t Netwiz "Power loss detected during LAN/Global setup! Forcefully recovering..."
+        
+        echo "=========================================================" >> "$RECOVERY_LOG"
+        echo "⚠️ [BOOT-RECOVERY] $(date '+%F %T') 检测到 LAN/全局 配置异常断电，正从闪存强制回退..." >> "$RECOVERY_LOG"
+        
+        cat /etc/config/network.netwiz_bak > /etc/config/network
+        [ -f /etc/config/dhcp.netwiz_bak ] && cat /etc/config/dhcp.netwiz_bak > /etc/config/dhcp
+        
+        rm -f /etc/config/network.netwiz_bak /etc/config/dhcp.netwiz_bak
+        rm -f /tmp/netwiz_rollback_time /tmp/netwiz_target_ip
+        
+        echo "✅ [BOOT-RECOVERY] LAN/全局 异常回退完成！" >> "$RECOVERY_LOG"
+        echo "=========================================================" >> "$RECOVERY_LOG"
+    fi
+
+    # 处理由于 WAN 口自动探测导致的异常断电
+    if [ -f /etc/config/network.netwiz_wan_bak ]; then
+        logger -t Netwiz "Power loss detected during WAN autodetect! Forcefully recovering..."
+        
+        echo "=========================================================" >> "$RECOVERY_LOG"
+        echo "⚠️ [BOOT-RECOVERY] $(date '+%F %T') 检测到 WAN 探测过程异常断电，强制回退..." >> "$RECOVERY_LOG"
+        
+        cat /etc/config/network.netwiz_wan_bak > /etc/config/network
+        rm -f /etc/config/network.netwiz_wan_bak
+        
+        echo "✅ [BOOT-RECOVERY] WAN 探测回退完成！" >> "$RECOVERY_LOG"
+        
+        # 只有因为 WAN 探测断电，才需要在后台重新拉起探测探针
+        if [ -x "$AUTODETECT_SCRIPT" ]; then
+            echo "🔄 [BOOT-RECOVERY] 已埋设后台探针，等待网卡就绪后触发检测..." >> "$RECOVERY_LOG"
+            # 使用子 shell 放入后台执行，完全不阻塞系统的后续启动
+            (
+                WAN_DEV=$(uci -q get network.wan.device || uci -q get network.wan.ifname || echo "eth0")
+                # 轮询等待最多 60 秒 (30 次 * 2 秒)
+                for i in $(seq 1 30); do
+                    if ubus call network.device status "{\"name\":\"$WAN_DEV\"}" 2>/dev/null | grep -q '"carrier": true'; then
+                        sleep 3 # 给内核几秒钟梳理路由表
+                        "$AUTODETECT_SCRIPT"
+                        exit 0
+                    fi
+                    sleep 2
+                done
+            ) &
+        fi
+        echo "=========================================================" >> "$RECOVERY_LOG"
+    fi
+
+    # ======================================================================
+    # 备份恢复后重启 (300 秒跨重启看门狗)
+    # 如果在 300 秒内前端没有发送 confirm 确认存活，则判定为失联变砖并强制回滚
+    # ======================================================================
+    if [ -f "/etc/netwiz_pending_recovery" ]; then
+        logger -t Netwiz "[RECOVERY] ⚠️ 检测到未清除的恢复备份防砖标记，启动 300 秒幽灵看门狗..."
+        
+        # 剥离子进程进入后台倒数，绝不阻塞路由器的正常开机流程
+        (
+            sleep 300
+            
+            # 300秒后苏醒，如果标记还在，说明前端没发来 confirm
+            if [ -f "/etc/netwiz_pending_recovery" ]; then
+                
+                # ====================================================
+                # 判断是否为“假失联”
+                # ====================================================
+                # 检测 1: LAN 接口是否在底层总线 (ubus) 真正 up
+                LAN_UBUS=$(ubus call network.interface.lan status 2>/dev/null | grep '"up": true')
+                
+                # 检测 2: Web 网页服务器 (uhttpd) 必须存活！如果用户打不开网页，等于半砖
+                HTTPD_ALIVE=$(pgrep uhttpd)
+
+                # 检测 3: 核心 DHCP 守护进程必须存活 (除非用户处于 AP 模式，豁免此项)
+                IS_AP=$(uci -q get dhcp.lan.ignore)
+                if [ "$IS_AP" = "1" ]; then
+                    DNS_ALIVE="AP_MODE_SKIP" # 旁路由模式，豁免检查
+                else
+                    DNS_ALIVE=$(pgrep dnsmasq)
+                fi
+
+                # 三大核心系统必须全部存活，允许静默拆弹
+                if [ -n "$LAN_UBUS" ] && [ -n "$HTTPD_ALIVE" ] && [ -n "$DNS_ALIVE" ]; then
+                    logger -t Netwiz "[RECOVERY] 🛡️ 300秒超时，底层网络、Web与DNS服务完全健康！判定为假阳性。"
+                    logger -t Netwiz "[RECOVERY] 终止回滚动作，仅静默拆除炸弹。"
+                    echo "$(date '+%F %T') [RECOVERY] 🛡️ 核心网络自检通过 (无论有无设备连接)，取消回滚，静默拆弹。" >> "$RECOVERY_LOG"
+                    
+                    rm -f /etc/netwiz_pending_recovery
+                    rm -rf /etc/netwiz/failsafe
+                    exit 0
+                fi
+
+                # 如果上面三大核心有任何一个挂了 (比如 uhttpd 崩溃进不去网页)，才执行硬回滚！
+                logger -t Netwiz "[RECOVERY] 🚨 300秒超时且核心网络自检未完全通过！判断为恢复后变砖，启动硬回滚！"
+                
+                # 备用配置覆盖当前损坏的配置
+                cp -p /etc/netwiz/failsafe/network_bak /etc/config/network 2>/dev/null
+                cp -p /etc/netwiz/failsafe/dhcp_bak /etc/config/dhcp 2>/dev/null
+                cp -p /etc/netwiz/failsafe/wireless_bak /etc/config/wireless 2>/dev/null
+                
+                # 删除，防止无限循环回滚
+                rm -f /etc/netwiz_pending_recovery
+                rm -rf /etc/netwiz/failsafe
+                
+                logger -t Netwiz "[RECOVERY] 回滚覆盖完成，正在强制重启系统以自救..."
+                # 底层架构可能被错误插件破坏，最安全的自救方式是再次整机重启
+                sleep 3
+                reboot
+            fi
+        ) </dev/null >/dev/null 2>&1 &
+    fi
+    # ======================================================================
+
+    # 日志体积控制，保留最后 100 行即可
+    if [ $(wc -l < "$RECOVERY_LOG" 2>/dev/null || echo 0) -gt 150 ]; then
+        tail -n 100 "$RECOVERY_LOG" > "$RECOVERY_LOG.tmp"
+        mv "$RECOVERY_LOG.tmp" "$RECOVERY_LOG"
+    fi
+}

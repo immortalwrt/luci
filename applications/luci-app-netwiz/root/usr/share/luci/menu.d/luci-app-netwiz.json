@@ -1,0 +1,23 @@
+{
+	"admin/netwiz": {
+		"title": "Network Wizard",
+		"order": 99,
+		"action": {
+			"type": "view",
+			"path": "netwiz"
+		},
+		"depends": {
+			"acl": [ "luci-app-netwiz" ]
+		}
+	},
+	"admin/netwiz_dev": {
+		"action": {
+			"type": "view",
+			"path": "netwiz_dev"
+		},
+		"depends": {
+			"acl": [ "luci-app-netwiz" ]
+		},
+		"hidden": true
+	}
+}

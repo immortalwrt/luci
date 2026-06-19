@@ -1,0 +1,1229 @@
+#!/bin/sh
+# Copyright (C) 2026 huchd0 <https://github.com/huchd0/luci-app-netwiz>
+# Licensed under the GNU General Public License v3.0
+
+[ ! -f /etc/config/netwiz ] && {
+    touch /etc/config/netwiz
+    uci -q batch <<EOF
+        set netwiz.global=netwiz
+        set netwiz.smart=netwiz
+        commit netwiz
+EOF
+}
+
+delete_fw_rule() {
+    local target_name="$1"
+    local sec_type="${2:-rule}"
+    local matches=$(uci -q show firewall 2>/dev/null | grep "^firewall\.@${sec_type}\[[0-9]*\]\.name=.*$target_name" | cut -d'.' -f2 | sed 's/[^0-9]//g' | sort -rn)
+    for idx in $matches; do
+        uci -q delete firewall.@${sec_type}[$idx]
+    done
+}
+
+# --- 高级应用唤醒函數 ---
+wakeup_apps() {
+    local proxy_apps="openclash passwall shadowsocksr bypass vssr homeproxy mihomo"
+    local dns_apps="adguardhome smartdns mosdns"
+    
+    # 1. 喚醒 DNS 类
+    for app in $dns_apps; do
+        if [ -x "/etc/init.d/$app" ] && /etc/init.d/$app enabled >/dev/null 2>&1; then
+            logger -t Netwiz "⚡ Re-linking DNS app: $app"
+            /etc/init.d/$app restart >/dev/null 2>&1
+        fi
+    done
+
+    # 2. 喚醒 代理/加速
+    for app in $proxy_apps; do
+        if [ -x "/etc/init.d/$app" ] && /etc/init.d/$app enabled >/dev/null 2>&1; then
+            logger -t Netwiz "🚀 Re-linking Proxy app: $app"
+            /etc/init.d/$app restart >/dev/null 2>&1
+        fi
+    done
+}
+# ------------------------------
+
+# --- 提取设备 DUID 函數 ---
+extract_device_duid() {
+    local target_mac="$1"
+    local target_clean=$(echo "$target_mac" | tr -d ':' | tr 'A-Z' 'a-z')
+    local out_duid=""
+
+    # 1. DHCPv6 底层数据中没有 MAC, 通过 IPv4 租约作为桥梁，用 MAC 换取 Hostname
+    local host_name=$(cat /tmp/dhcp.leases 2>/dev/null | grep -i "$target_mac" | awk '{print $4}' | grep -v '^\*$' | head -n 1)
+    local host_name_lower=$(echo "$host_name" | tr 'A-Z' 'a-z')
+
+    local ubus1=$(ubus call dhcp ipv6leases 2>/dev/null)
+    local ubus2=$(ubus call odhcpd ipv6leases 2>/dev/null)
+    local raw_ubus="$ubus1 $ubus2"
+    
+    if [ -n "$raw_ubus" ]; then
+        # 优先用 Hostname 桥接寻找 DUID (100% 精准锁定)
+        if [ -n "$host_name_lower" ]; then
+            out_duid=$(echo "$raw_ubus" | awk -v RS="}" -v hname="$host_name_lower" '
+            tolower($0) ~ "\"" hname "\"" {
+                idx = index(tolower($0), "\"duid\"");
+                if (idx > 0) {
+                    s = substr($0, idx);
+                    split(s, a, "\"");
+                    print a[4];
+                    exit;
+                }
+            }' | tr 'A-Z' 'a-z' | head -n 1)
+        fi
+        
+        # 如果 Hostname 没找到，尝试在 DUID 中直接寻找包含 MAC 字符串的情况
+        if [ -z "$out_duid" ]; then
+            out_duid=$(echo "$raw_ubus" | awk -v RS="}" -v mac="$target_clean" '
+            tolower($0) ~ mac {
+                idx = index(tolower($0), "\"duid\"");
+                if (idx > 0) {
+                    s = substr($0, idx);
+                    split(s, a, "\"");
+                    print a[4];
+                    exit;
+                }
+            }' | tr 'A-Z' 'a-z' | head -n 1)
+        fi
+    fi
+    
+    # 2. odhcpd 底层状态文件 (同样用 Hostname 桥接)
+    if [ -z "$out_duid" ] && ls /var/lib/odhcpd/*.state >/dev/null 2>&1; then
+        if [ -n "$host_name" ]; then
+            out_duid=$(grep -i "$host_name" /var/lib/odhcpd/*.state 2>/dev/null | grep -oEi 'duid=[0-9a-fA-F]+' | awk -F'=' '{print $2}' | head -n 1 | tr 'A-Z' 'a-z')
+        fi
+        [ -z "$out_duid" ] && out_duid=$(grep -i "$target_clean" /var/lib/odhcpd/*.state 2>/dev/null | grep -oEi 'duid=[0-9a-fA-F]+' | awk -F'=' '{print $2}' | head -n 1 | tr 'A-Z' 'a-z')
+    fi
+    
+    echo "$out_duid"
+}
+# ------------------------------
+
+case "$1" in
+    list)
+        echo '{ "get_list": { "show_conns": "boolean" }, "bind": { "mac": "string", "ip": "string", "name": "string", "dept": "string", "no_reload": "boolean" }, "unbind": { "mac": "string", "no_reload": "boolean" }, "wake_device": { "mac": "string" }, "apply_dhcp": {}, "get_depts": {}, "save_depts": { "data": "string" }, "get_smart_ranges": {}, "save_smart_ranges": { "data": "string" }, "v6_keep_alive": { "mac": "string", "name": "string" }, "reset_all": {}, "analyze_conns": { "ip": "string" }, "export_config": {}, "import_config": { "data": "string", "file": "string" }, "list_backups": {}, "auto_backup": {}, "fw_set": { "mac": "string", "ip": "string", "blk_en": "boolean", "iso_en": "boolean", "dmz_en": "boolean" } }'
+        exit 0
+        ;;
+    call)
+        case "$2" in
+            get_list)
+                input=$(cat)
+                show_conns=$(echo "$input" | jsonfilter -e '@.show_conns' || echo "false")
+                do_rescan=$(echo "$input" | jsonfilter -e '@.do_rescan' || echo "false")
+                
+                # --- 主动唤醒扫描 ---
+                if [ "$do_rescan" = "true" ] || [ "$do_rescan" = "1" ]; then
+                    # 动态取得 LAN 网段
+                    lan_prefix=$(uci -q get network.lan.ipaddr | cut -d. -f1-3)
+                    if [ -n "$lan_prefix" ]; then
+                        # Ping 封包，取MAC
+                        for i in $(seq 1 254); do
+                            (ping -c 1 -W 1 -q "$lan_prefix.$i" >/dev/null 2>&1) &
+                        done
+                        
+                        # --- 向多播地址和 APIPA 广播，169.254 自闭设备现身 ---
+                        (ping -c 1 -W 1 -q 224.0.0.1 >/dev/null 2>&1) &
+                        (ping -c 1 -W 1 -I br-lan 169.254.255.255 >/dev/null 2>&1) &
+                        # -----------------------------------------------------------
+                        
+                        # 等待 1 秒写入 ARP 表
+                        sleep 1
+                    fi
+                fi
+                # ----------------------------------------
+                
+                rm -f /tmp/nw_conns_cache.txt
+                touch /tmp/nw_conns_cache.txt
+                if [ "$show_conns" = "true" ] || [ "$show_conns" = "1" ]; then
+                    if [ -f /proc/net/nf_conntrack ]; then
+                        awk '{src="";proto=$3;dport=0;s_done=0;d_done=0; for(i=1;i<=NF;i++){if(!s_done && $i~/^src=/){split($i,a,"=");src=a[2];s_done=1;} if(!d_done && $i~/^dport=/){split($i,a,"=");dport=a[2]+0;d_done=1;} if(s_done && d_done) break;} if(src!=""){t[src]++;if(dport==80||dport==443)w[src]++;else if(dport==53||dport==5353||dport==123)d[src]++;else if(proto=="udp")u[src]++;else if(dport>10000)p[src]++;else o[src]++;}} END{for(i in t) print i"="t[i]","w[i]+0","d[i]+0","u[i]+0","p[i]+0","o[i]+0}' /proc/net/nf_conntrack 2>/dev/null > /tmp/nw_conns_cache.txt
+                    elif command -v conntrack >/dev/null 2>&1; then
+                        conntrack -L 2>/dev/null | awk '{src="";proto=$3;dport=0;s_done=0;d_done=0; for(i=1;i<=NF;i++){if(!s_done && $i~/^src=/){split($i,a,"=");src=a[2];s_done=1;} if(!d_done && $i~/^dport=/){split($i,a,"=");dport=a[2]+0;d_done=1;} if(s_done && d_done) break;} if(src!=""){t[src]++;if(dport==80||dport==443)w[src]++;else if(dport==53||dport==5353||dport==123)d[src]++;else if(proto=="udp")u[src]++;else if(dport>10000)p[src]++;else o[src]++;}} END{for(i in t) print i"="t[i]","w[i]+0","d[i]+0","u[i]+0","p[i]+0","o[i]+0}' > /tmp/nw_conns_cache.txt
+                    fi
+                fi
+
+                fw_str=$(uci show firewall 2>/dev/null || true)
+                ipv6_neigh=$(ip -6 neigh show 2>/dev/null || true)
+                
+                # --- IPv6 存活探测过滤 ---
+                raw_v6_data=$(ip -6 neigh show 2>/dev/null | grep -v "FAILED")
+                v6_candidates=$(echo "$raw_v6_data" | awk '{print $1}' | grep ":" | sort -u)
+                
+                # 1. 删除 邻居表公网 IPv6
+                for v6_addr in $v6_candidates; do
+                    if [[ "$v6_addr" != fe80* ]]; then
+                        # 找到网卡
+                        dev_name=$(echo "$raw_v6_data" | grep -w "^$v6_addr" | awk '{print $3}' | head -n 1)
+                        [ -n "$dev_name" ] && ip -6 neigh del "$v6_addr" dev "$dev_name" 2>/dev/null
+                    fi
+                done
+                
+                # 2. Ping
+                for v6_addr in $v6_candidates; do
+                    if [[ "$v6_addr" != fe80* ]]; then
+                        ping6 -c 1 -W 1 "$v6_addr" >/dev/null 2>&1 &
+                    fi
+                done
+                wait
+                
+                # 3. 延时
+                sleep 0.5
+                
+                # 4. 重新抓取邻居表
+                ipv6_neigh=$(ip -6 neigh show 2>/dev/null | grep -v -E "FAILED|INCOMPLETE" || true)
+                # --------------------------
+                wifi_macs=$(iwinfo 2>/dev/null | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | tr 'A-Z' 'a-z' || true)
+                arp_cache=$(ip -4 neigh show 2>/dev/null || cat /proc/net/arp 2>/dev/null | tail -n +2 || true)
+                leases=$(cat /tmp/dhcp.leases /var/dhcp.leases /tmp/run/dnsmasq/dhcp.leases /var/lib/misc/dnsmasq.leases 2>/dev/null || true)
+                hosts_str=$(cat /tmp/hosts/* /etc/hosts 2>/dev/null || true)
+                uci_hosts=$(uci show dhcp 2>/dev/null | grep "\.@host\[" || true)
+                ubus_leases=$(ubus call dhcp ipv4leases 2>/dev/null || ubus call odhcpd ipv4leases 2>/dev/null || true)
+                gw_ip=$(ip -4 route show default 2>/dev/null | awk '/default/ {print $3}' | head -n1 | tr -d ' \r\n')
+                lan_ip=$(ip addr show br-lan 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1 | head -n1 | tr -d ' \r\n')
+                [ -z "$lan_ip" ] && lan_ip=$(uci -q get network.lan.ipaddr | cut -d/ -f1 | tr -d ' \r\n')
+                lan_mac=$(ip link show br-lan 2>/dev/null | awk '/link\/ether/ {print $2}' | head -n1 | tr 'A-Z' 'a-z')
+                [ -z "$lan_mac" ] && lan_mac=$(ip link | awk '/link\/ether/ {print $2}' | head -n1 | tr 'A-Z' 'a-z')
+                local_ips=$(ip -4 addr show 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1 | tr '\n' ' ')
+                visitor_ips=$(netstat -nt 2>/dev/null | awk '$4 ~ /:(80|443)$/ && $6 ~ /ESTABLISHED/ {split($5, a, ":"); if(a[1]!="") print a[1]}' | sort -u | tr '\n' ' ')
+                curr_time=$(date +%s)
+
+                # --- IPv6 与 LAN NAT 冲突检测 ---
+                lan_zone_idx=$(uci show firewall 2>/dev/null | grep -E "\.name='?lan'?" | cut -d'.' -f2 | head -n 1)
+                lan_nat_conflict="false"
+                if [ -n "$lan_zone_idx" ]; then
+                    lan_masq=$(uci -q get firewall.$lan_zone_idx.masq)
+                    if [ "$lan_masq" = "1" ]; then
+                        lan_nat_conflict="true"
+                    fi
+                fi
+                
+                # 后端查 IPv6 有没有开
+                ipv6_enabled="false"
+                v6_dhcp=$(uci -q get dhcp.lan.dhcpv6)
+                if [ "$v6_dhcp" = "server" ] || [ "$v6_dhcp" = "relay" ]; then
+                    ipv6_enabled="true"
+                fi
+                # ------------------------------------------
+
+                # 提取本机活跃的全局 IPv6 地址 (排除 fd/fe80 等内网或链路地址)
+                lan_ip6=$(ip -o -6 addr show br-lan scope global 2>/dev/null | grep -v "deprecated" | grep -v " fd" | awk '{print $4}' | cut -d/ -f1 | tr '\n' ' ' | sed 's/ $//')
+
+                # 注意：下面这一行多加了一个传参 -v lan_ip6="$lan_ip6"
+                json_data=$(awk -v current_time="$curr_time" -v lan_nat_conflict="$lan_nat_conflict" -v ipv6_enabled="$ipv6_enabled" -v wifi_str="$wifi_macs" -v arp_str="$arp_cache" -v lease_str="$leases" -v hosts_str="$hosts_str" -v ubus_str="$ubus_leases" -v uci_str="$uci_hosts" -v gw_ip="$gw_ip" -v lan_ip="$lan_ip" -v lan_ip6="$lan_ip6" -v lan_mac="$lan_mac" -v local_ips_str="$local_ips" -v visitor_ips_str="$visitor_ips" -v fw_str_input="$fw_str" -v ipv6_str="$ipv6_neigh" '
+                BEGIN {
+                    now_ts = current_time;
+                    exp_ts = 2592000; # 30天过期时间
+                    while ("uci -q show netwiz 2>/dev/null" | getline cfg_line) {
+                        if (index(cfg_line, "netwiz.seen_") == 1 || index(cfg_line, "netwiz.v6pc_") == 1) {
+                                split(cfg_line, eq_parts, "=");
+                                split(eq_parts[1], dot_parts, ".");
+                                split(dot_parts[2], _parts, "_");
+                                _mac_clean = tolower(_parts[2]);
+                                if (length(_mac_clean) == 12) {
+                                    _m = substr(_mac_clean,1,2) ":" substr(_mac_clean,3,2) ":" substr(_mac_clean,5,2) ":" substr(_mac_clean,7,2) ":" substr(_mac_clean,9,2) ":" substr(_mac_clean,11,2);
+                                    in_config_map[_m] = 1;
+                                }
+                            }
+                        if (index(cfg_line, "netwiz.v6pc_") == 1) {
+                            split(cfg_line, eq_parts, "=");
+                            if (eq_parts[2] != "") {
+                                key_part = eq_parts[1]; val_part = eq_parts[2]; gsub(/[\047"\r\n]/, "", val_part);
+                                split(key_part, dot_parts, "."); sec_name = dot_parts[2]; prop_name = dot_parts[3];
+                                if (prop_name == "mac") uci_pc_macs[sec_name] = tolower(val_part);
+                                else if (prop_name == "ts") uci_pc_ts[sec_name] = val_part + 0;
+                                else if (prop_name == "hostname") uci_pc_name[sec_name] = val_part;
+                            }
+                        }
+                    }
+                    # 只有在30天以内的，才给它打上“PC”的身份标签
+                    for (sec in uci_pc_macs) {
+                        if (now_ts - uci_pc_ts[sec] <= exp_ts) is_pc_v6_map[uci_pc_macs[sec]] = 1;
+                    }
+                    close("uci -q show netwiz 2>/dev/null");
+
+                    gsub(/^[ \t\r\n]+|[ \t\r\n]+$/, "", gw_ip);
+                    gsub(/^[ \t\r\n]+|[ \t\r\n]+$/, "", lan_ip);
+                    gsub(/^[ \t\r\n]+|[ \t\r\n]+$/, "", lan_mac);
+                    
+                    split(local_ips_str, lip_arr, " ");
+                    for(i in lip_arr) if(lip_arr[i] != "" && lip_arr[i] != "127.0.0.1") router_ips[lip_arr[i]] = 1;
+
+                    split(visitor_ips_str, vip_arr, " ");
+                    for(i in vip_arr) if(vip_arr[i] != "" && vip_arr[i] != "127.0.0.1") visitor_ips[vip_arr[i]] = 1;
+
+                    if (lan_mac != "" && lan_ip != "") {
+                        all_macs[lan_mac] = 1;
+                        arp_ip[lan_mac] = lan_ip; arp_online[lan_mac] = 1; ubus_name[lan_mac] = "OpenWrt (Local)";
+                        # 本机的 IPv6 写入字典，弥补邻居表中可能缺失的情况
+                        if (lan_ip6 != "") ipv6_map[lan_mac] = lan_ip6;
+                    }
+
+                    split(wifi_str, warr, "\n");
+                    for(i in warr) if(warr[i]!="") wifi_online[warr[i]]=1;
+                    
+                    split(ipv6_str, v6arr, "\n");
+                    for(i in v6arr) {
+                        n_f = split(v6arr[i], f, " ");
+                        if(f[1]!="" && f[1]!~/dev/) {
+                            v6_ip = f[1]; mac = ""; state_str = v6arr[i];
+                            for(j=1; j<=n_f; j++) {
+                                if(f[j]=="lladdr" && n_f>=j+1) mac=tolower(f[j+1]);
+                                else if(f[j] ~ /^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$/) mac=tolower(f[j]);
+                            }
+                            if(mac!="" && mac!="00:00:00:00:00:00" && state_str!~/FAILED/) {
+                                if(ipv6_map[mac]=="") ipv6_map[mac] = v6_ip;
+                                else if(index(ipv6_map[mac], v6_ip) == 0) ipv6_map[mac] = ipv6_map[mac] " " v6_ip;
+                                all_macs[mac]=1;
+                                if(state_str ~ /REACHABLE|DELAY|PROBE|router/) arp_online[mac]=1;
+                            }
+                        }
+                    }
+
+                    split(arp_str, aarr, "\n");
+                    for(i in aarr) {
+                        n_f = split(aarr[i], f, " ");
+                        if(f[1]!="" && f[1]!~/IP/) {
+                            mac=""; state_str=aarr[i];
+                            for(j=1; j<=n_f; j++) {
+                                if(f[j]=="lladdr" && n_f>=j+1) mac=tolower(f[j+1]);
+                                else if(f[j] ~ /^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$/) mac=tolower(f[j]);
+                            }
+                            if(mac!="" && mac!="00:00:00:00:00:00") {
+                                if (f[1] ~ /^169\.254\./) {
+                                    if (arp_ip[mac] == "") arp_ip[mac] = f[1];
+                                } else {
+                                    arp_ip[mac] = f[1];
+                                }
+                                if(state_str ~ /REACHABLE|DELAY|PROBE|0x2/) arp_online[mac]=1;
+                                all_macs[mac]=1;
+                            }
+                        }
+                    }
+
+                    split(ubus_str, ulines, "\n");
+                    cur_mac = ""; cur_ip = ""; cur_name = ""; cur_valid = -1;
+                    for(i=1; i<=length(ulines); i++) {
+                        line = ulines[i];
+                        if (line ~ /"mac":/) { split(line, p, "\""); cur_mac = tolower(p[4]); }
+                        else if (line ~ /"ip":/) { split(line, p, "\""); cur_ip = p[4]; }
+                        else if (line ~ /"hostname":/) { split(line, p, "\""); cur_name = p[4]; }
+                        else if (line ~ /"valid":/ || line ~ /"expires":/ || line ~ /"leasetime":/) { 
+                            split(line, p, ":"); val=p[2]; gsub(/[^0-9]/, "", val); val = val + 0; 
+                            if (val > 1000000000) { cur_valid = (val > current_time) ? val - current_time : 0; }
+                            else { cur_valid = val; }
+                        }
+                        else if (line ~ /}/) {
+                            if (cur_mac != "") {
+                                if (cur_ip != "") leases_ip[cur_mac] = cur_ip;
+                                if (cur_name != "" && cur_name != "*" && cur_name != "?") ubus_name[cur_mac] = cur_name;
+                                if (cur_valid > 0) {
+                                    h = int(cur_valid / 3600); m = int((cur_valid % 3600) / 60); s = cur_valid % 60;
+                                    leases_time[cur_mac] = sprintf("%dh %dm %ds", h, m, s);
+                                } else if (cur_valid == 0) { leases_time[cur_mac] = "Expired"; }
+                                all_macs[cur_mac] = 1;
+                            }
+                            cur_mac = ""; cur_ip = ""; cur_name = ""; cur_valid = -1;
+                        }
+                    }
+
+                    split(lease_str, larr, "\n");
+                    for(i in larr) {
+                        n_f = split(larr[i], f, " ");
+                        if(n_f >= 4 && f[2]!="") { 
+                            # 忽略 dhcp.leases 中的 IPv6 租期，防止過期的死 IP 出现
+                            if (f[3] ~ /:/) {
+                                continue;
+                            }
+                            
+                            # 原本的 IPv4 解析邏輯保持完全不變
+                            mac=tolower(f[2]);
+                            if(f[3]!="") leases_ip[mac]=f[3]; 
+                            name = f[4];
+                            for(k=5; k<=n_f-1; k++) { name = name " " f[k]; }
+                            if(name!="" && name!="*" && name!="?") leases_name[mac]=name;
+                            all_macs[mac]=1; 
+                            exp_time = f[1] + 0;
+                            if (leases_time[mac] == "") {
+                                if (exp_time > 1000000000) {
+                                    if (exp_time > current_time) {
+                                        left = exp_time - current_time;
+                                        h = int(left / 3600); m = int((left % 3600) / 60); s = left % 60;
+                                        leases_time[mac] = sprintf("%dh %dm %ds", h, m, s);
+                                    } else leases_time[mac] = "Expired";
+                                } else if (exp_time > 0 && exp_time <= 1000000000) {
+                                    left = exp_time;
+                                    h = int(left / 3600); m = int((left % 3600) / 60); s = left % 60;
+                                    leases_time[mac] = sprintf("%dh %dm %ds", h, m, s);
+                                } else if (exp_time == 0) leases_time[mac] = "Infinite";
+                            }
+                        }
+                    }
+
+                    split(hosts_str, harr, "\n");
+                    for(i in harr) {
+                        split(harr[i], f, " ");
+                        if(f[1]!="" && f[2]!="") {
+                            if (f[1] ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/) {
+                                name = f[2]; sub(/\.lan$/, "", name);
+                                if (name != "localhost" && name != "*" && name != "?") ip_to_name[f[1]] = name;
+                            }
+                        }
+                    }
+
+                    split(uci_str, uarr, "\n");
+                    for(i in uarr) {
+                        idx=index(uarr[i],"=");
+                        if(idx>0) {
+                            key=substr(uarr[i],1,idx-1); val=substr(uarr[i],idx+1); gsub(/^\047|\047$/, "", val);
+                            split(key, kp, ".");
+                            if(kp[1]=="dhcp" && kp[2]!="" && kp[3]!="") {
+                                h_idx=kp[2]; prop=kp[3];
+                                if(prop=="mac"){
+                                    gsub(/["\r\n]/, "", val); split(tolower(val), mparts, " "); 
+                                    for(m in mparts) uci_mac_list[h_idx] = (uci_mac_list[h_idx]=="" ? "" : uci_mac_list[h_idx] " ") mparts[m];
+                                }
+                                else if(prop=="ip") uci_ip_map[h_idx]=val;
+                                else if(prop=="name") uci_name_map[h_idx]=val;
+                                else if(prop=="netwiz_dept") uci_dept_map[h_idx]=val;
+                            }
+                        }
+                    }
+
+                    for (h_idx in uci_mac_list) {
+                        split(uci_mac_list[h_idx], mparts, " ");
+                        for (m in mparts) {
+                            m_mac = mparts[m]; all_macs[m_mac] = 1; is_static_mac[m_mac] = 1;
+                            if (uci_ip_map[h_idx] != "") static_ip[m_mac] = uci_ip_map[h_idx];
+                            if (uci_name_map[h_idx] != "") uci_name[m_mac] = uci_name_map[h_idx];
+                            if (uci_dept_map[h_idx] != "") static_dept[m_mac] = uci_dept_map[h_idx];
+                        }
+                    }
+
+                    split(fw_str_input, ffw_arr, "\n");
+                    for(i in ffw_arr) {
+                        line = ffw_arr[i];
+                        if (index(line, "firewall.@rule[") == 1) {
+                            eq_idx = index(line, "=");
+                            if (eq_idx > 0) {
+                                prop_full = substr(line, 1, eq_idx - 1); val = substr(line, eq_idx + 1); gsub(/[\047"\r\n]/, "", val);
+                                split(prop_full, kp, ".");
+                                if (kp[1] == "firewall" && kp[2] != "" && kp[3] != "") {
+                                    obj = kp[2]; prop = kp[3];
+                                    if (prop == "name" && val ~ /^nw_/) fw_name[obj] = val;
+                                }
+                            }
+                        }
+                        if (index(line, "firewall.@redirect[") == 1) {
+                            eq_idx = index(line, "=");
+                            if (eq_idx > 0) {
+                                prop_full = substr(line, 1, eq_idx - 1); val = substr(line, eq_idx + 1); gsub(/[\047"\r\n]/, "", val);
+                                split(prop_full, kp, ".");
+                                if (kp[1] == "firewall" && kp[2] != "" && kp[3] == "name" && val ~ /^nw_dmz_/) fw_name_dmz[kp[2]] = val;
+                            }
+                        }
+                    }
+
+                    for (obj in fw_name_dmz) {
+                        name = fw_name_dmz[obj]; split(name, parts, "_"); mac_clean = tolower(parts[3]);
+                        if (length(mac_clean) == 12) { mac = substr(mac_clean,1,2) ":" substr(mac_clean,3,2) ":" substr(mac_clean,5,2) ":" substr(mac_clean,7,2) ":" substr(mac_clean,9,2) ":" substr(mac_clean,11,2); fw_dmz[mac] = 1; }
+                    }
+
+                    for (obj in fw_name) {
+                        name = fw_name[obj]; split(name, parts, "_"); type = parts[2]; mac_clean = tolower(parts[3]);
+                        if (length(mac_clean) == 12) {
+                            mac = substr(mac_clean,1,2) ":" substr(mac_clean,3,2) ":" substr(mac_clean,5,2) ":" substr(mac_clean,7,2) ":" substr(mac_clean,9,2) ":" substr(mac_clean,11,2);
+                            if (type == "blk") fw_blk[mac] = 1; else if (type == "iso") fw_iso[mac] = 1;
+                        }
+                    }
+
+                    while ((getline line < "/tmp/nw_conns_cache.txt") > 0) {
+                        split(line, p, "=");
+                        if(p[1]!="") conn_count[p[1]] = p[2];
+                    }
+                    close("/tmp/nw_conns_cache.txt");
+                    # 输出的 JSON 头部带上 local_ip 和 local_ip6，前端直接可用
+                    printf "{\"lan_nat_conflict\": %s, \"ipv6_enabled\": %s, \"local_ip\": \"%s\", \"local_ip6\": \"%s\", \"devices\": [", lan_nat_conflict, ipv6_enabled, lan_ip, lan_ip6;
+                    first=1;
+                    for(mac in all_macs) {
+                        is_online = (arp_online[mac]==1 || wifi_online[mac]==1) ? 1 : 0;
+                        ip = arp_ip[mac]; 
+                        if(ip == "" || ip ~ /^169\.254\./) {
+                            if(leases_ip[mac] != "") ip = leases_ip[mac];
+                            else if(static_ip[mac] != "") ip = static_ip[mac];
+                        }
+                        gsub(/^[ \t\r\n]+|[ \t\r\n]+$/, "", ip);
+                        if(ip=="" && is_online==0) continue;
+                        if(ip=="") ip = "Unknown IP";
+                        
+                        name = uci_name[mac];
+                        if(name=="") name = ip_to_name[ip];
+                        if(name=="") name = ubus_name[mac];
+                        if(name=="") name = leases_name[mac]; 
+                        if((name=="" || name=="Unknown") && uci_pc_name["v6pc_" toupper(mac)] != "") {
+                            name = uci_pc_name["v6pc_" toupper(mac)];
+                        }
+
+                        if(name=="") name = "Unknown";
+                        
+                        l_time = leases_time[mac];
+                        if(l_time=="") {
+                            if (is_static_mac[mac]==1) l_time = "Static";
+                            else if (arp_online[mac]==1) l_time = "Device Addressed IP";
+                            else l_time = "-";
+                        }
+
+                        v6_val = ipv6_map[mac];
+                        gsub(/["\\]/, "", mac); gsub(/\047/, "", mac); gsub(/[\r\n\t]/, "", mac);
+                        gsub(/["\\]/, "", ip); gsub(/\047/, "", ip); gsub(/[\r\n\t]/, "", ip);
+                        gsub(/["\\]/, "", name); gsub(/\047/, "", name); gsub(/[\r\n\t]/, "", name);
+                        gsub(/["\\]/, "", l_time); gsub(/\047/, "", l_time); gsub(/[\r\n\t]/, "", l_time);
+                        gsub(/["\\]/, "", v6_val); gsub(/\047/, "", v6_val); gsub(/[\r\n\t]/, "", v6_val);
+                        
+                        is_static = (is_static_mac[mac]==1) ? "true" : "false";
+                        is_gw = (ip != "" && ip == gw_ip) ? "true" : "false";
+                        is_local = (ip != "" && router_ips[ip] == 1) ? "true" : "false";
+                        is_visitor = (ip != "" && visitor_ips[ip] == 1) ? "true" : "false";
+                        b_ip = static_ip[mac]; b_dept = static_dept[mac];
+                        gsub(/["\\]/, "", b_ip); gsub(/\047/, "", b_ip); gsub(/[\r\n\t]/, "", b_ip);
+                        gsub(/["\\]/, "", b_dept); gsub(/\047/, "", b_dept); gsub(/[\r\n\t]/, "", b_dept);
+                        
+                        # 圆饼图
+                        c_str = (conn_count[ip] != "") ? conn_count[ip] : "0,0,0,0,0,0";
+                        split(c_str, c_arr, ",");
+                        c_total = c_arr[1]+0; c_web = c_arr[2]+0; c_dns = c_arr[3]+0; c_udp = c_arr[4]+0; c_p2p = c_arr[5]+0; c_oth = c_arr[6]+0;
+
+                        f_blk = (fw_blk[mac]==1) ? "true" : "false";
+                        f_iso = (fw_iso[mac]==1) ? "true" : "false";
+                        f_dmz = (fw_dmz[mac]==1) ? "true" : "false";
+
+                        if(!first) printf ", ";
+             
+                        is_pc_flag = (is_pc_v6_map[mac] == 1) ? "true" : "false";
+                        is_new_unknown = "false";
+                        if (is_online == 1 && is_static_mac[mac] != 1 && is_local == "false" && is_gw == "false") {
+                            is_new_unknown = "true";
+                        }
+             
+                        in_config_flag = (in_config_map[mac] == 1) ? "true" : "false";
+                        printf "{\"mac\": \"%s\", \"ip\": \"%s\", \"bound_ip\": \"%s\", \"dept\": \"%s\", \"name\": \"%s\", \"online\": %s, \"is_static\": %s, \"is_gw\": %s, \"is_local\": %s, \"is_visitor\": %s, \"lease\": \"%s\", \"conn_count\": %d, \"conn_web\": %d, \"conn_dns\": %d, \"conn_udp\": %d, \"conn_p2p\": %d, \"conn_oth\": %d, \"fw_block\": %s, \"fw_isolate\": %s, \"fw_dmz\": %s, \"ipv6\": \"%s\", \"is_pc_v6\": %s, \"is_new_unknown\": %s, \"in_config\": %s}", mac, ip, b_ip, b_dept, name, (is_online?"true":"false"), is_static, is_gw, is_local, is_visitor, l_time, c_total, c_web, c_dns, c_udp, c_p2p, c_oth, f_blk, f_iso, f_dmz, v6_val, is_pc_flag, is_new_unknown, in_config_flag;
+                        first=0;
+                    }
+                    printf "]}";
+                }')
+                
+                # --- 靜默清理与更新 ---
+                (
+                    NOW=$(date +%s)
+                    EXP_TIME=2592000 # 30 天超时清理
+                    UPDATE_THRESHOLD=604800 # 配置文件netwiz_dev的写入阈值：7天
+
+                    NEEDS_COMMIT=0
+
+                    # 1. 活跃时间戳更新 (合并 ARP 与 IPv6 邻居)
+                    ip neigh show 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i ~ /^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$/) print tolower($i)}' | sort -u | while read mac; do
+                        [ -z "$mac" ] || [ "$mac" = "00:00:00:00:00:00" ] && continue
+                        MAC_SAFE=$(echo "$mac" | tr -d ':' | tr 'a-z' 'A-Z')
+                        
+                        # 判断是否为 PC 特权设备
+                        if uci -q get netwiz.v6pc_${MAC_SAFE} >/dev/null; then
+                            OLD_TS=$(uci -q get netwiz.v6pc_${MAC_SAFE}.ts)
+                            # 只有没记录过，或距离上次记录超过 1 天，才允许更新
+                            if [ -z "$OLD_TS" ] || [ $((NOW - OLD_TS)) -gt $UPDATE_THRESHOLD ]; then
+                                uci -q set netwiz.v6pc_${MAC_SAFE}.ts="$NOW"
+                                NEEDS_COMMIT=1
+                            fi
+                        else
+                            # 普通设备
+                            OLD_TS=$(uci -q get netwiz.seen_${MAC_SAFE}.ts)
+                            if [ -z "$OLD_TS" ] || [ $((NOW - OLD_TS)) -gt $UPDATE_THRESHOLD ]; then
+                                uci -q set netwiz.seen_${MAC_SAFE}="netwiz_dev"
+                                uci -q set netwiz.seen_${MAC_SAFE}.ts="$NOW"
+                                NEEDS_COMMIT=1
+                            fi
+                        fi
+                    done
+
+                    # 2. 30 天没上线清理 (同时扫描 seen_ 和 v6pc_)
+                    uci -q show netwiz | grep -E '=netwiz_dev|=v6_pc' | while read line; do
+                        sec=$(echo "$line" | cut -d'=' -f1 | cut -d'.' -f2)
+                        mac_safe=$(echo "$sec" | cut -d'_' -f2)
+                        mac_lower=$(echo "$mac_safe" | tr 'A-Z' 'a-z')
+                        
+                        ts=$(uci -q get netwiz."$sec".ts)
+                        
+                        if [ -n "$ts" ] && [ $((NOW - ts)) -gt $EXP_TIME ]; then
+                            # 殭屍设备，清理防火墙和 DMZ 规则 
+                            delete_fw_rule "nw_blk_${mac_lower}" "rule"
+                            delete_fw_rule "nw_iso_${mac_lower}" "rule"
+                            delete_fw_rule "nw_dmz_${mac_lower}" "redirect"
+
+                            # 删除过期记录
+                            uci -q delete netwiz."$sec"
+                            NEEDS_COMMIT=1
+                            logger -t Netwiz "🧹 Garbage Collection: Cleared old rules for $mac_safe"
+                        fi
+                    done
+                    
+                    # 设备更新了时间戳，或者有垃圾被清理时，写入与重启
+                    if [ "$NEEDS_COMMIT" -eq 1 ]; then
+                        uci commit firewall
+                        uci commit netwiz
+                        /etc/init.d/firewall reload >/dev/null 2>&1
+                    fi
+                ) >/dev/null 2>&1 &
+                # ----------------------------------------------------
+
+                echo "$json_data"
+                exit 0
+                ;;
+            fw_set)
+                input=$(cat)
+                mac=$(echo "$input" | jsonfilter -e '@.mac' | tr 'A-Z' 'a-z')
+                mac_clean=$(echo "$mac" | tr -d ':')
+                ip=$(echo "$input" | jsonfilter -e '@.ip')
+                blk_en=$(echo "$input" | jsonfilter -e '@.blk_en')
+                iso_en=$(echo "$input" | jsonfilter -e '@.iso_en')
+                dmz_en=$(echo "$input" | jsonfilter -e '@.dmz_en')
+
+                [ -z "$mac" ] && exit 0
+
+               delete_fw_rule "nw_blk_${mac_clean}" "rule"
+                if [ "$blk_en" = "true" ] || [ "$blk_en" = "1" ]; then
+                    # 阻断外网转发
+                    uci add firewall rule >/dev/null
+                    uci set firewall.@rule[-1].name="nw_blk_${mac_clean}"
+                    uci set firewall.@rule[-1].src="lan"
+                    uci set firewall.@rule[-1].dest="wan"
+                    uci set firewall.@rule[-1].src_mac="$mac"
+                    uci set firewall.@rule[-1].family="any"
+                    uci set firewall.@rule[-1].target="DROP"
+                    uci set firewall.@rule[-1].enabled="1"
+
+                    # 阻断透明代理劫持和路由器 DNS
+                    uci add firewall rule >/dev/null
+                    uci set firewall.@rule[-1].name="nw_blk_${mac_clean}_in"
+                    uci set firewall.@rule[-1].src="lan"
+                    uci set firewall.@rule[-1].src_mac="$mac"
+                    uci set firewall.@rule[-1].family="any"
+                    uci set firewall.@rule[-1].target="DROP"
+                    uci set firewall.@rule[-1].enabled="1"
+                fi
+
+                delete_fw_rule "nw_iso_${mac_clean}" "rule"
+                if [ "$iso_en" = "true" ] || [ "$iso_en" = "1" ]; then
+                    uci add firewall rule >/dev/null
+                    uci set firewall.@rule[-1].name="nw_iso_${mac_clean}"
+                    uci set firewall.@rule[-1].src="lan"
+                    uci set firewall.@rule[-1].dest="lan"
+                    uci set firewall.@rule[-1].src_mac="$mac"
+                    uci set firewall.@rule[-1].family="any"
+                    uci set firewall.@rule[-1].target="DROP"
+                    uci set firewall.@rule[-1].enabled="1"
+                fi
+
+                if [ "$dmz_en" = "true" ] || [ "$dmz_en" = "1" ]; then
+                    existing_dmz=$(uci -q show firewall | grep -E "\.name='nw_dmz_" | grep -v "nw_dmz_${mac_clean}'" | head -n 1)
+                    if [ -n "$existing_dmz" ]; then echo '{"error":"DMZ_OCCUPIED_BY_ANOTHER_DEVICE"}'; exit 1; fi
+                    delete_fw_rule "nw_dmz" "redirect"
+                    [ -n "$ip" ] && [ "$ip" != "Unknown IP" ] && {
+                        uci add firewall redirect >/dev/null
+                        uci set firewall.@redirect[-1].name="nw_dmz_${mac_clean}"
+                        uci set firewall.@redirect[-1].src="wan"
+                        uci set firewall.@redirect[-1].dest="lan"
+                        uci set firewall.@redirect[-1].dest_ip="$ip"
+                        uci set firewall.@redirect[-1].proto="all"
+                        uci set firewall.@redirect[-1].target="DNAT"
+                        uci set firewall.@redirect[-1].enabled="1"
+                    }
+                else
+                    delete_fw_rule "nw_dmz_${mac_clean}" "redirect"
+                fi
+
+                uci commit firewall
+                
+                # 清空连线
+                if command -v conntrack >/dev/null 2>&1; then
+                    [ -n "$ip" ] && [ "$ip" != "Unknown IP" ] && conntrack -D -s "$ip" >/dev/null 2>&1
+                    v6_ips=$(ip -6 neigh show 2>/dev/null | grep -i "$mac" | awk '{print $1}')
+                    for v6 in $v6_ips; do
+                        conntrack -D -s "$v6" >/dev/null 2>&1
+                    done
+                fi
+                for vap in $(ubus list | grep hostapd); do ubus call "$vap" del_client '{"addr":"'"$mac"'", "reason":5, "deauth":true, "ban_time":0}' >/dev/null 2>&1; done
+
+                # 防火墙重载再中断
+                (
+
+                    /etc/init.d/firewall reload >/dev/null 2>&1
+
+                    if [ "$blk_en" = "true" ] || [ "$blk_en" = "1" ]; then
+                        if command -v iptables >/dev/null 2>&1; then 
+                            iptables -I FORWARD 1 -m mac --mac-source $mac -j DROP >/dev/null 2>&1
+                            iptables -I INPUT 1 -m mac --mac-source $mac -j DROP >/dev/null 2>&1
+                            iptables -t mangle -I PREROUTING 1 -m mac --mac-source $mac -j DROP >/dev/null 2>&1
+                        fi
+                        if command -v ip6tables >/dev/null 2>&1; then 
+                            ip6tables -I FORWARD 1 -m mac --mac-source $mac -j DROP >/dev/null 2>&1
+                            ip6tables -I INPUT 1 -m mac --mac-source $mac -j DROP >/dev/null 2>&1
+                            ip6tables -t mangle -I PREROUTING 1 -m mac --mac-source $mac -j DROP >/dev/null 2>&1
+                        fi
+                        if command -v nft >/dev/null 2>&1; then 
+                            nft insert rule inet fw4 forward ether saddr $mac drop >/dev/null 2>&1
+                            nft insert rule inet fw4 input ether saddr $mac drop >/dev/null 2>&1
+                            nft insert rule inet fw4 mangle_prerouting ether saddr $mac drop >/dev/null 2>&1 || true
+                        fi
+                    fi
+                    if [ "$iso_en" = "true" ] || [ "$iso_en" = "1" ]; then
+                        if command -v iptables >/dev/null 2>&1; then iptables -I FORWARD 1 -m mac --mac-source $mac -d 192.168.0.0/16 -j DROP >/dev/null 2>&1; fi
+                        if command -v nft >/dev/null 2>&1; then nft insert rule inet fw4 forward ether saddr $mac ip daddr 192.168.0.0/16 drop >/dev/null 2>&1; fi
+                    fi
+                ) >/dev/null 2>&1 &
+
+                echo '{"result":0}'
+                exit 0
+                ;;
+            bind)
+                input=$(cat)
+                mac=$(echo "$input" | jsonfilter -e '@.mac' | tr 'A-Z' 'a-z')
+                ip=$(echo "$input" | jsonfilter -e '@.ip')
+                name=$(echo "$input" | jsonfilter -e '@.name')
+                dept=$(echo "$input" | jsonfilter -e '@.dept')
+                no_reload=$(echo "$input" | jsonfilter -e '@.no_reload')
+
+                [ -z "$mac" ] || [ -z "$ip" ] && exit 0
+                
+                if ! echo "$ip" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$'; then
+                    echo '{"error":"INVALID_IP_FORMAT"}'
+                    exit 1
+                fi
+
+                safe_name=$(echo "$name" | sed 's/[^a-zA-Z0-9-]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-//; s/-$//')
+                if [ -z "$safe_name" ] || [ "$safe_name" = "Unknown" ]; then 
+                    safe_name="Dev-$(echo "$mac" | tr -d ':' | cut -c 9-12)"
+                fi
+                name="$safe_name"
+
+                mac_clean=$(echo "$mac" | tr -d ':' | tr 'A-Z' 'a-z')
+
+                live_duid=$(extract_device_duid "$mac")
+                [ -n "$live_duid" ] && echo "$mac_clean $live_duid" >> /tmp/netwiz_duid_cache
+
+                matches=$(uci -q show dhcp 2>/dev/null | grep -i -e "\.mac=.*$mac" -e "\.ip=.*$ip" | cut -d'.' -f2 | sed 's/[^0-9]//g' | sort -rn | uniq)
+                for idx in $matches; do 
+                    old_duid=$(uci -q get dhcp.@host[$idx].duid)
+                    if [ -n "$old_duid" ]; then
+                        echo "$mac_clean $old_duid" >> /tmp/netwiz_duid_cache
+                        
+                        # 解绑前，将珍贵的 DUID 转移到永久元数据保存
+                        MAC_SAFE=$(echo "$mac" | tr -d ':' | tr 'a-z' 'A-Z')
+                        uci -q set netwiz.v6pc_$MAC_SAFE=v6_pc
+                        uci -q set netwiz.v6pc_$MAC_SAFE.mac="$mac"
+                        uci -q set netwiz.v6pc_$MAC_SAFE.duid="$old_duid"
+                        uci -q set netwiz.v6pc_$MAC_SAFE.ts="$(date +%s)"
+                    fi
+                    uci -q delete dhcp.@host[$idx]
+                done
+                
+                # 静态 IP 设定
+                new_sect=$(uci add dhcp host)
+                uci set dhcp.$new_sect.name="$name"
+                uci set dhcp.$new_sect.mac="$mac"
+                uci set dhcp.$new_sect.ip="$ip"
+                ip_suffix=${ip##*.}
+                hex_suffix=$(printf '%x' "$ip_suffix")
+                uci set dhcp.$new_sect.hostid="::$hex_suffix"
+                
+                auto_duid=""
+                if [ -f "/tmp/netwiz_duid_cache" ]; then
+                    auto_duid=$(grep -i "^$mac_clean " /tmp/netwiz_duid_cache | awk '{print $2}' | head -n 1 | tr 'A-Z' 'a-z')
+                fi
+                
+                if [ -z "$auto_duid" ]; then
+                    auto_duid=$(extract_device_duid "$mac")
+                fi
+
+                MAC_SAFE=$(echo "$mac" | tr -d ':' | tr 'a-z' 'A-Z')
+
+                # 1. 如果动态提取不到，从永久元数据里找
+                if [ -z "$auto_duid" ]; then
+                    auto_duid=$(uci -q get netwiz.v6pc_$MAC_SAFE.duid)
+                fi
+
+                if [ -n "$auto_duid" ]; then
+                    echo "$mac_clean $auto_duid" >> /tmp/netwiz_duid_cache
+                    uci set dhcp.$new_sect.duid="$auto_duid"
+                    
+                    # 2. 将 DUID 和 Hostname 写入永久元数据，防丢失
+                    uci -q set netwiz.v6pc_$MAC_SAFE=v6_pc
+                    uci -q set netwiz.v6pc_$MAC_SAFE.mac="$mac"
+                    uci -q set netwiz.v6pc_$MAC_SAFE.duid="$auto_duid"
+                    uci -q set netwiz.v6pc_$MAC_SAFE.ts="$(date +%s)"
+                    [ -n "$name" ] && [ "$name" != "Unknown" ] && uci -q set netwiz.v6pc_$MAC_SAFE.hostname="$name"
+                fi
+                
+                ip_suffix=${ip##*.}
+                if [ -n "$ip_suffix" ] && [ "$ip_suffix" -eq "$ip_suffix" ] 2>/dev/null; then
+                    hostid_val=$(printf "%04d" "$ip_suffix")
+                    uci set dhcp.$new_sect.hostid="$hostid_val"
+                fi
+                
+                if [ -n "$dept" ] && [ "$dept" != "none" ]; then uci set dhcp.$new_sect.netwiz_dept="$dept"; fi
+
+                if [ "$no_reload" != "1" ] && [ "$no_reload" != "true" ]; then
+                    uci commit dhcp
+                    uci commit firewall
+                    
+                    # 清理 odhcpd 租期
+                    rm -f /tmp/hosts/odhcpd 2>/dev/null
+                    
+                    (
+                        /etc/init.d/odhcpd restart
+                        /etc/init.d/dnsmasq restart
+                        /etc/init.d/firewall reload
+                        
+                        # 重启 dnsmasq，唤醒代理和 DNS
+                        sleep 2
+                        wakeup_apps
+                    ) >/dev/null 2>&1 &
+                fi
+                echo '{"result":0}'
+                exit 0
+                ;;
+            unbind)
+                input=$(cat)
+                mac=$(echo "$input" | jsonfilter -e '@.mac' | tr 'A-Z' 'a-z')
+                no_reload=$(echo "$input" | jsonfilter -e '@.no_reload')
+                [ -z "$mac" ] && exit 0
+                
+                mac_clean=$(echo "$mac" | tr -d ':' | tr 'A-Z' 'a-z')
+
+                live_duid=$(extract_device_duid "$mac")
+                [ -n "$live_duid" ] && echo "$mac_clean $live_duid" >> /tmp/netwiz_duid_cache
+
+                matches=$(uci -q show dhcp 2>/dev/null | grep -i "\.mac=.*$mac" | cut -d'.' -f2 | sed 's/[^0-9]//g' | sort -rn)
+                for idx in $matches; do 
+                    old_duid=$(uci -q get dhcp.@host[$idx].duid)
+                    if [ -n "$old_duid" ]; then
+                        echo "$mac_clean $old_duid" >> /tmp/netwiz_duid_cache
+                        
+                        # 解绑前，将珍贵的 DUID 转移到永久元数据保存
+                        MAC_SAFE=$(echo "$mac" | tr -d ':' | tr 'a-z' 'A-Z')
+                        uci -q set netwiz.v6pc_$MAC_SAFE=v6_pc
+                        uci -q set netwiz.v6pc_$MAC_SAFE.mac="$mac"
+                        uci -q set netwiz.v6pc_$MAC_SAFE.duid="$old_duid"
+                        uci -q set netwiz.v6pc_$MAC_SAFE.ts="$(date +%s)"
+                    fi
+                    uci -q delete dhcp.@host[$idx]
+                done
+
+                delete_fw_rule "nw_blk_${mac_clean}" "rule"
+                delete_fw_rule "nw_iso_${mac_clean}" "rule"
+                delete_fw_rule "nw_dmz_${mac_clean}" "redirect"
+                if [ "$no_reload" != "1" ] && [ "$no_reload" != "true" ]; then
+                    uci commit dhcp
+                    uci commit firewall
+                    
+                    # 清理 odhcpd 缓存
+                    rm -f /tmp/hosts/odhcpd 2>/dev/null
+                    
+                    (
+                        /etc/init.d/odhcpd restart
+                        /etc/init.d/dnsmasq restart
+                        /etc/init.d/firewall reload
+                        
+                        sleep 2
+                        wakeup_apps
+                    ) >/dev/null 2>&1 &
+                fi
+                echo '{"result":0}'
+                exit 0
+                ;;
+                
+            apply_dhcp)
+                uci commit dhcp
+                uci commit firewall
+                
+                # 清理 odhcpd 缓存
+                rm -f /tmp/hosts/odhcpd 2>/dev/null
+                
+                (
+                    /etc/init.d/odhcpd restart
+                    /etc/init.d/dnsmasq restart
+                    /etc/init.d/firewall reload
+                    
+                    sleep 2
+                    wakeup_apps
+                ) >/dev/null 2>&1 &
+                
+                echo '{"result":0}'
+                exit 0
+                ;;
+
+            get_depts)
+                val=$(uci -q get netwiz.global.depts_json)
+                [ -z "$val" ] && val="[]"
+                echo "{\"depts\": $val}"
+                exit 0
+                ;;
+
+            save_depts)
+                input=$(cat)
+                json_str=$(echo "$input" | jsonfilter -e '@.data')
+                uci -q delete netwiz.global
+                uci set netwiz.global=netwiz
+                uci set netwiz.global.depts_json="$json_str"
+        
+                uci commit netwiz
+                echo '{"result":0}'
+                exit 0
+                ;;
+
+                get_smart_ranges)
+                val=$(uci -q get netwiz.smart.ranges_json)
+                [ -z "$val" ] && val="{}"
+                echo "{\"ranges\": $val}"
+                exit 0
+                ;;
+            save_smart_ranges)
+                input=$(cat)
+                json_str=$(echo "$input" | jsonfilter -e '@.data')
+                uci -q set netwiz.smart=netwiz
+                if [ "$json_str" = "{}" ] || [ -z "$json_str" ]; then
+                    uci -q delete netwiz.smart.ranges_json
+                else
+                    uci -q set netwiz.smart.ranges_json="$json_str"
+                fi
+                uci commit netwiz
+                echo '{"result":0}'
+                exit 0
+                ;;
+
+            v6_keep_alive)
+                input=$(cat)
+                mac=$(echo "$input" | jsonfilter -e '@.mac' | tr 'A-Z' 'a-z')
+                name=$(echo "$input" | jsonfilter -e '@.name')
+                [ -z "$mac" ] && exit 0
+
+                MAC_SAFE=$(echo "$mac" | tr -d ':' | tr 'a-z' 'A-Z')
+                NOW=$(date +%s)
+                UPDATE_THRESHOLD=604800 # 7天
+
+                OLD_TS=$(uci -q get netwiz.v6pc_$MAC_SAFE.ts)
+                OLD_DUID=$(uci -q get netwiz.v6pc_$MAC_SAFE.duid)
+                OLD_NAME=$(uci -q get netwiz.v6pc_$MAC_SAFE.hostname)
+                live_duid=$(extract_device_duid "$mac")
+
+                NEEDS_UPDATE=0
+                # 1. 超过7天没更新时间戳
+                [ -z "$OLD_TS" ] || [ $((NOW - OLD_TS)) -gt $UPDATE_THRESHOLD ] && NEEDS_UPDATE=1
+                
+                # 2. 抓到 DUID，且和以前保存的不一样
+                [ -n "$live_duid" ] && [ "$live_duid" != "$OLD_DUID" ] && NEEDS_UPDATE=1
+                
+                # 3. 传来了新名字，且不是 Unknown，且和以前保存的不一样
+                if [ -n "$name" ] && [ "$name" != "Unknown" ]; then
+                    safe_name=$(echo "$name" | sed 's/[^a-zA-Z0-9_-]//g')
+                    [ -n "$safe_name" ] && [ "$safe_name" != "$OLD_NAME" ] && NEEDS_UPDATE=1
+                fi
+
+                # 不一样时才写入闪存
+                if [ "$NEEDS_UPDATE" -eq 1 ]; then
+                    uci -q set netwiz.v6pc_$MAC_SAFE=v6_pc
+                    uci -q set netwiz.v6pc_$MAC_SAFE.mac="$mac"
+                    uci -q set netwiz.v6pc_$MAC_SAFE.ts="$NOW"
+                    
+                    [ -n "$live_duid" ] && uci -q set netwiz.v6pc_$MAC_SAFE.duid="$live_duid"
+                    [ -n "$safe_name" ] && uci -q set netwiz.v6pc_$MAC_SAFE.hostname="$safe_name"
+                    
+                    uci -q delete netwiz.seen_$MAC_SAFE
+                    uci commit netwiz
+                fi
+                
+                echo '{"result":0}'
+                exit 0
+                ;;
+                
+            reset_all)
+                # 初始化前备份
+                mkdir -p /root/netwiz_bak
+                backup_file="/root/netwiz_bak/netwiz_pre_reset_$(date +%Y%m%d_%H%M%S).tar.gz"
+                
+                FILE_LIST=""
+                    for f in network wireless dhcp firewall netwiz; do
+                        if [ -s "/etc/config/$f" ]; then FILE_LIST="$FILE_LIST etc/config/$f"; fi
+                    done
+                    tar -czf "$backup_file" -C / $FILE_LIST 2>/dev/null    
+                
+                logger -t Netwiz "📦 Pre-reset backup created: $backup_file"
+
+                # 1. 净化防火墙
+                for rule in $(uci -q show firewall 2>/dev/null | grep "^firewall\.@rule\[[0-9]*\]\.name=.*nw_" | cut -d'.' -f2 | sed 's/[^0-9]//g' | sort -rn | uniq);
+                do 
+                    uci -q delete firewall.@rule[$rule]
+                done
+                for redir in $(uci -q show firewall 2>/dev/null | grep "^firewall\.@redirect\[[0-9]*\]\.name=.*nw_dmz_" | cut -d'.' -f2 | sed 's/[^0-9]//g' | sort -rn | uniq);
+                do 
+                    uci -q delete firewall.@redirect[$redir]
+                done
+                uci commit firewall
+
+                # 2. 净化 DHCP (删除所有的静态 IP 绑定)
+                for host in $(uci -q show dhcp 2>/dev/null | grep "^dhcp\.@host\[[0-9]*\]=host" | cut -d'.' -f2 | sed 's/[^0-9]//g' | sort -rn | uniq);
+                do
+                    uci -q delete dhcp.@host[$host]
+                done
+                uci commit dhcp
+
+                # 3. 淨化 Netwiz 配置
+                rm -f /etc/config/netwiz
+                touch /etc/config/netwiz
+                uci -q batch <<EOF
+                    set netwiz.global=netwiz
+                    set netwiz.smart=netwiz
+                    commit netwiz
+EOF
+
+                # 4. 重启
+                # 先立即返回成功给前端，防止 XHR 超时报错
+                echo '{"result":0}'
+                
+                # 4. 放入后台环境执行重启和唤醒
+                (
+                    sleep 1
+                    /etc/init.d/dnsmasq restart
+                    /etc/init.d/firewall reload
+                    
+                    # 唤醒高级应用
+                    sleep 2
+                    wakeup_apps
+                ) >/dev/null 2>&1 &
+                
+                exit 0
+                ;;
+
+            export_config)
+
+                FILE_LIST=""
+                for f in network wireless dhcp firewall netwiz; do
+                    if [ -s "/etc/config/$f" ]; then
+                        FILE_LIST="$FILE_LIST etc/config/$f"
+                    fi
+                done
+
+                if [ -n "$FILE_LIST" ]; then
+                    timestamp=$(date +%Y%m%d_%H%M%S | tr -d '\r\n')
+                    dl_name="NetWiz_NetConf_${timestamp}.tar.gz"
+                    
+                    backup_file="/www/luci-static/${dl_name}"
+
+                    rm -f /www/luci-static/NetWiz_NetConf_*.tar.gz 2>/dev/null
+
+                    # 打包文件
+                    tar -czf "$backup_file" -C / $FILE_LIST 2>/dev/null
+
+                    if [ -s "$backup_file" ]; then
+                        chmod 644 "$backup_file" 2>/dev/null
+                        printf '{"url":"/luci-static/%s", "filename":"%s"}\n' "$dl_name" "$dl_name"
+                        
+                        # 120 秒后删除
+                        ( sleep 120; rm -f "$backup_file" ) >/dev/null 2>&1 &
+                    else
+                        printf '{"error":"Archive creation failed"}\n'
+                    fi
+                else
+                    printf '{"error":"No files to backup"}\n'
+                fi
+                exit 0
+                ;;
+
+            wake_device)
+                input=$(cat)
+                mac=$(echo "$input" | jsonfilter -e '@.mac' | tr 'A-Z' 'a-z')
+                [ -n "$mac" ] && {
+                    # 使用 OpenWrt 內建的唤醒
+                    if command -v etherwake >/dev/null 2>&1; then
+                        etherwake -b -i br-lan "$mac" >/dev/null 2>&1
+                    elif command -v ether-wake >/dev/null 2>&1; then
+                        ether-wake -b -i br-lan "$mac" >/dev/null 2>&1
+                    fi
+                }
+                echo '{"result":0}'
+                exit 0
+                ;;    
+
+            list_backups)
+                mkdir -p /root/netwiz_bak
+                # 按时间倒序获取压缩包名
+                files=$(ls -t /root/netwiz_bak/*.tar.gz 2>/dev/null | awk -F/ '{print $NF}')
+                
+                printf '{"backups":['
+                first=1
+                for f in $files; do
+                    if [ "$first" -eq 1 ]; then first=0; else printf ','; fi
+                    printf '"%s"' "$f"
+                done
+                printf ']}\n'
+                exit 0
+                ;;
+
+            import_config)
+                input=$(cat)
+                b64data=$(echo "$input" | jsonfilter -e '@.data')
+                file_name=$(echo "$input" | jsonfilter -e '@.file')
+                
+                restore_file="/tmp/netwiz_restore.tar.gz"
+                has_file=0
+                
+                # data 是电脑上传，file_name 是选择路由器本地备份
+                if [ -n "$b64data" ]; then
+                    echo "$b64data" | base64 -d > "$restore_file"
+                    has_file=1
+                elif [ -n "$file_name" ] && [ -f "/root/netwiz_bak/$file_name" ]; then
+                    cp "/root/netwiz_bak/$file_name" "$restore_file"
+                    has_file=1
+                fi
+                
+                if [ "$has_file" -eq 1 ]; then
+                    mkdir -p /root/netwiz_bak
+                    
+                    backup_file="/root/netwiz_bak/netwiz_pre_import_$(date +%Y%m%d_%H%M%S).tar.gz"
+                    
+                    FILE_LIST=""
+                    for f in network wireless dhcp firewall netwiz; do
+                        if [ -s "/etc/config/$f" ]; then FILE_LIST="$FILE_LIST etc/config/$f"; fi
+                    done
+                    tar -czf "$backup_file" -C / $FILE_LIST 2>/dev/null
+
+                    # --- 开始安全沙盒防呆/防黑客逻辑 ---
+                    mkdir -p /tmp/nw_import_tmp
+                    tar -xzf "$restore_file" -C /tmp/nw_import_tmp/ >/dev/null 2>&1
+
+                    # 1. 检查解压是否报错
+                    if [ $? -ne 0 ]; then
+                        rm -rf /tmp/nw_import_tmp "$restore_file"
+                        echo '{"error":"Invalid archive format"}'
+                        exit 0
+                    fi
+
+                    # 2. 特征码强校验
+                    if [ ! -f "/tmp/nw_import_tmp/etc/config/network" ] && [ ! -f "/tmp/nw_import_tmp/etc/config/dhcp" ] && [ ! -f "/tmp/nw_import_tmp/etc/config/netwiz" ]; then
+                        rm -rf /tmp/nw_import_tmp "$restore_file"
+                        echo '{"error":"Missing signature files"}'
+                        exit 0
+                    fi
+
+                    # 3. 白名单安全覆盖
+                    for f in network wireless dhcp firewall netwiz; do
+                        if [ -f "/tmp/nw_import_tmp/etc/config/$f" ]; then
+                            cp -f "/tmp/nw_import_tmp/etc/config/$f" "/etc/config/$f"
+                        fi
+                    done
+
+                    # 清理沙盒与残留
+                    rm -rf /tmp/nw_import_tmp "$restore_file"
+                    # --- 🛡️ 安全逻辑结束 ---
+                    
+                    echo '{"result":0}'
+                    
+                    # 延时 2 秒后重启网络相关服务生效配置
+                    (
+                        sleep 2
+                        /etc/init.d/network restart
+                        /etc/init.d/dnsmasq restart
+                        /etc/init.d/odhcpd restart
+                        /etc/init.d/firewall restart
+                        
+                        sleep 3
+                        wakeup_apps
+                    ) >/dev/null 2>&1 &
+                else
+                    echo '{"error":"No valid backup data or file provided"}'
+                fi
+                exit 0
+                ;;
+
+            auto_backup)
+                # 备份目录
+                mkdir -p /root/netwiz_bak
+                
+                # 1. 计算 MD5 特征码
+                current_md5=$(cat /etc/config/network /etc/config/wireless /etc/config/dhcp /etc/config/firewall /etc/config/netwiz 2>/dev/null | md5sum | awk '{print $1}')
+                # 将 MD5 记录文件也移入专属目录
+                last_md5=$(cat /root/netwiz_bak/.netwiz_last_md5 2>/dev/null)
+                
+                # 2. MD5 发生变化备份
+                if [ "$current_md5" != "$last_md5" ]; then
+                    timestamp=$(date +%Y%m%d_%H%M%S)
+                    backup_file="/root/netwiz_bak/netwiz_auto_${timestamp}.tar.gz"
+                    
+                    FILE_LIST=""
+                    for f in network wireless dhcp firewall netwiz; do
+                        if [ -s "/etc/config/$f" ]; then FILE_LIST="$FILE_LIST etc/config/$f"; fi
+                    done
+                    tar -czf "$backup_file" -C / $FILE_LIST 2>/dev/null
+                    
+                    # 记录最新的 MD5
+                    echo "$current_md5" > /root/netwiz_bak/.netwiz_last_md5
+                    logger -t Netwiz "✅ Auto-backup created: $backup_file"
+                    
+                    # 3. 保留最近的 7 份自动备份
+                    ls -t /root/netwiz_bak/netwiz_auto_*.tar.gz 2>/dev/null | tail -n +8 | xargs rm -f 2>/dev/null
+                    # 保留5 份高危操作前备份
+                    ls -t /root/netwiz_bak/netwiz_pre_*.tar.gz 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null
+                else
+                    logger -t Netwiz "💤 Auto-backup skipped: Config unchanged"
+                fi
+                
+                echo '{"result":0}'
+                exit 0
+                ;;
+
+            analyze_conns)
+                input=$(cat)
+                ip=$(echo "$input" | jsonfilter -e '@.ip')
+                
+                if ! echo "$ip" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$'; then
+                    echo '{"error":"INVALID_IP"}'
+                    exit 1
+                fi
+                
+                raw_file="/tmp/nw_conns_${ip}.txt"
+                
+                if [ -f /proc/net/nf_conntrack ]; then
+                    awk -v ip="$ip" '{for(i=1;i<=NF;i++)if($i~/^src=/){split($i,a,"="); if(a[2]==ip) print $0; break}}' /proc/net/nf_conntrack 2>/dev/null > "$raw_file"
+                elif command -v conntrack >/dev/null 2>&1; then
+                    conntrack -L 2>/dev/null | awk -v ip="$ip" '{for(i=1;i<=NF;i++)if($i~/^src=/){split($i,a,"="); if(a[2]==ip) print $0; break}}' > "$raw_file"
+                fi
+                
+                # 分类统計
+                stats=$(awk '
+                BEGIN { web=0; dns=0; udp_media=0; p2p=0; other=0; total=0 }
+                {
+                    total++;
+                    proto = $3;
+                    dport = 0;
+                    for(i=1;i<=NF;i++) {
+                        if($i ~ /^dport=/) { split($i,a,"="); dport=a[2]+0; break; }
+                    }
+                    
+                    if (dport == 80 || dport == 443) { web++; }
+                    else if (dport == 53 || dport == 5353 || dport == 123) { dns++; }
+                    else if (proto == "udp") { udp_media++; }
+                    else if (dport > 10000) { p2p++; }
+                    else { other++; }
+                }
+                END {
+                    printf "{\"total\":%d, \"web\":%d, \"dns\":%d, \"udp_media\":%d, \"p2p\":%d, \"other\":%d}", total, web, dns, udp_media, p2p, other
+                }' "$raw_file")
+                
+                # 截取前 50 条原始数据給前端黑框
+                raw_logs=$(head -n 50 "$raw_file" | sed 's/"/\\"/g' | awk '{printf "\"%s\",", $0}' | sed 's/,$//')
+                
+                rm -f "$raw_file"
+                echo "{\"stats\": $stats, \"raw\": [$raw_logs]}"
+                exit 0
+                ;;
+        esac
+        ;;
+esac
+exit 1

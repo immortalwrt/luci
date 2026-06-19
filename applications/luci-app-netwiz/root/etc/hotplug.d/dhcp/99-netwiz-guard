@@ -1,0 +1,46 @@
+#!/bin/sh
+# Copyright (C) 2026 huchd0 <https://github.com/huchd0/luci-app-netwiz>
+# Licensed under the GNU General Public License v3.0
+# 作用: Netwiz 设备防伪装 (防止修改 MAC 绕过断网功能)
+
+# 1. 获取 IP 时触发
+[ "$ACTION" = "add" ] || [ "$ACTION" = "update" ] || exit 0
+[ -z "$MACADDR" ] || [ -z "$HOSTNAME" ] || [ "$HOSTNAME" = "*" ] && exit 0
+
+MAC_SAFE=$(echo "$MACADDR" | tr -d ':' | tr 'a-z' 'A-Z')
+
+# 2. 检查新 MAC 是否已被拉黑
+ALREADY_BLOCKED=$(uci -q show firewall | grep -E "\.name=.*nw_blk_${MAC_SAFE}")
+[ -n "$ALREADY_BLOCKED" ] && exit 0
+
+# 3.DHCP 租约查找所有与该设备“同名”的历史 MAC 地址
+KNOWN_MACS=$(awk -v hn="$HOSTNAME" '$4 == hn {print $2}' /tmp/dhcp.leases 2>/dev/null)
+
+for k_mac in $KNOWN_MACS; do
+    K_MAC_SAFE=$(echo "$k_mac" | tr -d ':' | tr 'a-z' 'A-Z')
+    
+    # 4. 检查以前用过的 MAC 是不是在断网黑名单里
+    IS_BLOCKED=$(uci -q show firewall | grep -E "\.name=.*nw_blk_${K_MAC_SAFE}")
+    
+    if [ -n "$IS_BLOCKED" ]; then
+        logger -t Netwiz "🚨 Anti-Spoofing! Device [$HOSTNAME] changed MAC to $MACADDR. Auto-blocking..."
+        
+        # 5. 发现伪装！自动将它的新 MAC 追加到防火墙断网规则中
+        uci -q add firewall rule >/dev/null
+        uci -q set firewall.@rule[-1].name="nw_blk_${MAC_SAFE}"
+        uci -q set firewall.@rule[-1].src="lan"
+        uci -q set firewall.@rule[-1].dest="wan"
+        uci -q set firewall.@rule[-1].src_mac="$MACADDR"
+        uci -q set firewall.@rule[-1].family="any"
+        uci -q set firewall.@rule[-1].target="DROP"
+        uci -q set firewall.@rule[-1].enabled="1"
+        
+        uci commit firewall
+        
+        # 6. 踢下线并重载防火墙
+        if command -v iptables >/dev/null 2>&1; then iptables -I FORWARD 1 -m mac --mac-source $MACADDR -j DROP >/dev/null 2>&1; fi
+        if command -v nft >/dev/null 2>&1; then nft insert rule inet fw4 forward ether saddr $MACADDR drop >/dev/null 2>&1; fi
+        /etc/init.d/firewall reload </dev/null >/dev/null 2>&1 &
+        break
+    fi
+done

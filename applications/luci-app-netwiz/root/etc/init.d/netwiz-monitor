@@ -1,0 +1,144 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2026 huchd0 <https://github.com/huchd0/luci-app-netwiz>
+# Licensed under the GNU General Public License v3.0
+
+START=99
+USE_PROCD=1
+LOG_FILE="/tmp/netwiz.log"
+
+log() {
+    echo "$(date '+%F %T') [Service] $1" >> "$LOG_FILE"
+    if [ $(wc -l < "$LOG_FILE" 2>/dev/null || echo 0) -gt 600 ]; then
+        tail -n 500 "$LOG_FILE" > "$LOG_FILE.tmp"
+        mv "$LOG_FILE.tmp" "$LOG_FILE"
+    fi
+}
+
+start_service() {
+    log "Netwiz 后台守护进程已启动"
+    
+    # 获取向导配置状态
+    local configured=$(uci -q get netwiz.global.configured)
+
+    # 配置为 0，触发拦截
+    if [ "$configured" != "1" ]; then
+        log "触发初次向导配置，生成拦截 CGI 脚本"
+        
+        local is_lang_init=$(uci -q get netwiz.global.lang_init)
+        if [ "$is_lang_init" != "1" ]; then
+            uci -q set luci.main.lang="auto"
+            uci commit luci
+            rm -rf /tmp/luci-indexcache /tmp/luci-modulecache/* 2>/dev/null
+            /etc/init.d/rpcd restart 2>/dev/null
+            /etc/init.d/uhttpd restart 2>/dev/null
+            uci -q set netwiz.global.lang_init='1'
+            uci commit netwiz
+        fi
+        
+        [ -f /www/cgi-bin/luci.bak ] || cp -p /www/cgi-bin/luci /www/cgi-bin/luci.bak
+        
+        cat << 'EOF' > /www/cgi-bin/luci
+#!/bin/sh
+CONF=$(uci -q get netwiz.global.configured)
+
+if [ "$CONF" != "1" ]; then
+    case "$PATH_INFO" in
+        *rescue*)
+            uci -q set netwiz.global.configured='1'
+            uci commit netwiz
+            [ -f /www/cgi-bin/luci.bak ] && mv -f /www/cgi-bin/luci.bak /www/cgi-bin/luci
+            printf "Status: 302 Found\r\n"
+            printf "Location: /cgi-bin/luci/\r\n"
+            printf "Cache-Control: no-store, no-cache, must-revalidate, max-age=0\r\n\r\n"
+            exit 0
+            ;;
+            
+        *admin/netwiz*|*admin/translations*|*admin/menu*|*admin/ubus*|*luci-static*|*rpc*)
+            export HTTP_ACCEPT_LANGUAGE="zh-CN,zh;q=0.9"
+            exec /www/cgi-bin/luci.bak
+            exit 0
+            ;;
+            
+        *)
+            # 浏览器带登录凭证，弹出向导
+            if echo "$HTTP_COOKIE" | grep -q "sysauth="; then
+                printf "Status: 302 Found\r\n"
+                printf "Location: /cgi-bin/luci/admin/netwiz\r\n"
+                printf "Cache-Control: no-store, no-cache, must-revalidate, max-age=0\r\n\r\n"
+                exit 0
+            fi
+
+            # 网址带官方重定向的 url= 弹出向导
+            if echo "$QUERY_STRING" | grep -q "url="; then
+                printf "Status: 302 Found\r\n"
+                printf "Location: /cgi-bin/luci/admin/netwiz\r\n"
+                printf "Cache-Control: no-store, no-cache, must-revalidate, max-age=0\r\n\r\n"
+                exit 0
+            fi
+
+            IS_EMPTY_PWD=$(awk -F: '/^root:/ {print $2}' /etc/shadow)
+            if [ -z "$IS_EMPTY_PWD" ] || [ "$IS_EMPTY_PWD" = "!" ] || [ "$IS_EMPTY_PWD" = "*" ] || [ "$IS_EMPTY_PWD" = "x" ]; then
+                
+                printf "Status: 200 OK\r\n"
+                printf "Content-Type: text/html; charset=utf-8\r\n"
+                printf "Cache-Control: no-store, no-cache, must-revalidate, max-age=0\r\n\r\n"
+                printf "<!DOCTYPE html><html><head><script>\n"
+                
+                printf "var nav = (navigator.language || navigator.userLanguage || '').toLowerCase();\n"
+                printf "var l = 'en';\n"
+                printf "if(nav.indexOf('zh') > -1) { l = (nav.indexOf('tw') > -1 || nav.indexOf('hk') > -1) ? 'zh-tw' : 'zh-cn'; }\n"
+                printf "else if(nav.indexOf('ru') > -1) { l = 'ru'; }\n"
+                
+                printf "try { localStorage.setItem('lang', l); } catch(e) {}\n"
+                printf "document.cookie = 'luci_lang=' + l + '; path=/; max-age=86400';\n"
+                
+                printf "</script></head><body style='background:#f8fafc;'>"
+                printf "<form id='al' action='/cgi-bin/luci/admin/netwiz' method='post'>"
+                printf "<input type='hidden' name='luci_username' value='root'>"
+                printf "<input type='hidden' name='luci_password' value=''>"
+                printf "<input type='hidden' id='frmLang' name='luci_lang' value=''>"
+                printf "</form>"
+                
+                printf "<script>\n"
+                printf "document.getElementById('frmLang').value = l;\n"
+                printf "document.getElementById('al').submit();\n"
+                printf "</script></body></html>\n"
+                exit 0
+                
+            else
+                # 固件自带默认密码，官方登录
+                printf "Status: 302 Found\r\n"
+                printf "Location: /cgi-bin/luci/?url=/cgi-bin/luci/admin/netwiz\r\n"
+                printf "Cache-Control: no-store, no-cache, must-revalidate, max-age=0\r\n\r\n"
+                exit 0
+            fi
+            ;;
+    esac
+fi
+
+exec /www/cgi-bin/luci.bak
+EOF
+        
+        # 赋予执行权限
+        chmod +x /www/cgi-bin/luci
+    else
+        # 已配置过，恢复官方网关
+        if [ -f /www/cgi-bin/luci.bak ]; then
+            log "向导已完成，还原官方网关"
+            mv /www/cgi-bin/luci.bak /www/cgi-bin/luci
+        fi
+    fi
+
+    procd_open_instance
+    procd_set_param command /usr/libexec/netwiz-monitor-loop.sh
+    procd_set_param respawn
+    procd_close_instance
+}
+
+stop_service() {
+    log "Netwiz 后台守护进程已停止"
+}
+
+service_triggers() {
+    procd_add_reload_trigger "netwiz"
+}

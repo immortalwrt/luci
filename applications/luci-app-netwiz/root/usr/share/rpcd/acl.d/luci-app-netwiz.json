@@ -1,0 +1,17 @@
+{
+    "luci-app-netwiz": {
+        "description": "Grant access to netwiz and device manager",
+        "read": {
+            "ubus": {
+                "netwiz": [ "*" ],
+                "netwiz_dev": [ "*" ]
+            }
+        },
+        "write": {
+            "ubus": {
+                "netwiz": [ "*" ],
+                "netwiz_dev": [ "*" ]
+            }
+        }
+    }
+}

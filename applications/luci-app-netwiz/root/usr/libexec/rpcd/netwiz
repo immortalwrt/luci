@@ -1,0 +1,1758 @@
+#!/bin/sh
+# Copyright (C) 2026 huchd0 <https://github.com/huchd0/luci-app-netwiz>
+# Licensed under the GNU General Public License v3.0
+
+LOG_FILE="/tmp/netwiz.log"
+
+# 用法: log "[标签]" "日志内容"
+log() {
+    local tag="$1"
+    local msg="$2"
+    # 如果只传了一个参数，默认标签为 [SYSTEM]
+    if [ -z "$msg" ]; then
+        msg="$tag"
+        tag="[SYSTEM]"
+    fi
+    
+    # 写入系统标准日志 (logread 可见)
+    logger -t Netwiz "$tag $msg"
+    # 写入本地统一文件
+    echo "$(date '+%F %T') $tag $msg" >> "$LOG_FILE"
+    
+    # 日志控制 防止文件过大撑爆内存 (保留最新的 600 行)
+    if [ $(wc -l < "$LOG_FILE" 2>/dev/null || echo 0) -gt 600 ]; then
+        tail -n 500 "$LOG_FILE" > "$LOG_FILE.tmp"
+        mv "$LOG_FILE.tmp" "$LOG_FILE"
+    fi
+}
+
+# 重启依赖网络的高级应用
+restart_depend_apps() {
+    log ">>> 正在检测并唤醒高级网络应用..."
+
+    # 定义需要唤醒的插件池 (按业务逻辑分类，方便以后随时添加)
+    local proxy_apps="openclash passwall shadowsocksr bypass vssr homeproxy mihomo"
+    local dns_apps="adguardhome smartdns mosdns"
+    local vpn_apps="tailscale zerotier ipsec"
+    local route_apps="mwan3 sqm ddns miniupnpd socat"
+
+    # 唤醒: 代理网关、DNS处理、异地组网、路由流控
+    for app in $proxy_apps $dns_apps $vpn_apps $route_apps; do
+        if [ -f "/etc/init.d/$app" ] && /etc/init.d/$app enabled 2>/dev/null; then
+            # 中继正在运行，强行跳过 mwan3，防止它阻断网络
+            if [ "$app" = "mwan3" ] && uci -q get network.wwan >/dev/null; then
+                log "拦截: 检测到 WISP 开启，阻止唤醒 mwan3 以防流量被阻断"
+                continue
+            fi
+            log "唤醒 $app"
+            /etc/init.d/$app restart >/dev/null 2>&1 &
+        fi
+    done
+
+    # 特殊处理: Docker 容器服务 (网络重启常导致 Docker 虚拟网桥失效)
+    if [ -f "/etc/init.d/dockerd" ] && /etc/init.d/dockerd enabled 2>/dev/null; then
+        log "唤醒 Docker 守护进程"
+        /etc/init.d/dockerd restart >/dev/null 2>&1 &
+    fi
+}
+# 结束
+
+# =======================================================
+# PPPoE 拨号后 IPv6 虚拟接口未生成的底层自愈
+watchdog_pppoe_ipv6() {
+    if [ "$(uci -q get network.wan.proto)" = "pppoe" ]; then
+        log ">>> 启动 PPPoE IPv6 虚拟接口守护 (20秒后检测)..."
+        (
+            sleep 20
+            # 确认 WAN 是否已经拨号成功 (IPv4 连通)
+            if ifstatus wan | grep -q '"up": true'; then
+                
+                # 局域网 IPv6 被关闭，直接跳过
+                if [ "$(uci -q get dhcp.lan.dhcpv6)" = "disabled" ]; then
+                    log "✅ IPv6 已全局关闭，跳过虚拟接口检测。"
+                    exit 0
+                fi
+
+                # 检查接口是否“存在” (grep '"up"' 能同时匹配 true 和 false)
+                if ! ifstatus wan_6 2>/dev/null | grep -q '"up"' && ! ifstatus wan6 2>/dev/null | grep -q '"up"'; then
+                    log "⚠️ PPPoE 已连接，但 IPv6 虚拟接口完全丢失！正在执行自愈重置..."
+                    ifdown wan
+                    sleep 3
+                    ifup wan
+                else
+                    log "✅ PPPoE IPv6 接口已存在 (健康通网 或 光猫不支持)，无需干预。"
+                fi
+            fi
+        ) &
+    fi
+}
+# =======================================================
+
+case "$1" in
+    list)
+        echo '{ "set_network": { "mode": "string", "arg1": "string", "arg2": "string", "arg3": "string", "arg4": "string", "arg5": "string", "arg6": "string" }, "set_password": { "password": "string" }, "check_wifi": {}, "confirm": {}, "smart_backup": { "type": "string" }, "smart_restore_exec": { "filepath": "string" }, "check_backup": {}, "check_storage": {}, "check_restore_status": {}, "check_ip_conflict": { "ip": "192.168.1.254" }, "check_missing_pkgs": {}, "get_wizard_status": {}, "set_wizard_status": { "mode": "string" }, "check_internet": {}, "get_client_mac": {}, "get_adv_settings": {}, "set_adv_settings": { "mac": "string", "web": "string", "cron": "string", "hosts": "string" }, "get_repairable_configs": {}, "repair_config": { "plugin": "string" } }'
+        exit 0
+        ;;
+    call)
+        case "$2" in
+
+            get_repairable_configs)
+                arr=""
+                # 扫描系统所有的设定档
+                for f in /etc/config/*; do
+                    if [ -f "$f" ]; then
+                        name=$(basename "$f")
+                        
+                        # 过滤高危网络核心组件以及后缀异常的临时档案
+                        if echo "$name" | grep -qE "network|wireless|dhcp|firewall|system|dropbear|rpcd|uhttpd|luci|fstab|mac80211|netwiz|.*\.apk-new|.*\.bak"; then
+                            continue
+                        fi
+                        
+                        [ -n "$arr" ] && arr="$arr,"
+                        arr="$arr\"$name\""
+                    fi
+                done
+                
+                # 回传数组给前端
+                echo "{\"configs\": [$arr]}"
+                exit 0
+                ;;
+
+            repair_config)
+                input=$(cat)
+                plugin=$(echo "$input" | jsonfilter -e '@.plugin')
+                
+                # 确保档案存在
+                if [ -n "$plugin" ] && [ -f "/etc/config/$plugin" ]; then
+                    log "[REPAIR]" ">>> 正在启动急救包，修复 $plugin 的设定档..."
+                    
+                    # 强制停止服务防止档案被占用
+                    [ -f "/etc/init.d/$plugin" ] && /etc/init.d/$plugin stop 2>/dev/null
+                    
+                    # 双引擎判断
+                    if [ -f "/rom/etc/config/$plugin" ]; then
+                        # 固件内置外挂提取纯净版覆盖
+                        log "[REPAIR]" "检测为固件内置外挂，从ROM还原官方预设值..."
+                        cp -f "/rom/etc/config/$plugin" "/etc/config/$plugin"
+                    else
+                        # 后装外挂删除配置后重装
+                        log "[REPAIR]" "检测为后装外挂，正在清理损坏配置并尝试通过底层重建..."
+                        
+                        # 彻底删除坏掉的设定档
+                        rm -f "/etc/config/$plugin"
+                        
+                        # 寻找安装包并释放新的设定档
+                        if command -v apk >/dev/null 2>&1; then
+                            # 针对Alpine系统执行修复
+                            pkg_name=$(apk info -W "/etc/config/$plugin" 2>/dev/null | awk '{print $1}' | head -n1)
+                            if [ -n "$pkg_name" ]; then
+                                log "[REPAIR]" "已锁定所属套件 $pkg_name，正在执行 apk fix..."
+                                apk fix "$pkg_name" >/dev/null 2>&1
+                            fi
+                        elif command -v opkg >/dev/null 2>&1; then
+                            # 针对OpenWrt系统执行强制复写
+                            pkg_name=$(opkg search "/etc/config/$plugin" 2>/dev/null | awk '{print $1}' | awk -F' - ' '{print $1}' | head -n1)
+                            if [ -n "$pkg_name" ]; then
+                                log "[REPAIR]" "已锁定所属套件 $pkg_name，正在执行强制复写重装..."
+                                opkg install --force-reinstall --force-maintainer "$pkg_name" >/dev/null 2>&1
+                            fi
+                        fi
+                        # 配置文件丢失时启动会自动生成新预设值
+                    fi
+                    
+                    # 网络组件特殊重启加载新配置
+                    if [ "$plugin" = "network" ] || [ "$plugin" = "dhcp" ] || [ "$plugin" = "wireless" ]; then
+                        /etc/init.d/network restart >/dev/null 2>&1 &
+                    elif [ "$plugin" = "firewall" ]; then
+                        /etc/init.d/firewall restart >/dev/null 2>&1 &
+                    else
+                        # 一般外挂重启生效
+                        [ -f "/etc/init.d/$plugin" ] && /etc/init.d/$plugin restart >/dev/null 2>&1 &
+                    fi
+                    
+                    log "[REPAIR]" "✅ $plugin 恢复任务执行完毕！"
+                    echo '{"result": 0}'
+                else
+                    log "[REPAIR]" "⚠️ 找不到 $plugin 的配置文件！无法执行修复。"
+                    echo '{"result": 1, "error": "Not found"}'
+                fi
+                exit 0
+                ;;
+
+            set_password)
+                input=$(cat)
+                pwd=$(echo "$input" | jsonfilter -e '@.password')
+                if [ -n "$pwd" ]; then
+                    # 強制修改系統 root 密碼
+                    (echo "$pwd"; echo "$pwd") | passwd root
+                fi
+                echo '{"result":0}'
+                exit 0
+                ;;
+            check_wifi)
+                has_wifi="false"
+                # 1. 检测物理网卡底层接口
+                if [ -n "$(ls -A /sys/class/net/wlan* 2>/dev/null)" ] || \
+                   [ -n "$(ls -A /sys/class/net/ra* 2>/dev/null)" ] || \
+                   [ -n "$(ls -A /sys/class/net/wl* 2>/dev/null)" ] || \
+                   [ -n "$(ls -A /sys/class/net/ath* 2>/dev/null)" ]; then
+                    has_wifi="true"
+                # 2. 备用检测：iwinfo 射频状态
+                elif iwinfo 2>/dev/null | grep -q -E "ESSID|Access Point|Mode"; then
+                    has_wifi="true"
+                fi
+                
+                # 只有真正检测到硬件，但配置文件丢失时，才生成配置
+                if [ "$has_wifi" = "true" ] && [ ! -f /etc/config/wireless ]; then
+                    wifi config > /etc/config/wireless 2>/dev/null
+                fi
+
+                # --- IPv6 与 LAN NAT 冲突检测 ---
+                lan_zone_idx=$(uci show firewall 2>/dev/null | grep -E "\.name='?lan'?" | cut -d'.' -f2 | head -n 1)
+                lan_nat_conflict="false"
+                if [ -n "$lan_zone_idx" ]; then
+                    lan_masq=$(uci -q get firewall.$lan_zone_idx.masq)
+                    if [ "$lan_masq" = "1" ]; then
+                        lan_nat_conflict="true"
+                    fi
+                fi
+                # ------------------------------------------
+
+                # --- 获取架构信息，供前端核对文件名防呆 ---
+                pkg_type="ipk"
+                command -v apk >/dev/null 2>&1 && pkg_type="apk"
+                sys_arch=$(uname -m)
+
+                # 输出，把冲突状态和架构信息一起传给前端
+                echo "{\"has_wifi\":$has_wifi, \"lan_nat_conflict\":$lan_nat_conflict, \"pkg_type\":\"$pkg_type\", \"sys_arch\":\"$sys_arch\"}"
+                exit 0
+                ;;
+            
+            check_internet)
+                if ping -c 1 -W 2 223.5.5.5 >/dev/null 2>&1 || ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then echo '{"status":"ok"}'; else echo '{"status":"fail"}'; fi
+                exit 0
+                ;;
+            get_client_mac)
+                # 找出当前正在连接路由器网页后台(80/443端口)的设备 IP，匹配 MAC
+                client_ip=$(netstat -nt 2>/dev/null | awk '$4 ~ /:(80|443)$/ && $6 == "ESTABLISHED" {split($5, a, ":"); print a[1]}' | head -n 1)
+                
+                if [ -n "$client_ip" ]; then
+                    mac=$(cat /proc/net/arp 2>/dev/null | awk -v ip="$client_ip" '$1 == ip {print $4}')
+                fi
+                
+                # 兜底：降级抓取第一个活动的有效设备
+                if [ -z "$mac" ] || [ "$mac" = "00:00:00:00:00:00" ]; then
+                    mac=$(cat /proc/net/arp 2>/dev/null | grep -E "0x2" | grep -iv "00:00:00:00:00:00" | head -n 1 | awk '{print $4}')
+                fi
+                
+                echo "{\"mac\":\"$mac\"}"
+                exit 0
+                ;;
+            get_adv_settings)
+                mac=$(uci -q get network.wan.macaddr)
+                
+                web="0"
+                _src=$(uci -q get firewall.netwiz_web.src_dport 2>/dev/null)
+                _dest=$(uci -q get firewall.netwiz_web.dest_port 2>/dev/null)
+                
+                if [ -n "$_src" ]; then
+                    web="$_src"
+                elif [ -n "$_dest" ]; then
+                    if [ "$_dest" = "80 443" ]; then
+                        web="1"
+                    else
+                        web="$_dest"
+                    fi
+                fi
+                
+                cron="off"
+                if grep -q "netwiz_reboot" /etc/crontabs/root 2>/dev/null; then
+                    cron=$(grep "netwiz_reboot" /etc/crontabs/root | head -n 1 | awk '{print $1" "$2" "$3" "$4" "$5}')
+                fi
+                
+                hosts_json="[]"
+                if [ -s /etc/netwiz/hosts.json ]; then
+                    _tmp=$(cat /etc/netwiz/hosts.json 2>/dev/null)
+                    [ -n "$_tmp" ] && hosts_json="$_tmp"
+                fi
+                
+                # 从UCI配置文件读取曾经保存过的自定义端口
+                last_port=$(uci -q get netwiz.main.web_port 2>/dev/null)
+                [ -z "$last_port" ] && last_port="80"
+                
+                # --- 提取全局活跃公网 IPv6 地址 (过滤掉局域网 fd 开头的地址) ---
+                wan6_ip=$(ip -o -6 addr list scope global 2>/dev/null | grep -v "deprecated" | grep -v " fd" | awk '{print $4}' | cut -d'/' -f1 | head -n 1)
+                
+                # 输出 JSON 时加上 last_port 和 wan6_ip
+                echo "{\"mac\":\"$mac\", \"web\":\"$web\", \"cron\":\"$cron\", \"hosts\":$hosts_json, \"last_port\":\"$last_port\", \"wan6_ip\":\"$wan6_ip\"}"
+                exit 0
+                ;;
+            set_adv_settings)
+                input=$(cat)
+                mac=$(echo "$input" | jsonfilter -e '@.mac')
+                web=$(echo "$input" | jsonfilter -e '@.web')
+                cron=$(echo "$input" | jsonfilter -e '@.cron')
+
+                # --- 接收前端传来的 Hosts JSON 字符串 ---
+                hosts_str=$(echo "$input" | jsonfilter -e '@.hosts')
+                if echo "$input" | grep -q '"hosts"'; then
+                    mkdir -p /etc/netwiz
+                    echo "$hosts_str" > /etc/netwiz/hosts.json
+                    
+                    # 写入系统核心 /etc/hosts 
+                    # 采用重定向写入，极其安全，不破坏 OpenWrt 底层系统软连接
+                    cp /etc/hosts /tmp/hosts.bak 2>/dev/null
+                    sed '/# === NETWIZ HOSTS BEGIN ===/,/# === NETWIZ HOSTS END ===/d' /tmp/hosts.bak > /etc/hosts
+                    rm -f /tmp/hosts.bak
+                    
+                    # 写入新数据
+                    if [ -n "$hosts_str" ] && [ "$hosts_str" != "[]" ]; then
+                        echo "# === NETWIZ HOSTS BEGIN ===" >> /etc/hosts
+                        echo "$hosts_str" | sed 's/},{/\n/g' | grep '"en":true' | sed 's/.*"ip":"\([^"]*\)".*"dom":"\([^"]*\)".*/\1 \2/' >> /etc/hosts
+                        echo "# === NETWIZ HOSTS END ===" >> /etc/hosts
+                    fi
+                    
+                    # 清理上一版可能残留的旧配置
+                    if uci -q get dhcp.@dnsmasq[0].addnhosts | grep -q '/etc/dnsmasq.hosts.custom'; then
+                        uci del_list dhcp.@dnsmasq[0].addnhosts='/etc/dnsmasq.hosts.custom'
+                        uci commit dhcp
+                    fi
+                    
+                    # 重启底层 dnsmasq，所有插件都会瞬间读取到 /etc/hosts 的新规则
+                    /etc/init.d/dnsmasq restart &
+                fi
+                
+                if [ -n "$mac" ]; then
+                    if [ "$mac" = "none" ]; then uci delete network.wan.macaddr 2>/dev/null
+                    else uci set network.wan.macaddr="$mac"; fi
+                    uci commit network
+                    /etc/init.d/network restart &
+                fi
+
+                # ========== 1. 外网访问配置逻辑 (包含 Procd 保活) ==========
+                if [ -n "$web" ]; then
+                    
+                # --- 后端核心安全校验 (防绕过与防注入) ---
+                if [ "$web" != "0" ] && [ "$web" != "1" ] && [ "$web" != "80" ] && [ "$web" != "443" ]; then
+                    if ! expr "$web" + 0 >/dev/null 2>&1; then echo '{"status":"error", "msg":"Security Block: Invalid port format"}'; exit 0; fi
+                    if [ "$web" -lt 1 ] || [ "$web" -gt 65535 ]; then echo '{"status":"error", "msg":"Security Block: Port out of range"}'; exit 0; fi
+                    case "$web" in 21|22|23|53|67|68|445) echo '{"status":"error", "msg":"Security Block: Danger port is not allowed"}'; exit 0; ;; esac
+                    
+                    # 动态检测端口是否已被占用
+                    if netstat -tuln 2>/dev/null | awk '{print $4}' | grep -E -q ":$web$"; then
+                        is_uhttpd=$(netstat -tulpn 2>/dev/null | grep -E ":$web " | grep "uhttpd")
+                        if [ -z "$is_uhttpd" ]; then
+                            # exit 0 送达前端
+                            echo '{"status":"error", "msg":"Port Conflict: Port '$web' is already in use by another application!"}'
+                            exit 0
+                        fi
+                    fi
+                fi
+                # ----------------------------------------
+
+                    # --- Web 服务端口联动 ---
+                    # 彻底清空并重建 uhttpd 的 HTTP 监听列表，完美解决 option/list 冲突引发的静默失败
+                    uci -q delete uhttpd.main.listen_http
+                    uci add_list uhttpd.main.listen_http="0.0.0.0:80"
+                    uci add_list uhttpd.main.listen_http="[::]:80"
+                    
+                    # 如果开启了外网访问且自定义了非标端口，则安全追加监听
+                    if [ "$web" != "0" ] && [ "$web" != "1" ] && [ "$web" != "80" ] && [ "$web" != "443" ]; then
+                        uci add_list uhttpd.main.listen_http="0.0.0.0:$web"
+                        uci add_list uhttpd.main.listen_http="[::]:$web"
+                    fi
+                    uci commit uhttpd
+                    # ----------------------------------------
+
+                    uci -q delete firewall.netwiz_web
+                    
+                    # 记忆用户输入的非标端口统一保存到底层UCI配置文件
+                    if [ "$web" != "0" ] && [ "$web" != "1" ] && [ "$web" != "80" ] && [ "$web" != "443" ]; then
+                        [ ! -f /etc/config/netwiz ] && touch /etc/config/netwiz
+                        uci -q get netwiz.main >/dev/null 2>&1 || uci set netwiz.main=main
+                        uci set netwiz.main.web_port="$web"
+                        uci commit netwiz
+                    fi
+                    
+                    if [ "$web" != "0" ]; then
+                        if [ "$web" = "1" ] || [ "$web" = "80" ] || [ "$web" = "443" ]; then
+                            uci set firewall.netwiz_web=rule
+                            uci set firewall.netwiz_web.name='Netwiz_Web_Access'
+                            uci set firewall.netwiz_web.src='wan'
+                            if [ "$web" = "1" ]; then
+                                uci set firewall.netwiz_web.dest_port='80 443'
+                            else
+                                uci set firewall.netwiz_web.dest_port="$web"
+                            fi
+                            uci set firewall.netwiz_web.target='ACCEPT'
+                            uci set firewall.netwiz_web.proto='tcp'
+                        else
+                            # --- 兼容 IPv6 的入站规则 (rule)，彻底废弃端口转发 (redirect) ---
+                            uci set firewall.netwiz_web=rule
+                            uci set firewall.netwiz_web.name='Netwiz_Web_Custom'
+                            uci set firewall.netwiz_web.src='wan'
+                            uci set firewall.netwiz_web.dest_port="$web"
+                            uci set firewall.netwiz_web.target='ACCEPT'
+                            uci set firewall.netwiz_web.proto='tcp'
+                        fi
+
+                        # 双保险：动态生成 OpenWrt 原生 procd 守护服务
+                        cat << 'EOF' > /etc/init.d/netwiz-keepalive
+#!/bin/sh /etc/rc.common
+START=99
+USE_PROCD=1
+
+start_service() {
+    procd_open_instance
+    procd_set_param command /bin/sh -c "while true; do ping -6 -c 1 -W 1 2400:3200::1 >/dev/null 2>&1; sleep 20; done"
+    procd_set_param respawn
+    procd_close_instance
+}
+EOF
+                        chmod +x /etc/init.d/netwiz-keepalive
+                        /etc/init.d/netwiz-keepalive enable
+                        /etc/init.d/netwiz-keepalive start
+
+                    else
+                        # 关闭外网访问时，停止并彻底销毁保活守护进程
+                        if [ -f /etc/init.d/netwiz-keepalive ]; then
+                            /etc/init.d/netwiz-keepalive stop >/dev/null 2>&1
+                            /etc/init.d/netwiz-keepalive disable >/dev/null 2>&1
+                            rm -f /etc/init.d/netwiz-keepalive
+                        fi
+                    fi
+                    
+                    uci commit firewall
+                
+                    # 背景执行防火墙重启与高级应用唤醒防止代理规则被冲刷
+                    (
+                        # 优先重启 uhttpd 让新端口立刻生效
+                        /etc/init.d/uhttpd restart >/dev/null 2>&1
+                        /etc/init.d/firewall restart >/dev/null 2>&1
+                        # 等待防火墙完全启动后再次唤醒依赖网络的高级应用
+                        sleep 8
+                        restart_depend_apps >/dev/null 2>&1
+                    ) &
+                fi
+                # ========== 2. 定时重启逻辑 (保留您原本的，完全不用改) ==========
+                if [ -n "$cron" ]; then
+                    touch /etc/crontabs/root
+                    grep -v "netwiz_reboot" /etc/crontabs/root > /tmp/cron.tmp 2>/dev/null || true
+                    if [ "$cron" != "off" ]; then echo "$cron sleep 70 && touch /etc/banner && reboot #netwiz_reboot" >> /tmp/cron.tmp; fi
+                    mv /tmp/cron.tmp /etc/crontabs/root
+                    /etc/init.d/cron restart 2>/dev/null
+                fi
+                echo '{"result":0}'
+                exit 0
+                ;;
+
+            check_missing_pkgs)
+                missing_pkgs=""
+                provided_pkgs=""
+                official_pkgs=""
+                
+                # 1. 取 /etc/netwiz/custom_pkgs/ 里面的文件
+                for file in /etc/netwiz/custom_pkgs/*.[ia]pk; do
+                    if [ -f "$file" ]; then
+                        filename=$(basename "$file")
+                        # 保险箱有netwiz，直接跳过，显示在「已备妥」清单
+                        if echo "$filename" | grep -qi "netwiz"; then
+                            continue
+                        fi
+                        provided_pkgs="$provided_pkgs $filename"
+                    fi
+                done
+
+                # 2. 比对函数：是否备妥了该插件的安装包，兼容任意前缀、版本号后缀
+                check_pkg_missing() {
+                    local p=$1
+                    if ls /etc/netwiz/custom_pkgs/*${p}*.[ia]pk >/dev/null 2>&1; then
+                        : # 找到了包含该包名的物理文件，不做处理
+                    else
+                        missing_pkgs="$missing_pkgs $p"
+                    fi
+                }
+                
+                # 3. 扫描系统中已安裝与同步源
+                if [ ! -f "/tmp/nw_pkg_updated_ok" ]; then
+                    # 正在更新，直接抛错，掐断前端的重试请求，不堵塞网络
+                    if [ -f "/tmp/nw_pkg_updating" ]; then
+                        exit 1
+                    fi
+                    touch "/tmp/nw_pkg_updating"
+
+                    if ping -c 1 -W 2 223.5.5.5 >/dev/null 2>&1 || ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
+                        log "[BACKUP]" "检测到网络畅通，正在同步软件源..."
+                        
+                        current_year=$(date +%Y)
+                        if [ "$current_year" -lt 2024 ]; then
+                            ntpd -n -q -p ntp.aliyun.com >/dev/null 2>&1 || ntpd -n -q -p time.apple.com >/dev/null 2>&1
+                        fi
+                        
+                        if command -v opkg >/dev/null 2>&1; then
+                            opkg update >/dev/null 2>&1
+                        elif command -v apk >/dev/null 2>&1; then
+                            apk update >/dev/null 2>&1
+                        fi
+                        
+                        touch "/tmp/nw_pkg_updated_ok"
+                        log "[BACKUP]" "软件源同步完毕！"
+                    fi
+                    rm -f "/tmp/nw_pkg_updating"
+                fi
+
+                # 4. 统一获取已安装列表与精准确比对
+                installed=""
+                # 优先使用 opkg！官方的无缝包装器
+                if command -v opkg >/dev/null 2>&1; then
+                    installed=$(opkg list-installed 2>/dev/null | awk '{print $1}' | grep -E "^luci-(app|theme)-")
+                    
+                    # 调用包装器生成官方包列表
+                    avail_pkgs=$(opkg list 2>/dev/null | awk '{print $1}')
+                    
+                    for pkg in $installed; do
+                        # opkg扫描时遇到netwiz相关文件直接跳过，不列入比对名单
+                        if echo "$pkg" | grep -qi "netwiz"; then
+                            continue
+                        fi
+                        
+                        if echo "$avail_pkgs" | grep -qx "$pkg"; then
+                            official_pkgs="$official_pkgs $pkg"
+                        else
+                            check_pkg_missing "$pkg"
+                        fi
+                    done
+                    
+                elif command -v apk >/dev/null 2>&1; then
+                    # 仅在极限精简的纯血 apk 固件上才会走到这里
+                    installed=$(apk info 2>/dev/null | grep -E "^luci-(app|theme)-")
+                    if [ -z "$installed" ]; then
+                        installed=$(apk list -I 2>/dev/null | awk '{print $1}' | grep -E "^luci-(app|theme)-")
+                    fi
+                    
+                    for pkg in $installed; do
+                        # apk扫描时遇到netwiz相关文件直接跳过，不列入比对名单
+                        if echo "$pkg" | grep -qi "netwiz"; then
+                            continue
+                        fi
+                        
+                        # 精确查询，逐个查验
+                        if [ -n "$(apk search -q -e "$pkg" 2>/dev/null)" ]; then
+                            official_pkgs="$official_pkgs $pkg"
+                        else
+                            check_pkg_missing "$pkg"
+                        fi
+                    done
+                fi
+                
+                # 4. JSON 阵列格式
+                m_arr=""
+                if [ -n "$missing_pkgs" ]; then m_arr='"'"$(echo "$missing_pkgs" | awk '{$1=$1;print}' | sed 's/ /","/g')"'"'; fi
+                
+                p_arr=""
+                if [ -n "$provided_pkgs" ]; then p_arr='"'"$(echo "$provided_pkgs" | awk '{$1=$1;print}' | sed 's/ /","/g')"'"'; fi
+                
+                o_arr=""
+                if [ -n "$official_pkgs" ]; then o_arr='"'"$(echo "$official_pkgs" | awk '{$1=$1;print}' | sed 's/ /","/g')"'"'; fi
+                
+                # 回传：缺失插件、文件插件、官方插件
+                pkg_type="ipk"
+                command -v apk >/dev/null 2>&1 && pkg_type="apk"
+                sys_arch=$(uname -m)
+                
+                echo "{ \"missing\": [$m_arr], \"provided\": [$p_arr], \"official\": [$o_arr], \"pkg_type\": \"$pkg_type\", \"sys_arch\": \"$sys_arch\" }"
+                ;;
+                
+            confirm)
+                # 收到前端存活信号，连通性确认成功
+                # 一键清理所有看门狗标记与健康备份档案
+                if [ -f /tmp/netwiz_rollback_time ] || [ -f /etc/netwiz_pending_recovery ]; then
+                    
+                    # 拆除 LAN 120 秒看门狗与异常断电备份
+                    rm -f /tmp/netwiz_rollback_time \
+                          /tmp/netwiz_target_ip \
+                          /etc/config/network.netwiz_bak \
+                          /etc/config/dhcp.netwiz_bak \
+                          /etc/config/network.netwiz_wan_bak
+                          
+                    # 拆除跨重启物理看门狗 (/etc)
+                    rm -f /etc/netwiz_pending_recovery
+                    rm -rf /etc/netwiz/failsafe
+                    
+                    log "前端已重新连接：已彻底拆除所有防失联回滚装置！"
+                fi
+                echo '{"status": "confirmed", "result": 0}'
+                exit 0
+                ;;
+                
+            check_ip_conflict)
+                read input
+                # 前端传來的 IP
+                req_ip=$(echo "$input" | jsonfilter -e '@.ip')
+                
+                if ping -c 1 -W 1 "$req_ip" >/dev/null 2>&1; then
+                    # Ping 通了，-> 冲突
+                    echo '{ "status": "conflict" }'
+                else
+                    # Ping 不通，-> 安全
+                    echo '{ "status": "safe" }'
+                fi
+                ;;
+
+            # 获取向导状态与智能探针
+                get_wizard_status)
+                    configured=$(uci -q get netwiz.global.configured)
+                    [ -z "$configured" ] && configured=0
+                    
+                    wizard_enable=$(uci -q get netwiz.main.wizard_enable)
+                    [ -z "$wizard_enable" ] && wizard_enable=1
+
+                    is_pppoe=0
+                    wan_proto=$(uci -q get network.wan.proto)
+                    wan_user=$(uci -q get network.wan.username)
+                    if [ "$wan_proto" = "pppoe" ] && [ -n "$wan_user" ]; then
+                        is_pppoe=1
+                    fi
+
+                    echo "{\"configured\": $configured, \"wizard_enable\": $wizard_enable, \"is_pppoe\": $is_pppoe}"
+                    exit 0
+                    ;;
+
+                # 状态锁控
+                set_wizard_status)
+                    input=$(cat)
+                    mode=$(echo "$input" | jsonfilter -e '@.mode')
+                    
+                    # 防呆
+                    # 检查并创建节点，防止因为配置文件缺失导致的 uci set 静默失效
+                    [ ! -f /etc/config/netwiz ] && touch /etc/config/netwiz
+                    uci -q get netwiz.global >/dev/null 2>&1 || uci set netwiz.global=global
+                    uci -q get netwiz.main >/dev/null 2>&1 || uci set netwiz.main=main
+
+                    if [ "$mode" = "skip" ]; then
+                        # 普通跳过
+                        uci set netwiz.global.configured='1'
+                    elif [ "$mode" = "restore" ]; then
+                        # 手动恢复弹窗
+                        uci set netwiz.global.configured='1'
+                        uci set netwiz.main.wizard_enable='1'
+                    elif [ "$mode" = "done" ]; then
+                        # 彻底完成/不再提示
+                        uci set netwiz.global.configured='1'
+                        uci set netwiz.main.wizard_enable='0'
+                    fi
+                    
+                    uci commit netwiz
+                    sync  # 刷入物理闪存，防止丢失
+                    
+                    echo '{"result": 0}'
+                    exit 0
+                    ;;
+
+            set_network)
+                    set +e
+                    
+                    # 应用网络配置，死锁向导
+                    [ ! -f /etc/config/netwiz ] && touch /etc/config/netwiz
+                    uci -q get netwiz.global >/dev/null 2>&1 || uci set netwiz.global=global
+                    uci -q get netwiz.main >/dev/null 2>&1 || uci set netwiz.main=main
+                    
+                    uci set netwiz.global.configured='1'
+                    uci set netwiz.main.wizard_enable='0'
+                    uci commit netwiz
+                    sync  # 将RAM缓存瞬间刷入物理闪存，防止重启网络时丢失
+                    
+                    log "接收到前端下发的新配置，删除所有历史备份记录"
+
+                rm -f /etc/config/network.netwiz_wan_bak /etc/config/network.netwiz_bak /etc/config/dhcp.netwiz_bak
+                # ====================================================================
+
+                input=$(cat)
+                mode=$(echo "$input" | jsonfilter -e '@.mode')
+                arg1=$(echo "$input" | jsonfilter -e '@.arg1')
+                arg2=$(echo "$input" | jsonfilter -e '@.arg2')
+                arg3=$(echo "$input" | jsonfilter -e '@.arg3')
+                arg4=$(echo "$input" | jsonfilter -e '@.arg4')
+                arg5=$(echo "$input" | jsonfilter -e '@.arg5')
+                arg6=$(echo "$input" | jsonfilter -e '@.arg6')
+
+                validate_strict_ip() {
+                    if [ -n "$1" ] && ! echo "$1" | awk -F. 'NF==4 && $1>=0 && $1<=255 && $2>=0 && $2<=255 && $3>=0 && $3<=255 && $4>=0 && $4<=255 {print "ok"}' | grep -q "ok"; then
+                        log "安全拦截 IP格式非法"
+                        echo '{"result":1,"error":"Invalid format"}'
+                        exit 1
+                    fi
+                }
+
+                if [ "$mode" = "wan_static" ] || [ "$mode" = "lan" ]; then
+                    validate_strict_ip "$arg1"
+                    validate_strict_ip "$arg2"
+                    validate_strict_ip "$arg3"
+                fi
+
+                cleanup_lan_for_wan_modes() {
+                    uci delete network.lan.gateway 2>/dev/null || true
+                    uci delete network.lan.dns 2>/dev/null || true
+                    uci set dhcp.lan.ignore='0'
+                }
+
+                # --- 协议净化 ---
+                cleanup_wan_for_proto() {
+                    local target="$1"
+                    
+                    # 1. 切换后，统一刪除容易 netifd 死锁的 DHCP 干扰
+                    uci delete network.wan.reqopts 2>/dev/null || true
+                    uci delete network.wan.clientid 2>/dev/null || true
+                    uci delete network.wan.vendorid 2>/dev/null || true
+                    
+                    # 2. 根据目标协议，删除「不兼容」的参数，保留dns、metric等共享高级设定
+                    if [ "$target" = "pppoe" ]; then
+                        uci delete network.wan.ipaddr 2>/dev/null || true
+                        uci delete network.wan.netmask 2>/dev/null || true
+                        uci delete network.wan.gateway 2>/dev/null || true
+                    elif [ "$target" = "dhcp" ]; then
+                        uci delete network.wan.ipaddr 2>/dev/null || true
+                        uci delete network.wan.netmask 2>/dev/null || true
+                        uci delete network.wan.gateway 2>/dev/null || true
+                        uci delete network.wan.username 2>/dev/null || true
+                        uci delete network.wan.password 2>/dev/null || true
+                        uci delete network.wan.ipv6 2>/dev/null || true
+                        uci delete network.wan.norelease 2>/dev/null || true
+                        uci delete network.wan.multipath 2>/dev/null || true
+                    elif [ "$target" = "static" ]; then
+                        uci delete network.wan.username 2>/dev/null || true
+                        uci delete network.wan.password 2>/dev/null || true
+                        uci delete network.wan.ipv6 2>/dev/null || true
+                        uci delete network.wan.norelease 2>/dev/null || true
+                        uci delete network.wan.multipath 2>/dev/null || true
+                    fi
+                }
+                # -------------------------------------------------------------
+
+                CURRENT_LAN_IP=$(uci -q get network.lan.ipaddr | cut -d/ -f1)
+
+                # 各模式网络写入
+                
+                # ====== 首次开机向导模式 (Wizard) ======
+                # 一次性接收并处理上网方式与 Wi-Fi 设定，最后统一重启网络
+                if [ "$mode" = "wizard" ]; then
+                    log ">>> [向导模式] 开始执行双通道配置任务..."
+                    
+                    # 1. 提取向导中的路由/WAN参数
+                    wiz_wan_type=$(echo "$arg1" | jsonfilter -e '@.wan_type' || echo "dhcp")
+                    
+                    cleanup_lan_for_wan_modes;
+                    if [ "$wiz_wan_type" = "dhcp" ]; then
+                        log "向导: 写入 DHCP 动态获取配置"
+                        cleanup_wan_for_proto "dhcp"
+                        uci set network.wan.proto='dhcp'
+                    elif [ "$wiz_wan_type" = "static" ]; then
+                        log "向导: 写入静态 IP 配置"
+                        cleanup_wan_for_proto "static"
+                        wiz_ip=$(echo "$arg1" | jsonfilter -e '@.ip')
+                        wiz_gw=$(echo "$arg1" | jsonfilter -e '@.gw')
+                        wiz_mask=$(echo "$arg1" | jsonfilter -e '@.mask')
+                        
+                        # 静默格式检查 (非法直接退回 DHCP 兜底，防止挂掉)
+                        if echo "$wiz_ip" | awk -F. 'NF==4 {print "ok"}' | grep -q "ok" && \
+                           echo "$wiz_gw" | awk -F. 'NF==4 {print "ok"}' | grep -q "ok"; then
+                            uci set network.wan.proto='static'
+                            uci set network.wan.ipaddr="$wiz_ip"
+                            uci set network.wan.gateway="$wiz_gw"
+                            uci set network.wan.netmask="$wiz_mask"
+                        else
+                            log "向导警告: 静态IP格式非法，安全回退至 DHCP"
+                            cleanup_wan_for_proto "dhcp"
+                            uci set network.wan.proto='dhcp'
+                        fi
+                    elif [ "$wiz_wan_type" = "pppoe" ]; then
+                        log "向导: 写入 PPPoE 拨号配置"
+                        wiz_user=$(echo "$arg1" | jsonfilter -e '@.user')
+                        wiz_pass=$(echo "$arg1" | jsonfilter -e '@.pass')
+                        cleanup_wan_for_proto "pppoe"
+                        uci set network.wan.proto='pppoe'
+                        [ -n "$wiz_user" ] && uci set network.wan.username="$wiz_user"
+                        [ -n "$wiz_pass" ] && uci set network.wan.password="$wiz_pass"
+                        
+                        uci set network.wan.ipv6='auto'
+                        uci set network.wan.norelease='1'
+                        uci set network.wan.multipath='off'
+                        # -----------------------
+                    fi
+                    
+                    uci commit network; uci commit dhcp
+                    log "向导: 上网配置已提交，准备接管并透传 Wi-Fi 配置任务..."
+                    
+
+                    # 2. 现成的 Wi-Fi 处理引擎
+                    mode="wifi"
+                    arg1="$arg2"
+                fi
+                # ==================================
+
+                if [ "$mode" = "wan_dhcp" ]; then
+                    cleanup_lan_for_wan_modes;
+                    cleanup_wan_for_proto "dhcp"
+                    uci set network.wan.proto='dhcp'
+                    uci commit network; uci commit dhcp
+                elif [ "$mode" = "wan_static" ]; then
+                    cleanup_lan_for_wan_modes;
+                    cleanup_wan_for_proto "static"
+                    uci set network.wan.proto='static'
+                    uci set network.wan.ipaddr="$arg1"
+                    uci set network.wan.gateway="$arg2"
+                    uci set network.wan.netmask="$arg3"
+                    uci commit network; uci commit dhcp
+                elif [ "$mode" = "pppoe" ]; then
+                    cleanup_lan_for_wan_modes;
+                    cleanup_wan_for_proto "pppoe"
+                    uci set network.wan.proto='pppoe'
+                    uci set network.wan.username="$arg1"
+                    uci set network.wan.password="$arg2"
+
+                    uci set network.wan.ipv6='auto'
+                    uci set network.wan.norelease='1'
+                    uci set network.wan.multipath='off'
+                    # ----------------------------------------------
+                    
+                    uci commit network; uci commit dhcp
+
+                # ==========================================
+                # 拦截并静默处理向导状态的写入 (包含跳过/关闭时的劫持释放)
+                elif [ "$mode" = "set_wizard" ]; then
+                    log "静默修改向导弹出状态为: $arg1"
+                    
+                    # 确保文件存在，防止 uci 报错
+                    [ ! -f /etc/config/netwiz ] && touch /etc/config/netwiz
+                    
+                    uci -q get netwiz.main >/dev/null 2>&1 || uci set netwiz.main=global
+                    uci set netwiz.main.wizard_enable="$arg1"
+                    
+                    uci -q get netwiz.global >/dev/null 2>&1 || uci set netwiz.global=netwiz
+                    uci set netwiz.global.configured='1'
+                    
+                    uci commit netwiz
+                    
+                    if [ -f /www/cgi-bin/luci.bak ]; then
+                        log "释放底层 LuCI 强制劫持"
+                        mv /www/cgi-bin/luci.bak /www/cgi-bin/luci
+                    fi
+
+                    echo '{"result":0}'
+                    exit 0
+                # ==========================================
+
+                elif [ "$mode" = "lan" ]; then
+                    
+                    # LAN 口 120 秒安全模式防失联 (跨重启物理防砖)
+                    if [ "$arg5" = "1" ]; then
+                        log ">>> [LAN设置] 已启用 120 秒安全模式，生成物理防砖备份..."
+                        cp -p /etc/config/network /etc/config/network.netwiz_bak 2>/dev/null
+                        cp -p /etc/config/dhcp /etc/config/dhcp.netwiz_bak 2>/dev/null
+                        touch /tmp/netwiz_rollback_time
+                        
+                        (
+                            sleep 120
+                            if [ -f "/tmp/netwiz_rollback_time" ]; then
+                                logger -t Netwiz "[WATCHDOG] 🚨 LAN 120秒超时！前端未重连，执行回滚！"
+                                echo "$(date '+%F %T') [WATCHDOG] 🚨 LAN口 120秒内未重连，触发安全回滚！" >> /etc/netwiz_recovery.log
+                                cp -p /etc/config/network.netwiz_bak /etc/config/network 2>/dev/null
+                                cp -p /etc/config/dhcp.netwiz_bak /etc/config/dhcp 2>/dev/null
+                                /etc/init.d/network restart
+                                /etc/init.d/dnsmasq restart
+                                rm -f /tmp/netwiz_rollback_time
+                            fi
+                        ) </dev/null >/dev/null 2>&1 &
+                    fi
+
+                    uci set network.lan.proto='static'; uci set network.lan.ipaddr="$arg1"; uci set network.lan.netmask="$arg3"
+                    if [ -n "$arg2" ]; then uci set network.lan.gateway="$arg2"; else uci delete network.lan.gateway 2>/dev/null || true; fi
+                    if [ "$arg4" = "1" ]; then
+                        uci set dhcp.lan.ignore='1'
+                        [ -n "$arg2" ] && uci set network.lan.dns="$arg2"
+                    else
+                        uci set dhcp.lan.ignore='0'; uci delete network.lan.dns 2>/dev/null || true
+                    fi
+                    
+                    # ==========================================
+                    # IPv6 状态对齐与自愈
+                    # ==========================================
+                    current_v6=$(uci -q get dhcp.lan.dhcpv6) # 获取路由器当前真实的 IPv6 状态
+                    
+                    # 如前端明确要求开启 (arg6=1)，或者前端没传但底层原本就是开启的 (current_v6=server)
+                    if [ "$arg6" = "1" ] || { [ -z "$arg6" ] && [ "$current_v6" = "server" ]; }; then
+                        log ">>> [IPv6] 强制清洗并应用标准 DHCPv6 五重参数..."
+                        # 1. 净化 ULA 前缀
+                        uci -q delete network.globals.ula_prefix
+                        
+                        # 2. 确保 LAN 口拥有申请 IPv6 前缀的权限
+                        uci set network.lan.ip6assign='60' 
+
+                        # 3. 开启服务与通告
+                        uci set dhcp.lan.dhcpv6='server'
+                        uci set dhcp.lan.ra='server'
+                        uci set dhcp.lan.ndp='server'
+                        
+                        # 4. 开启 SLAAC (增加安卓兼容性)
+                        uci set dhcp.lan.ra_slaac='1'
+                        
+                        # 5. 注入 M-Flag 和 O-Flag (先删后加防重复)
+                        uci -q del_list dhcp.lan.ra_flags='managed-config'
+                        uci add_list dhcp.lan.ra_flags='managed-config'
+                        uci -q del_list dhcp.lan.ra_flags='other-config'
+                        uci add_list dhcp.lan.ra_flags='other-config'
+                        
+                        uci commit network
+                        
+                    elif [ "$arg6" = "0" ]; then
+                        log ">>> [IPv6] 明确要求关闭，执行无痕清理..."
+                        uci set dhcp.lan.dhcpv6='disabled'
+                        uci set dhcp.lan.ra='disabled'
+                        uci set dhcp.lan.ndp='disabled'
+                        
+                        uci -q delete dhcp.lan.ra_slaac
+                        uci -q del_list dhcp.lan.ra_flags='managed-config'
+                        uci -q del_list dhcp.lan.ra_flags='other-config'
+                    fi
+                    
+                    uci commit dhcp
+                    
+                    uci commit network; uci commit dhcp
+                elif [ "$mode" = "wifi" ]; then
+                    payload="$arg1"
+                    echo '{"result":0}'
+
+                    # 放入后台执行 避免前端卡死
+                    (
+                        exec >/tmp/netwiz_debug.log 2>&1 </dev/null
+                        set -x
+                        log ">>> [步骤 1/5] 无线配置子进程启动，开始解析前端 Payload"
+                        smart=$(echo "$payload" | jsonfilter -e '@.smart' || echo "false")
+                        log "识别到智能模式状态: $smart"
+
+                        list_2g=""
+                        list_5g=""
+                        dev_list=$(uci show wireless 2>/dev/null | grep '=wifi-device' | cut -d'.' -f2 | cut -d'=' -f1 || true)
+
+                        if [ -z "$dev_list" ]; then
+                            log "未找到无线网卡 终止操作"
+                            exit 1
+                        fi
+
+                        # 解析物理网卡频段
+                        for dev in $dev_list; do
+                            hwmode=$(uci -q get wireless.$dev.hwmode | tr 'A-Z' 'a-z' || true)
+                            band=$(uci -q get wireless.$dev.band | tr 'A-Z' 'a-z' || true)
+                            path=$(uci -q get wireless.$dev.path || true)
+                            is_5g=0
+                            current_channel=$(uci -q get wireless.$dev.channel || echo "0")
+                            current_ht=$(uci -q get wireless.$dev.htmode | tr 'A-Z' 'a-z' || echo "")
+
+                            # Wi-Fi 6/7 (11ax/11be) 在 2.4G 频段的误判 Bug
+                            if [ "$band" = "5g" ] || [ "$band" = "6g" ]; then is_5g=1
+                            elif [ "$band" = "2g" ]; then is_5g=0
+                            elif [ "$current_channel" != "0" ] && [ "$current_channel" != "auto" ] && [ "$current_channel" -ge 36 ]; then is_5g=1
+                            elif [ "$current_channel" != "0" ] && [ "$current_channel" != "auto" ] && [ "$current_channel" -le 14 ]; then is_5g=0
+                            elif echo "$current_ht" | grep -qE "80|160|320"; then is_5g=1
+                            elif echo "$hwmode" | grep -qE "11a|11ac"; then is_5g=1
+                            elif echo "$hwmode" | grep -qE "11b|11g"; then is_5g=0
+                            else
+                                # 没有明确特征，radio0 归 2.4G，其余归 5G
+                                if echo "$dev" | grep -qE "radio0"; then is_5g=0; else is_5g=1; fi
+                            fi
+
+                            if [ "$is_5g" = "1" ]; then
+                                list_5g="$list_5g $dev"
+                            else
+                                list_2g="$list_2g $dev"
+                            fi
+                        done
+
+                        # 处理防重叠
+                        if [ $(echo "$list_5g" | wc -w) -ge 2 ] && [ -z "$list_2g" ]; then
+                            list_2g=$(echo $list_5g | awk '{print $1}')
+                            list_5g=$(echo $list_5g | cut -d' ' -f2-)
+                        elif [ $(echo "$list_2g" | wc -w) -ge 2 ] && [ -z "$list_5g" ]; then
+                            list_5g=$(echo $list_2g | awk '{print $2}')
+                            list_2g=$(echo $list_2g | awk '{print $1}')
+                        fi
+
+                        log ">>> [步骤 2/5] 网卡归类完毕。2.4G阵列: [$list_2g] | 5G阵列: [$list_5g]"
+                        log "清空所有旧的无线网络接口"
+                        while uci -q delete wireless.@wifi-iface[0]; do :; done
+
+                        # 定义写网卡函数
+                        configure_physical_radio() {
+                            local dev="$1"
+                            local ui_prefix="$2"
+                            local iface_name="$3"
+                            local intended_band="$4"
+                            local ssid_suffix="$5"
+
+                            local p_en=$(echo "$payload" | jsonfilter -e "@.${ui_prefix}.enabled" || echo "0")
+                            local p_ssid=$(echo "$payload" | jsonfilter -e "@.${ui_prefix}.ssid" || echo "")
+                            
+                            # <--- 有后缀，自动追加到 SSID 尾部
+                            if [ -n "$p_ssid" ] && [ -n "$ssid_suffix" ]; then
+                                p_ssid="${p_ssid}${ssid_suffix}"
+                            fi
+                            local p_key=$(echo "$payload" | jsonfilter -e "@.${ui_prefix}.key" || echo "")
+                            local p_enc=$(echo "$payload" | jsonfilter -e "@.${ui_prefix}.encryption" || echo "sae-mixed")
+                            local p_hidden=$(echo "$payload" | jsonfilter -e "@.${ui_prefix}.hidden" || echo "0")
+                            local p_mode=$(echo "$payload" | jsonfilter -e "@.${ui_prefix}.mode" || echo "auto")
+                            local p_chan=$(echo "$payload" | jsonfilter -e "@.${ui_prefix}.channel" || echo "auto")
+                            local p_bw=$(echo "$payload" | jsonfilter -e "@.${ui_prefix}.bandwidth" || echo "auto")
+                            local p_roam=$(echo "$payload" | jsonfilter -e "@.${ui_prefix}.roaming" || echo "0")
+
+                            uci set wireless.$iface_name=wifi-iface
+                            uci set wireless.$iface_name.device="$dev"
+                            uci set wireless.$iface_name.network="lan"
+                            uci set wireless.$iface_name.mode="ap"
+                            uci set wireless.$dev.country='CN'
+
+                            if [ "$p_en" = "0" ]; then
+                                uci set wireless.$iface_name.disabled='1'
+                            else
+                                uci delete wireless.$iface_name.disabled 2>/dev/null || true
+                                uci delete wireless.$dev.disabled 2>/dev/null || true
+                            fi
+
+                            [ -n "$p_ssid" ] && uci set wireless.$iface_name.ssid="$p_ssid"
+
+                            # === 只要有密码，不允许 none ===
+                            if [ "$p_enc" = "none" ] && [ -n "$p_key" ]; then
+                                p_enc="sae-mixed"
+                            fi
+                            if [ "$p_enc" = "psk2+sae" ]; then p_enc="sae-mixed"; fi
+                            
+                            [ -n "$p_enc" ] && uci set wireless.$iface_name.encryption="$p_enc"
+                            
+                            # 只有在非 none 的情况下，才允许写入密码
+                            if [ "$p_enc" != "none" ] && [ -n "$p_key" ]; then
+                                uci set wireless.$iface_name.key="$p_key"
+                            else
+                                uci delete wireless.$iface_name.key 2>/dev/null || true
+                            fi
+                            # ==================================================
+
+                            if echo "$p_enc" | grep -q "sae"; then uci set wireless.$iface_name.ieee80211w='1'
+                            else uci delete wireless.$iface_name.ieee80211w 2>/dev/null || true; fi
+
+                            if [ "$p_roam" = "1" ] && [ "$p_enc" != "none" ] && [ -n "$p_enc" ]; then
+                                uci set wireless.$iface_name.ieee80211r='1'
+                                uci set wireless.$iface_name.ieee80211k='1'
+                                uci set wireless.$iface_name.ieee80211v='1'
+                                uci delete wireless.$iface_name.ft_psk_generate_local 2>/dev/null || true
+                                uci set wireless.$iface_name.ft_over_ds='0'
+                                uci set wireless.$iface_name.mobility_domain='e4d1'
+                                uci set wireless.$iface_name.ocv='0'
+                            else
+                                uci delete wireless.$iface_name.ieee80211r 2>/dev/null || true
+                                uci delete wireless.$iface_name.ieee80211k 2>/dev/null || true
+                                uci delete wireless.$iface_name.ieee80211v 2>/dev/null || true
+                                uci delete wireless.$iface_name.ft_psk_generate_local 2>/dev/null || true
+                                uci delete wireless.$iface_name.ft_over_ds 2>/dev/null || true
+                                uci delete wireless.$iface_name.mobility_domain 2>/dev/null || true
+                                uci delete wireless.$iface_name.ocv 2>/dev/null || true
+                            fi
+
+                            if [ "$p_hidden" = "1" ]; then uci set wireless.$iface_name.hidden='1'; else uci delete wireless.$iface_name.hidden 2>/dev/null || true; fi
+
+                            if [ "$p_en" = "1" ] || [ "$smart" = "true" ]; then
+                                if [ "$p_chan" != "auto" ] && [ -n "$p_chan" ]; then uci set wireless.$dev.channel="$p_chan"; else uci set wireless.$dev.channel='auto'; fi
+
+                                # ===== 显式写入硬件模式 (hwmode)，解决空白及不激活 Bug =====
+                                uci set wireless.$dev.band="$intended_band"
+                                if [ "$intended_band" = "5g" ]; then
+                                    uci set wireless.$dev.hwmode="11a"
+                                else
+                                    if [ "$p_mode" = "11b" ]; then
+                                        uci set wireless.$dev.hwmode="11b"
+                                    else
+                                        uci set wireless.$dev.hwmode="11g"
+                                    fi
+                                fi
+
+                                local current_ht=$(uci -q get wireless.$dev.htmode || echo "")
+                                local final_bw="40"
+                                if [ "$intended_band" = "5g" ]; then final_bw="80"; fi
+                                if [ "$p_bw" != "auto" ] && [ -n "$p_bw" ]; then final_bw="$p_bw"; fi
+
+                                # =====  htmode ，防止旧协议参数冲突 =====
+                                if [ "$p_mode" = "11b" ]; then
+                                    # 纯 11b 模式下不能有 htmode 参数，否则底层驱动会报错冲突
+                                    uci delete wireless.$dev.htmode 2>/dev/null || true
+                                else
+                                    if [ "$p_mode" != "auto" ] && [ -n "$p_mode" ]; then
+                                        if [ "$p_mode" = "11be" ]; then uci set wireless.$dev.htmode="EHT${final_bw}"
+                                        elif [ "$p_mode" = "11ax" ]; then uci set wireless.$dev.htmode="HE${final_bw}"
+                                        elif [ "$p_mode" = "11ac" ]; then uci set wireless.$dev.htmode="VHT${final_bw}"
+                                        elif [ "$p_mode" = "11n" ] || [ "$p_mode" = "11g" ]; then uci set wireless.$dev.htmode="HT${final_bw}"
+                                        else uci set wireless.$dev.htmode="HT20"; fi
+                                    else
+                                        # auto 模式下保留原生协议头
+                                        if echo "$current_ht" | grep -qEi "eht|he|vht|ht"; then
+                                            local prefix=$(echo "$current_ht" | grep -oEi "eht|he|vht|ht" | tr 'a-z' 'A-Z')
+                                            uci set wireless.$dev.htmode="${prefix}${final_bw}"
+                                        else
+                                            uci set wireless.$dev.htmode="HE${final_bw}"
+                                        fi
+                                    fi
+                                fi
+                            fi
+                        }
+
+                        log ">>> [步骤 3/5] 开始将新配置写入无线物理网卡..."
+                        chip_count=$(echo "$dev_list" | wc -w)
+
+                        if [ "$chip_count" -le 1 ]; then
+                            single_dev=$(echo "$dev_list" | awk '{print $1}')
+                            if [ "$smart" = "true" ]; then 
+                                configure_physical_radio "$single_dev" "merged" "wifinet_0" "2g" ""
+                            else
+                                configure_physical_radio "$single_dev" "radio_2g" "wifinet_2g" "2g" ""
+                                configure_physical_radio "$single_dev" "radio_5g" "wifinet_5g" "5g" ""
+                            fi
+                        else
+                            if [ "$smart" = "true" ]; then
+                                log "采用多频合一配置策略"
+                                idx=0
+                                for dev in $dev_list; do
+                                    if echo " $list_5g " | grep -q " $dev "; then
+                                        configure_physical_radio "$dev" "merged" "wifinet_$idx" "5g" ""
+                                    else
+                                        configure_physical_radio "$dev" "merged" "wifinet_$idx" "2g" ""
+                                    fi
+                                    idx=$((idx + 1))
+                                done
+                            else
+                                log "采用独立频段配置策略"
+                                idx=0
+                                for dev in $list_2g; do
+                                    configure_physical_radio "$dev" "radio_2g" "wifinet_2g_$idx" "2g" ""
+                                    idx=$((idx + 1))
+                                done
+                                
+                                idx=0
+                                for dev in $list_5g; do
+                                    target_prefix="radio_5g"
+                                    custom_suffix=""
+                                    
+                                    # 第二个 5G 芯片 (idx=1)
+                                    if [ "$idx" -eq 1 ]; then
+                                        # 尝试从前端提取 radio_5g2 的配置
+                                        has_5g2=$(echo "$payload" | jsonfilter -e "@.radio_5g2.ssid" || echo "")
+                                        if [ -n "$has_5g2" ]; then
+                                            target_prefix="radio_5g2"
+                                        else
+                                            custom_suffix="_Game"
+                                        fi
+                                    # 第三、第四个 5G 芯片的终极兜底
+                                    elif [ "$idx" -ge 2 ]; then
+                                        custom_suffix="_Game${idx}"
+                                    fi
+                                    
+                                    configure_physical_radio "$dev" "$target_prefix" "wifinet_5g_$idx" "5g" "$custom_suffix"
+                                    idx=$((idx + 1))
+                                done
+                            fi
+                        fi
+
+                        # 中继配置解析与挂载
+                        log ">>> [步骤 4/5] 检查并处理 WISP 无线中继配置..."
+                        wisp_en=$(echo "$payload" | jsonfilter -e "@.wisp.enabled" || echo "0")
+                        if [ "$wisp_en" = "1" ]; then
+                            wisp_ssid=$(echo "$payload" | jsonfilter -e "@.wisp.ssid" || echo "")
+                            wisp_key=$(echo "$payload" | jsonfilter -e "@.wisp.key" || echo "")
+                            wisp_enc=$(echo "$payload" | jsonfilter -e "@.wisp.encryption" || echo "psk2")
+                            wisp_dev=$(echo "$payload" | jsonfilter -e "@.wisp.device" || echo "radio0")
+                            wisp_bssid=$(echo "$payload" | jsonfilter -e "@.wisp.bssid" || echo "")
+                            log "WISP 开启：正在将网卡 $wisp_dev 桥接至上级网络 [$wisp_ssid]"
+
+                            uci delete wireless.$wisp_dev.disabled 2>/dev/null || true
+                            uci set wireless.$wisp_dev.channel='auto'
+
+                            uci set network.wwan=interface
+                            uci set network.wwan.proto='dhcp'
+                            uci set network.wwan.metric='20'
+
+                            uci set wireless.wisp_sta=wifi-iface
+                            uci set wireless.wisp_sta.device="$wisp_dev"
+                            uci set wireless.wisp_sta.network="wwan"
+                            uci set wireless.wisp_sta.mode="sta"
+                            uci set wireless.wisp_sta.ssid="$wisp_ssid"
+                            uci set wireless.wisp_sta.key="$wisp_key"
+
+                            # 适配加密格式
+                            if [ "$wisp_enc" = "none" ] && [ -n "$wisp_key" ]; then
+                                wisp_enc="psk2"
+                            elif [ "$wisp_enc" = "psk2+sae" ]; then
+                                wisp_enc="sae-mixed"
+                            fi
+                            uci set wireless.wisp_sta.encryption="$wisp_enc"
+
+                            # 没有传入 BSSID，强行清空底层历史残留，避免 MAC 绑定死锁
+                            if [ -n "$wisp_bssid" ]; then 
+                                uci set wireless.wisp_sta.bssid="$wisp_bssid"
+                            else 
+                                uci delete wireless.wisp_sta.bssid 2>/dev/null || true
+                            fi
+
+                            # 官方标准的 add_list 操作防火墙，避免字符串截取错误
+                            wan_zone=$(uci show firewall | grep "\.name='wan'" | cut -d'.' -f2 | head -n1 || echo "")
+                            if [ -n "$wan_zone" ]; then
+                                uci add_list firewall.$wan_zone.network='wwan' 2>/dev/null || uci set firewall.$wan_zone.network='wan wan6 wwan'
+                                uci commit firewall
+                            fi
+
+                            # 强制停止并禁用 mwan3 (负载均衡会100%拦截 wwan 接口的流量导致没网)
+                            if [ -f "/etc/init.d/mwan3" ]; then
+                                /etc/init.d/mwan3 stop 2>/dev/null
+                                /etc/init.d/mwan3 disable 2>/dev/null
+                            fi
+
+                            # 中继自愈守护进程（Watchdog）写入系统的计划任务
+                            # 如果中继接口获取不到 IP (假死)，每 2 分钟自动重连
+                            touch /etc/crontabs/root
+                            grep -v "netwiz_wisp_check" /etc/crontabs/root > /tmp/cron.tmp || true
+                            echo "*/2 * * * * ifstatus wwan | grep -q '\"up\": true' || (ifdown wwan; sleep 2; ifup wwan) #netwiz_wisp_check" >> /tmp/cron.tmp
+                            mv /tmp/cron.tmp /etc/crontabs/root
+                            /etc/init.d/cron restart 2>/dev/null
+
+                        else
+                            log "清理无线中继虚拟接口及防火墙残留"
+                            uci delete wireless.wisp_sta 2>/dev/null || true
+                            uci delete network.wwan 2>/dev/null || true
+                            
+                            # 官方标准的 del_list 清理防火墙
+                            wan_zone=$(uci show firewall | grep "\.name='wan'" | cut -d'.' -f2 | head -n1 || echo "")
+                            if [ -n "$wan_zone" ]; then
+                                uci del_list firewall.$wan_zone.network='wwan' 2>/dev/null
+                                uci commit firewall
+                            fi
+
+                            # 关闭中继时，清理掉自愈守护进程
+                            if [ -f "/etc/crontabs/root" ]; then
+                                grep -v "netwiz_wisp_check" /etc/crontabs/root > /tmp/cron.tmp || true
+                                mv /tmp/cron.tmp /etc/crontabs/root
+                                /etc/init.d/cron restart 2>/dev/null
+                            fi
+                        fi
+
+                        log ">>> [步骤 5/5] 所有配置已就绪，正在执行系统 Commit 并重启网络服务..."
+                        uci commit wireless
+                        uci commit network
+                        log "无线数据写入完毕 准备重启网络"
+
+                        sleep 3
+                        /etc/init.d/network restart
+
+                        # 唤醒调用1
+                        restart_depend_apps
+                        watchdog_pppoe_ipv6
+
+                        log "✅ 无线配置流程全部安全执行完毕！"
+                        exit 0
+                    ) &
+
+                    exit 0
+                fi
+
+                echo '{"result":0}'
+                    (
+                    exec >/dev/null 2>&1 </dev/null
+                    sleep 3
+                    /etc/init.d/network restart
+
+                    z_wan=$(uci show firewall | grep -m1 "\.name='wan'" | cut -d'.' -f2)
+                    
+                    if [ -n "$z_wan" ]; then
+                        # 1. 绑定 wan 接口
+                        uci -q del_list firewall.$z_wan.network='wan'
+                        uci add_list firewall.$z_wan.network='wan'
+                        
+                        # 2. 开启 NAT 动态伪装和 MSS 钳制
+                        uci set firewall.$z_wan.masq='1'
+                        uci set firewall.$z_wan.mtu_fix='1'
+                        
+                        uci commit firewall
+                        /etc/init.d/firewall restart  # 重启
+                    fi
+                    # ==========================================
+                    # --- 开机劫持已配置 ---
+                    # 走完向导点击“完成”时，同样应用这套写入逻辑
+                    [ ! -f /etc/config/netwiz ] && touch /etc/config/netwiz
+                    
+                    uci -q get netwiz.main >/dev/null 2>&1 || uci set netwiz.main=global
+                    uci set netwiz.main.wizard_enable='0'
+                    
+                    uci -q get netwiz.global >/dev/null 2>&1 || uci set netwiz.global=netwiz
+                    uci set netwiz.global.configured='1'
+                    
+                    uci commit netwiz
+                    # ==========================================
+
+                    # 喚醒调用2
+                    restart_depend_apps
+                    watchdog_pppoe_ipv6
+                    ) &
+                exit 0
+                ;;
+
+            smart_backup)
+                # 并发防呆锁。防止用户刷新页面多次点击，导致两个进程互相删文件的惨案
+                if [ -f /tmp/nw_backup_running ]; then
+                    # 是否锁档案已经存在超过10分钟
+                    if [ -n "$(find /tmp/nw_backup_running -mmin +10 2>/dev/null)" ]; then
+                        logger -t Netwiz "[BACKUP] 檢測到超時的死鎖，系統已自動強制解除！"
+                        rm -f /tmp/nw_backup_running
+                    else
+                        echo '{"error":"backup is currently running"}'
+                        exit 0
+                    fi
+                fi
+                
+                LOG_FILE="/etc/netwiz_recovery.log"
+                touch /tmp/nw_backup_running
+                
+                # 解析前端传来的备份类型参数
+                input=$(cat)
+                backup_type=$(echo "$input" | jsonfilter -e '@.type')
+                [ -z "$backup_type" ] && backup_type="light"
+
+                log "[BACKUP]" "=== 开始执行智能备份 (类型: $backup_type) ==="
+                
+                PKG_TYPE="ipk"
+                command -v apk >/dev/null 2>&1 && PKG_TYPE="apk"
+
+                # 1. 获取固件编译作者/分支名
+                FW_TYPE="OpenWrt"
+                if [ -f /etc/openwrt_release ]; then
+                    . /etc/openwrt_release
+                    [ -n "$DISTRIB_ID" ] && FW_TYPE="$DISTRIB_ID"
+                fi
+
+                # 2. 获取路由器的主机名 (如未设置则默认为 Router)
+                HOST_NAME=$(uci -q get system.@system[0].hostname || hostname || echo "Router")
+                HOST_NAME=$(echo "$HOST_NAME" | sed 's/[^a-zA-Z0-9_-]/_/g')
+
+                # 3. 获取底层真实 CPU 架构
+                SYS_ARCH=$(uname -m)
+                
+                # 文件名：前缀_类型_固件名_主机名_真实架构_包管理器_时间
+                dl_name="NetWiz_Ghost_${backup_type}_${FW_TYPE}_${HOST_NAME}_${SYS_ARCH}_${PKG_TYPE}_$(date +%Y%m%d_%H%M).tar.gz"
+                
+                backup_file="/tmp/${dl_name}"
+                link_file="/www/luci-static/${dl_name}"
+
+                (
+                    # 关闭“遇错不动”机制
+                    set +e
+                    
+                    log "[BACKUP]" "[1/4] 开始备份系统设置..."
+                    log "[BACKUP]" "采用原生 tar 极速快照模式，防止底层进程卡死..."
+                    
+                    #  ash 脚本的非函数区
+                    tar_targets=""
+                    # 备份列表
+                    # 包含设置文件、软件源 rc.local, 定時任務, MAC綁定, 防火牆腳本
+                    base_targets="/etc/config /etc/passwd /etc/shadow /etc/group /etc/dropbear /etc/profile /etc/sysupgrade.conf /etc/hosts /etc/netwiz/hosts.json /etc/apk/repositories.d/distfeeds.list /etc/opkg/distfeeds.conf /etc/opkg/customfeeds.conf /etc/rc.local /etc/crontabs/root /etc/ethers /etc/firewall.user"
+                    # 绝对安全过滤
+                    for target in $base_targets; do
+                        if [ -e "$target" ]; then
+                            # 去掉前面的 / 变成相对路径，配合 -C / 使用
+                            rel=$(echo "$target" | sed 's/^\///')
+                            tar_targets="$tar_targets $rel"
+                        fi
+                    done
+                    
+                    # 探测高级资产目录
+                    check_dirs="
+                        /etc/openclash/core
+                        /etc/openclash/history
+                        /etc/mosdns/rule
+                        /etc/adguardhome
+                        /usr/share/v2ray
+                        /usr/share/xray
+                        /etc/passwall
+                        /etc/smartdns
+                        /etc/homeproxy
+                        /etc/mihomo
+                        /etc/ssrplus
+                        /etc/bypass
+                    "
+                    
+                    for dir in $check_dirs; do
+                        if [ -d "$dir" ]; then
+                            rel=$(echo "$dir" | sed 's/^\///')
+                            tar_targets="$tar_targets $rel"
+                        fi
+                     done
+                    
+                    # ----------------------------------------------------
+                    # 防呆 1：打包前生成备份核对元数据文件
+                    # ----------------------------------------------------
+                    # 穿透伪装：直接向 Linux 内核索要真实的硬件 CPU 架构 (例如 x86_64, aarch64)
+                    SYS_ARCH=$(uname -m)
+                    
+                    mkdir -p /etc/netwiz
+                    cat > "/etc/netwiz/nw_backup_meta.env" <<EOF
+BACKUP_ARCH=$SYS_ARCH
+BACKUP_PKG=$PKG_TYPE
+BACKUP_VER=${VERSION:-unknown}
+BACKUP_DATE=$(date '+%Y-%m-%d %H:%M:%S')
+EOF
+                    # 将这个指纹文件加入到即将被打包的文件列表中
+                    tar_targets="$tar_targets etc/netwiz/nw_backup_meta.env"
+                    # ----------------------------------------------------
+
+                    log "[BACKUP]" "即将打包的目标列表生成完毕，进行容量安全校验..."
+                    
+                    cd /
+                    req_kb=$(du -sk $tar_targets 2>/dev/null | awk '{sum+=$1} END{print sum}')
+                    [ -z "$req_kb" ] && req_kb=0
+                    avail_kb=$(df -k /tmp | awk 'NR==2 {print $4}')
+                    [ -z "$avail_kb" ] && avail_kb=0
+                    safe_req_kb=$((req_kb + 5120))
+                    
+                    if [ "$avail_kb" -lt "$safe_req_kb" ]; then
+                        log "[BACKUP]" "[DANGER] 🚨 触发 OOM 防呆保护：打包目标 ($((req_kb/1024))MB) 超过可用内存 ($((avail_kb/1024))MB)！"
+                        rm -f /tmp/nw_backup_running
+                        exit 1
+                    fi
+                    
+                    log "[BACKUP]" "内存校验通过，开始极速压缩 (已智能排除日志与庞大数据库)..."
+                    
+                    # 生成排除列表文件配合 -X 参数使用
+                    cat > /tmp/nw_exclude_list.txt << 'EOF'
+*.log
+*querylog.json
+*stats.db
+*stats.db-wal
+*stats.db-shm
+*cache*
+EOF
+                    
+                    # 使用 -X 挂载排除列表
+                    tar -czf /tmp/nw_sys_config.tar.gz -X /tmp/nw_exclude_list.txt -C / $tar_targets >> "$LOG_FILE" 2>&1 || true
+                    
+                    # 打包完成，清理临时排除列表
+                    rm -f /tmp/nw_exclude_list.txt
+                    
+                    mkdir -p /tmp/nw_offline_pkgs
+                    cd /tmp/nw_offline_pkgs
+                    
+                    # 保险箱的自定义插件提取到离线包目录，随胶囊一起直观打包在外层
+                    if ls /etc/netwiz/custom_pkgs/*.[ia]pk >/dev/null 2>&1; then
+                        log "[BACKUP]" "检测到本地保险箱有自定义插件，正在合并至备份胶囊外层..."
+                        cp -p /etc/netwiz/custom_pkgs/*.[ia]pk /tmp/nw_offline_pkgs/ 2>/dev/null
+                    fi
+                    
+                    log "[BACKUP]" "[2/4] 准备下载离线套件..."
+                    if command -v apk >/dev/null 2>&1; then
+                        apk update >> "$LOG_FILE" 2>&1
+                        pkg_list=$(apk info | grep -e '^luci-app-' -e '^luci-theme-')
+                        
+                        # 全量备份则加入R参数下载全部底层依赖
+                        if [ "$backup_type" = "full" ]; then
+                            fetch_args="-R"
+                        else
+                            fetch_args=""
+                        fi
+                        
+                        if [ -n "$pkg_list" ]; then
+                            for pkg in $pkg_list; do 
+                                apk fetch $fetch_args "$pkg" >> "$LOG_FILE" 2>&1
+                            done
+                        fi
+                    elif command -v opkg >/dev/null 2>&1; then
+                        opkg update >> "$LOG_FILE" 2>&1
+                        pkg_list=$(opkg list-installed | awk '{print $1}' | grep -e '^luci-app-' -e '^luci-theme-')
+                        
+                        if [ -n "$pkg_list" ]; then
+                            for pkg in $pkg_list; do 
+                                opkg download "$pkg" >> "$LOG_FILE" 2>&1
+                            done
+                        fi
+                    fi
+
+                    log "[BACKUP]" "[3/4] 开始在内存中打包..."
+                    # 指纹配置文件复制一份到外层
+                    # 打包前生成备份核对元数据文件
+                    cat > "/tmp/nw_backup_meta.env" <<EOF
+BACKUP_ARCH=$SYS_ARCH
+BACKUP_PKG=$PKG_TYPE
+BACKUP_FW_TYPE=$FW_TYPE
+BACKUP_HOST=$HOST_NAME
+BACKUP_VER=${VERSION:-${DISTRIB_RELEASE:-unknown}}
+BACKUP_DATE=$(date '+%Y-%m-%d %H:%M:%S')
+EOF
+                    cd /tmp 
+                    mkdir -p /tmp/nw_offline_pkgs  # 确保空文件夹存在，防止 tar 命令找不到目标而报错
+                    tar -czf "$backup_file" nw_sys_config.tar.gz nw_offline_pkgs/ nw_backup_meta.env >> "$LOG_FILE" 2>&1
+                    
+                    # 建立真实的备份成功状态锁
+                    touch /tmp/nw_backup_ok
+                    
+                    log "[BACKUP]" "[4/4] 打包结束，清理零碎文件。"
+                    rm -rf /tmp/nw_sys_config.tar.gz /tmp/nw_offline_pkgs /tmp/nw_backup_running /tmp/nw_backup_meta.env
+                    
+                    chmod 644 "$backup_file"
+                    ln -sf "$backup_file" "$link_file"
+                    
+                    sleep 300
+                    rm -f "$backup_file" "$link_file"
+ 
+                ) >/dev/null 2>&1 &
+
+                printf '{"url":"/luci-static/%s", "filename":"%s"}\n' "$dl_name" "$dl_name"
+                exit 0
+                ;;
+
+            check_backup)
+                if [ -f "/tmp/nw_backup_running" ]; then
+                    # 提取最后4行日志，并进行严格的JSON符号安全转义
+                    log_safe=$(tail -n 4 /etc/netwiz_recovery.log 2>/dev/null | tr -d '\r' | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | sed 's/\\n$//')
+                    
+                    echo "{ \"status\": \"running\", \"log\": \"$log_safe\" }"
+                elif [ -f "/tmp/nw_backup_ok" ]; then
+                    # 依据真实状态锁宣告打包圆满成功，且将 opkg 转换为符合前端识别的 ipk 烙印
+                    SYS_ARCH=$(uname -m)
+                    PKG_TYPE="ipk"
+                    command -v apk >/dev/null 2>&1 && PKG_TYPE="apk"
+                    DATE_STR=$(date '+%Y%m%d_%H%M')
+                    
+                    FNAME="NetWiz_${SYS_ARCH}_${PKG_TYPE}_${DATE_STR}.tar.gz"
+                    echo "{ \"status\": \"done\", \"url\": \"/luci-static/nw_sys_config.tar.gz\", \"filename\": \"$FNAME\" }"
+                    rm -f "/tmp/nw_backup_ok"
+                else
+                    echo '{ "status": "error" }'
+                fi
+                exit 0
+                ;;
+
+            check_storage)
+                # 动态获取 /tmp 的真实可用空间 (从 KB 转换为 MB)
+                TMP_AVAIL_KB=$(df -k /tmp | awk 'END{print $(NF-2)}')
+                TMP_AVAIL_MB=$((TMP_AVAIL_KB / 1024))
+                printf '{"tmp_avail_mb": %d}\n' "$TMP_AVAIL_MB"
+                exit 0
+                ;;
+
+            check_restore_status)
+                # 读取恢复任务的实时状态，供前端进度条轮询
+                if [ -f /tmp/nw_restore_status.json ]; then
+                    cat /tmp/nw_restore_status.json
+                else
+                    printf '{"status":"unknown", "code":"MSG_RST_WAIT"}\n'
+                fi
+                exit 0
+                ;;
+
+            smart_restore_exec)
+                input=$(cat)
+                target_file=$(echo "$input" | jsonfilter -e '@.filepath')
+                
+                if [ -z "$target_file" ] || [ ! -s "$target_file" ]; then
+                    target_file=$(ls -t /tmp/luci-upload-* /tmp/NetWiz_SmartGhost.tar.gz 2>/dev/null | head -n 1)
+                fi
+
+                if [ -n "$target_file" ] && [ -s "$target_file" ]; then
+                    
+                    # 初始化状态文件 (Code 机制)
+                    echo '{"status":"running", "code":"MSG_RST_INIT"}' > /tmp/nw_restore_status.json
+                    
+                    cat << 'EOF' > /tmp/nw_do_restore.sh
+#!/bin/sh
+# 恢复操作需要重启，将核心日志写入实体存储
+LOG_FILE="/etc/netwiz_recovery.log"
+STATUS_FILE="/tmp/nw_restore_status.json"
+TARGET="$1"
+
+# 状态更新函数，使用状态码进行国际化传递，写入日志
+update_status() {
+    local stat="$1"
+    local code="$2"
+    local arg1="$3"
+    local arg2="$4"
+    echo "{\"status\":\"$stat\", \"code\":\"$code\", \"arg1\":\"$arg1\", \"arg2\":\"$arg2\"}" > "$STATUS_FILE"
+    
+    logger -t Netwiz "[RESTORE] $code $arg1 $arg2"
+    echo "$(date '+%F %T') [RESTORE] $code $arg1 $arg2" >> "$LOG_FILE"
+}
+
+echo "$(date '+%F %T') [RESTORE] === 开始执行极速恢复 ===" >> "$LOG_FILE"
+
+update_status "running" "MSG_RST_SCAN"
+
+UNCOMPRESSED_BYTES=$(zcat "$TARGET" | wc -c 2>/dev/null)
+UNCOMPRESSED_MB=$((UNCOMPRESSED_BYTES / 1024 / 1024))
+
+TMP_AVAIL_KB=$(df -k /tmp | awk 'END{print $(NF-2)}')
+TMP_AVAIL_MB=$((TMP_AVAIL_KB / 1024))
+
+echo "$(date '+%F %T') [RESTORE] 预估体积: ${UNCOMPRESSED_MB}MB, 可用空间: ${TMP_AVAIL_MB}MB" >> "$LOG_FILE"
+
+# 安全拦截：所需空间大于剩余空间时拦截
+if [ $((UNCOMPRESSED_MB + 15)) -gt "$TMP_AVAIL_MB" ]; then
+    update_status "error" "MSG_RST_OOM_INTERCEPT" "$UNCOMPRESSED_MB" "$TMP_AVAIL_MB"
+    # 拦截后清理垃圾释放内存
+    rm -f "$TARGET"
+    exit 1
+fi
+
+update_status "running" "MSG_RST_SAFE"
+mkdir -p /tmp/nw_ghost_tmp
+
+# ----------------------------------------------------
+# 防呆 3：拆包核对！先提取出元数据文件进行比对
+# ----------------------------------------------------
+echo "$(date '+%F %T') [RESTORE] 正在进行安全性预检：核对架构与安装包格式..." >> "$LOG_FILE"
+
+# 只单独解压这一个配置文件，不触碰系统其他文件
+# 从最外层瞬间抽离出指纹文件
+tar -xzf "$TARGET" -C /tmp/nw_ghost_tmp nw_backup_meta.env >/dev/null 2>&1
+
+if [ -f "/tmp/nw_ghost_tmp/nw_backup_meta.env" ]; then
+    CUR_ARCH=$(uname -m)
+    CUR_PKG="ipk"
+    command -v apk >/dev/null 2>&1 && CUR_PKG="apk"
+    
+    # 仅读取外层提取的指纹数据，绝对不可访问内层路径。
+    . /tmp/nw_ghost_tmp/nw_backup_meta.env
+    
+    if [ "$BACKUP_PKG" != "$CUR_PKG" ]; then
+        echo "$(date '+%F %T') [RESTORE] [DANGER] 🚨 严重拦截：包管理器格式冲突！(当前: ${CUR_PKG} / 备份: ${BACKUP_PKG})" >> "$LOG_FILE"
+        update_status "error" "MSG_RST_PKG_ERR"
+        rm -rf /tmp/nw_ghost_tmp "$TARGET"
+        exit 1
+    fi
+    
+    if [ "$BACKUP_ARCH" != "$CUR_ARCH" ]; then
+        echo "$(date '+%F %T') [RESTORE] [DANGER] 🚨 严重拦截：底层架构不匹配！(当前路由器: ${CUR_ARCH} / 备份包来源: ${BACKUP_ARCH})" >> "$LOG_FILE"
+        update_status "error" "MSG_RST_ARCH_ERR"
+        rm -rf /tmp/nw_ghost_tmp "$TARGET"
+        exit 1
+    fi
+    
+    echo "$(date '+%F %T') [RESTORE] ✅ 安全性预检通过！架构 (${CUR_ARCH}) 与包管理器 (${CUR_PKG}) 完全匹配。" >> "$LOG_FILE"
+else
+    echo "$(date '+%F %T') [RESTORE] ⚠️ 警告：这是一个旧版备份包 (未包含安全预检文件)，将跳过严格核对直接放行。" >> "$LOG_FILE"
+fi
+# ----------------------------------------------------
+
+# 安全校验通过，执行真正的完整解压
+tar -xzf "$TARGET" -C /tmp/nw_ghost_tmp >> "$LOG_FILE" 2>&1
+
+if [ $? -ne 0 ]; then
+    update_status "error" "MSG_RST_FAIL"
+    rm -rf /tmp/nw_ghost_tmp "$TARGET"
+    exit 1
+fi
+
+if [ ! -f "/tmp/nw_ghost_tmp/nw_sys_config.tar.gz" ] && [ ! -d "/tmp/nw_ghost_tmp/nw_offline_pkgs" ]; then
+    update_status "error" "MSG_RST_INVALID"
+    rm -rf /tmp/nw_ghost_tmp "$TARGET"
+    exit 1
+fi
+
+if [ -f "/tmp/nw_ghost_tmp/nw_sys_config.tar.gz" ]; then
+    update_status "running" "MSG_RST_CONF"
+    
+    # ==========================================
+    # 【前置防御】启动跨重启防砖看门狗 (WAL 模式)
+    # 此时已通过所有防呆检测，即将覆盖核心文件！标志物理护盾
+    # ==========================================
+    echo "$(date '+%F %T') [RESTORE] [安全防御] 正在将当前健康配置写入闪存，准备跨越重启防砖..." >> "$LOG_FILE"
+    mkdir -p /etc/netwiz/failsafe
+    cp -p /etc/config/network /etc/netwiz/failsafe/network_bak 2>/dev/null
+    cp -p /etc/config/dhcp /etc/netwiz/failsafe/dhcp_bak 2>/dev/null
+    cp -p /etc/config/wireless /etc/netwiz/failsafe/wireless_bak 2>/dev/null
+    touch /etc/netwiz_pending_recovery
+    # ==========================================
+
+    # 护盾就绪，开始向系统根目录释放配置，这是“危险操作”
+    tar -xzf /tmp/nw_ghost_tmp/nw_sys_config.tar.gz -C / >> "$LOG_FILE" 2>&1
+fi
+
+if [ -d "/tmp/nw_ghost_tmp/nw_offline_pkgs" ]; then
+    update_status "running" "MSG_RST_PKGS"
+    
+    # --- 安装前删除除底层系统核心包，彻底杜绝依赖冲突中断 ---
+    rm -f /tmp/nw_ghost_tmp/nw_offline_pkgs/firewall-* \
+          /tmp/nw_ghost_tmp/nw_offline_pkgs/firewall4-* \
+          /tmp/nw_ghost_tmp/nw_offline_pkgs/dnsmasq-* \
+          /tmp/nw_ghost_tmp/nw_offline_pkgs/wpad-* \
+          /tmp/nw_ghost_tmp/nw_offline_pkgs/base-files-* \
+          /tmp/nw_ghost_tmp/nw_offline_pkgs/libc-* 2>/dev/null
+    # ---------------------------------------------------------------
+    
+    # 全局剔除包含 netwiz / NetWiz 的安装包，防止重启 rpcd 导致脚本自杀
+    rm -f /tmp/nw_ghost_tmp/nw_offline_pkgs/*[nN]et[wW]iz*.[ia]pk 2>/dev/null
+    rm -f /etc/netwiz/custom_pkgs/*[nN]et[wW]iz*.[ia]pk 2>/dev/null
+    
+    # ==========================================
+    # 防呆检测：跨架构 (ipk <-> apk) 拦截机制
+    # ==========================================
+    
+    if command -v apk >/dev/null 2>&1; then
+        # 当前系统为 apk，检测备份包中是否包含旧版 ipk
+        if ls /tmp/nw_ghost_tmp/nw_offline_pkgs/*.ipk >/dev/null 2>&1 || ls /etc/netwiz/custom_pkgs/*.ipk >/dev/null 2>&1; then
+            logger -t Netwiz "[RESTORE] [DANGER] 触发智能防呆：当前为 apk 系统，拦截到 ipk 安装包！"
+            echo "$(date '+%F %T') [RESTORE] [DANGER] 🚨 触发智能防呆：当前系统使用 apk (Alpine)，但备份胶囊中检测到不兼容的 ipk 安装包！" >> "$LOG_FILE"
+            echo "$(date '+%F %T') [RESTORE] [DANGER] 已自动拦截并跳过所有插件的还原，以防止底层架构损坏！请重新下载对应 apk 版本的插件放入保险箱。" >> "$LOG_FILE"
+        else
+            echo "$(date '+%F %T') [RESTORE] >>> 系统架构匹配 (apk)，开始恢复插件..." >> "$LOG_FILE"
+            if ls /tmp/nw_ghost_tmp/nw_offline_pkgs/*.apk >/dev/null 2>&1; then
+                apk add --allow-untrusted --force-overwrite /tmp/nw_ghost_tmp/nw_offline_pkgs/*.apk >> "$LOG_FILE" 2>&1
+            fi
+            if ls /etc/netwiz/custom_pkgs/*.apk >/dev/null 2>&1; then
+                apk add --allow-untrusted --force-overwrite /etc/netwiz/custom_pkgs/*.apk >> "$LOG_FILE" 2>&1
+            fi
+        fi
+
+    elif command -v opkg >/dev/null 2>&1; then
+        # 当前系统为 opkg，检测备份包中是否包含新版 apk
+        if ls /tmp/nw_ghost_tmp/nw_offline_pkgs/*.apk >/dev/null 2>&1 || ls /etc/netwiz/custom_pkgs/*.apk >/dev/null 2>&1; then
+            logger -t Netwiz "[RESTORE] [DANGER] 触发智能防呆：当前为 opkg 系统，拦截到 apk 安装包！"
+            echo "$(date '+%F %T') [RESTORE] [DANGER] 🚨 触发智能防呆：当前系统使用 opkg，但备份胶囊中检测到不兼容的 apk 安装包！" >> "$LOG_FILE"
+            echo "$(date '+%F %T') [RESTORE] [DANGER] 已自动拦截并跳过所有插件的还原，以防止底层架构损坏！请重新下载对应 ipk 版本的插件放入保险箱。" >> "$LOG_FILE"
+        else
+            echo "$(date '+%F %T') [RESTORE] >>> 系统架构匹配 (opkg)，开始恢复插件..." >> "$LOG_FILE"
+            
+            if ls /tmp/nw_ghost_tmp/nw_offline_pkgs/*.ipk >/dev/null 2>&1; then
+                opkg install --force-reinstall --force-overwrite /tmp/nw_ghost_tmp/nw_offline_pkgs/*.ipk >> "$LOG_FILE" 2>&1
+            fi
+            if ls /etc/netwiz/custom_pkgs/*.ipk >/dev/null 2>&1; then
+                opkg install --force-reinstall --force-overwrite /etc/netwiz/custom_pkgs/*.ipk >> "$LOG_FILE" 2>&1
+            fi
+        fi
+    fi
+fi
+
+# 提取备份中 LAN IP
+NEW_IP=$(uci -q get network.lan.ipaddr | cut -d/ -f1)
+
+# 把未来的新 IP 作为 arg1 传递给前端进行双向探测
+update_status "done" "MSG_RST_DONE" "$NEW_IP"
+rm -rf /tmp/nw_ghost_tmp "$TARGET"
+
+echo "$(date '+%F %T') [RESTORE] >>> 恢复任务全部完成！系统即将重启。" >> "$LOG_FILE"
+
+# 等待 8 秒，确保前端 充足的时间抓取新 IP
+sleep 8
+reboot
+EOF
+                    chmod +x /tmp/nw_do_restore.sh
+                    /tmp/nw_do_restore.sh "$target_file" >/dev/null 2>&1 &
+                    
+                    echo '{"result":0}'
+                else
+                    echo '{"error":"No data"}'
+                fi
+                exit 0
+                ;;
+        esac
+        ;;
+esac
+exit 1
