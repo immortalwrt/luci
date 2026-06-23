@@ -14,7 +14,7 @@ msgstr ""
 msgid "!known (not known)"
 msgstr "! ar eolas (nach bhfuil ar eolas)"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:750
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:771
 msgctxt "Yet unknown nftables table family (\"family\" table \"name\")"
 msgid "\"%h\" table \"%h\""
 msgstr "Tábla “%h” “%h”"
@@ -226,7 +226,7 @@ msgstr "1"
 msgid "1 Minute Load:"
 msgstr "Ualach 1 nóiméad:"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:386
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:401
 msgctxt "nft amount of flags"
 msgid "1 flag"
 msgid_plural "%d flags"
@@ -836,7 +836,7 @@ msgstr "ARP seachfhreastalaí"
 msgid "ARP retry threshold"
 msgstr "Tairseach aththriail ARP"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:738
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:759
 msgid "ARP traffic table \"%h\""
 msgstr "Tábla tráchta ARP “%h”"
 
@@ -1571,7 +1571,7 @@ msgstr "Malartú Anaithnid"
 msgid "Any"
 msgstr "Aon"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:619
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:640
 msgctxt "nft match any traffic"
 msgid "Any packet"
 msgstr "Aon phacáiste"
@@ -1943,7 +1943,6 @@ msgstr "Ceangail freastalaí NTP"
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:144
 #: protocols/luci-proto-vti/htdocs/luci-static/resources/protocol/vti.js:59
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:132
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:132
@@ -1977,7 +1976,6 @@ msgstr ""
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:144
 #: protocols/luci-proto-vti/htdocs/luci-static/resources/protocol/vti.js:59
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:132
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:132
@@ -2039,7 +2037,7 @@ msgstr "Roghanna sonracha calafort droich"
 msgid "Bridge ports"
 msgstr "Calafoirt droichid"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:742
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:763
 msgid "Bridge traffic table \"%h\""
 msgstr "Tábla tráchta droichead “%h”"
 
@@ -2079,14 +2077,6 @@ msgid "By default, dnsmasq caches A, AAAA, CNAME and SRV DNS record types."
 msgstr ""
 "De réir réamhshocraithe, cuireann dnsmasq caches ar chineálacha taifead A, "
 "AAAA, CNAME agus SRV DNS."
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:131
-msgid ""
-"CA certificate (PEM encoded; Use instead of system-wide store to verify the "
-"gateway certificate."
-msgstr ""
-"Teastas CA (ionchódaithe PEM; Úsáid in ionad stór ar fud an chórais chun "
-"deimhniú an geata a fhíorú."
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:178
 msgid "CA certificate; if empty it will be saved after the first connection."
@@ -2170,32 +2160,32 @@ msgstr "Cealaigh"
 msgid "Cannot parse configuration: %s"
 msgstr "Ní féidir cumraíocht a pháirseáil: %s"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:669
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:690
 msgctxt "Chain hook: forward"
 msgid "Capture incoming packets addressed to other hosts"
 msgstr "Gabháil pacáistí isteach atá dírithe chuig óstach eile"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:661
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:682
 msgctxt "Chain hook: prerouting"
 msgid "Capture incoming packets before any routing decision"
 msgstr "Gabháil pacáistí atá ag teacht isteach roimh aon chinneadh ródaithe"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:665
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:686
 msgctxt "Chain hook: input"
 msgid "Capture incoming packets routed to the local system"
 msgstr "Gabháil pacáistí isteach a atreoraítear chuig an gcóras áitiúil"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:677
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:698
 msgctxt "Chain hook: postrouting"
 msgid "Capture outgoing packets after any routing decision"
 msgstr "Gabháil pacáistí amach tar éis aon chinneadh ródaithe"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:673
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:694
 msgctxt "Chain hook: output"
 msgid "Capture outgoing packets originating from the local system"
 msgstr "Gabháil pacáistí amach a thagann as an gcóras áitiúil"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:657
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:678
 msgctxt "Chain hook: ingress"
 msgid "Capture packets directly after the NIC received them"
 msgstr "Pacáistí a ghabháil go díreach tar éis don NIC iad a fháil"
@@ -2283,7 +2273,7 @@ msgstr ""
 msgid "Chain"
 msgstr "Slabhra"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:681
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:702
 msgctxt "Yet unknown nftables chain hook"
 msgid "Chain hook \"%h\""
 msgstr "Croca slabhra “%h”"
@@ -2729,7 +2719,7 @@ msgstr "Lean ar aghaidh i <strong><a href=\"#%q.%q\">%h</a></strong>"
 msgid "Continue in calling chain"
 msgstr "Lean ar aghaidh sa slabhra glaonna"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:651
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:672
 msgctxt "Chain policy: accept"
 msgid "Continue processing unmatched packets"
 msgstr "Leanúint ar aghaidh ag próiseáil pacáistí"
@@ -3787,7 +3777,7 @@ msgctxt "nft drop action"
 msgid "Drop packet"
 msgstr "Paicéad titim"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:647
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:668
 msgctxt "Chain policy: drop"
 msgid "Drop unmatched packets"
 msgstr "Scaoil paicéid gan chomhoiriúnú"
@@ -5565,7 +5555,7 @@ msgstr "Ard"
 msgid "Honor gratuitous ARP"
 msgstr "Onóir ARP saor in aisce"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:694
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:715
 msgctxt "Chain hook description"
 msgid "Hook: <strong>%h</strong> (%h), Priority: <strong>%d</strong>"
 msgstr "Hook: <strong>%h</strong> (%h), Tosaíocht: <strong>%d</strong>"
@@ -5878,7 +5868,7 @@ msgstr "Réimír IPv4"
 msgid "IPv4 prefix length"
 msgstr "Fad réimír IPv4"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:726
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:747
 msgid "IPv4 traffic table \"%h\""
 msgstr "Tábla tráchta IPv4 “%h”"
 
@@ -5904,7 +5894,7 @@ msgstr "IPv4/IPv6"
 msgid "IPv4/IPv6 (both - defaults to IPv4)"
 msgstr "IPv4/IPv6 (an dá cheann - réamhshocraithe go IPv4)"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:734
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:755
 msgid "IPv4/IPv6 traffic table \"%h\""
 msgstr "Tábla tráchta IPv4/IPv6 “%h”"
 
@@ -6042,7 +6032,7 @@ msgstr "Iarmhír IPv6"
 msgid "IPv6 support"
 msgstr "Tacaíocht IPv6"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:730
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:751
 msgid "IPv6 traffic table \"%h\""
 msgstr "Tábla tráchta IPv6 “%h”"
 
@@ -6168,14 +6158,12 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1197
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/ipip6.js:70
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:135
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:158
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:129
 msgid "If unchecked, no default route is configured"
 msgstr "Mura ndéantar seiceáil, níl aon bhealach réamhshocraithe cum"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1201
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:146
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:162
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:140
 msgid "If unchecked, the advertised DNS server addresses are ignored"
 msgstr "Mura ndéantar seiceáil, déantar neamhaird ar na seoltaí freastalaí DNS"
@@ -6604,11 +6592,6 @@ msgstr "Neamhbhailí"
 msgid "Invalid APN provided"
 msgstr "APN neamhbhailí curtha ar fáil"
 
-#: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:38
-#: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:41
-msgid "Invalid Base64 key string"
-msgstr "Eochair sreang Base64 neamhbhailí"
-
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:729
 msgid ""
 "Invalid DHCP lease time format. Use integer values optionally followed by s, "
@@ -7034,7 +7017,7 @@ msgstr ""
 "laghdú go suntasach nuair a úsáidtear iad Moltar gan rátaí 802.11b a cheadú "
 "nuair is féidir."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:778
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:799
 msgid "Legacy rules detected"
 msgstr "Braithíodh rialacha oidhreachta"
 
@@ -7294,10 +7277,6 @@ msgstr "Áitiúil 6"
 #: modules/luci-base/htdocs/luci-static/resources/tools/views.js:57
 msgid "Local 7"
 msgstr "Áitiúil 7"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:171
-msgid "Local IP address"
-msgstr "Seoladh IP áitiúil"
 
 #: modules/luci-base/htdocs/luci-static/resources/network.js:12
 #: modules/luci-compat/luasrc/model/network.lua:30
@@ -8186,7 +8165,7 @@ msgstr "ID NAS"
 msgid "NAT"
 msgstr "NAT"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:637
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:658
 msgid "NAT action chain \"%h\""
 msgstr "Slabhra gníomhaíochta NAT “%h”"
 
@@ -8361,7 +8340,7 @@ msgstr "Gníomhaíocht gléas líonra (eithne: netdev)"
 msgid "Network device is not present"
 msgstr "Níl gléas líonra i láthair"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:746
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:767
 msgid "Network device table \"%h\""
 msgstr "Tábla gléas líonra “%h”"
 
@@ -8566,7 +8545,7 @@ msgstr "Níl aon toscaireacht réimír"
 msgid "No negative cache"
 msgstr "Gan taisce diúltach"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:794
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:815
 msgid "No nftables ruleset loaded."
 msgstr "Níl aon raon rialacha nftables luchtaithe."
 
@@ -8594,7 +8573,7 @@ msgstr "Níor aimsíodh aon chumraíocht modh is fearr leat."
 msgid "No public keys present yet."
 msgstr "Níl eochracha poiblí ar fáil fós."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:714
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:735
 msgctxt "nft chain is empty"
 msgid "No rules in this chain"
 msgstr "Níl aon rialacha sa slabhra seo"
@@ -8953,7 +8932,7 @@ msgstr ""
 msgid "Only process ping timeouts if routes exist"
 msgstr "Ní phróiseálann ama ping ach má tá bealaí ann"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:783
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:804
 msgid "Open iptables rules overview…"
 msgstr "Forbhreathnú ar rialacha iptables oscailte…"
 
@@ -8961,17 +8940,9 @@ msgstr "Forbhreathnú ar rialacha iptables oscailte…"
 msgid "Open list..."
 msgstr "Liosta oscailte..."
 
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:63
-msgid "OpenConnect"
-msgstr "Oscailceangail"
-
 #: modules/luci-compat/luasrc/model/network/proto_openconnect.lua:9
 msgid "OpenConnect (CISCO AnyConnect)"
 msgstr "OpenConnect (CISCO AnyConnect)"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:63
-msgid "OpenFortivpn"
-msgstr "OpenFortivpn"
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1624
 msgid "OpenVPN"
@@ -9062,12 +9033,6 @@ msgstr ""
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:137
 msgid "Optional, free-form notes about this device"
 msgstr "Nótaí roghnacha, saorfhoirme faoin bhfeiste seo"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:149
-msgid "Optional, in seconds. If set to '0', no reconnect is attempted."
-msgstr ""
-"Roghnach, i soicindí. Má tá sé socraithe ar '0', ní dhéanfar iarracht ar aon "
-"athnasc."
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:176
 msgid ""
@@ -9164,13 +9129,6 @@ msgstr ""
 "Roghnach. Soicind idir teachtaireachtaí a choinneáil beo. Is é "
 "réamhshocraithe 0 (míchumasaithe). Is é 25 an luach a mholtar má tá an gléas "
 "seo taobh thiar de NAT."
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:176
-msgid ""
-"Optional. Specify the realm if your VPN gateway uses custom login portals."
-msgstr ""
-"Roghnach. Sonraigh an réimse má úsáideann do gheata VPN tairseacha logála "
-"isteach saincheaptha."
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:151
 msgid "Optional. UDP port used for outgoing and incoming packets."
@@ -9551,7 +9509,6 @@ msgstr "Pas tríd (Gléas fisiceach scátháin chuig MAC VLAN aonair)"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:92
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:133
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:145
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:103
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:58
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:301
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:19
@@ -9757,10 +9714,6 @@ msgstr "leanún/gan leanúint ifconfig-pool"
 msgid "Persistent Keep Alive"
 msgstr "Coinnigh Leanúnach Beo"
 
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:149
-msgid "Persistent reconnect interval"
-msgstr "Eatramh athnasctha leanúnach"
-
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:310
 msgid "PersistentKeepAlive setting is invalid"
 msgstr "Tá socrú PersistentKeepAlive neamhbhailí"
@@ -9853,7 +9806,7 @@ msgstr "Beartas"
 msgid "Policy level over usage of external programs and scripts"
 msgstr "Leibhéal beartais maidir le húsáid cláir agus scripteanna seachtracha"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:695
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:716
 msgctxt "Chain hook policy"
 msgid "Policy: <strong>%h</strong> (%h)"
 msgstr "Polasaí: <strong>%h</strong> (%h)"
@@ -10405,10 +10358,6 @@ msgstr "Scrios an eochair phoiblí stórais bogearraí seo a leanas i ndáiríre
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:599
 msgid "Really switch protocol?"
 msgstr "An bhfuil fonn ort an prótacal a athrú?"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:176
-msgid "Realm"
-msgstr "Ríocht"
 
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:139
 msgid "Realtime Graphs"
@@ -11135,7 +11084,7 @@ msgstr "Babhta robin"
 msgid "Route Allowed IPs"
 msgstr "IPanna Bealaigh Ceadaithe"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:633
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:654
 msgid "Route action chain \"%h\""
 msgstr "Slabhra gníomhaíochta bealaigh “%h”"
 
@@ -11226,20 +11175,20 @@ msgstr "Tábla ródaithe le húsáid don trácht atá ag teacht leis an riail se
 msgid "Rule"
 msgstr "Riail"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:703
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:724
 msgid "Rule actions"
 msgstr "Gníomhartha riail"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:557
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:572
 msgctxt "nft comment"
 msgid "Rule comment: %s"
 msgstr "Trácht riail: %s"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:641
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:662
 msgid "Rule container chain \"%h\""
 msgstr "Slabhra coimeádán riail “%h”"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:702
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:723
 msgid "Rule matches"
 msgstr "Meaitseálacha riail"
 
@@ -12512,8 +12461,8 @@ msgid "TLS 1.3 or newer cipher"
 msgstr "TLS 1.3 nó cipher níos nuaí"
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1275
-msgid "TLS cet profile"
-msgstr "Próifíl TLS cet"
+msgid "TLS cert profile"
+msgstr ""
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1057
 msgid "TLS cipher"
@@ -13281,7 +13230,7 @@ msgstr ""
 "Sonraíonn an luach an t-eatramh (milleasoicind) ina ndéanann batman-adv "
 "tuilte an líonra lena fhaisnéis phrótacail."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:779
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:800
 msgid ""
 "There are legacy iptables rules present on the system. Mixing iptables and "
 "nftables rules is discouraged and may lead to incomplete traffic filtering."
@@ -13323,11 +13272,6 @@ msgid "This authentication type is not applicable to the selected EAP method."
 msgstr ""
 "Níl an cineál fíordheimhnithe seo infheidhme maidir leis an modh EAP "
 "roghnaithe."
-
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:56
-msgid "This does not look like a valid PEM file"
-msgstr "Ní chuma é seo cosúil le comhad bailí PEM"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1777
 msgid ""
@@ -13633,11 +13577,11 @@ msgstr "Tráchta"
 msgid "Traffic Class"
 msgstr "Rang Tráchta"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:629
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:650
 msgid "Traffic filter chain \"%h\""
 msgstr "Slabhra scagaire tráchta “%h”"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:548
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:563
 msgctxt "nft counter"
 msgid "Traffic matched by rule: %.1000mPackets, %.1024mBytes"
 msgstr "Trácht meaitseáilte de réir riail: %.1000mPacáistí, %.1024mBeart"
@@ -14135,7 +14079,6 @@ msgstr "Úsáid DHCPv6"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1201
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:145
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:162
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:139
 msgid "Use DNS servers advertised by peer"
 msgstr "Úsáid freastalaithe DNS a fógraíonn piaraí"
@@ -14192,7 +14135,6 @@ msgstr "Úsáid freastalaithe saincheaptha DNS"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1197
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:134
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:158
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:128
 msgid "Use default gateway"
 msgstr "Úsáid geata réamhshocrú"
@@ -14200,7 +14142,6 @@ msgstr "Úsáid geata réamhshocrú"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1214
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/ipip6.js:73
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:139
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:166
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:133
 msgid "Use gateway metric"
 msgstr "Úsáid méadrach geata"
@@ -14313,7 +14254,6 @@ msgid "User"
 msgstr "Úsáideoir"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:154
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:106
 msgid "User certificate (PEM encoded)"
 msgstr "Teastas úsáideora (ionchódaithe PEM)"
 
@@ -14322,13 +14262,11 @@ msgid "User identifier"
 msgstr "Aitheantóir úsáideora"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:166
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:118
 msgid "User key (PEM encoded)"
 msgstr "Eochair úsáideora (ionchódaithe PEM)"
 
 #: modules/luci-base/ucode/template/sysauth.ut:29
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:143
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:101
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:56
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:13
 msgid "Username"
@@ -14397,24 +14335,10 @@ msgstr "Seoladh áitiúil VPN"
 msgid "VPN Local port"
 msgstr "Port áitiúil VPN"
 
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:94
-msgid "VPN Protocol"
-msgstr "Prótacal VPN"
-
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:103
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:93
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pptp.js:58
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:39
 msgid "VPN Server"
 msgstr "Freastalaí VPN"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:154
-msgid "VPN Server certificate's SHA256 hash"
-msgstr "Hash SHA256 deimhniú Freastalaí VPN"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:96
-msgid "VPN Server port"
-msgstr "Port freastalaí VPN"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:141
 msgid "VPN Server's certificate SHA1 hash"
@@ -14475,7 +14399,7 @@ msgstr "Díoltóir"
 msgid "Vendor Class to send when requesting DHCP"
 msgstr "Aicme Díoltóra le seoladh agus DHCP á iarraidh"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:313
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:328
 msgid "Verdict map: <var>%h</var> is"
 msgstr "Léarscáil bhreithiúnais: is é <var>%h</var>"
 
@@ -15304,7 +15228,7 @@ msgstr "ar réimír atá ar fáil"
 msgid "open network"
 msgstr "líonra oscailte"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:345
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:360
 msgid "or"
 msgstr "nó"
 
@@ -15661,14 +15585,6 @@ msgstr "luach sláimhir bailí"
 msgid "valid multicast MAC address"
 msgstr "seoladh MAC bailí multicast"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:1006
-msgid ""
-"valid network device name between 1 and 15 characters not containing \":\", "
-"\"/\", \"%\" or spaces"
-msgstr ""
-"ainm bailí feiste líonra idir 1 agus 15 carachtar nach bhfuil “:”, “/”, “%” "
-"nó spásanna"
-
 #: modules/luci-base/htdocs/luci-static/resources/validation.js:1004
 msgid "valid network device name, not \".\" or \"..\""
 msgstr "ainm bailí gléas líonra, ní “.” nó “..”"
@@ -15777,6 +15693,64 @@ msgstr "Tugann {example_nx} ar ais {nxdomain}."
 #: modules/luci-compat/luasrc/view/cbi/delegator.htm:20
 msgid "« Back"
 msgstr "“Ar ais"
+
+#~ msgid ""
+#~ "CA certificate (PEM encoded; Use instead of system-wide store to verify "
+#~ "the gateway certificate."
+#~ msgstr ""
+#~ "Teastas CA (ionchódaithe PEM; Úsáid in ionad stór ar fud an chórais chun "
+#~ "deimhniú an geata a fhíorú."
+
+#~ msgid "Invalid Base64 key string"
+#~ msgstr "Eochair sreang Base64 neamhbhailí"
+
+#~ msgid "Local IP address"
+#~ msgstr "Seoladh IP áitiúil"
+
+#~ msgid "OpenConnect"
+#~ msgstr "Oscailceangail"
+
+#~ msgid "OpenFortivpn"
+#~ msgstr "OpenFortivpn"
+
+#~ msgid "Optional, in seconds. If set to '0', no reconnect is attempted."
+#~ msgstr ""
+#~ "Roghnach, i soicindí. Má tá sé socraithe ar '0', ní dhéanfar iarracht ar "
+#~ "aon athnasc."
+
+#~ msgid ""
+#~ "Optional. Specify the realm if your VPN gateway uses custom login portals."
+#~ msgstr ""
+#~ "Roghnach. Sonraigh an réimse má úsáideann do gheata VPN tairseacha logála "
+#~ "isteach saincheaptha."
+
+#~ msgid "Persistent reconnect interval"
+#~ msgstr "Eatramh athnasctha leanúnach"
+
+#~ msgid "Realm"
+#~ msgstr "Ríocht"
+
+#~ msgid "TLS cet profile"
+#~ msgstr "Próifíl TLS cet"
+
+#~ msgid "This does not look like a valid PEM file"
+#~ msgstr "Ní chuma é seo cosúil le comhad bailí PEM"
+
+#~ msgid "VPN Protocol"
+#~ msgstr "Prótacal VPN"
+
+#~ msgid "VPN Server certificate's SHA256 hash"
+#~ msgstr "Hash SHA256 deimhniú Freastalaí VPN"
+
+#~ msgid "VPN Server port"
+#~ msgstr "Port freastalaí VPN"
+
+#~ msgid ""
+#~ "valid network device name between 1 and 15 characters not containing \":"
+#~ "\", \"/\", \"%\" or spaces"
+#~ msgstr ""
+#~ "ainm bailí feiste líonra idir 1 agus 15 carachtar nach bhfuil “:”, “/”, "
+#~ "“%” nó spásanna"
 
 #~ msgid "<em>%s</em>"
 #~ msgstr "<em>%s</em>"

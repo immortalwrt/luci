@@ -16,7 +16,7 @@ msgstr ""
 msgid "!known (not known)"
 msgstr "!ismert (nem ismert)"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:750
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:771
 msgctxt "Yet unknown nftables table family (\"family\" table \"name\")"
 msgid "\"%h\" table \"%h\""
 msgstr "\"%h\" család \"%h\" tábla"
@@ -227,7 +227,7 @@ msgstr "1"
 msgid "1 Minute Load:"
 msgstr "1 perces terhelés:"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:386
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:401
 msgctxt "nft amount of flags"
 msgid "1 flag"
 msgid_plural "%d flags"
@@ -836,7 +836,7 @@ msgstr ""
 msgid "ARP retry threshold"
 msgstr "ARP újrapróbálkozási küszöbszint"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:738
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:759
 msgid "ARP traffic table \"%h\""
 msgstr "ARP forgalmi tábla: \"%h\""
 
@@ -1586,7 +1586,7 @@ msgstr "Névtelen cserehely"
 msgid "Any"
 msgstr ""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:619
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:640
 msgctxt "nft match any traffic"
 msgid "Any packet"
 msgstr "Bármely csomag"
@@ -1959,7 +1959,6 @@ msgstr "NTP-kiszolgáló kötése"
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:144
 #: protocols/luci-proto-vti/htdocs/luci-static/resources/protocol/vti.js:59
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:132
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:132
@@ -1993,7 +1992,6 @@ msgstr ""
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:144
 #: protocols/luci-proto-vti/htdocs/luci-static/resources/protocol/vti.js:59
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:132
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:132
@@ -2055,7 +2053,7 @@ msgstr "Híd port egyedi lehetőségei"
 msgid "Bridge ports"
 msgstr "Híd portok"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:742
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:763
 msgid "Bridge traffic table \"%h\""
 msgstr "Híd forgalmi tábla: \"%h\""
 
@@ -2094,14 +2092,6 @@ msgid "By default, dnsmasq caches A, AAAA, CNAME and SRV DNS record types."
 msgstr ""
 "Alapértelmezés szerint a dnsmasq a következőket gyorsítótárazza: A, AAAA, "
 "CNAME és SRV DNS."
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:131
-msgid ""
-"CA certificate (PEM encoded; Use instead of system-wide store to verify the "
-"gateway certificate."
-msgstr ""
-"Hitelesítésszolgáltató tanúsítványa (PEM kódolású). A rendszerszintű tároló "
-"helyett ezt használja az átjáró tanúsítványának ellenőrzéséhez."
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:178
 msgid "CA certificate; if empty it will be saved after the first connection."
@@ -2188,32 +2178,32 @@ msgstr "Mégse"
 msgid "Cannot parse configuration: %s"
 msgstr "Nem elemezhető a beállítás: %s"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:669
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:690
 msgctxt "Chain hook: forward"
 msgid "Capture incoming packets addressed to other hosts"
 msgstr "Rögzítse a más gépeknek címzett bejövő csomagokat"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:661
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:682
 msgctxt "Chain hook: prerouting"
 msgid "Capture incoming packets before any routing decision"
 msgstr "Rögzítse a bejövő csomagokat bármilyen útválasztási döntés előtt"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:665
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:686
 msgctxt "Chain hook: input"
 msgid "Capture incoming packets routed to the local system"
 msgstr "Rögzítse a helyi rendszerbe irányított bejövő csomagokat"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:677
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:698
 msgctxt "Chain hook: postrouting"
 msgid "Capture outgoing packets after any routing decision"
 msgstr "Rögzítse a kimenő csomagokat bármilyen útválasztási döntés előtt"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:673
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:694
 msgctxt "Chain hook: output"
 msgid "Capture outgoing packets originating from the local system"
 msgstr "Rögzítse helyi rendszerből származó kimenő csomagokat"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:657
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:678
 msgctxt "Chain hook: ingress"
 msgid "Capture packets directly after the NIC received them"
 msgstr "Rögzítse a csomagokat közvetlenül a hálózati kártyára érkezés után"
@@ -2306,7 +2296,7 @@ msgstr ""
 msgid "Chain"
 msgstr "Lánc"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:681
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:702
 msgctxt "Yet unknown nftables chain hook"
 msgid "Chain hook \"%h\""
 msgstr "Lánc horgony \"%h\""
@@ -2744,7 +2734,7 @@ msgstr "Folytatás: <strong><a href=\"#%q.%q\">%h</a></strong>"
 msgid "Continue in calling chain"
 msgstr "Folytatás a hívó láncban"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:651
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:672
 msgctxt "Chain policy: accept"
 msgid "Continue processing unmatched packets"
 msgstr "Folytassa a nem illeszkedő csomagok feldolgozását"
@@ -3798,7 +3788,7 @@ msgctxt "nft drop action"
 msgid "Drop packet"
 msgstr "Csomag eldobása"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:647
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:668
 msgctxt "Chain policy: drop"
 msgid "Drop unmatched packets"
 msgstr "Nem illeszkedő csomagok eldobása"
@@ -5593,7 +5583,7 @@ msgstr "Magas"
 msgid "Honor gratuitous ARP"
 msgstr "Kéretlen ARP figyelembe vétele"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:694
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:715
 msgctxt "Chain hook description"
 msgid "Hook: <strong>%h</strong> (%h), Priority: <strong>%d</strong>"
 msgstr "Horgony: <strong>%h</strong> (%h), Prioritás: <strong>%d</strong>"
@@ -5904,7 +5894,7 @@ msgstr "IPv4-előtag"
 msgid "IPv4 prefix length"
 msgstr "IPv4-előtag hossza"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:726
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:747
 msgid "IPv4 traffic table \"%h\""
 msgstr "IPv4 forgalmi tábla: \"%h\""
 
@@ -5930,7 +5920,7 @@ msgstr "IPv4/IPv6"
 msgid "IPv4/IPv6 (both - defaults to IPv4)"
 msgstr "IPv4/IPv6 (mindkettő – alapértelmezetten IPv4)"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:734
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:755
 msgid "IPv4/IPv6 traffic table \"%h\""
 msgstr "IPv4/IPv6 forgalmi tábla: \"%h\""
 
@@ -6068,7 +6058,7 @@ msgstr "IPv6-utótag"
 msgid "IPv6 support"
 msgstr "IPv6 támogatás"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:730
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:751
 msgid "IPv6 traffic table \"%h\""
 msgstr "IPv6 forgalmi tábla: \"%h\""
 
@@ -6191,14 +6181,12 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1197
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/ipip6.js:70
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:135
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:158
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:129
 msgid "If unchecked, no default route is configured"
 msgstr "Ha nincs bejelölve, akkor nincs alapértelmezett útvonal beállítva."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1201
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:146
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:162
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:140
 msgid "If unchecked, the advertised DNS server addresses are ignored"
 msgstr ""
@@ -6635,11 +6623,6 @@ msgstr "Érvénytelen"
 msgid "Invalid APN provided"
 msgstr "Érvénytelen APN feltétel"
 
-#: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:38
-#: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:41
-msgid "Invalid Base64 key string"
-msgstr "Érvénytelen Base64 kulcs karakterlánc"
-
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:729
 msgid ""
 "Invalid DHCP lease time format. Use integer values optionally followed by s, "
@@ -7066,7 +7049,7 @@ msgstr ""
 "lehet szükség, de ennek használatával az átvitel hatékonysága jelentősen "
 "csökkenhet. Lehetőleg ne engedélyezze a 802.11b adatátviteli sebességet."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:778
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:799
 msgid "Legacy rules detected"
 msgstr "Örökölt szabályok észlelve"
 
@@ -7329,10 +7312,6 @@ msgstr ""
 #: modules/luci-base/htdocs/luci-static/resources/tools/views.js:57
 msgid "Local 7"
 msgstr ""
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:171
-msgid "Local IP address"
-msgstr "Helyi IP-cím"
 
 #: modules/luci-base/htdocs/luci-static/resources/network.js:12
 #: modules/luci-compat/luasrc/model/network.lua:30
@@ -8225,7 +8204,7 @@ msgstr "NAS-azonosító"
 msgid "NAT"
 msgstr ""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:637
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:658
 msgid "NAT action chain \"%h\""
 msgstr "NAT művelet-lánc \"%h\""
 
@@ -8402,7 +8381,7 @@ msgstr "Hálózati eszköz aktivitás (kernel: netdev)"
 msgid "Network device is not present"
 msgstr "A hálózati eszköz nincs jelen"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:746
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:767
 msgid "Network device table \"%h\""
 msgstr "Hálózat eszköztáblája: \"%h\""
 
@@ -8608,7 +8587,7 @@ msgstr "Nincs egyező előtag használatban"
 msgid "No negative cache"
 msgstr "Nincs negatív gyorsítótár"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:794
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:815
 msgid "No nftables ruleset loaded."
 msgstr "Nincs betöltött nftables szabálykészlet."
 
@@ -8636,7 +8615,7 @@ msgstr "Nem található előnyben részesített mód beállítás."
 msgid "No public keys present yet."
 msgstr "Még nincsenek nyilvános kulcsok."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:714
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:735
 msgctxt "nft chain is empty"
 msgid "No rules in this chain"
 msgstr "Nincsenek szabályok ebben a láncban"
@@ -8986,7 +8965,7 @@ msgid "Only process ping timeouts if routes exist"
 msgstr ""
 "Csak akkor dolgozza fel a pingelés időkorlátjait, ha az útvonalak léteznek"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:783
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:804
 msgid "Open iptables rules overview…"
 msgstr "iptables szabályok áttekintésének megnyitása…"
 
@@ -8994,16 +8973,8 @@ msgstr "iptables szabályok áttekintésének megnyitása…"
 msgid "Open list..."
 msgstr "Lista megnyitása…"
 
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:63
-msgid "OpenConnect"
-msgstr ""
-
 #: modules/luci-compat/luasrc/model/network/proto_openconnect.lua:9
 msgid "OpenConnect (CISCO AnyConnect)"
-msgstr ""
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:63
-msgid "OpenFortivpn"
 msgstr ""
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1624
@@ -9095,10 +9066,6 @@ msgstr ""
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:137
 msgid "Optional, free-form notes about this device"
 msgstr "Az eszköz kötetlen formátumú leírása (elhagyható)."
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:149
-msgid "Optional, in seconds. If set to '0', no reconnect is attempted."
-msgstr ""
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:176
 msgid ""
@@ -9197,11 +9164,6 @@ msgstr ""
 "(letiltva). Az ajánlott érték 25, ha ez az eszköz <abbr title=\"Hálózati "
 "címfordítás (Network Address Translation)\">NAT</abbr> mögött van "
 "(elhagyható)."
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:176
-msgid ""
-"Optional. Specify the realm if your VPN gateway uses custom login portals."
-msgstr ""
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:151
 msgid "Optional. UDP port used for outgoing and incoming packets."
@@ -9590,7 +9552,6 @@ msgstr "Átengedés (Fizikai eszköz tükrözése egyetlen MAC VLAN-hoz)"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:92
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:133
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:145
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:103
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:58
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:301
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:19
@@ -9800,10 +9761,6 @@ msgstr "Ifconfig tároló állandóvá vagy nem állandóvá tétele"
 msgid "Persistent Keep Alive"
 msgstr "Állandó életben tartás"
 
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:149
-msgid "Persistent reconnect interval"
-msgstr "Állandó újracsatlakozási időköz"
-
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:310
 msgid "PersistentKeepAlive setting is invalid"
 msgstr "<em>PersistentKeepAlive</em> beállítása érvénytelen"
@@ -9895,7 +9852,7 @@ msgstr "Szabályzat"
 msgid "Policy level over usage of external programs and scripts"
 msgstr "Házirendszint a külső programok és parancsfájlok használata fölött"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:695
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:716
 msgctxt "Chain hook policy"
 msgid "Policy: <strong>%h</strong> (%h)"
 msgstr "Szabályzat: <strong>%h</strong> (%h)"
@@ -10435,10 +10392,6 @@ msgstr "Biztosan törli a következő tároló nyilvános kulcsát?"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:599
 msgid "Really switch protocol?"
 msgstr "Valóban protokollt cserél?"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:176
-msgid "Realm"
-msgstr ""
 
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:139
 msgid "Realtime Graphs"
@@ -11169,7 +11122,7 @@ msgstr ""
 msgid "Route Allowed IPs"
 msgstr "Engedélyezett IP-k irányítása"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:633
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:654
 msgid "Route action chain \"%h\""
 msgstr "Útvonal művelet-lánc \"%h\""
 
@@ -11259,20 +11212,20 @@ msgstr "Útválasztási tábla a szabálynak megfelelő forgalom illesztéséhez
 msgid "Rule"
 msgstr "Szabály"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:703
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:724
 msgid "Rule actions"
 msgstr "Szabályműveletek"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:557
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:572
 msgctxt "nft comment"
 msgid "Rule comment: %s"
 msgstr "Szabály megjegyzés: %s"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:641
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:662
 msgid "Rule container chain \"%h\""
 msgstr "Szabálytároló-lánc \"%h\""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:702
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:723
 msgid "Rule matches"
 msgstr "Szabályegyezések"
 
@@ -12550,7 +12503,7 @@ msgid "TLS 1.3 or newer cipher"
 msgstr "TLS 1.3 vagy újabb titkosító"
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1275
-msgid "TLS cet profile"
+msgid "TLS cert profile"
 msgstr ""
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1057
@@ -13269,7 +13222,7 @@ msgid ""
 "the network with its protocol information."
 msgstr ""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:779
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:800
 msgid ""
 "There are legacy iptables rules present on the system. Mixing iptables and "
 "nftables rules is discouraged and may lead to incomplete traffic filtering."
@@ -13306,11 +13259,6 @@ msgstr "Az átjátszó IPv4-címe"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2042
 msgid "This authentication type is not applicable to the selected EAP method."
 msgstr "Ez a hitelesítéstípus nem alkalmazható a kijelölt EAP módszerhez."
-
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:56
-msgid "This does not look like a valid PEM file"
-msgstr "Ez nem tűnik érvényes PEM fájlnak"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1777
 msgid ""
@@ -13605,11 +13553,11 @@ msgstr "Forgalom"
 msgid "Traffic Class"
 msgstr "Forgalmi osztály"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:629
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:650
 msgid "Traffic filter chain \"%h\""
 msgstr "Forgalomszűrő-lánc \"%h\""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:548
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:563
 msgctxt "nft counter"
 msgid "Traffic matched by rule: %.1000mPackets, %.1024mBytes"
 msgstr "Szabálynak megfelelő forgalom: %.1000mPackets, %.1024mBytes"
@@ -14101,7 +14049,6 @@ msgstr "DHCPv6 használata"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1201
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:145
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:162
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:139
 msgid "Use DNS servers advertised by peer"
 msgstr "A partner által hirdetett DNS-kiszolgálók használata"
@@ -14158,7 +14105,6 @@ msgstr "Egyéni DNS-kiszolgálók használata"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1197
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:134
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:158
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:128
 msgid "Use default gateway"
 msgstr "Alapértelmezett átjáró használata"
@@ -14166,7 +14112,6 @@ msgstr "Alapértelmezett átjáró használata"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1214
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/ipip6.js:73
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:139
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:166
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:133
 msgid "Use gateway metric"
 msgstr "Átjáró mérőszámának használata"
@@ -14282,7 +14227,6 @@ msgid "User"
 msgstr "Felhasználó (user)"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:154
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:106
 msgid "User certificate (PEM encoded)"
 msgstr "Felhasználói tanúsítvány (PEM kódolású)"
 
@@ -14291,13 +14235,11 @@ msgid "User identifier"
 msgstr "Felhasználói azonosító"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:166
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:118
 msgid "User key (PEM encoded)"
 msgstr "Felhasználói kulcs (PEM kódolású)"
 
 #: modules/luci-base/ucode/template/sysauth.ut:29
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:143
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:101
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:56
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:13
 msgid "Username"
@@ -14366,24 +14308,10 @@ msgstr "VPN helyi cím"
 msgid "VPN Local port"
 msgstr "VPN helyi port"
 
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:94
-msgid "VPN Protocol"
-msgstr "VPN protokoll"
-
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:103
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:93
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pptp.js:58
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:39
 msgid "VPN Server"
 msgstr "VPN-kiszolgáló"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:154
-msgid "VPN Server certificate's SHA256 hash"
-msgstr "VPN-kiszolgáló tanúsítványának SHA256 kivonata"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:96
-msgid "VPN Server port"
-msgstr "VPN-kiszolgáló portja"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:141
 msgid "VPN Server's certificate SHA1 hash"
@@ -14445,7 +14373,7 @@ msgstr "Gyártó"
 msgid "Vendor Class to send when requesting DHCP"
 msgstr "DHCP kérésekor küldendő gyártóosztály"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:313
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:328
 msgid "Verdict map: <var>%h</var> is"
 msgstr ""
 
@@ -15267,7 +15195,7 @@ msgstr "elérhető előtagos"
 msgid "open network"
 msgstr "nyitott hálózat"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:345
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:360
 msgid "or"
 msgstr ""
 
@@ -15621,14 +15549,6 @@ msgstr "érvényes egész szám"
 msgid "valid multicast MAC address"
 msgstr "érvényes csoport-küldésű MAC-cím"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:1006
-msgid ""
-"valid network device name between 1 and 15 characters not containing \":\", "
-"\"/\", \"%\" or spaces"
-msgstr ""
-"érvényes hálózati eszköznév 1 és 15 karakter között, nincs \":\", \"\\\", \"%"
-"\" és szóköz"
-
 #: modules/luci-base/htdocs/luci-static/resources/validation.js:1004
 msgid "valid network device name, not \".\" or \"..\""
 msgstr "érvényes hálózati eszköznév, nincs \".\" vagy \"..\""
@@ -15735,6 +15655,41 @@ msgstr "{example_nx} visszaad: {nxdomain}."
 #: modules/luci-compat/luasrc/view/cbi/delegator.htm:20
 msgid "« Back"
 msgstr "« Vissza"
+
+#~ msgid ""
+#~ "CA certificate (PEM encoded; Use instead of system-wide store to verify "
+#~ "the gateway certificate."
+#~ msgstr ""
+#~ "Hitelesítésszolgáltató tanúsítványa (PEM kódolású). A rendszerszintű "
+#~ "tároló helyett ezt használja az átjáró tanúsítványának ellenőrzéséhez."
+
+#~ msgid "Invalid Base64 key string"
+#~ msgstr "Érvénytelen Base64 kulcs karakterlánc"
+
+#~ msgid "Local IP address"
+#~ msgstr "Helyi IP-cím"
+
+#~ msgid "Persistent reconnect interval"
+#~ msgstr "Állandó újracsatlakozási időköz"
+
+#~ msgid "This does not look like a valid PEM file"
+#~ msgstr "Ez nem tűnik érvényes PEM fájlnak"
+
+#~ msgid "VPN Protocol"
+#~ msgstr "VPN protokoll"
+
+#~ msgid "VPN Server certificate's SHA256 hash"
+#~ msgstr "VPN-kiszolgáló tanúsítványának SHA256 kivonata"
+
+#~ msgid "VPN Server port"
+#~ msgstr "VPN-kiszolgáló portja"
+
+#~ msgid ""
+#~ "valid network device name between 1 and 15 characters not containing \":"
+#~ "\", \"/\", \"%\" or spaces"
+#~ msgstr ""
+#~ "érvényes hálózati eszköznév 1 és 15 karakter között, nincs \":\", \"\\\", "
+#~ "\"%\" és szóköz"
 
 #~ msgid "Changes the administrator password for accessing the device"
 #~ msgstr ""

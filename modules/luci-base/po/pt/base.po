@@ -18,7 +18,7 @@ msgstr ""
 msgid "!known (not known)"
 msgstr "!known (desconhecido)"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:750
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:771
 msgctxt "Yet unknown nftables table family (\"family\" table \"name\")"
 msgid "\"%h\" table \"%h\""
 msgstr "\"%h\" tabela \"%h\""
@@ -229,7 +229,7 @@ msgstr "1"
 msgid "1 Minute Load:"
 msgstr "Carga de 1 Minuto:"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:386
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:401
 msgctxt "nft amount of flags"
 msgid "1 flag"
 msgid_plural "%d flags"
@@ -833,7 +833,7 @@ msgstr "Proxy ARP"
 msgid "ARP retry threshold"
 msgstr "Limiar de tentativas ARP"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:738
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:759
 msgid "ARP traffic table \"%h\""
 msgstr "Tabela de tráfego ARP \"%h\""
 
@@ -1575,7 +1575,7 @@ msgstr "Swap Anónimo"
 msgid "Any"
 msgstr "Qualquer"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:619
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:640
 msgctxt "nft match any traffic"
 msgid "Any packet"
 msgstr "Qualquer pacote"
@@ -1951,7 +1951,6 @@ msgstr "Vincular servidor NTP"
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:144
 #: protocols/luci-proto-vti/htdocs/luci-static/resources/protocol/vti.js:59
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:132
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:132
@@ -1986,7 +1985,6 @@ msgstr ""
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:144
 #: protocols/luci-proto-vti/htdocs/luci-static/resources/protocol/vti.js:59
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:132
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:132
@@ -2050,7 +2048,7 @@ msgstr "Opções específicas da porta da ponte"
 msgid "Bridge ports"
 msgstr "Portas da ponte"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:742
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:763
 msgid "Bridge traffic table \"%h\""
 msgstr "Tabela de tráfego da ponte \"%h\""
 
@@ -2089,14 +2087,6 @@ msgid "By default, dnsmasq caches A, AAAA, CNAME and SRV DNS record types."
 msgstr ""
 "Por padrão, o dnsmasq armazena em cache os tipos de registos DNS A, AAAA, "
 "CNAME e SRV."
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:131
-msgid ""
-"CA certificate (PEM encoded; Use instead of system-wide store to verify the "
-"gateway certificate."
-msgstr ""
-"Certificado CA (codificado por PEM; use em vez do armazenamento em todo o "
-"sistema para aferir o certificado do gateway."
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:178
 msgid "CA certificate; if empty it will be saved after the first connection."
@@ -2181,32 +2171,32 @@ msgstr "Cancelar"
 msgid "Cannot parse configuration: %s"
 msgstr "Não foi possível analisar a configuração: %s"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:669
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:690
 msgctxt "Chain hook: forward"
 msgid "Capture incoming packets addressed to other hosts"
 msgstr "Fazer a captura dos pacotes da entrada endereçados a outros anfitriões"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:661
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:682
 msgctxt "Chain hook: prerouting"
 msgid "Capture incoming packets before any routing decision"
 msgstr "Capturar pacotes recebidos antes de qualquer decisão de encaminhamento"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:665
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:686
 msgctxt "Chain hook: input"
 msgid "Capture incoming packets routed to the local system"
 msgstr "Capturar pacotes de entrada roteados ao sistema local"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:677
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:698
 msgctxt "Chain hook: postrouting"
 msgid "Capture outgoing packets after any routing decision"
 msgstr "Capturar pacotes de saída após qualquer decisão de encaminhamento"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:673
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:694
 msgctxt "Chain hook: output"
 msgid "Capture outgoing packets originating from the local system"
 msgstr "Capturar pacotes de saída provenientes do sistema local"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:657
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:678
 msgctxt "Chain hook: ingress"
 msgid "Capture packets directly after the NIC received them"
 msgstr "Capturar pacotes diretamente após o NIC recebê-los"
@@ -2296,7 +2286,7 @@ msgstr ""
 msgid "Chain"
 msgstr "Cadeia"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:681
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:702
 msgctxt "Yet unknown nftables chain hook"
 msgid "Chain hook \"%h\""
 msgstr "Gancho de corrente \"%h\""
@@ -2731,7 +2721,7 @@ msgstr "Continuar em <strong><a href=\"#%q.%q\">%h</a></strong>"
 msgid "Continue in calling chain"
 msgstr "Continuar na cadeia de chamadas"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:651
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:672
 msgctxt "Chain policy: accept"
 msgid "Continue processing unmatched packets"
 msgstr "Continuar a processar pacotes inigualáveis"
@@ -3797,7 +3787,7 @@ msgctxt "nft drop action"
 msgid "Drop packet"
 msgstr "Abandonar o pacote"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:647
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:668
 msgctxt "Chain policy: drop"
 msgid "Drop unmatched packets"
 msgstr "Abandonar pacotes inigualáveis"
@@ -5582,7 +5572,7 @@ msgstr "Alto"
 msgid "Honor gratuitous ARP"
 msgstr "Honrar ARP gratuito"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:694
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:715
 msgctxt "Chain hook description"
 msgid "Hook: <strong>%h</strong> (%h), Priority: <strong>%d</strong>"
 msgstr "Gancho: <strong>%h</strong> (%h), Prioridade: <strong>%d</strong>"
@@ -5896,7 +5886,7 @@ msgstr "Prefixo IPv4"
 msgid "IPv4 prefix length"
 msgstr "Comprimento do prefixo IPv4"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:726
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:747
 msgid "IPv4 traffic table \"%h\""
 msgstr "Tabela de tráfego IPv4 \"%h\""
 
@@ -5922,7 +5912,7 @@ msgstr "IPv4/IPv6"
 msgid "IPv4/IPv6 (both - defaults to IPv4)"
 msgstr "IPv4/IPv6 (ambos - predefinição é IPv4)"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:734
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:755
 msgid "IPv4/IPv6 traffic table \"%h\""
 msgstr "Tabela de tráfego IPv4/IPv6 \"%h\""
 
@@ -6060,7 +6050,7 @@ msgstr "Sufixo IPv6"
 msgid "IPv6 support"
 msgstr "Suporte a IPv6"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:730
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:751
 msgid "IPv6 traffic table \"%h\""
 msgstr "Tabela de tráfego IPv6 \"%h\""
 
@@ -6188,14 +6178,12 @@ msgstr ""
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1197
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/ipip6.js:70
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:135
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:158
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:129
 msgid "If unchecked, no default route is configured"
 msgstr "Se desmarcado, não é configurada uma rota pré-definida"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1201
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:146
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:162
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:140
 msgid "If unchecked, the advertised DNS server addresses are ignored"
 msgstr "Se desmarcado, os endereços de servidor DNS anunciados são ignorados"
@@ -6626,11 +6614,6 @@ msgstr "Inválido"
 msgid "Invalid APN provided"
 msgstr "Fornecido um APN inválido"
 
-#: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:38
-#: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:41
-msgid "Invalid Base64 key string"
-msgstr "Cadeia de caracteres Base64 inválida"
-
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:729
 msgid ""
 "Invalid DHCP lease time format. Use integer values optionally followed by s, "
@@ -7056,7 +7039,7 @@ msgstr ""
 "significativamente reduzida quando estes são utilizados. É recomendado não "
 "permitir as taxas 802.11b sempre que possível."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:778
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:799
 msgid "Legacy rules detected"
 msgstr "Foram detectadas regras legadas"
 
@@ -7311,10 +7294,6 @@ msgstr "Local 6"
 #: modules/luci-base/htdocs/luci-static/resources/tools/views.js:57
 msgid "Local 7"
 msgstr "Local 7"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:171
-msgid "Local IP address"
-msgstr "Endereço IP local"
 
 #: modules/luci-base/htdocs/luci-static/resources/network.js:12
 #: modules/luci-compat/luasrc/model/network.lua:30
@@ -8212,7 +8191,7 @@ msgstr "ID do NAS"
 msgid "NAT"
 msgstr "NAT"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:637
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:658
 msgid "NAT action chain \"%h\""
 msgstr "Cadeia de ação NAT \"%h\""
 
@@ -8385,7 +8364,7 @@ msgstr "Atividade do dispositivo de rede (kernel: netdev)"
 msgid "Network device is not present"
 msgstr "O dispositivo de rede não está presente"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:746
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:767
 msgid "Network device table \"%h\""
 msgstr "Tabela dos dispositivo de rede \"%h\""
 
@@ -8589,7 +8568,7 @@ msgstr "Não casou com nenhum prefixo delegado"
 msgid "No negative cache"
 msgstr "Sem cache negativa"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:794
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:815
 msgid "No nftables ruleset loaded."
 msgstr "Nenhuma regra nftables foi carregada."
 
@@ -8617,7 +8596,7 @@ msgstr "Nenhuma configuração de modo preferencial foi encontrada."
 msgid "No public keys present yet."
 msgstr "Ainda não há chaves públicas presentes."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:714
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:735
 msgctxt "nft chain is empty"
 msgid "No rules in this chain"
 msgstr "Não há regras nesta cadeia"
@@ -8973,7 +8952,7 @@ msgstr ""
 msgid "Only process ping timeouts if routes exist"
 msgstr "Só processar timeouts de pings se existirem rotas"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:783
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:804
 msgid "Open iptables rules overview…"
 msgstr "Abrir a visão geral das regras do iptables…"
 
@@ -8981,17 +8960,9 @@ msgstr "Abrir a visão geral das regras do iptables…"
 msgid "Open list..."
 msgstr "Abrir lista..."
 
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:63
-msgid "OpenConnect"
-msgstr "OpenConnect"
-
 #: modules/luci-compat/luasrc/model/network/proto_openconnect.lua:9
 msgid "OpenConnect (CISCO AnyConnect)"
 msgstr "OpenConnect (CISCO AnyConnect)"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:63
-msgid "OpenFortivpn"
-msgstr "OpenFortivpn"
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1624
 msgid "OpenVPN"
@@ -9082,12 +9053,6 @@ msgstr ""
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:137
 msgid "Optional, free-form notes about this device"
 msgstr "Opcional, anotações diversas sobre este dispositivo"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:149
-msgid "Optional, in seconds. If set to '0', no reconnect is attempted."
-msgstr ""
-"Em segundo, opcional. Caso seja definido como '0', nenhuma tentativa de "
-"reconexão será feita."
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:176
 msgid ""
@@ -9185,11 +9150,6 @@ msgstr ""
 "Opcional. Segundos entre mensagens para manutenção da conexão. A "
 "predefinição é 0 (desativado). O valor recomendado caso este dispositivo "
 "esteja atrás de uma NAT é 25."
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:176
-msgid ""
-"Optional. Specify the realm if your VPN gateway uses custom login portals."
-msgstr ""
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:151
 msgid "Optional. UDP port used for outgoing and incoming packets."
@@ -9568,7 +9528,6 @@ msgstr "Passagem direta (Dispositivo físico espelhado para um único MAC VLAN)"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:92
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:133
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:145
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:103
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:58
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:301
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:19
@@ -9778,10 +9737,6 @@ msgstr "Manter ou não o conjunto de subredes"
 msgid "Persistent Keep Alive"
 msgstr "Manutenção da Conexão Persistente"
 
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:149
-msgid "Persistent reconnect interval"
-msgstr "Intervalo de reconexão persistente"
-
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:310
 msgid "PersistentKeepAlive setting is invalid"
 msgstr "A configuração PersistentKeepAlive está inválida"
@@ -9875,7 +9830,7 @@ msgstr "Política"
 msgid "Policy level over usage of external programs and scripts"
 msgstr "Nível da política sobre o uso de programas externos e scripts"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:695
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:716
 msgctxt "Chain hook policy"
 msgid "Policy: <strong>%h</strong> (%h)"
 msgstr "Política: <strong>%h</strong> (%h)"
@@ -10427,10 +10382,6 @@ msgstr "Realmente apagar a chave pública seguinte do repositório de software?"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:599
 msgid "Really switch protocol?"
 msgstr "Deseja mesmo trocar o protocolo?"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:176
-msgid "Realm"
-msgstr ""
 
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:139
 msgid "Realtime Graphs"
@@ -11160,7 +11111,7 @@ msgstr "Round robin"
 msgid "Route Allowed IPs"
 msgstr "Roteie Andereços IP Autorizados"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:633
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:654
 msgid "Route action chain \"%h\""
 msgstr "Cadeia de ação rota \"%h\""
 
@@ -11253,20 +11204,20 @@ msgstr ""
 msgid "Rule"
 msgstr "Regra"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:703
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:724
 msgid "Rule actions"
 msgstr "Ações da regra"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:557
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:572
 msgctxt "nft comment"
 msgid "Rule comment: %s"
 msgstr "Comentário da regra: %s"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:641
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:662
 msgid "Rule container chain \"%h\""
 msgstr "Regra da cadeia de contentores \"%h\""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:702
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:723
 msgid "Rule matches"
 msgstr "Correspondências das regras"
 
@@ -12550,8 +12501,8 @@ msgid "TLS 1.3 or newer cipher"
 msgstr "TLS 1.3 ou cifra mais recente"
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1275
-msgid "TLS cet profile"
-msgstr "Perfil de certificado TLS"
+msgid "TLS cert profile"
+msgstr ""
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1057
 msgid "TLS cipher"
@@ -13304,7 +13255,7 @@ msgstr ""
 "O valor determina o intervalo (em milissegundos) onde o batman-adv inunda a "
 "rede com as suas informações de protocolo."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:779
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:800
 msgid ""
 "There are legacy iptables rules present on the system. Mixing iptables and "
 "nftables rules is discouraged and may lead to incomplete traffic filtering."
@@ -13344,11 +13295,6 @@ msgstr "Este endereço IPv4 do repassar"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2042
 msgid "This authentication type is not applicable to the selected EAP method."
 msgstr "Este tipo de autenticação não é aplicável ao método EAP selecionado."
-
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:56
-msgid "This does not look like a valid PEM file"
-msgstr "Isto não parece ser um ficheiro PEM válido"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1777
 msgid ""
@@ -13654,11 +13600,11 @@ msgstr "Tráfego"
 msgid "Traffic Class"
 msgstr "Classe de tráfego"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:629
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:650
 msgid "Traffic filter chain \"%h\""
 msgstr "Cadeia do filtro de tráfego \"%h\""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:548
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:563
 msgctxt "nft counter"
 msgid "Traffic matched by rule: %.1000mPackets, %.1024mBytes"
 msgstr "Tráfego correspondente à regra: %.1000mPacotes, %.1024mBytes"
@@ -14155,7 +14101,6 @@ msgstr "Utilizar DHCPv6"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1201
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:145
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:162
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:139
 msgid "Use DNS servers advertised by peer"
 msgstr "Usar os servidores DNS fornecidos pelo parceiro"
@@ -14214,7 +14159,6 @@ msgstr "Usar servidores DNS personalizados"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1197
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:134
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:158
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:128
 msgid "Use default gateway"
 msgstr "Usar gateway pre-definida"
@@ -14222,7 +14166,6 @@ msgstr "Usar gateway pre-definida"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1214
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/ipip6.js:73
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:139
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:166
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:133
 msgid "Use gateway metric"
 msgstr "Use a métrica do router"
@@ -14335,7 +14278,6 @@ msgid "User"
 msgstr "Utilizador"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:154
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:106
 msgid "User certificate (PEM encoded)"
 msgstr "Certificado do utilizador (codificado em formato PEM)"
 
@@ -14344,13 +14286,11 @@ msgid "User identifier"
 msgstr "Identificador do utilizador"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:166
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:118
 msgid "User key (PEM encoded)"
 msgstr "Chave do utilizador (codificada em formato PEM)"
 
 #: modules/luci-base/ucode/template/sysauth.ut:29
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:143
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:101
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:56
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:13
 msgid "Username"
@@ -14419,24 +14359,10 @@ msgstr "Endereço Local da VPN"
 msgid "VPN Local port"
 msgstr "Porta Local da VPN"
 
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:94
-msgid "VPN Protocol"
-msgstr "Protocolo de VPN"
-
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:103
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:93
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pptp.js:58
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:39
 msgid "VPN Server"
 msgstr "Servidor VPN"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:154
-msgid "VPN Server certificate's SHA256 hash"
-msgstr "Hash do certificado VPN Server SHA256"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:96
-msgid "VPN Server port"
-msgstr "Porta do Servidor VPN"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:141
 msgid "VPN Server's certificate SHA1 hash"
@@ -14497,7 +14423,7 @@ msgstr "Fabricante"
 msgid "Vendor Class to send when requesting DHCP"
 msgstr "Classe do fabricante para enviar quando requisitar o DHCP"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:313
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:328
 msgid "Verdict map: <var>%h</var> is"
 msgstr "Mapa de veredito: <var>%h</var> é"
 
@@ -15323,7 +15249,7 @@ msgstr "no prefixo disponível"
 msgid "open network"
 msgstr "rede aberta"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:345
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:360
 msgid "or"
 msgstr "ou"
 
@@ -15680,14 +15606,6 @@ msgstr "valor inteiro válido"
 msgid "valid multicast MAC address"
 msgstr "endereço MAC multicast válido"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:1006
-msgid ""
-"valid network device name between 1 and 15 characters not containing \":\", "
-"\"/\", \"%\" or spaces"
-msgstr ""
-"nome de dispositivo de rede válido entre 1 e 15 caracteres não contendo \":"
-"\", \"/\", \"%\" ou espaços"
-
 #: modules/luci-base/htdocs/luci-static/resources/validation.js:1004
 msgid "valid network device name, not \".\" or \"..\""
 msgstr "nome do dispositivo de rede válido, não \".\" ou \"..\""
@@ -15796,6 +15714,55 @@ msgstr "{example_nx} retorna {nxdomain}."
 #: modules/luci-compat/luasrc/view/cbi/delegator.htm:20
 msgid "« Back"
 msgstr "« Voltar"
+
+#~ msgid ""
+#~ "CA certificate (PEM encoded; Use instead of system-wide store to verify "
+#~ "the gateway certificate."
+#~ msgstr ""
+#~ "Certificado CA (codificado por PEM; use em vez do armazenamento em todo o "
+#~ "sistema para aferir o certificado do gateway."
+
+#~ msgid "Invalid Base64 key string"
+#~ msgstr "Cadeia de caracteres Base64 inválida"
+
+#~ msgid "Local IP address"
+#~ msgstr "Endereço IP local"
+
+#~ msgid "OpenConnect"
+#~ msgstr "OpenConnect"
+
+#~ msgid "OpenFortivpn"
+#~ msgstr "OpenFortivpn"
+
+#~ msgid "Optional, in seconds. If set to '0', no reconnect is attempted."
+#~ msgstr ""
+#~ "Em segundo, opcional. Caso seja definido como '0', nenhuma tentativa de "
+#~ "reconexão será feita."
+
+#~ msgid "Persistent reconnect interval"
+#~ msgstr "Intervalo de reconexão persistente"
+
+#~ msgid "TLS cet profile"
+#~ msgstr "Perfil de certificado TLS"
+
+#~ msgid "This does not look like a valid PEM file"
+#~ msgstr "Isto não parece ser um ficheiro PEM válido"
+
+#~ msgid "VPN Protocol"
+#~ msgstr "Protocolo de VPN"
+
+#~ msgid "VPN Server certificate's SHA256 hash"
+#~ msgstr "Hash do certificado VPN Server SHA256"
+
+#~ msgid "VPN Server port"
+#~ msgstr "Porta do Servidor VPN"
+
+#~ msgid ""
+#~ "valid network device name between 1 and 15 characters not containing \":"
+#~ "\", \"/\", \"%\" or spaces"
+#~ msgstr ""
+#~ "nome de dispositivo de rede válido entre 1 e 15 caracteres não contendo "
+#~ "\":\", \"/\", \"%\" ou espaços"
 
 #~ msgid "<em>Add</em>"
 #~ msgstr "<em>Adicionar</em>"

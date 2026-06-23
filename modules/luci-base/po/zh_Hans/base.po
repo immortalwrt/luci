@@ -19,7 +19,7 @@ msgstr ""
 msgid "!known (not known)"
 msgstr "!known（未知）"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:750
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:771
 msgctxt "Yet unknown nftables table family (\"family\" table \"name\")"
 msgid "\"%h\" table \"%h\""
 msgstr "\"%h\" 表 \"%h\""
@@ -224,7 +224,7 @@ msgstr "1"
 msgid "1 Minute Load:"
 msgstr "1 分钟负载："
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:386
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:401
 msgctxt "nft amount of flags"
 msgid "1 flag"
 msgid_plural "%d flags"
@@ -817,7 +817,7 @@ msgstr "ARP 代理"
 msgid "ARP retry threshold"
 msgstr "ARP 重试阈值"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:738
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:759
 msgid "ARP traffic table \"%h\""
 msgstr "ARP 流量表 \"%h\""
 
@@ -1522,7 +1522,7 @@ msgstr "自动挂载未配置的 Swap 分区"
 msgid "Any"
 msgstr "任意"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:619
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:640
 msgctxt "nft match any traffic"
 msgid "Any packet"
 msgstr "任意数据包"
@@ -1879,7 +1879,6 @@ msgstr "绑定 NTP 服务器"
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:144
 #: protocols/luci-proto-vti/htdocs/luci-static/resources/protocol/vti.js:59
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:132
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:132
@@ -1910,7 +1909,6 @@ msgstr "绑定服务记录到域名：指定服务的位置。见 <a href=\"%s\"
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:144
 #: protocols/luci-proto-vti/htdocs/luci-static/resources/protocol/vti.js:59
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:132
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:132
@@ -1972,7 +1970,7 @@ msgstr "网桥端口特定选项"
 msgid "Bridge ports"
 msgstr "网桥端口"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:742
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:763
 msgid "Bridge traffic table \"%h\""
 msgstr "网桥流量表 \"%h\""
 
@@ -2009,12 +2007,6 @@ msgstr "已缓冲"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dns.js:254
 msgid "By default, dnsmasq caches A, AAAA, CNAME and SRV DNS record types."
 msgstr "默认情况下，dnsmasq 会缓存 A，AAAA，CNAME 和 SRV 类型的 DNS 记录。"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:131
-msgid ""
-"CA certificate (PEM encoded; Use instead of system-wide store to verify the "
-"gateway certificate."
-msgstr "CA 证书（PEM 编码；而不是使用系统范围的存储来验证网关证书。"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:178
 msgid "CA certificate; if empty it will be saved after the first connection."
@@ -2096,32 +2088,32 @@ msgstr "取消"
 msgid "Cannot parse configuration: %s"
 msgstr "无法解析配置：%s"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:669
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:690
 msgctxt "Chain hook: forward"
 msgid "Capture incoming packets addressed to other hosts"
 msgstr "捕获发送到其他主机的传入数据包"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:661
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:682
 msgctxt "Chain hook: prerouting"
 msgid "Capture incoming packets before any routing decision"
 msgstr "在任何路由决策前捕获传入数据包"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:665
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:686
 msgctxt "Chain hook: input"
 msgid "Capture incoming packets routed to the local system"
 msgstr "捕获路由到本地系统的传入数据包"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:677
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:698
 msgctxt "Chain hook: postrouting"
 msgid "Capture outgoing packets after any routing decision"
 msgstr "在任何路由决策后捕获传出数据包"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:673
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:694
 msgctxt "Chain hook: output"
 msgid "Capture outgoing packets originating from the local system"
 msgstr "捕获源自本地系统的传出数据包"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:657
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:678
 msgctxt "Chain hook: ingress"
 msgid "Capture packets directly after the NIC received them"
 msgstr "在 NIC 接收到数据包后直接捕获它们"
@@ -2205,7 +2197,7 @@ msgstr ""
 msgid "Chain"
 msgstr "链"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:681
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:702
 msgctxt "Yet unknown nftables chain hook"
 msgid "Chain hook \"%h\""
 msgstr "链钩 \"%h\""
@@ -2624,7 +2616,7 @@ msgstr "在 <strong><a href=\"#%q.%q\">%h</a></strong> 继续"
 msgid "Continue in calling chain"
 msgstr "在原链中继续"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:651
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:672
 msgctxt "Chain policy: accept"
 msgid "Continue processing unmatched packets"
 msgstr "继续处理不匹配的数据包"
@@ -3656,7 +3648,7 @@ msgctxt "nft drop action"
 msgid "Drop packet"
 msgstr "丢弃数据包"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:647
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:668
 msgctxt "Chain policy: drop"
 msgid "Drop unmatched packets"
 msgstr "丢弃不匹配的数据包"
@@ -5386,7 +5378,7 @@ msgstr "高"
 msgid "Honor gratuitous ARP"
 msgstr "接受免费 ARP"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:694
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:715
 msgctxt "Chain hook description"
 msgid "Hook: <strong>%h</strong> (%h), Priority: <strong>%d</strong>"
 msgstr "钩子：<strong>%h</strong> (%h)，优先级：<strong>%d</strong>"
@@ -5690,7 +5682,7 @@ msgstr "IPv4 地址前缀"
 msgid "IPv4 prefix length"
 msgstr "IPv4 地址前缀长度"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:726
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:747
 msgid "IPv4 traffic table \"%h\""
 msgstr "IPv4 流量表 \"%h\""
 
@@ -5716,7 +5708,7 @@ msgstr "IPv4/IPv6"
 msgid "IPv4/IPv6 (both - defaults to IPv4)"
 msgstr "IPv4/IPv6（双栈 - 默认 IPv4）"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:734
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:755
 msgid "IPv4/IPv6 traffic table \"%h\""
 msgstr "IPv4/IPv6 流量表 \"%h\""
 
@@ -5854,7 +5846,7 @@ msgstr "IPv6 后缀"
 msgid "IPv6 support"
 msgstr "IPv6 支持"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:730
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:751
 msgid "IPv6 traffic table \"%h\""
 msgstr "IPv6 流量表 \"%h\""
 
@@ -5971,14 +5963,12 @@ msgstr "如果指定，则通过分区卷标而不是固定的设备文件来挂
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1197
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/ipip6.js:70
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:135
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:158
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:129
 msgid "If unchecked, no default route is configured"
 msgstr "取消勾选则不创建到该接口网关的默认路由"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1201
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:146
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:162
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:140
 msgid "If unchecked, the advertised DNS server addresses are ignored"
 msgstr "取消勾选则忽略上游通告的 DNS 服务器"
@@ -6399,11 +6389,6 @@ msgstr "无效"
 msgid "Invalid APN provided"
 msgstr "提供的 APN 无效"
 
-#: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:38
-#: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:41
-msgid "Invalid Base64 key string"
-msgstr "无效的 Base64 密钥"
-
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:729
 msgid ""
 "Invalid DHCP lease time format. Use integer values optionally followed by s, "
@@ -6819,7 +6804,7 @@ msgstr ""
 "过时或兼容性不佳的设备可能需要旧的 802.11b 速率才能连接。在使用这些速率的情况"
 "下，空口利用率可能会显著降低。建议尽可能不使用 802.11b 速率。"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:778
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:799
 msgid "Legacy rules detected"
 msgstr "检测到旧版规则"
 
@@ -7064,10 +7049,6 @@ msgstr "本地 6"
 #: modules/luci-base/htdocs/luci-static/resources/tools/views.js:57
 msgid "Local 7"
 msgstr "本地 7"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:171
-msgid "Local IP address"
-msgstr "本地 IP 地址"
 
 #: modules/luci-base/htdocs/luci-static/resources/network.js:12
 #: modules/luci-compat/luasrc/model/network.lua:30
@@ -7941,7 +7922,7 @@ msgstr "NAS ID"
 msgid "NAT"
 msgstr "NAT"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:637
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:658
 msgid "NAT action chain \"%h\""
 msgstr "NAT 动作链 \"%h\""
 
@@ -8111,7 +8092,7 @@ msgstr "网络设备活动（kernel: netdev）"
 msgid "Network device is not present"
 msgstr "网络设备不存在"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:746
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:767
 msgid "Network device table \"%h\""
 msgstr "网络设备表 \"%h\""
 
@@ -8307,7 +8288,7 @@ msgstr "无匹配的前缀委托"
 msgid "No negative cache"
 msgstr "不缓存无效信息"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:794
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:815
 msgid "No nftables ruleset loaded."
 msgstr "未加载 nftables 规则集。"
 
@@ -8335,7 +8316,7 @@ msgstr "未找到首选的模式配置。"
 msgid "No public keys present yet."
 msgstr "当前还没有公钥。"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:714
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:735
 msgctxt "nft chain is empty"
 msgid "No rules in this chain"
 msgstr "此链中没有规则"
@@ -8675,7 +8656,7 @@ msgstr "在任何特定时间，网络中预计仅有一个 MAC 地址 处于活
 msgid "Only process ping timeouts if routes exist"
 msgstr "仅当路由存在时处理 ping 超时"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:783
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:804
 msgid "Open iptables rules overview…"
 msgstr "打开 iptables 规则概况…"
 
@@ -8683,17 +8664,9 @@ msgstr "打开 iptables 规则概况…"
 msgid "Open list..."
 msgstr "打开列表…"
 
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:63
-msgid "OpenConnect"
-msgstr "OpenConnect"
-
 #: modules/luci-compat/luasrc/model/network/proto_openconnect.lua:9
 msgid "OpenConnect (CISCO AnyConnect)"
 msgstr "OpenConnect (CISCO AnyConnect)"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:63
-msgid "OpenFortivpn"
-msgstr "OpenFortivpn"
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1624
 msgid "OpenVPN"
@@ -8780,10 +8753,6 @@ msgstr ""
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/system.js:137
 msgid "Optional, free-form notes about this device"
 msgstr "此设备的可选任意格式备注"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:149
-msgid "Optional, in seconds. If set to '0', no reconnect is attempted."
-msgstr "可选。单位：秒。 如果设置为 “0”，则不尝试重新连接。"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:176
 msgid ""
@@ -8874,11 +8843,6 @@ msgid ""
 msgstr ""
 "可选。保持连接消息的间隔秒数。默认值为 0（禁用）。若设备处于 NAT 网络环境下，"
 "推荐值为 25。"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:176
-msgid ""
-"Optional. Specify the realm if your VPN gateway uses custom login portals."
-msgstr "可选。指定范围如果你的 VPN 网关使用自定义登录门户。"
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:151
 msgid "Optional. UDP port used for outgoing and incoming packets."
@@ -9251,7 +9215,6 @@ msgstr "直通（将物理设备镜像到单个 MAC VLAN）"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:92
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:133
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:145
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:103
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:58
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:301
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:19
@@ -9454,10 +9417,6 @@ msgstr "持久/非持久 ifconfig 池"
 msgid "Persistent Keep Alive"
 msgstr "持续保持连接"
 
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:149
-msgid "Persistent reconnect interval"
-msgstr "持续重新连接间隔"
-
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:310
 msgid "PersistentKeepAlive setting is invalid"
 msgstr "PersistentKeepAlive 设置无效"
@@ -9549,7 +9508,7 @@ msgstr "策略"
 msgid "Policy level over usage of external programs and scripts"
 msgstr "外部程序及脚本的使用策略级别"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:695
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:716
 msgctxt "Chain hook policy"
 msgid "Policy: <strong>%h</strong> (%h)"
 msgstr "策略：<strong>%h</strong> (%h)"
@@ -10075,10 +10034,6 @@ msgstr "确定要删除下列软件包仓库公钥吗？"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:599
 msgid "Really switch protocol?"
 msgstr "确定要切换协议？"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:176
-msgid "Realm"
-msgstr "范围"
 
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:139
 msgid "Realtime Graphs"
@@ -10785,7 +10740,7 @@ msgstr "轮询（Round robin）"
 msgid "Route Allowed IPs"
 msgstr "为允许的 IP 创建路由"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:633
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:654
 msgid "Route action chain \"%h\""
 msgstr "路由动作链 \"%h\""
 
@@ -10872,20 +10827,20 @@ msgstr "用于匹配此规则流量的路由表。"
 msgid "Rule"
 msgstr "规则"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:703
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:724
 msgid "Rule actions"
 msgstr "规则操作"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:557
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:572
 msgctxt "nft comment"
 msgid "Rule comment: %s"
 msgstr "规则描述：%s"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:641
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:662
 msgid "Rule container chain \"%h\""
 msgstr "规则容器链 \"%h\""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:702
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:723
 msgid "Rule matches"
 msgstr "规则匹配"
 
@@ -12108,8 +12063,8 @@ msgid "TLS 1.3 or newer cipher"
 msgstr "TLS 1.3 或更高版本的加密"
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1275
-msgid "TLS cet profile"
-msgstr "TLS 证书配置文件"
+msgid "TLS cert profile"
+msgstr ""
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1057
 msgid "TLS cipher"
@@ -12792,7 +12747,7 @@ msgid ""
 "the network with its protocol information."
 msgstr "该值指定 batman-adv 向网络发送其协议信息的时间间隔（毫秒）。"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:779
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:800
 msgid ""
 "There are legacy iptables rules present on the system. Mixing iptables and "
 "nftables rules is discouraged and may lead to incomplete traffic filtering."
@@ -12829,11 +12784,6 @@ msgstr "中继的 IPv4 地址"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2042
 msgid "This authentication type is not applicable to the selected EAP method."
 msgstr "此身份验证类型不适用于所选的 EAP 方法。"
-
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:48
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:56
-msgid "This does not look like a valid PEM file"
-msgstr "这不是有效的 PEM 文件"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1777
 msgid ""
@@ -13103,11 +13053,11 @@ msgstr "流量"
 msgid "Traffic Class"
 msgstr "流量类"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:629
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:650
 msgid "Traffic filter chain \"%h\""
 msgstr "流量过滤链 \"%h\""
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:548
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:563
 msgctxt "nft counter"
 msgid "Traffic matched by rule: %.1000mPackets, %.1024mBytes"
 msgstr "匹配规则的流量：%.1000mPackets, %.1024mBytes"
@@ -13589,7 +13539,6 @@ msgstr "使用 DHCPv6"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1201
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:145
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:162
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:139
 msgid "Use DNS servers advertised by peer"
 msgstr "自动获取 DNS 服务器"
@@ -13646,7 +13595,6 @@ msgstr "使用自定义的 DNS 服务器"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1197
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:134
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:158
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:128
 msgid "Use default gateway"
 msgstr "使用该接口的网关作为默认网关"
@@ -13654,7 +13602,6 @@ msgstr "使用该接口的网关作为默认网关"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1214
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/ipip6.js:73
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:139
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:166
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:133
 msgid "Use gateway metric"
 msgstr "网关跃点"
@@ -13764,7 +13711,6 @@ msgid "User"
 msgstr "用户"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:154
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:106
 msgid "User certificate (PEM encoded)"
 msgstr "用户证书（PEM）"
 
@@ -13773,13 +13719,11 @@ msgid "User identifier"
 msgstr "用户标识符"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:166
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:118
 msgid "User key (PEM encoded)"
 msgstr "用户密钥（PEM）"
 
 #: modules/luci-base/ucode/template/sysauth.ut:29
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:143
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:101
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:56
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:13
 msgid "Username"
@@ -13848,24 +13792,10 @@ msgstr "VPN 本地地址"
 msgid "VPN Local port"
 msgstr "VPN 本地端口"
 
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:94
-msgid "VPN Protocol"
-msgstr "VPN 协议"
-
-#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:103
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:93
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pptp.js:58
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:39
 msgid "VPN Server"
 msgstr "VPN 服务器"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:154
-msgid "VPN Server certificate's SHA256 hash"
-msgstr "VPN 服务器证书的 SHA256 哈希"
-
-#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:96
-msgid "VPN Server port"
-msgstr "VPN 服务器端口"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:141
 msgid "VPN Server's certificate SHA1 hash"
@@ -13922,7 +13852,7 @@ msgstr "供应商"
 msgid "Vendor Class to send when requesting DHCP"
 msgstr "DHCP 请求时发送的供应商类别（Vendor Class）"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:313
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:328
 msgid "Verdict map: <var>%h</var> is"
 msgstr "判定映射表：<var>%h</var> 是"
 
@@ -14722,7 +14652,7 @@ msgstr "存在可用前缀时"
 msgid "open network"
 msgstr "开放网络"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:345
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:360
 msgid "or"
 msgstr "或"
 
@@ -15074,12 +15004,6 @@ msgstr "有效整数值"
 msgid "valid multicast MAC address"
 msgstr "有效的组播 MAC 地址"
 
-#: modules/luci-base/htdocs/luci-static/resources/validation.js:1006
-msgid ""
-"valid network device name between 1 and 15 characters not containing \":\", "
-"\"/\", \"%\" or spaces"
-msgstr "1 到 15 个字符间的有效网络设备名，不包含 \":\", \"/\", \"%\" 或者空格"
-
 #: modules/luci-base/htdocs/luci-static/resources/validation.js:1004
 msgid "valid network device name, not \".\" or \"..\""
 msgstr "有效的网络设备名，非 \".\" 或 \"..\""
@@ -15186,6 +15110,57 @@ msgstr "{example_nx} 返回 {nxdomain}。"
 #: modules/luci-compat/luasrc/view/cbi/delegator.htm:20
 msgid "« Back"
 msgstr "« 后退"
+
+#~ msgid ""
+#~ "CA certificate (PEM encoded; Use instead of system-wide store to verify "
+#~ "the gateway certificate."
+#~ msgstr "CA 证书（PEM 编码；而不是使用系统范围的存储来验证网关证书。"
+
+#~ msgid "Invalid Base64 key string"
+#~ msgstr "无效的 Base64 密钥"
+
+#~ msgid "Local IP address"
+#~ msgstr "本地 IP 地址"
+
+#~ msgid "OpenConnect"
+#~ msgstr "OpenConnect"
+
+#~ msgid "OpenFortivpn"
+#~ msgstr "OpenFortivpn"
+
+#~ msgid "Optional, in seconds. If set to '0', no reconnect is attempted."
+#~ msgstr "可选。单位：秒。 如果设置为 “0”，则不尝试重新连接。"
+
+#~ msgid ""
+#~ "Optional. Specify the realm if your VPN gateway uses custom login portals."
+#~ msgstr "可选。指定范围如果你的 VPN 网关使用自定义登录门户。"
+
+#~ msgid "Persistent reconnect interval"
+#~ msgstr "持续重新连接间隔"
+
+#~ msgid "Realm"
+#~ msgstr "范围"
+
+#~ msgid "TLS cet profile"
+#~ msgstr "TLS 证书配置文件"
+
+#~ msgid "This does not look like a valid PEM file"
+#~ msgstr "这不是有效的 PEM 文件"
+
+#~ msgid "VPN Protocol"
+#~ msgstr "VPN 协议"
+
+#~ msgid "VPN Server certificate's SHA256 hash"
+#~ msgstr "VPN 服务器证书的 SHA256 哈希"
+
+#~ msgid "VPN Server port"
+#~ msgstr "VPN 服务器端口"
+
+#~ msgid ""
+#~ "valid network device name between 1 and 15 characters not containing \":"
+#~ "\", \"/\", \"%\" or spaces"
+#~ msgstr ""
+#~ "1 到 15 个字符间的有效网络设备名，不包含 \":\", \"/\", \"%\" 或者空格"
 
 #~ msgid "<em>%s</em>"
 #~ msgstr "<em>%s</em>"
