@@ -68,7 +68,7 @@ const methods = {
 
 				// denote which server key this client key is derived from in the name
 				path = `${mkpath}/${ifname}_${kt}_${ts}-${req.args?.server_key}`;
-				cmd = `${openvpn} --tls-crypt-v2 ${shellquote(server_key)} --genkey tls-crypt-v2-client ${shellquote(path)} ${req.args?.cl_meta} 2>/dev/null`;
+				cmd = `${openvpn} --tls-crypt-v2 ${shellquote(server_key)} --genkey tls-crypt-v2-client ${shellquote(path)} ${shellquote(req.args?.cl_meta)} 2>/dev/null`;
 			} else {
 				// basic genkey
 				cmd = `${openvpn} --genkey ${kt} ${shellquote(path)} 2>/dev/null`;
