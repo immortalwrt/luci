@@ -73,11 +73,11 @@ observer.observe(targetNode, observerConfig);
 function handleEdit(ev) {
 	if (ev === 'upload') {
 		return ui.uploadFile('/etc/banip/banip.custom.feeds').then(function () {
-			L.resolveDefault(fs.read_direct('/etc/banip/banip.custom.feeds', 'json'), "").then(function (data) {
+			return L.resolveDefault(fs.read_direct('/etc/banip/banip.custom.feeds', 'json'), "").then(function (data) {
 				if (data && Object.keys(data).length > 0) {
 					for (let i = 0; i < Object.keys(data).length; i++) {
 						let feed = Object.keys(data)[i];
-						let descr = data[feed].descr;
+						let descr = data[feed]?.descr;
 						if (feed && descr) {
 							continue;
 						}

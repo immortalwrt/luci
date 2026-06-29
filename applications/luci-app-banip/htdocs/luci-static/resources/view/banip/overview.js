@@ -628,7 +628,8 @@ return view.extend({
 		o.optional = true;
 		o.rmempty = true;
 
-		o = s.taboption('adv_log', form.DynamicList, 'ban_logterm', _('Log Terms'), _('Regular expressions to detect suspicious IPs in the system log.'));
+		o = s.taboption('adv_log', form.DynamicList, 'ban_logterm', _('Log Terms'),
+			_('Regular expressions to detect suspicious IPs in the system log. Uses the last IP per line; prefix a term with \'first:\' for source-first formats, e.g. nginx.'));
 		o.value('Exit before auth from', _('dropbear failed login'));
 		o.value('luci: failed login', _('LuCI failed login'));
 		o.value('error: maximum authentication attempts exceeded', _('sshd failed login'));
