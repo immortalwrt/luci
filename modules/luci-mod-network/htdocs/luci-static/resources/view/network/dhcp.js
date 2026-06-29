@@ -284,9 +284,9 @@ return view.extend({
 								host = lease.hostname;
 
 							const columns = [
-								host || '-',
+								'%h'.format(host || '-'),
 								lease.ipaddr,
-								vendor ? lease.macaddr + vendor : lease.macaddr,
+								'%h'.format(vendor ? lease.macaddr + vendor : lease.macaddr),
 								lease.duid || '-',
 								lease.iaid || '-',
 								exp
@@ -323,7 +323,7 @@ return view.extend({
 								host = name;
 
 							const columns = [
-								host || '-',
+								'%h'.format(host || '-'),
 								lease.ip6addrs ? lease.ip6addrs.join('<br />') : lease.ip6addr,
 								lease.duid,
 								lease.iaid,
@@ -653,7 +653,7 @@ return view.extend({
 			_('A %s does not do anything by itself. It is a label that other directives test against.', 'A tag does not do anything by itself').format(tagcodestring) + '<br />' +
 			_('Note: invalid %s combinations may cause dnsmasq to crash silently.', 'invalid tag combinations may cause crashes').format(tag_named_ov_string) + '<br /><br />' +
 			_('Prepend a %s with %s to invert their domain of application, e.g. to send options to a host lacking a %s.', 'prepend a tag with ! to invert their meaning').format(tagcodestring, exclamationmark_invert, tagcodestring) + '<br /><br />' +
-			_('Use the %s button to add a new %s.', 'use the add button to add a new tag').format( _('<em>%s</em>').format(addtag), tagcodestring ) );
+			_('Use the <em>%s</em> button to add a new %s.', 'use the add button to add a new tag').format(addtag, tagcodestring));
 		ss = o.subsection;
 		ss.placeholder = _('tag name');
 		ss.sortable = true;
@@ -705,9 +705,9 @@ return view.extend({
 			_('Matching option syntax: %s.').format(tag_match_option_syntax) + ' ' +
 			_('Prefix named (IPv6) options with %s.').format(dhcp_optioncolon_code) + ' ' +
 			_('Wildcards (%s) allowed.').format(wildcard_code) + '<br /><br />' +
-			_('Match %s, Tag %s, sets  a tag of the same name').format(dhcp_option_client_arch, tag_name_efi_ia32) + ' ' +
+			_('Match %s, Tag %s, sets a tag of the same name').format(dhcp_option_client_arch, tag_name_efi_ia32) + ' ' +
 			_('when number %s appears in the list of architectures sent by the client in option %s.').format('<code>6</code>', '<code>93</code>') + '<br />' +
-			_('Use the %s Button to add a new %s.').format(_('<em>Add</em>'), tag_match_code_name) );
+			_('Use the <em>Add</em> Button to add a new %s.').format(tag_match_code_name));
 		ss = o.subsection;
 		ss.addremove = true;
 		ss.anonymous = true;

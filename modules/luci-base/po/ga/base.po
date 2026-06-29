@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-06-07 18:23+0000\n"
+"PO-Revision-Date: 2026-06-13 23:01+0000\n"
 "Last-Translator: Aindriú Mac Giolla Eoin <aindriu80@gmail.com>\n"
 "Language-Team: Irish <https://hosted.weblate.org/projects/openwrt/luci/ga/>\n"
 "Language: ga\n"
@@ -8,18 +8,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=5; plural=n==1 ? 0 : n==2 ? 1 : (n>2 && n<7) ? 2 :(n>"
 "6 && n<11) ? 3 : 4;\n"
-"X-Generator: Weblate 2026.6\n"
+"X-Generator: Weblate 2026.7.dev0\n"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:212
 msgid "!known (not known)"
 msgstr "! ar eolas (nach bhfuil ar eolas)"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:750
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:771
 msgctxt "Yet unknown nftables table family (\"family\" table \"name\")"
 msgid "\"%h\" table \"%h\""
 msgstr "Tábla “%h” “%h”"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1862
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1898
 msgid "%.1f dB"
 msgstr "%.1f dB"
 
@@ -87,7 +87,7 @@ msgstr "Tá %s neamhchlibeáilte i iolrchuid VLANanna!"
 msgid "%s means \"the address of the system running dnsmasq\"."
 msgstr "Ciallaíonn %s “seoladh an chórais atá ag rith dnsmasq”."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1785
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1821
 msgid ""
 "%s services running on this device in the default VRF context (ie., not "
 "bound to any VRF device) shall work across all VRF domains."
@@ -188,6 +188,14 @@ msgstr "-- meaitseáil le uuid -"
 msgid "-- please select --"
 msgstr "-- roghnaigh le do thoil -"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:141
+msgid ""
+". Select ports, then use T and U on each VLAN row to assign or remove tagged "
+"or untagged (native) membership (empty, partial, or full for the current "
+"selection). Optional labels for ports and VLANs are stored in the LuCI "
+"configuration and are for human reference only."
+msgstr ""
+
 #: protocols/luci-proto-sstp/htdocs/luci-static/resources/protocol/sstp.js:59
 msgctxt "sstp log level value"
 msgid "0"
@@ -226,7 +234,7 @@ msgstr "1"
 msgid "1 Minute Load:"
 msgstr "Ualach 1 nóiméad:"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:386
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:401
 msgctxt "nft amount of flags"
 msgid "1 flag"
 msgid_plural "%d flags"
@@ -252,8 +260,8 @@ msgstr "Clog 12 Uair an Chloig"
 msgid "12h (12 hours - default)"
 msgstr "12h (12 uair an chloig - réamhshocraithe)"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1069
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1080
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1070
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1081
 msgid "12h (12 hours)"
 msgstr "12u (12 uair an chloig)"
 
@@ -314,7 +322,7 @@ msgstr "Clog 24 Uair an Chloig"
 msgid "24: ARM uboot 64 boot from HTTP"
 msgstr "24: Tosaithe ARM uboot 64 ó HTTP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1808
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1844
 msgid "256"
 msgstr "256"
 
@@ -392,8 +400,8 @@ msgid "3: Allow passwords in env"
 msgstr "3: Ceadaigh pasfhocail i dtimpeallacht"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1059
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1068
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1079
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1069
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1080
 msgid "3h (3 hours)"
 msgstr "3h (3 uair an chloig)"
 
@@ -414,7 +422,7 @@ msgstr "40: Tosaithe UEFI 64-giotán LoongArch ó HTTP"
 msgid "41: ARM rpiboot"
 msgstr "41: ARM rpiboot"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1067
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1068
 msgid "45m (45 minutes - default)"
 msgstr "45m (45 nóiméad - réamhshocrú)"
 
@@ -428,8 +436,8 @@ msgid "5 Minute Load:"
 msgstr "Ualach 5 nóiméad:"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1058
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1066
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1077
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1067
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1078
 msgid "5m (5 minutes)"
 msgstr "5m (5 nóiméad)"
 
@@ -438,8 +446,8 @@ msgid "6-octet identifier as a hex string - no colons"
 msgstr "Aitheantóir 6-octet mar shreang heicseach - gan aon colóin"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1061
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1070
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1081
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1071
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1082
 msgid "7d (7 days)"
 msgstr "7d (7 lá)"
 
@@ -530,7 +538,7 @@ msgstr "802.3ad ráta paicéad LACPDU"
 msgid "802.3ad aggregation logic"
 msgstr "Loighic comhiomlánaithe 802.3ad"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1078
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1079
 msgid "90m (90 minutes - default)"
 msgstr "90m (90 nóiméad - réamhshocrú)"
 
@@ -546,7 +554,7 @@ msgstr "<abbr title=\"Aitheantóir Tacair Bunseirbhíse\">BSSID</abbr>"
 msgid "<abbr title=\"Extended Service Set Identifier\">ESSID</abbr>"
 msgstr "<abbr title=\"Aitheantóir Socraithe Seirbhíse Breisithe\">ESSID</abbr>"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:775
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:776
 msgid "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Netmask"
 msgstr "<abbr title=\"Prótacal Idirlín Leagan 4\">IPv4</abbr>-Masc Líonra"
 
@@ -558,7 +566,7 @@ msgstr "<abbr title=\"Dé-óid Astaithe Solais\">LED</abbr> Cumraíocht"
 msgid "<abbr title=\"Light Emitting Diode\">LED</abbr> Name"
 msgstr "<abbr title=\"Dé-óid Astaithe Solais\">LED</abbr> Ainm"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1174
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1175
 msgid "<abbr title=\"Neighbour Discovery Protocol\">NDP</abbr>-Proxy"
 msgstr ""
 "<abbr title=\"Prótacal Fionnachtana Comharsanachta\">NDP</abbr>-"
@@ -572,50 +580,42 @@ msgstr ""
 "Roghanna tosaithe <abbr title=\"Preboot eXecution Environment\">PXE</abbr> "
 "thar IPv6."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1100
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1101
 msgid "<abbr title=\"Prefix Delegation\">PD</abbr> minimum length"
 msgstr "<abbr title=\"Tarmligean Réimír\">PD</abbr> íosfhad"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:906
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:907
 msgid "<abbr title=\"Router Advertisement\">RA</abbr> Flags"
 msgstr "<abbr title=\"Fógra Ródaire\">RA</abbr> Bratacha"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1044
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1045
 msgid "<abbr title=\"Router Advertisement\">RA</abbr> Hop Limit"
 msgstr "<abbr title=\"Fógra Ródaire\">RA</abbr> Teorainn Hop"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1018
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1019
 msgid "<abbr title=\"Router Advertisement\">RA</abbr> Lifetime"
 msgstr "<abbr title=\"Fógra Ródaire\">RA</abbr> Saoil"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1025
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1026
 msgid "<abbr title=\"Router Advertisement\">RA</abbr> MTU"
 msgstr "<abbr title=\"Fógra Ródaire\">RA</abbr> MTU"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1000
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1001
 msgid "<abbr title=\"Router Advertisement\">RA</abbr> Reachability Timer"
 msgstr ""
 "<abbr title=\"Router Advertisement\">RA</abbr> Amadóir Inrochtaineachta"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1009
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1010
 msgid "<abbr title=\"Router Advertisement\">RA</abbr> Retransmission Timer"
 msgstr "<abbr title=\"Router Advertisement\">RA</abbr> Amadóir Athchraolta"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:868
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:869
 msgid "<abbr title=\"Router Advertisement\">RA</abbr>-Service"
 msgstr "<abbr title=\"Fógra Ródaire\">RA</abbr>-Seirbhís"
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/repokeys.js:223
 msgid "<br/>"
 msgstr "<br/>"
-
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:656
-msgid "<em>%s</em>"
-msgstr "<em>%s</em>"
-
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:710
-msgid "<em>Add</em>"
-msgstr "<em>Cuir leis</em>"
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:93
 msgctxt "nft relational \">\" operator expression"
@@ -719,7 +719,7 @@ msgstr ""
 "speisialta áitiúla (255), príomh-ailiasanna (254) agus réamhshocrú (253) "
 "bailí freisin"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:899
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:900
 msgid ""
 "A tie-breaker for clients and their routes when multiple routers exist on "
 "the same network."
@@ -727,11 +727,11 @@ msgstr ""
 "Briseadh ceangail do chliaint agus a mbealaí nuair a bhíonn il-ródairí ar an "
 "líonra céanna."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1842
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1878
 msgid "A43C + J43 + A43"
 msgstr "A43C+J43+A43"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1843
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1879
 msgid "A43C + J43 + A43 + V43"
 msgstr "A43C+J43+A43+V43"
 
@@ -739,75 +739,75 @@ msgstr "A43C+J43+A43+V43"
 msgid "AC"
 msgstr "AC"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1855
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1891
 msgid "ADSL"
 msgstr "ADSL"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1829
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1865
 msgid "ADSL (G.992.1) Annex A"
 msgstr "ADSL (G.992.1) Iarscríbhinn A"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1830
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1866
 msgid "ADSL (G.992.1) Annex B"
 msgstr "ADSL (G.992.1) Iarscríbhinn B"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1823
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1859
 msgid "ADSL (all variants) Annex A/L/M"
 msgstr "ADSL (gach leagan) Iarscríbhinn A/L/M"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1819
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1855
 msgid "ADSL (all variants) Annex A/L/M + VDSL2 Annex A/B/C"
 msgstr "ADSL (gach leagan) Iarscríbhinn A/L/M + VDSL2 Iarscríbhinn A/B/C"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1824
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1860
 msgid "ADSL (all variants) Annex B"
 msgstr "ADSL (gach leagan) Iarscríbhinn B"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1820
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1856
 msgid "ADSL (all variants) Annex B + VDSL2 Annex A/B/C"
 msgstr "ADSL (gach leagan) Iarscríbhinn B+VDSL2 Iarscríbhinn A/B/C"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1825
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1861
 msgid "ADSL (all variants) Annex B/J"
 msgstr "ADSL (gach leagan) Iarscríbhinn B/J"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1821
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1857
 msgid "ADSL (all variants) Annex B/J + VDSL2 Annex A/B/C"
 msgstr "ADSL (gach leagan) Iarscríbhinn B/J + VDSL2 Iarscríbhinn A/B/C"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1827
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1863
 msgid "ADSL (all variants) Annex M"
 msgstr "ADSL (gach leagan) Iarscríbhinn M"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1832
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1868
 msgid "ADSL2 (G.992.3) Annex A"
 msgstr "ADSL2 (G.992.3) Iarscríbhinn A"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1833
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1869
 msgid "ADSL2 (G.992.3) Annex B"
 msgstr "ADSL2 (G.992.3) Iarscríbhinn B"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1834
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1870
 msgid "ADSL2 (G.992.3) Annex L"
 msgstr "ADSL2 (G.992.3) Iarscríbhinn L"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1835
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1871
 msgid "ADSL2 (G.992.3) Annex M"
 msgstr "ADSL2 (G.992.3) Iarscríbhinn M"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1836
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1872
 msgid "ADSL2+ (G.992.5) Annex A"
 msgstr "ADSL2+ (G.992.5) Iarscríbhinn A"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1837
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1873
 msgid "ADSL2+ (G.992.5) Annex B"
 msgstr "ADSL2+ (G.992.5) Iarscríbhinn B"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1838
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1874
 msgid "ADSL2+ (G.992.5) Annex M"
 msgstr "ADSL2+ (G.992.5) Iarscríbhinn M"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1828
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1864
 msgid "ANSI T1.413"
 msgstr "ANSI T1.413"
 
@@ -844,7 +844,7 @@ msgstr "ARP seachfhreastalaí"
 msgid "ARP retry threshold"
 msgstr "Tairseach aththriail ARP"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:738
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:759
 msgid "ARP traffic table \"%h\""
 msgstr "Tábla tráchta ARP “%h”"
 
@@ -863,25 +863,25 @@ msgstr ""
 "é seo in 802.11v. Nóta: d'fhéadfadh sé ionchais ilchraolta STA an ghlacadóra "
 "a shárú."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1850
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1886
 msgid "ATM (Asynchronous Transfer Mode)"
 msgstr "ATM (Mód Aistrithe Aisincrónach)"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1871
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1907
 msgid "ATM Bridges"
 msgstr "Droichid ATM"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1903
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1939
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pppoa.js:66
 msgid "ATM Virtual Channel Identifier (VCI)"
 msgstr "Aitheantóir Cainéal Fíorúil ATM (VCI)"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1904
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1940
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pppoa.js:70
 msgid "ATM Virtual Path Identifier (VPI)"
 msgstr "Aitheantóir Conair Fíorúil ATM (VPI)"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1871
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1907
 msgid ""
 "ATM bridges expose encapsulated ethernet in AAL5 connections as virtual "
 "Linux network interfaces which can be used in conjunction with DHCP or PPP "
@@ -891,7 +891,7 @@ msgstr ""
 "líonra fíorúla Linux is féidir a úsáid i gcomhar le DHCP nó PPP chun "
 "dhiailiú isteach i líonra an soláthraí."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1910
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1946
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pppoa.js:62
 msgid "ATM device number"
 msgstr "Uimhir feiste ATM"
@@ -1038,11 +1038,12 @@ msgstr "Cothromú ualaigh tarchurtha oiriúnaitheach"
 #: modules/luci-compat/luasrc/view/cbi/tsection.htm:39
 #: modules/luci-compat/luasrc/view/cbi/tsection.htm:47
 #: modules/luci-compat/luasrc/view/cbi/ucisection.htm:54
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:565
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:941
 msgid "Add"
 msgstr "Cuir"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1875
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1911
 msgid "Add ATM Bridge"
 msgstr "Cuir Droichead ATM leis"
 
@@ -1070,11 +1071,11 @@ msgstr ""
 "Cuir seoladh folíon leis na fiosruithe DNS a chuirtear ar aghaidh in aghaidh "
 "an tsrutha, rud a fhágann an luach seo folamh díchumasaítear an ghné."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1583
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1584
 msgid "Add device configuration"
 msgstr "Cuir cumraíocht feiste leis"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1523
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1524
 msgid "Add device configuration…"
 msgstr "Cuir cumraíocht feiste leis…"
 
@@ -1115,8 +1116,8 @@ msgstr ""
 msgid "Add multicast rule"
 msgstr "Cuir riail multicast leis"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:483
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1407
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:484
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1408
 msgid "Add new interface..."
 msgstr "Cuir comhéadan nua leis..."
 
@@ -1243,8 +1244,8 @@ msgstr "Seoltaí"
 msgid "Administration"
 msgstr "Riarachán"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:497
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1901
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:498
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1937
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:42
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:135
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:981
@@ -1265,6 +1266,10 @@ msgstr ""
 "Tar éis athruithe a dhéanamh ar líonra ag baint úsáide as prótacal "
 "seachtrach, ní mór an líonra a atosú de láimh."
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:828
+msgid "Affected ports:"
+msgstr ""
+
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:76
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:76
 msgid "Ageing"
@@ -1278,7 +1283,7 @@ msgstr "Am dul in aois"
 msgid "Aggregate Originator Messages"
 msgstr "Teachtaireachtaí Tionscaitheora"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1697
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1698
 msgid "Aggregation device"
 msgstr "Gléas comhiomlánaithe"
 
@@ -1341,7 +1346,7 @@ msgstr "Leithdháileadh IPanna go seicheamhach"
 msgid "Allocate listen addresses"
 msgstr "Leith seoltaí éisteachta"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:935
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:936
 msgid ""
 "Allow <abbr title=\"Prefix Information Option\">PIO</abbr> flags sent in RA "
 "messages, globally for all prefixes."
@@ -1509,19 +1514,19 @@ msgstr "Tharla earráid agus an fhoirm á shábháil:"
 msgid "An optional, short description for this device"
 msgstr "Cur síos gairid roghnach ar an bhfeiste seo"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1817
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1853
 msgid "Annex"
 msgstr "Iarscríbhinn"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1140
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1141
 msgid "Announce DNS domains"
 msgstr "Fearainn DNS fógraithe"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1108
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1109
 msgid "Announce IPv4/6 DNS servers"
 msgstr "Fógraigh freastalaithe DNS IPv4/6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:978
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:979
 msgid ""
 "Announce NAT64 prefix in <abbr title=\"Router Advertisement\">RA</abbr> "
 "messages."
@@ -1529,15 +1534,15 @@ msgstr ""
 "Fógairt réimír NAT64 i dteachtaireachtaí <abbr title=\"Router "
 "Advertisement\">RA</abbr>."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1126
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1127
 msgid "Announce encrypted DNS servers"
 msgstr "Fógraigh freastalaithe DNS criptithe"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1119
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1120
 msgid "Announce this device as IPv6 DNS server."
 msgstr "Fógraigh an gléas seo mar fhreastalaí DNS IPv6."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:884
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:885
 msgid ""
 "Announce this device as default router if a local IPv6 default route is "
 "present."
@@ -1545,7 +1550,7 @@ msgstr ""
 "Fógraigh an gléas seo mar ródaire réamhshocraithe má tá bealach "
 "réamhshocraithe IPv6 áitiúil i láthair."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:886
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:887
 msgid ""
 "Announce this device as default router if a public IPv6 prefix is available, "
 "regardless of local default route availability."
@@ -1554,7 +1559,7 @@ msgstr ""
 "poiblí ar fáil, beag beann ar infhaighteacht an bhealaigh réamhshocraithe "
 "áitiúil."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:888
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:889
 msgid ""
 "Announce this device as default router regardless of whether a prefix or "
 "default route is present."
@@ -1579,7 +1584,7 @@ msgstr "Malartú Anaithnid"
 msgid "Any"
 msgstr "Aon"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:619
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:640
 msgctxt "nft match any traffic"
 msgid "Any packet"
 msgstr "Aon phacáiste"
@@ -1631,18 +1636,30 @@ msgstr "Ailtireacht"
 msgid "Arp-scan"
 msgstr "Arp-scanadh"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:742
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:743
 msgid "As DHCP-Options; send unsolicited (dnsmasq only)."
 msgstr "Mar Roghanna DHCP; seol gan iarraidh (dnsmasq amháin)."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1249
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:672
+msgid "Assign VLAN %d as tagged on selected ports"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:678
+msgid "Assign VLAN %d as untagged (native) on selected ports"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1250
 msgid ""
 "Assign a part of given length of every public IPv6-prefix to this interface"
 msgstr ""
 "Cuid den fhad áirithe de gach réimír IPv6 poiblí a shannadh don chomhéadan "
 "seo"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1254
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:459
+msgid "Assign membership"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1255
 #: protocols/luci-proto-hnet/htdocs/luci-static/resources/protocol/hnet.js:27
 msgid ""
 "Assign prefix parts using this hexadecimal subprefix ID for this interface."
@@ -1759,7 +1776,7 @@ msgid "Automatically check filesystem for errors before mounting"
 msgstr ""
 "Seiceáil go huathoibríoch ar an gcóras comhaid le haghaidh earráidí sula"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1242
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1243
 msgid ""
 "Automatically handle multiple uplink interfaces using source-based policy "
 "routing."
@@ -1813,11 +1830,11 @@ msgstr "Meán:"
 msgid "Avoid Bridge Loops"
 msgstr "Seachain lúb Droichead"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1844
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1880
 msgid "B43 + B43C"
 msgstr "B43+B43C"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1845
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1881
 msgid "B43 + B43C + V43"
 msgstr "B43+B43C+V43"
 
@@ -1851,7 +1868,7 @@ msgid "Back to settings"
 msgstr "Ar ais chuig na socruithe"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:908
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1226
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1227
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:389
 msgid "Backup"
 msgstr "Cúltaca"
@@ -1928,6 +1945,13 @@ msgstr "Eatramh Beacon"
 msgid "Beacon Report"
 msgstr "Tuarascáil Beacon"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:163
+msgid ""
+"Before making changes, make sure you have an alternative way to access the "
+"device (e.g. a serial or out-of-band connection) and review every change in "
+"\"Unsaved Changes\" before applying."
+msgstr ""
+
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:354
 msgid ""
 "Below is the determined list of files to backup. It consists of changed "
@@ -1951,6 +1975,7 @@ msgstr "Ceangail freastalaí NTP"
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:144
 #: protocols/luci-proto-vti/htdocs/luci-static/resources/protocol/vti.js:59
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:132
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:132
@@ -1984,6 +2009,7 @@ msgstr ""
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6.js:64
 #: protocols/luci-proto-gre/htdocs/luci-static/resources/protocol/grev6tap.js:69
 #: protocols/luci-proto-ipip/htdocs/luci-static/resources/protocol/ipip.js:48
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:144
 #: protocols/luci-proto-vti/htdocs/luci-static/resources/protocol/vti.js:59
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:132
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan6.js:132
@@ -2027,17 +2053,21 @@ msgid "Bridge (Support direct communication between MAC VLANs)"
 msgstr "Droichead (Tacaigh le cumarsáid dhíreach idir MAC VLANanna)"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:439
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:500
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:501
 msgid "Bridge VLAN filtering"
 msgstr "Scagadh VLAN Droichead"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:58
+msgid "Bridge VLAN filtering dialog"
+msgstr ""
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:453
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1700
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1701
 msgid "Bridge device"
 msgstr "Gléas Droichead"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:438
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:499
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:500
 msgid "Bridge port specific options"
 msgstr "Roghanna sonracha calafort droich"
 
@@ -2045,11 +2075,11 @@ msgstr "Roghanna sonracha calafort droich"
 msgid "Bridge ports"
 msgstr "Calafoirt droichid"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:742
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:763
 msgid "Bridge traffic table \"%h\""
 msgstr "Tábla tráchta droichead “%h”"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1911
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1947
 msgid "Bridge unit number"
 msgstr "Uimhir aonaid droichead"
 
@@ -2057,7 +2087,7 @@ msgstr "Uimhir aonaid droichead"
 msgid "Bring up empty bridge"
 msgstr "Tabhair suas droichead folamh"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:619
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:620
 msgid "Bring up on boot"
 msgstr "Tabhair suas ar an tosaithe"
 
@@ -2085,6 +2115,12 @@ msgid "By default, dnsmasq caches A, AAAA, CNAME and SRV DNS record types."
 msgstr ""
 "De réir réamhshocraithe, cuireann dnsmasq caches ar chineálacha taifead A, "
 "AAAA, CNAME agus SRV DNS."
+
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:131
+msgid ""
+"CA certificate (PEM encoded. Use instead of system-wide store to verify the "
+"gateway certificate.)"
+msgstr ""
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:178
 msgid "CA certificate; if empty it will be saved after the first connection."
@@ -2154,7 +2190,9 @@ msgstr ""
 #: modules/luci-compat/luasrc/view/cbi/delegator.htm:14
 #: modules/luci-compat/luasrc/view/cbi/simpleform.htm:52
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:186
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1413
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1414
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:174
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:833
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2505
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:128
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:297
@@ -2168,32 +2206,32 @@ msgstr "Cealaigh"
 msgid "Cannot parse configuration: %s"
 msgstr "Ní féidir cumraíocht a pháirseáil: %s"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:669
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:690
 msgctxt "Chain hook: forward"
 msgid "Capture incoming packets addressed to other hosts"
 msgstr "Gabháil pacáistí isteach atá dírithe chuig óstach eile"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:661
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:682
 msgctxt "Chain hook: prerouting"
 msgid "Capture incoming packets before any routing decision"
 msgstr "Gabháil pacáistí atá ag teacht isteach roimh aon chinneadh ródaithe"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:665
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:686
 msgctxt "Chain hook: input"
 msgid "Capture incoming packets routed to the local system"
 msgstr "Gabháil pacáistí isteach a atreoraítear chuig an gcóras áitiúil"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:677
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:698
 msgctxt "Chain hook: postrouting"
 msgid "Capture outgoing packets after any routing decision"
 msgstr "Gabháil pacáistí amach tar éis aon chinneadh ródaithe"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:673
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:694
 msgctxt "Chain hook: output"
 msgid "Capture outgoing packets originating from the local system"
 msgstr "Gabháil pacáistí amach a thagann as an gcóras áitiúil"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:657
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:678
 msgctxt "Chain hook: ingress"
 msgid "Capture packets directly after the NIC received them"
 msgstr "Pacáistí a ghabháil go díreach tar éis don NIC iad a fháil"
@@ -2281,7 +2319,7 @@ msgstr ""
 msgid "Chain"
 msgstr "Slabhra"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:681
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:702
 msgctxt "Yet unknown nftables chain hook"
 msgid "Chain hook \"%h\""
 msgstr "Croca slabhra “%h”"
@@ -2316,6 +2354,12 @@ msgstr ""
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:5565
 msgid "Changes have been reverted."
 msgstr "Tá athruithe curtha ar ais."
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:1103
+msgid ""
+"Changes have been staged. Use \"Save & Apply\" or the \"Unsaved Changes\" "
+"indicator to apply them."
+msgstr ""
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:92
 msgid "Changes the password for accessing the device as (rpcd) user"
@@ -2373,7 +2417,7 @@ msgstr "Roghnaigh ainm uathúil."
 msgid "Choose mtdblock"
 msgstr "Roghnaigh mtdblock"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:624
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:625
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2495
 msgid ""
 "Choose the firewall zone you want to assign to this interface. Select "
@@ -2410,6 +2454,10 @@ msgstr "Cumhdú Cisco UDP"
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1733
 msgid "Clear"
 msgstr "Soiléir"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:264
+msgid "Clear selection"
+msgstr ""
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:389
 msgid ""
@@ -2471,7 +2519,7 @@ msgstr ""
 "Dún nasc neamhghníomhach tar éis an méid soicind tugtha, bain úsáid as 0 "
 "chun nasc a leanúint"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1227
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1228
 msgid ""
 "Cold standby; Establish a connection only when no other interface is "
 "available (slower)"
@@ -2564,6 +2612,10 @@ msgstr "Tá athruithe cumraíochta curtha ar ais!"
 msgid "Configuration failed"
 msgstr "Theip ar chumraíocht"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:139
+msgid "Configure VLANs and per-port VLAN membership on bridge device"
+msgstr ""
+
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:39
 msgid "Configure client mode"
 msgstr "Cumraigh modh cliant"
@@ -2596,7 +2648,7 @@ msgstr ""
 "Cumraíonn An-High 24 Mbps mar an ráta bunúsach. Ní thairgtear rátaí tacaithe "
 "níos ísle ná an ráta bunúsach íosta."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:881
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:882
 msgid ""
 "Configures the default router advertisement in <abbr title=\"Router "
 "Advertisement\">RA</abbr> messages."
@@ -2604,7 +2656,7 @@ msgstr ""
 "Cumraíonn sé an fógra ródaire réamhshocraithe i dteachtaireachtaí <abbr "
 "title=\"Fógraíocht Ródaire\">RA</abbr>."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1101
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1102
 msgid ""
 "Configures the minimum delegated prefix length assigned to a requesting "
 "downstream router, potentially overriding a requested prefix length. If left "
@@ -2616,7 +2668,7 @@ msgstr ""
 "shonrú, sannfaidh an gléas an réimír is lú atá ar fáil níos mó ná nó "
 "comhionann leis an réimír iarrtha."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:869
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:870
 msgid ""
 "Configures the operation mode of the <abbr title=\"Router "
 "Advertisement\">RA</abbr> service on this interface."
@@ -2624,18 +2676,18 @@ msgstr ""
 "Cumraíonn sé modh oibríochta na seirbhíse <abbr title=\"Router "
 "Advertisement\">RA</abbr> ar an gcomhéadan seo."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1086
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1087
 msgid "Configures the operation mode of the DHCPv6 service on this interface."
 msgstr "Cumraíonn sé modh oibríochta na seirbhíse DHCPv6 ar an gcomhéadan seo."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1175
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1176
 msgid ""
 "Configures the operation mode of the NDP proxy service on this interface."
 msgstr ""
 "Cumraíonn sé modh oibríochta na seirbhíse seachfhreastalaí NDP ar an "
 "gcomhéadan seo."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1569
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1570
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/plugins.js:139
 msgid "Configure…"
 msgstr "Cumraigh…"
@@ -2710,8 +2762,8 @@ msgstr "Stádas Conntrack"
 msgid "Contents have been saved."
 msgstr "Tá an t-ábhar sábháilte."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:421
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:455
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:422
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:456
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:852
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:132
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:271
@@ -2727,7 +2779,7 @@ msgstr "Lean ar aghaidh i <strong><a href=\"#%q.%q\">%h</a></strong>"
 msgid "Continue in calling chain"
 msgstr "Lean ar aghaidh sa slabhra glaonna"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:651
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:672
 msgctxt "Chain policy: accept"
 msgid "Continue processing unmatched packets"
 msgstr "Leanúint ar aghaidh ag próiseáil pacáistí"
@@ -2737,7 +2789,7 @@ msgctxt "nft continue action"
 msgid "Continue to next rule"
 msgstr "Lean ar aghaidh go dtí an chéad riail eile"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1011
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1012
 msgid ""
 "Controls retransmitted Neighbor Solicitation messages; published in <abbr "
 "title=\"Router Advertisement\">RA</abbr> messages."
@@ -2777,7 +2829,7 @@ msgstr "Dlús cille clúdaigh"
 msgid "Create"
 msgstr "Cruthaigh"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:624
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:625
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2495
 msgid "Create / Assign firewall-zone"
 msgstr "Cruthaigh/sannadh crios balla dóiteáin"
@@ -2786,7 +2838,7 @@ msgstr "Cruthaigh/sannadh crios balla dóiteáin"
 msgid "Create Directory"
 msgstr "Cruthaigh Eolaire"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1445
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1446
 msgid "Create interface"
 msgstr "Cruthaigh comhéadan"
 
@@ -2874,7 +2926,7 @@ msgid "DAE-Secret"
 msgstr "Rúnda DAE"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:241
-#: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:62
+#: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:80
 msgid "DHCP"
 msgstr "DHCP"
 
@@ -2886,7 +2938,7 @@ msgstr "Léasanna DHCP"
 msgid "DHCP Options"
 msgstr "Roghanna DHCP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:502
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:503
 msgid "DHCP Server"
 msgstr "Freastalaí DHCP"
 
@@ -2896,7 +2948,7 @@ msgstr "Freastalaí DHCP"
 msgid "DHCP client"
 msgstr "Cliant DHCP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:738
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:739
 msgid "DHCP-Options"
 msgstr "Roghanna DHCP"
 
@@ -2904,7 +2956,7 @@ msgstr "Roghanna DHCP"
 msgid "DHCPv4"
 msgstr "DHCPv4"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:746
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:747
 msgid "DHCPv4 Service"
 msgstr "Seirbhís DHCPv4"
 
@@ -2912,7 +2964,7 @@ msgstr "Seirbhís DHCPv4"
 msgid "DHCPv6"
 msgstr "DHCPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:676
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:677
 msgid "DHCPv6 Settings"
 msgstr "Socruithe DHCPv6"
 
@@ -2925,21 +2977,21 @@ msgstr "Staitisticí DHCPv6"
 msgid "DHCPv6 client"
 msgstr "DHCPv6 cliant"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1150
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1151
 msgctxt "DHCPv6 option 56. RFC5908 link"
 msgid "DHCPv6 option 56. %s."
 msgstr "DHCPv6 rogha 56. %s."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1096
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1097
 msgid "DHCPv6-<abbr title=\"Prefix Delegation\">PD</abbr>"
 msgstr "DHCPv6-<abbr title=\"Réimír Toscaireachta\">PD</abbr>"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1085
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1086
 msgid "DHCPv6-Service"
 msgstr "Seirbhís DHCPv6"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dns.js:155
-#: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:79
+#: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:97
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:64
 msgid "DNS"
 msgstr "DNS"
@@ -2976,7 +3028,7 @@ msgstr ""
 msgid "DNS setting is invalid"
 msgstr "Tá socrú DNS neamhbhailí"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1210
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1211
 msgid "DNS weight"
 msgstr "Meáchan DNS"
 
@@ -3009,7 +3061,7 @@ msgstr "Seoladh DS-lite AFTR"
 msgid "DSCP"
 msgstr "DSCP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1814
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1850
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/50_dsl.js:37
 msgid "DSL"
 msgstr "DSL"
@@ -3018,7 +3070,7 @@ msgstr "DSL"
 msgid "DSL Status"
 msgstr "Stádas DSL"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1853
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1889
 msgid "DSL line mode"
 msgstr "Modh líne DSL"
 
@@ -3075,7 +3127,7 @@ msgstr "Dífhabhtú"
 msgid "Default"
 msgstr "Réamhshocrú"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1775
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1811
 msgid "Default DUID"
 msgstr "DUID réamhshocraithe"
 
@@ -3089,7 +3141,7 @@ msgctxt "Dnsmasq instance"
 msgid "Default instance"
 msgstr "Sampla réamhshocraithe"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:880
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:881
 msgid "Default router"
 msgstr "Réamhshocraithe ródaire"
 
@@ -3105,7 +3157,7 @@ msgstr "Réamhshocraithe go IPv4+6."
 msgid "Defaults to fw4."
 msgstr "Réamhshocraithe go fw4."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:739
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:740
 msgid ""
 "Define additional DHCP options, for example "
 "\"<code>6,192.168.2.1,192.168.2.2</code>\" which advertises different DNS "
@@ -3151,7 +3203,7 @@ msgstr "Moill n soicind tar éis an nasc"
 msgid "Delay tun/tap open and up script execution"
 msgstr "Moill ar fhorghníomhú script a oscailt agus sconna"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1246
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1247
 msgid "Delegate IPv6 prefixes"
 msgstr "Réamhfhoirmeacha IPv6 Toscaitheoir"
 
@@ -3207,7 +3259,7 @@ msgstr "Díroghnaigh"
 msgid "Design"
 msgstr "Dearadh"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:797
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:798
 msgid "Designated master"
 msgstr "Máistir ainmnithe"
 
@@ -3260,9 +3312,9 @@ msgstr "Crios ceann scríbe"
 #: modules/luci-compat/luasrc/view/cbi/firewall_zonelist.htm:43
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:54
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:93
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:609
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1395
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1719
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:610
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1396
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1720
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:71
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:185
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:212
@@ -3303,7 +3355,7 @@ msgstr "Ainm an ghléis"
 msgid "Device not managed by ModemManager."
 msgstr "Gléas nach mbainistíonn ModemManager."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1688
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1689
 msgid "Device not present"
 msgstr "Níl an gléas i láthair"
 
@@ -3319,7 +3371,7 @@ msgstr "Gléas neamh-inrochtana!"
 msgid "Device unreachable! Still waiting for device..."
 msgstr "Gléas dosroichte! Fós ag fanacht le gléas..."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1520
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1521
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1584
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:289
 msgid "Devices"
@@ -3331,7 +3383,7 @@ msgid "Devices &amp; Ports"
 msgstr "Gléasanna &amp; Calafoirt"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/diagnostics.js:154
-#: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:93
+#: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:111
 msgid "Diagnostics"
 msgstr "Diagnóiseach"
 
@@ -3339,7 +3391,7 @@ msgstr "Diagnóiseach"
 msgid "Dial number"
 msgstr "Uimhir dhiailiú"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1002
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1003
 msgid ""
 "Dictates how long a node assumes a neighbor is reachable after a "
 "reachability confirmation; published in <abbr title=\"Router "
@@ -3389,7 +3441,7 @@ msgstr ""
 "Eolaire chun comhaid óstaigh (mapáil seoladh IP chuig ainm óstach) a stóráil "
 "ann. Úsáidte ag m.sh. <code>dnsmasq</code>."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1804
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1840
 msgid ""
 "Directs packet flows to specific CPUs where the local socket owner listens "
 "(the local service)."
@@ -3404,7 +3456,7 @@ msgstr ""
 msgid "Disable"
 msgstr "Díchumasaigh"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:710
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:711
 msgid ""
 "Disable <abbr title=\"Dynamic Host Configuration Protocol\">DHCP</abbr> for "
 "this interface (dnsmasq only)."
@@ -3437,7 +3489,7 @@ msgstr "Díchumasaigh Paging"
 msgid "Disable options consistency check"
 msgstr "Déan seiceáil chomhsheasmhachta"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:616
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:617
 msgid "Disable this interface"
 msgstr "Díchumasaigh an comhéadan seo"
 
@@ -3447,7 +3499,7 @@ msgstr "Díchumasaigh an líonra seo"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1138
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1144
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1797
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1833
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1011
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1754
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1950
@@ -3474,7 +3526,7 @@ msgctxt "Label indicating that WireGuard peer is disabled"
 msgid "Disabled"
 msgstr "Míchumas"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1223
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1224
 msgid "Disables this interface for MPTCP"
 msgstr "Díchumasaíonn sé an comhéadan seo le haghaidh MPTCP"
 
@@ -3580,15 +3632,15 @@ msgstr "Ná cruthaigh bealach óstach chuig piaraí (roghnach)."
 msgid "Do not listen on the specified interfaces."
 msgstr "Ná éist ar na comhéadain sonraithe."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1089
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1090
 msgid "Do not offer DHCPv6 service on this interface."
 msgstr "Ná cuir seirbhís DHCPv6 ar fáil ar an gcomhéadan seo."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:750
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:751
 msgid "Do not provide DHCPv4 services on this interface."
 msgstr "Ná cuir seirbhísí DHCPv4 ar fáil ar an gcomhéadan seo."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1178
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1179
 msgid ""
 "Do not proxy any <abbr title=\"Neighbour Discovery Protocol\">NDP</abbr> "
 "packets."
@@ -3608,7 +3660,7 @@ msgstr "Ná seol Scaoileadh agus tú ag atosú"
 msgid "Do not send a hostname"
 msgstr "Ná seol ainm óstach"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:872
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:873
 msgid ""
 "Do not send any <abbr title=\"Router Advertisement, ICMPv6 Type 134\">RA</"
 "abbr> messages on this interface."
@@ -3720,7 +3772,7 @@ msgstr "Íoslódáil mtdblock"
 msgid "Download peer configuration file"
 msgstr "Íoslódáil comhad cumraíochta piaraí"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1858
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1894
 msgid "Downstream SNR offset"
 msgstr "Fhritháireamh SNR iarshrutha"
 
@@ -3785,7 +3837,7 @@ msgctxt "nft drop action"
 msgid "Drop packet"
 msgstr "Paicéad titim"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:647
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:668
 msgctxt "Chain policy: drop"
 msgid "Drop unmatched packets"
 msgstr "Scaoil paicéid gan chomhoiriúnú"
@@ -3815,7 +3867,7 @@ msgstr "Lite Dé-Stack (RFC6333)"
 msgid "Dump cache on SIGUSR1, include requesting IP."
 msgstr "Taisce dumpáil ar SIGUSR1, san áireamh IP a iarraidh."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:714
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:715
 msgid "Dynamic <abbr title=\"Dynamic Host Configuration Protocol\">DHCP</abbr>"
 msgstr ""
 "Dinimiciúil <abbr title=\"Prótacal Cumraíochta Óstach Dinimiciúil\">DHCP</"
@@ -3841,7 +3893,7 @@ msgstr "Comhardú ualaigh dinimiciúil"
 msgid "Dynamic tunnel"
 msgstr "Tollán dinimiciúil"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:714
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:715
 msgid ""
 "Dynamically allocate DHCP addresses for clients. If disabled, only clients "
 "having static leases will be served."
@@ -3892,7 +3944,7 @@ msgstr "Paraiméadair Echo le logáil"
 #: modules/luci-base/htdocs/luci-static/resources/form.js:4107
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:154
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:160
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:514
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:515
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:958
 msgid "Edit"
 msgstr "Eagar"
@@ -4030,7 +4082,7 @@ msgstr "Cumasaigh sampla seirbhíse <abbr title=\"Secure Shell\">SSH</abbr>"
 msgid "Enable <abbr title=\"Spanning Tree Protocol\">STP</abbr>"
 msgstr "Cumasaigh <abbr title=\"Prótacal Crann a Chuimsíonn\">STP</abbr>"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:892
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:893
 msgid "Enable <abbr title=\"Stateless Address Auto Config\">SLAAC</abbr>"
 msgstr ""
 "Cumasaigh <abbr title=\"Uathchumraíocht Seoltaí Gan Stát\">SLAAC</abbr>"
@@ -4162,7 +4214,7 @@ msgstr ""
 "Hipirtéacs\">HTTP</abbr> chuig an bport <abbr title=\"Prótacal Aistrithe "
 "Hipirtéacs Slán\">HTTPS</abbr>."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1246
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1247
 msgid ""
 "Enable downstream delegation of IPv6 prefixes available on this interface"
 msgstr ""
@@ -4215,11 +4267,11 @@ msgstr ""
 "shonraítear i “Eolas Nód” ar ais. Seachas sin tá réamhshocruithe lena n-"
 "áirítear an t-ardán, an ailtireacht agus an leagan Yggdrasil san áireamh."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:747
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:748
 msgid "Enable or disable DHCPv4 services on this interface."
 msgstr "Cumasaigh nó díchumasaigh seirbhísí DHCPv4 ar an gcomhéadan seo."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1796
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1832
 msgid "Enable packet steering across CPUs. May help or hinder network speed."
 msgstr ""
 "Cumasaigh stiúrú pacáiste ar fud na CPUanna. Féadfaidh sé cabhrú nó bac a "
@@ -4278,7 +4330,7 @@ msgstr "Cumasaigh tuilte unicast"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1137
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1143
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1798
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1834
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1951
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2133
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:222
@@ -4292,7 +4344,7 @@ msgstr "Cumasaigh tuilte unicast"
 msgid "Enabled"
 msgstr "Cumasaithe"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1799
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1835
 msgid "Enabled (all CPUs)"
 msgstr "Cumasaithe (gach CPUanna)"
 
@@ -4337,8 +4389,8 @@ msgstr "Encap 3+4"
 msgid "Encapsulation limit"
 msgstr "Teorainn ionfhabhtaithe"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1848
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1906
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1884
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1942
 msgid "Encapsulation mode"
 msgstr "Modh ionfhabhtaithe"
 
@@ -4458,7 +4510,7 @@ msgstr "Cuibheoir Ethernet"
 msgid "Ethernet Switch"
 msgstr "Athraigh Ethernet"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1131
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1132
 msgid ""
 "Example: <code>100 dns.example.com 2001:db8::53,192.168.1.53 alpn=doq "
 "port=853</code>"
@@ -4545,7 +4597,7 @@ msgstr ""
 msgid "Expected port number."
 msgstr "Uimhir chalafort súil leis."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1263
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1264
 msgid "Expecting a hexadecimal assignment hint"
 msgstr "Ag súil le leid sannadh heicseachadúil"
 
@@ -4575,6 +4627,10 @@ msgstr "Ag súil le dhá luach tosaíochta atá scartha le colon"
 msgid "Expecting: %s"
 msgstr "Ag súil le: %s"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:161
+msgid "Experimental view"
+msgstr ""
+
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1585
 msgid "Expert Settings"
 msgstr "Socruithe Saineolaithe"
@@ -4583,7 +4639,7 @@ msgstr "Socruithe Saineolaithe"
 msgid "Expires"
 msgstr "In éag"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:717
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:718
 msgid ""
 "Expiry time of leased addresses, minimum is 2 minutes (<code>2m</code>)."
 msgstr "Am éaga seoltaí ar léas, 2 nóiméad ar a laghad (<code>2m</code>)."
@@ -4727,6 +4783,10 @@ msgstr "Theip ar fhaisnéis móideim a fháil"
 #: protocols/luci-proto-ncm/htdocs/luci-static/resources/protocol/ncm.js:26
 msgid "Failed to initialize modem"
 msgstr "Theip ar an móideim a thosú"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:1089
+msgid "Failed to save configuration: %s"
+msgstr ""
 
 #: protocols/luci-proto-ncm/htdocs/luci-static/resources/protocol/ncm.js:30
 msgid "Failed to set operating mode"
@@ -4872,7 +4932,7 @@ msgstr "Balla dóiteáin"
 msgid "Firewall Mark"
 msgstr "Marc Balla Dóiteáin"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:501
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:502
 msgid "Firewall Settings"
 msgstr "Socruithe Balla Dóiteáin"
 
@@ -4884,7 +4944,7 @@ msgstr "Stádas Balla dóiteáin"
 msgid "Firewall mark"
 msgstr "Marca balla dóiteáin"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1865
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1901
 msgid "Firmware File"
 msgstr "Comhad Dochtearraí"
 
@@ -4939,8 +4999,8 @@ msgstr "Le haghaidh nascáil, suiteáil %s"
 msgid "For multicast, an outgoing interface (%s) needs to be specified"
 msgstr "Le haghaidh ilchraolta, ní mór comhéadan amach (%s) a shonrú"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1222
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1781
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1223
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1817
 msgid "For packets originating from this device, e.g. VPN."
 msgstr "I gcás paicéid a thagann ón ngléas seo, m.sh. VPN."
 
@@ -4949,7 +5009,7 @@ msgstr "I gcás paicéid a thagann ón ngléas seo, m.sh. VPN."
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:734
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:767
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:800
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:733
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:734
 msgid "Force"
 msgstr "Fórsa"
 
@@ -4965,14 +5025,14 @@ msgstr "Fórsa CCMP (AES)"
 msgid "Force CCMP-256 (AES)"
 msgstr "Fórsa CCMP-256 (AES)"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:734
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:735
 msgid ""
 "Force DHCP on this network even if another server is detected (dnsmasq only)."
 msgstr ""
 "Cuir DHCP i bhfeidhm ar an líonra seo fiú má bhraitear freastalaí eile "
 "(dnsmasq amháin)."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:741
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:742
 msgid "Force DHCP-Options"
 msgstr "Roghanna DHCP a Chur i bhFeidhm"
 
@@ -5004,7 +5064,7 @@ msgstr "Fórsa TKIP agus CCMP (AES)"
 msgid "Force broadcast DHCP response."
 msgstr "Freagra DHCP a chraoladh an fhórsa."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1511
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1512
 msgid "Force link"
 msgstr "Nasc fórsa"
 
@@ -5024,7 +5084,7 @@ msgstr "Neamhoiriú comhartha foirme"
 msgid "Format:"
 msgstr "Formáid:"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1180
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1181
 msgid ""
 "Forward <abbr title=\"Neighbour Discovery Protocol\">NDP</abbr> <abbr "
 "title=\"Neighbour Solicitation, Type 135\">NS</abbr> and <abbr "
@@ -5036,7 +5096,7 @@ msgstr ""
 "title=\"Neighbour Advertisement, Type 136\">NA</abbr> ar aghaidh idir an "
 "príomh-chomhéadan ainmnithe agus na comhéadain iartheachtacha."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:876
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:877
 msgid ""
 "Forward <abbr title=\"Router Advertisement, ICMPv6 Type 134\">RA</abbr> "
 "messages received on the designated master interface to downstream "
@@ -5050,7 +5110,7 @@ msgstr ""
 msgid "Forward DHCP traffic"
 msgstr "Trácht DHCP ar aghaidh"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1093
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1094
 msgid ""
 "Forward DHCPv6 messages between the designated master interface and "
 "downstream interfaces."
@@ -5090,7 +5150,7 @@ msgstr "DNS ar agair/aisiompú"
 msgid "Forwarding DataBase"
 msgstr "Bunachar Sonraí á chur ar aghaidh"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1913
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1949
 msgid "Forwarding mode"
 msgstr "Modh seolta"
 
@@ -5204,7 +5264,7 @@ msgstr "Méadrach geata"
 msgid "General"
 msgstr "Ginearálta"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:496
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:497
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:41
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:134
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:219
@@ -5212,8 +5272,8 @@ msgstr "Ginearálta"
 msgid "General Settings"
 msgstr "Socruithe Ginearálta"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:673
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1900
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:674
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1936
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:980
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1049
 msgid "General Setup"
@@ -5286,7 +5346,7 @@ msgstr "Mar gheall nár mheaitseáil dearbhú pasfhocal, níor athraigh pasfhoca
 msgid "Global Settings"
 msgstr "Socruithe Domhanda"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1765
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1801
 msgid "Global network options"
 msgstr "Roghanna líonra domhanda"
 
@@ -5316,7 +5376,7 @@ msgctxt "nft goto action"
 msgid "Goto chain <strong><a href=\"#%q.%q\">%h</a></strong>"
 msgstr "Téigh go slabhra <strong><a href=\"#%q.%q\">%h</a></strong>"
 
-#: modules/luci-mod-network/root/usr/share/rpcd/acl.d/luci-mod-network.json:51
+#: modules/luci-mod-network/root/usr/share/rpcd/acl.d/luci-mod-network.json:52
 msgid "Grant access to DHCP configuration"
 msgstr "Rochtain a dheonú ar chumraíocht DHCP"
 
@@ -5324,7 +5384,7 @@ msgstr "Rochtain a dheonú ar chumraíocht DHCP"
 msgid "Grant access to DHCP status display"
 msgstr "Deonaigh rochtain ar thaispeántas stádais DHCP"
 
-#: modules/luci-mod-network/root/usr/share/rpcd/acl.d/luci-mod-network.json:38
+#: modules/luci-mod-network/root/usr/share/rpcd/acl.d/luci-mod-network.json:39
 msgid "Grant access to DNS configuration"
 msgstr "Deonaigh rochtain ar chumraíocht DNS"
 
@@ -5400,7 +5460,7 @@ msgstr "Rochtain a dheonú ar chumraíocht gléasta"
 msgid "Grant access to network configuration"
 msgstr "Rochtain a dheonú ar chumraíocht líonra"
 
-#: modules/luci-mod-network/root/usr/share/rpcd/acl.d/luci-mod-network.json:66
+#: modules/luci-mod-network/root/usr/share/rpcd/acl.d/luci-mod-network.json:67
 msgid "Grant access to network diagnostic tools"
 msgstr "Rochtain a dheonú ar uirlisí diagnóiseacha"
 
@@ -5495,7 +5555,7 @@ msgstr "Leath Déphléacsach"
 msgid "Handling of authentication failures"
 msgstr "Teipeanna fíordheimhnithe a láim"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1227
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1228
 msgid "Handover"
 msgstr "Tabhairt thar"
 
@@ -5553,7 +5613,7 @@ msgid "Hide empty chains"
 msgstr "Folaigh slabhraí folamh"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1156
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:903
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:904
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1013
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1598
 msgid "High"
@@ -5563,7 +5623,7 @@ msgstr "Ard"
 msgid "Honor gratuitous ARP"
 msgstr "Onóir ARP saor in aisce"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:694
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:715
 msgctxt "Chain hook description"
 msgid "Hook: <strong>%h</strong> (%h), Priority: <strong>%d</strong>"
 msgstr "Hook: <strong>%h</strong> (%h), Tosaíocht: <strong>%d</strong>"
@@ -5630,7 +5690,7 @@ msgstr ""
 msgid "Hosts file"
 msgstr "Comhad óstaigh"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1226
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1227
 msgid ""
 "Hot standby; use this interface; do not forward traffic until no other "
 "interface is available (faster)"
@@ -5653,6 +5713,10 @@ msgstr "Cuntair inléite don duine"
 #: protocols/luci-proto-hnet/htdocs/luci-static/resources/protocol/hnet.js:24
 msgid "Hybrid"
 msgstr "Hibrideach"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:179
+msgid "I understand, continue"
+msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:60
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:81
@@ -5815,7 +5879,7 @@ msgstr "Ródú IPv4"
 msgid "IPv4 Rules"
 msgstr "Rialacha IPv4"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:674
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:675
 msgid "IPv4 Settings"
 msgstr "Socruithe IPv4"
 
@@ -5830,7 +5894,7 @@ msgstr "IPv4 Suas Sruth"
 msgid "IPv4 address"
 msgstr "Seoladh IPv4"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1129
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1130
 msgid ""
 "IPv4 addresses are only supported if <code>odhcpd</code> also handles DHCPv4."
 msgstr ""
@@ -5876,7 +5940,7 @@ msgstr "Réimír IPv4"
 msgid "IPv4 prefix length"
 msgstr "Fad réimír IPv4"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:726
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:747
 msgid "IPv4 traffic table \"%h\""
 msgstr "Tábla tráchta IPv4 “%h”"
 
@@ -5902,7 +5966,7 @@ msgstr "IPv4/IPv6"
 msgid "IPv4/IPv6 (both - defaults to IPv4)"
 msgstr "IPv4/IPv6 (an dá cheann - réamhshocraithe go IPv4)"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:734
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:755
 msgid "IPv4/IPv6 traffic table \"%h\""
 msgstr "Tábla tráchta IPv4/IPv6 “%h”"
 
@@ -5936,11 +6000,11 @@ msgstr "IPv6 MTU"
 msgid "IPv6 Neighbours"
 msgstr "Comharsanna IPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1063
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1064
 msgid "IPv6 Preferred Prefix Lifetime"
 msgstr "Réimír is Fearr le IPv6 Saolré"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:677
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:678
 msgid "IPv6 RA Settings"
 msgstr "Socruithe IPv6 RA"
 
@@ -5953,7 +6017,7 @@ msgstr "Ródú IPv6"
 msgid "IPv6 Rules"
 msgstr "Rialacha IPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:675
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:676
 msgid "IPv6 Settings"
 msgstr "Socruithe IPv6"
 
@@ -5961,7 +6025,7 @@ msgstr "Socruithe IPv6"
 msgid "IPv6 Token"
 msgstr "Comhartha IPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1769
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1805
 msgid "IPv6 ULA-Prefix"
 msgstr "Réimír ULA IPv6"
 
@@ -5969,7 +6033,7 @@ msgstr "Réimír ULA IPv6"
 msgid "IPv6 Upstream"
 msgstr "IPv6 Suas Sruth"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1074
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1075
 msgid "IPv6 Valid Prefix Lifetime"
 msgstr "Réimír Bailí IPv6 Saolré"
 
@@ -5982,12 +6046,12 @@ msgstr "Seoladh IPv6"
 msgid "IPv6 addresses"
 msgstr "Seoltaí IPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1254
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1255
 #: protocols/luci-proto-hnet/htdocs/luci-static/resources/protocol/hnet.js:27
 msgid "IPv6 assignment hint"
 msgstr "Leid sannadh IPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1249
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1250
 msgid "IPv6 assignment length"
 msgstr "Fad sannadh IPv6"
 
@@ -6004,7 +6068,7 @@ msgstr "Líonra IPv6 i nótaí seoltadh/líonmask"
 msgid "IPv6 only"
 msgstr "IPv6 amháin"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1298
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1299
 msgid "IPv6 preference"
 msgstr "Rogha IPv6"
 
@@ -6013,7 +6077,7 @@ msgstr "Rogha IPv6"
 msgid "IPv6 prefix"
 msgstr "réimír IPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1271
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1272
 msgid "IPv6 prefix filter"
 msgstr "Scagaire réimír IPv6"
 
@@ -6028,11 +6092,11 @@ msgstr "Fad réimír IPv6"
 msgid "IPv6 routed prefix"
 msgstr "Réimír iontráilte IPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1242
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1243
 msgid "IPv6 source routing"
 msgstr "Ródú foinse IPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1294
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1295
 msgid "IPv6 suffix"
 msgstr "Iarmhír IPv6"
 
@@ -6040,11 +6104,11 @@ msgstr "Iarmhír IPv6"
 msgid "IPv6 support"
 msgstr "Tacaíocht IPv6"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:730
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:751
 msgid "IPv6 traffic table \"%h\""
 msgstr "Tábla tráchta IPv6 “%h”"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:756
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:757
 msgid "IPv6-Only Preferred"
 msgstr "IPv6-Amháin is Fearr"
 
@@ -6120,7 +6184,7 @@ msgstr ""
 msgid "If hostname resolve fails, retry"
 msgstr "Má theipeann réiteach ainm óstach, déan iarracht"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1111
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1112
 msgid ""
 "If left unspecified, the device will announce itself as DNS server unless "
 "the <em>Local IPv6 DNS server</em> option is disabled."
@@ -6136,7 +6200,7 @@ msgstr ""
 "Mura bhfuil sé liostaithe, oscail an liosta anuas agus clóscríobh ainm "
 "ghléas VLAN Batman sa réimse 'saincheaptha'."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1271
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1272
 msgid ""
 "If set, downstream subnets are only allocated from the given IPv6 prefix "
 "classes."
@@ -6163,15 +6227,17 @@ msgstr ""
 "Má shonraítear é, cuir an gléas leis an lipéad deighilte in ionad nód feiste "
 "seasta"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1197
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1198
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/ipip6.js:70
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:135
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:158
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:129
 msgid "If unchecked, no default route is configured"
 msgstr "Mura ndéantar seiceáil, níl aon bhealach réamhshocraithe cum"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1201
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1202
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:146
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:162
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:140
 msgid "If unchecked, the advertised DNS server addresses are ignored"
 msgstr "Mura ndéantar seiceáil, déantar neamhaird ar na seoltaí freastalaí DNS"
@@ -6199,7 +6265,7 @@ msgstr "Déan neamhaird de"
 msgid "Ignore hosts files directory"
 msgstr "Déan neamhaird de chomhadlann na n-óstach"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:709
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:710
 msgid "Ignore interface"
 msgstr "Comhéadain neamhaird"
 
@@ -6486,7 +6552,7 @@ msgstr "Aitheantóir Cárta Ciorcaid"
 msgid "Interface"
 msgstr "Comhéadan"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:800
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:801
 msgid "Interface \"%h\" is already marked as designated master."
 msgstr "Tá comhéadan “%h” marcáilte cheana féin mar mháistir ainmnithe."
 
@@ -6546,11 +6612,15 @@ msgstr "Ainm an chomhéadain"
 msgid "Interface not present or not connected yet."
 msgstr "Comhéadan nach bhfuil i láthair nó nach bhfuil ceangailte fós."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:479
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:510
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:480
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:511
 #: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:38
 msgid "Interfaces"
 msgstr "Comhéadain"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:74
+msgid "Interfaces → Devices"
+msgstr ""
 
 #: protocols/luci-proto-hnet/htdocs/luci-static/resources/protocol/hnet.js:20
 msgid "Internal"
@@ -6600,7 +6670,12 @@ msgstr "Neamhbhailí"
 msgid "Invalid APN provided"
 msgstr "APN neamhbhailí curtha ar fáil"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:729
+#: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:38
+#: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:41
+msgid "Invalid Base64 key string"
+msgstr "Eochair sreang Base64 neamhbhailí"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:730
 msgid ""
 "Invalid DHCP lease time format. Use integer values optionally followed by s, "
 "m, h, d, or w."
@@ -6897,7 +6972,7 @@ msgstr "Eatramh macasamhail LCP"
 msgid "LED Configuration"
 msgstr "Cumraíocht faoi stiúir"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1907
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1943
 msgid "LLC"
 msgstr "LLC"
 
@@ -6905,6 +6980,7 @@ msgstr "LLC"
 msgid "LPR"
 msgstr "LPR"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:456
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:247
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:353
 msgid "Label"
@@ -6968,7 +7044,7 @@ msgstr "Duilleog"
 msgid "Learn"
 msgstr "Foghlaim"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1184
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1185
 msgid "Learn routes"
 msgstr "Bealaí a fhoghlaim"
 
@@ -6987,7 +7063,7 @@ msgid "Lease file"
 msgstr "Comhad léasa"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:1055
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:717
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:718
 msgid "Lease time"
 msgstr "Am léasa"
 
@@ -7025,7 +7101,7 @@ msgstr ""
 "laghdú go suntasach nuair a úsáidtear iad Moltar gan rátaí 802.11b a cheadú "
 "nuair is féidir."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:778
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:799
 msgid "Legacy rules detected"
 msgstr "Braithíodh rialacha oidhreachta"
 
@@ -7033,7 +7109,7 @@ msgstr "Braithíodh rialacha oidhreachta"
 msgid "Legend:"
 msgstr "Finscéal:"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:769
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:770
 msgid "Limit"
 msgstr "Teorainn"
 
@@ -7092,6 +7168,10 @@ msgstr "Nasc 5G Ar"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/netdev.js:24
 msgid "Link On"
 msgstr "Nasc Ar"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1742
+msgid "Link Speed"
+msgstr ""
 
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:83
 msgctxt "nft @ll,off,len"
@@ -7232,7 +7312,7 @@ msgstr ""
 msgid "Load configuration…"
 msgstr "Cumraíocht luchtaigh…"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1441
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1442
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:2428
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/view/wireguard/status.js:182
 msgid "Loading data…"
@@ -7251,6 +7331,7 @@ msgstr "Amharc á lódáil…"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1440
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:119
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:457
 msgid "Local"
 msgstr "Áitiúil"
 
@@ -7286,6 +7367,10 @@ msgstr "Áitiúil 6"
 msgid "Local 7"
 msgstr "Áitiúil 7"
 
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:171
+msgid "Local IP address"
+msgstr "Seoladh IP áitiúil"
+
 #: modules/luci-base/htdocs/luci-static/resources/network.js:12
 #: modules/luci-compat/luasrc/model/network.lua:30
 msgid "Local IP address is invalid"
@@ -7308,7 +7393,7 @@ msgstr "Seoladh IP áitiúil le sannadh"
 msgid "Local IPv4 address"
 msgstr "Seoladh IPv4 áitiúil"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1118
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1119
 msgid "Local IPv6 DNS server"
 msgstr "Freastalaí DNS IPv6 áitiúil"
 
@@ -7330,7 +7415,7 @@ msgstr "Tosú Áitiúil"
 msgid "Local Time"
 msgstr "Am Áitiúil"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1272
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1273
 msgid "Local ULA"
 msgstr "ULA áitiúil"
 
@@ -7477,7 +7562,7 @@ msgid "Loose filtering"
 msgstr "Scagadh scaoilte"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1157
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:901
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:902
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1595
 msgid "Low"
 msgstr "Íseal"
@@ -7486,7 +7571,7 @@ msgstr "Íseal"
 msgid "Low-Density Parity-Check"
 msgstr "Seiceáil Chomhionannais Ísealdlúis"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:764
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:765
 msgid "Lowest leased address as offset from the network address."
 msgstr "An seoladh ar léas is ísle mar fhritháireamh ón seoladh líonra."
 
@@ -7499,7 +7584,7 @@ msgstr "Modh comhoiriúnachta Lua gníomh"
 msgid "MAC"
 msgstr "MAC"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1741
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1777
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pppoe.js:51
 msgid "MAC Address"
 msgstr "Seoladh MAC"
@@ -7513,7 +7598,7 @@ msgid "MAC Addresses"
 msgstr "Seoltaí MAC"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:456
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1706
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1707
 msgid "MAC VLAN"
 msgstr "MAC VLAN"
 
@@ -7575,7 +7660,7 @@ msgid "MII link monitoring"
 msgstr "Monatóireacht nasc MII"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1090
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1753
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1789
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:91
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:53
 #: protocols/luci-proto-vxlan/htdocs/luci-static/resources/protocol/vxlan.js:83
@@ -7632,7 +7717,12 @@ msgstr "Lámhleabhar"
 msgid "Manufacturer"
 msgstr "Monaróir"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1225
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:485
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:569
+msgid "Mark VLAN as locally terminated on the bridge"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1226
 msgid "Master"
 msgstr "Máistir"
 
@@ -7722,7 +7812,7 @@ msgstr ""
 msgid "Matching option syntax: %s."
 msgstr "Comhréir rogha comhoiriúnach: %s."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:986
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:987
 msgid "Max <abbr title=\"Router Advertisement\">RA</abbr> interval"
 msgstr "Uasmhéid <abbr title=\"Fógraíocht Ródaire\">RA</abbr> eatraimh"
 
@@ -7786,7 +7876,7 @@ msgstr "Uasmhéid soicind le fanacht go mbeidh an móideim réidh"
 msgid "Maximum number of FDB entries"
 msgstr "Uaslíon iontrálacha BFFG"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:769
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:770
 msgid "Maximum number of leased addresses."
 msgstr "Líon uasta na seoltaí ar léasú."
 
@@ -7802,7 +7892,7 @@ msgstr ""
 "Buiséad uasta cumhachta don chalafort seo i milleavataí. Fág folamh le "
 "haghaidh réamhshocraithe/uasmhéid."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1063
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1064
 msgid "Maximum preferred lifetime for a prefix."
 msgstr "An saolré is fearr is féidir a úsáid le haghaidh réimír."
 
@@ -7814,7 +7904,7 @@ msgstr "Uasmhéid tábla snooping"
 msgid "Maximum source port #"
 msgstr "Port foinse uasta #"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:986
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:987
 msgid ""
 "Maximum time allowed between sending unsolicited <abbr title=\"Router "
 "Advertisement, ICMPv6 Type 134\">RA</abbr>. Default is 600 seconds."
@@ -7826,7 +7916,7 @@ msgstr ""
 msgid "Maximum transmit power"
 msgstr "Cumhacht tarchuir uasta"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1074
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1075
 msgid "Maximum valid lifetime for a prefix."
 msgstr "Uasmhéid saoil bhailí do réimír."
 
@@ -7848,7 +7938,7 @@ msgstr "Féadfaidh sé cosc a chur ar VoIP nó seirbhísí eile ó oibriú."
 msgid "Mbit/s"
 msgstr "Mbit/s"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:902
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:903
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:1596
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:48
 msgid "Medium"
@@ -7894,7 +7984,7 @@ msgstr "Níor aimsíodh an modh"
 msgid "Metric"
 msgstr "Méadrach"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1215
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1216
 msgid ""
 "Metric is an ordinal, where a gateway with 1 is chosen 1st, 2 is chosen 2nd, "
 "3 is chosen 3rd, etc"
@@ -7907,7 +7997,7 @@ msgctxt "nft unit"
 msgid "MiB"
 msgstr "MiB"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:993
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:994
 msgid "Min <abbr title=\"Router Advertisement\">RA</abbr> interval"
 msgstr "An t-eatramh <abbr title=\"Router Advertisement\">RA</abbr> íosta"
 
@@ -7943,7 +8033,7 @@ msgstr ""
 msgid "Minimum source port #"
 msgstr "Port foinse íosta #"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:993
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:994
 msgid ""
 "Minimum time allowed between sending unsolicited <abbr title=\"Router "
 "Advertisement, ICMPv6 Type 134\">RA</abbr>. Default is 200 seconds."
@@ -8065,6 +8155,13 @@ msgstr "Tuilleadh Carachtair"
 msgid "More…"
 msgstr "Tuilleadh…"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:53
+msgid ""
+"Most commonly this means that a port has its primary VLAN (PVID) set to a "
+"different VLAN than its untagged egress VLAN — a combination that is allowed "
+"by 802.1Q but very rarely intentional."
+msgstr ""
+
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/mounts.js:171
 msgid "Mount Point"
 msgstr "Mount Point"
@@ -8127,9 +8224,9 @@ msgstr "Bogadh suas"
 msgid "Multi To Unicast"
 msgstr "Multi Chun Unicast"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1220
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1221
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1781
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1222
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1817
 msgid "Multi-Path TCP"
 msgstr "TCP Ilchonair"
 
@@ -8173,7 +8270,7 @@ msgstr "ID NAS"
 msgid "NAT"
 msgstr "NAT"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:637
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:658
 msgid "NAT action chain \"%h\""
 msgstr "Slabhra gníomhaíochta NAT “%h”"
 
@@ -8185,7 +8282,7 @@ msgstr "Mód NAT-T"
 msgid "NAT64 Prefix"
 msgstr "Réimír NAT64"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:978
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:979
 msgid "NAT64 prefix"
 msgstr "Réimír NAT64"
 
@@ -8194,7 +8291,7 @@ msgstr "Réimír NAT64"
 msgid "NCM"
 msgstr "NCM"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1189
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1190
 msgid "NDP-Proxy slave"
 msgstr "Slábhaithe seachfhreastalaí"
 
@@ -8206,7 +8303,7 @@ msgstr "NT Fearainn"
 msgid "NTP"
 msgstr "NTP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1149
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1150
 msgid "NTP Servers"
 msgstr "Freastalaithe NTP"
 
@@ -8222,7 +8319,7 @@ msgstr "NUD"
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4947
 #: modules/luci-compat/luasrc/view/cbi/tblsection.htm:27
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:117
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1371
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1372
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/leds.js:63
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/repokeys.js:236
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/view/wireguard/status.js:45
@@ -8330,12 +8427,12 @@ msgstr ""
 msgid "Network boot image"
 msgstr "Íomhá tosaithe líonra"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:414
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:415
 msgid "Network bridge configuration migration"
 msgstr "Imirce cumraíochta droichid líon"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:449
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1715
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1716
 msgid "Network device"
 msgstr "Gléas líonra"
 
@@ -8348,7 +8445,7 @@ msgstr "Gníomhaíocht gléas líonra (eithne: netdev)"
 msgid "Network device is not present"
 msgstr "Níl gléas líonra i láthair"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:746
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:767
 msgid "Network device table \"%h\""
 msgstr "Tábla gléas líonra “%h”"
 
@@ -8357,7 +8454,7 @@ msgctxt "nft @nh,off,len"
 msgid "Network header bits %d-%d"
 msgstr "Giotáin ceanntásc líonra %d-%d"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:448
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:449
 msgid "Network ifname configuration migration"
 msgstr "Imirce cumraíochta ifname líonra"
 
@@ -8406,11 +8503,11 @@ msgctxt "Dnsmasq instance"
 msgid "New instance name…"
 msgstr "Ainm nua sampla…"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1427
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1428
 msgid "New interface for \"%s\" can not be created: %s"
 msgstr "Ní féidir comhéadan nua do “%s” a chruthú: %s"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1374
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1375
 msgid "New interface name…"
 msgstr "Ainm comhéadain nua…"
 
@@ -8426,7 +8523,7 @@ msgstr "Ar Aghaidh”"
 msgid "No"
 msgstr "Níl"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:685
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:686
 msgid "No DHCP Server configured for this interface"
 msgstr "Níl aon Freastalaí DHCP cumraithe don chomhéadan seo"
 
@@ -8463,6 +8560,15 @@ msgstr "Ní bhfuarthas aon léasanna gníomhacha"
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:16
 msgid "No allowed mode configuration found."
 msgstr "Níor aimsíodh aon chumraíocht modh ceadaithe."
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:71
+msgid ""
+"No bridge eligible for switch-style configuration was found. This view "
+"requires a bridge with VLAN filtering enabled (explicitly or implicitly via "
+"bridge-vlan sections) whose member ports are all physical ethernet or DSA "
+"switch ports. Bridges containing wireless, tunnel, VLAN sub-interfaces or "
+"other virtual members are intentionally excluded."
+msgstr ""
 
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/header.ut:70
 #: themes/luci-theme-material/ucode/template/themes/material/header.ut:93
@@ -8540,6 +8646,10 @@ msgstr "Gan aon bhealach óstach"
 msgid "No information available"
 msgstr "Níl aon eolas ar fáil"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:70
+msgid "No managed switch found"
+msgstr ""
+
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routesj.js:116
 msgid "No master"
 msgstr "Gan máistir"
@@ -8553,7 +8663,7 @@ msgstr "Níl aon toscaireacht réimír"
 msgid "No negative cache"
 msgstr "Gan taisce diúltach"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:794
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:815
 msgid "No nftables ruleset loaded."
 msgstr "Níl aon raon rialacha nftables luchtaithe."
 
@@ -8572,6 +8682,10 @@ msgstr "Níl aon phiaraí nasctha"
 msgid "No peers defined yet."
 msgstr "Níl aon phiaraí sainithe fós."
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:258
+msgid "No ports are configured on this bridge."
+msgstr ""
+
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:15
 msgid "No preferred mode configuration found."
 msgstr "Níor aimsíodh aon chumraíocht modh is fearr leat."
@@ -8581,7 +8695,7 @@ msgstr "Níor aimsíodh aon chumraíocht modh is fearr leat."
 msgid "No public keys present yet."
 msgstr "Níl eochracha poiblí ar fáil fós."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:714
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:735
 msgctxt "nft chain is empty"
 msgid "No rules in this chain"
 msgstr "Níl aon rialacha sa slabhra seo"
@@ -8590,12 +8704,12 @@ msgstr "Níl aon rialacha sa slabhra seo"
 msgid "No rules in this chain."
 msgstr "Níl aon rialacha sa slabhra seo."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1224
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1225
 msgid "No special configuration"
 msgstr "Gan aon chumraíocht speisialta"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:151
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1472
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1473
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/29_ports.js:332
 msgid "No zone assigned"
 msgstr "Níl aon chrios sannta"
@@ -8727,7 +8841,7 @@ msgstr ""
 "Nóta: d’fhéadfadh teaglaim neamhbhailí %s tuairteáil go ciúin a chur faoi "
 "deara i gcás dnsmasq."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1132
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1133
 msgid ""
 "Note: the <code>_lifetime=&lt;seconds&gt;</code> SVC parameter sets the "
 "lifetime of the announced server (use <code>0</code> to indicate a server "
@@ -8737,7 +8851,7 @@ msgstr ""
 "saolré an fhreastalaí fógartha (bain úsáid as <code>0</code> chun freastalaí "
 "nach ceart a úsáid a thuilleadh a léiriú)."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1805
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1841
 msgid ""
 "Note: this setting is for local services on the device only (not for "
 "forwarding)."
@@ -8818,14 +8932,14 @@ msgstr "Pasfhocal neamhdhíobhálaithe"
 msgid "Obtain IPv6 address"
 msgstr "Faigh seoladh IPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1223
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1224
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/none.js:19
 #: protocols/luci-proto-batman-adv/htdocs/luci-static/resources/protocol/batadv.js:87
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:345
 msgid "Off"
 msgstr "As"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1786
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1822
 msgid ""
 "Off means VRF traffic will be handled exclusively by sockets bound to VRFs."
 msgstr ""
@@ -8856,7 +8970,7 @@ msgstr ""
 msgid "Old Password"
 msgstr "Seanfhocal Faire"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1224
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1225
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/none.js:19
 msgid "On"
 msgstr "Ar"
@@ -8940,7 +9054,7 @@ msgstr ""
 msgid "Only process ping timeouts if routes exist"
 msgstr "Ní phróiseálann ama ping ach má tá bealaí ann"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:783
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:804
 msgid "Open iptables rules overview…"
 msgstr "Forbhreathnú ar rialacha iptables oscailte…"
 
@@ -8948,15 +9062,23 @@ msgstr "Forbhreathnú ar rialacha iptables oscailte…"
 msgid "Open list..."
 msgstr "Liosta oscailte..."
 
+#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:63
+msgid "OpenConnect"
+msgstr "Oscailceangail"
+
 #: modules/luci-compat/luasrc/model/network/proto_openconnect.lua:9
 msgid "OpenConnect (CISCO AnyConnect)"
 msgstr "OpenConnect (CISCO AnyConnect)"
+
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:63
+msgid "OpenFortivpn"
+msgstr "OpenFortivpn"
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1624
 msgid "OpenVPN"
 msgstr "OpenVPN"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:806
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:807
 msgid ""
 "Operate in <em>relay mode</em> if a designated master interface is "
 "configured and active, otherwise disable <abbr title=\"Neighbour Discovery "
@@ -8966,7 +9088,7 @@ msgstr ""
 "cumraithe agus gníomhach, nó díchumasaigh seachfhreastalaí <abbr "
 "title=\"Prótacal Fionnachtana Comharsanachta\">NDP</abbr>."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:805
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:806
 msgid ""
 "Operate in <em>relay mode</em> if a designated master interface is "
 "configured and active, otherwise fall back to <em>server mode</em>."
@@ -8974,7 +9096,7 @@ msgstr ""
 "Oibriú i <em>mód sealaíochta</em> má tá máistir-chomhéadan sainithe "
 "cumraithe agus gníomhach, nó tar ar ais go <em>mód an fhreastalaí</em>."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:807
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:808
 msgid ""
 "Operate in <em>relay mode</em> if an upstream IPv6 prefix is present, "
 "otherwise disable service."
@@ -9042,6 +9164,12 @@ msgstr ""
 msgid "Optional, free-form notes about this device"
 msgstr "Nótaí roghnacha, saorfhoirme faoin bhfeiste seo"
 
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:149
+msgid "Optional, in seconds. If set to '0', no reconnect is attempted."
+msgstr ""
+"Roghnach, i soicindí. Má tá sé socraithe ar '0', ní dhéanfar iarracht ar aon "
+"athnasc."
+
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:176
 msgid ""
 "Optional. 32-bit mark for packets during firewall processing. Enter value in "
@@ -9050,7 +9178,7 @@ msgstr ""
 "Roghnach. Marc 32-giotán le haghaidh paicéid criptithe atá ag dul as oifig. "
 "Cuir isteach luach i heicsidheachúlach, ag tosú le <code>0x</code>."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1294
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1295
 msgid ""
 "Optional. Allowed values: 'eui64', 'random', fixed value like '::1' or "
 "'::1:2'. When IPv6 prefix (like 'a:b:c:d::') is received from a delegating "
@@ -9137,6 +9265,13 @@ msgstr ""
 "Roghnach. Soicind idir teachtaireachtaí a choinneáil beo. Is é "
 "réamhshocraithe 0 (míchumasaithe). Is é 25 an luach a mholtar má tá an gléas "
 "seo taobh thiar de NAT."
+
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:176
+msgid ""
+"Optional. Specify the realm if your VPN gateway uses custom login portals."
+msgstr ""
+"Roghnach. Sonraigh an réimse má úsáideann do gheata VPN tairseacha logála "
+"isteach saincheaptha."
 
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:151
 msgid "Optional. UDP port used for outgoing and incoming packets."
@@ -9232,11 +9367,11 @@ msgstr "Crios aschuir"
 msgid "Overlap"
 msgstr "Forluí"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1231
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1232
 msgid "Override IPv4 routing table"
 msgstr "Tábla ródúcháin IPv4 a chur ar aghaidh"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1236
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1237
 msgid "Override IPv6 routing table"
 msgstr "Tábla ródúcháin IPv6 a chur ar aghaidh"
 
@@ -9294,7 +9429,7 @@ msgstr "Ainm comhéadain réamhshocraithe a chur"
 msgid "Override the gateway in DHCP responses"
 msgstr "Athraigh an geata i bhfreagraí DHCP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:776
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:777
 msgid ""
 "Override the netmask sent to clients. Normally it is calculated from the "
 "subnet that is served (dnsmasq only)."
@@ -9442,7 +9577,7 @@ msgctxt "Label indicating that WireGuard peer uses a PSK"
 msgid "PSK"
 msgstr "PSK"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1851
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1887
 msgid "PTM/EFM (Packet Transfer Mode)"
 msgstr "PTM/EFM (Mód Aistrithe Pacáiste)"
 
@@ -9458,7 +9593,7 @@ msgstr "PXE/TFTP"
 msgid "Packet Service State"
 msgstr "Stát Seirbhíse Pacáiste"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1796
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1832
 msgid "Packet Steering"
 msgstr "Stiúrú Pacáiste"
 
@@ -9494,7 +9629,7 @@ msgstr[3] "Cuid de líonraí:"
 msgstr[4] "Cuid de líonraí:"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:151
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1472
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1473
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/29_ports.js:332
 msgid "Part of zone %q"
 msgstr "Cuid den chrios% q"
@@ -9517,6 +9652,7 @@ msgstr "Pas tríd (Gléas fisiceach scátháin chuig MAC VLAN aonair)"
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:92
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/password.js:133
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:145
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:103
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:58
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:301
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:19
@@ -9722,6 +9858,10 @@ msgstr "leanún/gan leanúint ifconfig-pool"
 msgid "Persistent Keep Alive"
 msgstr "Coinnigh Leanúnach Beo"
 
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:149
+msgid "Persistent reconnect interval"
+msgstr "Eatramh athnasctha leanúnach"
+
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/protocol/wireguard.js:310
 msgid "PersistentKeepAlive setting is invalid"
 msgstr "Tá socrú PersistentKeepAlive neamhbhailí"
@@ -9730,7 +9870,7 @@ msgstr "Tá socrú PersistentKeepAlive neamhbhailí"
 msgid "Phy Rate:"
 msgstr "Ráta Phy:"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:498
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:499
 msgid "Physical Settings"
 msgstr "Socruithe Fisiciúla"
 
@@ -9753,6 +9893,10 @@ msgstr "Ping iargúlta gach n soicind thar chalafort TCP/UDP"
 msgid "Pkts."
 msgstr "Pkts."
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:788
+msgid "Please enter a VLAN ID between %d and %d."
+msgstr ""
+
 #: modules/luci-base/ucode/template/sysauth.ut:25
 msgid "Please enter your username and password."
 msgstr "Cuir isteach d'ainm úsáideora agus do phasfhocal."
@@ -9763,6 +9907,10 @@ msgid ""
 "VLAN device."
 msgstr ""
 "Oscail an liosta anuas agus roghnaigh nó clóscríobh ainm ghléas Batman VLAN."
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:57
+msgid "Please review the configuration via the legacy"
+msgstr ""
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:4930
 msgid "Please select the file to upload."
@@ -9814,7 +9962,7 @@ msgstr "Beartas"
 msgid "Policy level over usage of external programs and scripts"
 msgstr "Leibhéal beartais maidir le húsáid cláir agus scripteanna seachtracha"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:695
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:716
 msgctxt "Chain hook policy"
 msgid "Policy: <strong>%h</strong> (%h)"
 msgstr "Polasaí: <strong>%h</strong> (%h)"
@@ -9843,6 +9991,31 @@ msgstr "Polasaí: fad íosta %s carachtar"
 msgid "Port"
 msgstr "Port"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:923
+msgid "Port \"%s\" already has VLAN %d as its native (untagged) VLAN."
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/tools/bridgevlan.js:243
+msgid ""
+"Port \"%s\" has the primary VLAN flag together with tagged egress on VLAN %d "
+"(PVID ≠ untagged VLAN)."
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/tools/bridgevlan.js:245
+msgid "Port \"%s\" is both tagged and untagged on VLAN %d."
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/tools/bridgevlan.js:251
+msgid ""
+"Port \"%s\" is configured as untagged on more than one VLAN (%d and %d)."
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/tools/bridgevlan.js:247
+msgid ""
+"Port \"%s\" is the primary VLAN on VLAN %d but has no untagged egress (PVID "
+"≠ untagged VLAN)."
+msgstr ""
+
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/view/wireguard/status.js:152
 msgctxt "WireGuard listen port"
 msgid "Port %d"
@@ -9860,6 +10033,10 @@ msgstr "Aontas calafoirt"
 msgid "Port priority"
 msgstr "Tosaíocht port"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/tools/bridgevlan.js:235
+msgid "Port specification \"%s\" on VLAN %d cannot be parsed."
+msgstr ""
+
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/29_ports.js:375
 msgid "Port status"
 msgstr "Stádas calafoirt"
@@ -9869,6 +10046,7 @@ msgid "Port status:"
 msgstr "Stádas calafoirt:"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:970
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:277
 msgid "Ports"
 msgstr "Poirt"
 
@@ -10066,8 +10244,8 @@ msgid "Prot."
 msgstr "Prot."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:92
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:593
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1389
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:594
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1390
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/connections.js:511
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:60
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:191
@@ -10077,7 +10255,7 @@ msgstr "Prot."
 msgid "Protocol"
 msgstr "Prótacal"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:752
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:753
 msgid "Provide DHCPv4 services on this interface."
 msgstr "Cuir seirbhísí DHCPv4 ar fáil ar an gcomhéadan seo."
 
@@ -10085,7 +10263,7 @@ msgstr "Cuir seirbhísí DHCPv4 ar fáil ar an gcomhéadan seo."
 msgid "Provide NTP server"
 msgstr "Freastalaí NTP a sholáthar"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1091
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1092
 msgid ""
 "Provide a DHCPv6 server on this interface and reply to DHCPv6 solicitations "
 "and requests."
@@ -10240,7 +10418,7 @@ msgstr "R0 Eochair Saolré"
 msgid "R1 Key Holder"
 msgstr "Sealbhóir Eochair R1"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:934
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:935
 msgid "RA <abbr title=\"Prefix Information Option\">PIO</abbr> Flags"
 msgstr "Bratacha RA <abbr title=\"Rogha Faisnéise Réimír\">PIO</abbr>"
 
@@ -10363,9 +10541,13 @@ msgstr "Léigh %s chun an freastalaí DHCP a chumrú."
 msgid "Really delete the following software repository public key?"
 msgstr "Scrios an eochair phoiblí stórais bogearraí seo a leanas i ndáiríre?"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:599
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:600
 msgid "Really switch protocol?"
 msgstr "An bhfuil fonn ort an prótacal a athrú?"
+
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:176
+msgid "Realm"
+msgstr "Ríocht"
 
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:139
 msgid "Realtime Graphs"
@@ -10431,7 +10613,7 @@ msgstr "Molta. Seoltaí IP an chomhéadan WireGuard."
 msgid "Reconnect Timeout"
 msgstr "Athcheangail Timeout"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:524
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:525
 msgid "Reconnect this interface"
 msgstr "Athcheangail an comhéadan seo"
 
@@ -10592,6 +10774,8 @@ msgstr "Ainm óstach iargúlta nó seoladh IP"
 msgid "Remote ping timeout"
 msgstr "Amach ping iargúlta"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:510
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:841
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:963
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/plugins.js:148
 msgid "Remove"
@@ -10612,6 +10796,30 @@ msgstr "Bain an seoladh MAC roimh an cheist a chur ar aghaidh"
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1329
 msgid "Remove Push options"
 msgstr "Bain roghanna Brúigh"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:509
+msgid "Remove VLAN %d"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:675
+msgid "Remove VLAN %d as tagged from all selected ports"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:674
+msgid "Remove VLAN %d as tagged from selected ports that have it"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:681
+msgid "Remove VLAN %d as untagged (native) from all selected ports"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:680
+msgid "Remove VLAN %d as untagged (native) from selected ports that have it"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:826
+msgid "Remove VLAN %d?"
+msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dns.js:701
 msgid ""
@@ -10647,7 +10855,7 @@ msgctxt "Dnsmasq instance"
 msgid "Remove instance #%d"
 msgstr "Bain sampla #%d"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1573
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1574
 msgid "Remove related device settings from the configuration"
 msgstr "Bain socruithe gléas gaolmhara ón gcumraíocht"
 
@@ -10923,7 +11131,7 @@ msgstr "Uimhir Thaifid Acmhainní"
 msgid "Resource not found"
 msgstr "Ní bhfuarthas acmhainn"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:525
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:526
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:931
 msgid "Restart"
 msgstr "Atosaigh"
@@ -11092,7 +11300,7 @@ msgstr "Babhta robin"
 msgid "Route Allowed IPs"
 msgstr "IPanna Bealaigh Ceadaithe"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:633
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:654
 msgid "Route action chain \"%h\""
 msgstr "Slabhra gníomhaíochta bealaigh “%h”"
 
@@ -11113,7 +11321,7 @@ msgstr "Cineál bealaigh"
 msgid "Route v6 subnet to client"
 msgstr "Bealach fo-líonra v6 chuig an gcliant"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1018
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1019
 msgid ""
 "Router Lifetime published in <abbr title=\"Router Advertisement, ICMPv6 Type "
 "134\">RA</abbr> messages. Maximum is 9000 seconds."
@@ -11125,7 +11333,7 @@ msgstr ""
 msgid "Router Password"
 msgstr "Pasfhocal Ródaire"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:898
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:899
 msgid "Router Priority"
 msgstr "Tosaíocht Ródaire"
 
@@ -11143,7 +11351,7 @@ msgstr ""
 "chun cinn scríbe a bhaint amach."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:28
-#: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:50
+#: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:68
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routes.js:249
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/routesj.js:301
 #: modules/luci-mod-status/root/usr/share/luci/menu.d/luci-mod-status.json:15
@@ -11183,20 +11391,20 @@ msgstr "Tábla ródaithe le húsáid don trácht atá ag teacht leis an riail se
 msgid "Rule"
 msgstr "Riail"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:703
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:724
 msgid "Rule actions"
 msgstr "Gníomhartha riail"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:557
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:572
 msgctxt "nft comment"
 msgid "Rule comment: %s"
 msgstr "Trácht riail: %s"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:641
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:662
 msgid "Rule container chain \"%h\""
 msgstr "Slabhra coimeádán riail “%h”"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:702
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:723
 msgid "Rule matches"
 msgstr "Meaitseálacha riail"
 
@@ -11396,7 +11604,7 @@ msgstr "Rannóg bainte"
 msgid "See \"mount\" manpage for details"
 msgstr "Féach manpage “mount” le haghaidh sonraí"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:979
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:980
 msgid "See %s and %s."
 msgstr "Féach %s agus %s."
 
@@ -11418,6 +11626,20 @@ msgstr ""
 msgid "Select Batman VLAN device…"
 msgstr "Roghnaigh gléas VLAN Batman…"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:270
+msgid "Select all ports"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:491
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:654
+msgid "Select all ports having VLAN %d assigned as tagged (%d)"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:499
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:655
+msgid "Select all ports having VLAN %d assigned as untagged / native (%d)"
+msgstr ""
+
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3150
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3381
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3572
@@ -11430,7 +11652,19 @@ msgstr "Roghnaigh eolaire…"
 msgid "Select file…"
 msgstr "Roghnaigh comhad…"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:874
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:666
+msgid "Select one or more ports first"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:410
+msgid "Select one or more ports first."
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:458
+msgid "Select ports"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:875
 msgid ""
 "Send <abbr title=\"Router Advertisement, ICMPv6 Type 134\">RA</abbr> "
 "messages advertising this device as IPv6 router."
@@ -11543,12 +11777,12 @@ msgctxt "nft mangle"
 msgid "Set header field <var>%s</var> to <strong>%s</strong>"
 msgstr "Socraigh réimse ceanntásca <var>%s</var> go <strong>%s</strong>"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1189
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1190
 msgid "Set interface as NDP-Proxy external slave. Default is off."
 msgstr ""
 "Socraigh comhéadan mar sclábhaí seachtrach NDP-proxy. Tá réamhshocrú as."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1511
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1512
 msgid ""
 "Set interface properties regardless of the link carrier (If set, carrier "
 "sense events do not invoke hotplug handlers)."
@@ -11577,7 +11811,7 @@ msgstr "Socraigh méid maolán glacadh TCP/UDP"
 msgid "Set the TCP/UDP send buffer size"
 msgstr "Socraigh méid maolán seolta TCP/UDP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:893
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:894
 msgid ""
 "Set the autonomous address-configuration flag in the prefix information "
 "options of sent <abbr title=\"Router Advertisement\">RA</abbr> messages. "
@@ -11588,7 +11822,7 @@ msgstr ""
 "abbr> seolta. Nuair a bheidh sé cumasaithe, déanfaidh cliaint "
 "uathchumraíocht seoltaí IPv6 gan stát."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:801
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:802
 msgid ""
 "Set this interface as master for RA and DHCPv6 relaying as well as NDP "
 "proxying."
@@ -11613,12 +11847,12 @@ msgstr "Socraigh feiste tiún/sconna MTU"
 msgid "Set tun/tap device overhead"
 msgstr "Socraigh feiste tiún/sconna lasbhaird"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:688
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:704
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:689
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:705
 msgid "Set up DHCP Server"
 msgstr "Socraigh Freastalaí DHCP"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1184
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1185
 msgid "Set up routes for proxied IPv6 neighbours."
 msgstr "Cuir bealaí ar bun do chomharsana IPv6 seachadaithe."
 
@@ -11626,7 +11860,7 @@ msgstr "Cuir bealaí ar bun do chomharsana IPv6 seachadaithe."
 msgid "Set upper bound on TCP MSS"
 msgstr "Socraigh teorainn uachtarach ar TCP MSS"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1225
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1226
 msgid "Sets default route for all traffic"
 msgstr "Socraíonn sé an bealach réamhshocraithe do gach trácht"
 
@@ -11703,7 +11937,7 @@ msgstr "Taispeáin slabhraí folmha"
 msgid "Show raw counters"
 msgstr "Taispeáin cuntair amh"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:529
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:530
 msgid "Shutdown this interface"
 msgstr "Múch an comhéadan seo"
 
@@ -11872,22 +12106,22 @@ msgstr ""
 "Roghanna speisialta tosaithe <abbr title=\"Timpeallacht ríomhghníomhaithe "
 "Réamhthosaigh\">PXE</abbr> do Dnsmasq."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1141
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1142
 msgid "Specifies a fixed list of DNS search domains to announce via DHCPv6."
 msgstr ""
 "Sonraíonn sé liosta seasta de fhearainn chuardaigh DNS le fógairt trí DHCPv6."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1109
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1110
 msgid "Specifies a fixed list of DNS server addresses to announce via DHCPv6."
 msgstr ""
 "Sonraíonn sé liosta seasta de sheoltaí freastalaí DNS le fógairt trí DHCPv6."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1110
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1111
 msgid "Specifies a fixed list of DNS server addresses to announce via RA."
 msgstr ""
 "Sonraíonn sé liosta seasta de sheoltaí freastalaí DNS le fógairt trí RA."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1127
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1128
 msgid ""
 "Specifies a fixed list of encrypted DNS server addresses to announce via "
 "DHCPv6/<abbr title=\"Router Advertisement\">RA</abbr> (see %s)."
@@ -11905,7 +12139,7 @@ msgstr ""
 "UID comhfhreagrach nó 1000-1005 a mheaitseáil chun gach UID a mheaitseáil go "
 "cuimsitheach laistigh den raon comhfhreagrach"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:757
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:758
 msgid ""
 "Specifies how often (in seconds) clients should check whether IPv6-only mode "
 "is still preferred (see %s, odhcpd only)."
@@ -11931,7 +12165,7 @@ msgstr ""
 msgid "Specifies the directory the device is attached to"
 msgstr "Sonraíonn sé an eolaire atá an gléas ceangailte leis"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:907
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:908
 msgid ""
 "Specifies the flags sent in <abbr title=\"Router Advertisement\">RA</abbr> "
 "messages, for example to instruct clients to request further information via "
@@ -12129,7 +12363,7 @@ msgstr "Sonraigh an gceanglaítear ar an gcliant deimhniú bailí a sholáthar"
 msgid "Speed: %d Mbit/s, Duplex: %s"
 msgstr "Luas: %d Mbit/s, Déphléacsach: %s"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1831
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1867
 msgid "Splitterless ADSL (G.992.2) Annex A"
 msgstr "ADSL gan scoilteoir (G.992.2) Iarscríbhinn A"
 
@@ -12146,11 +12380,11 @@ msgstr "Cobhsaí"
 msgid "Stale neighbour cache timeout"
 msgstr "Amach taisce comharsa seasta"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1806
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1842
 msgid "Standard: none"
 msgstr "Caighdeán: aon"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:764
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:765
 msgctxt "DHCP IP range start address"
 msgid "Start"
 msgstr "Tosaigh"
@@ -12230,7 +12464,7 @@ msgid "Station inactivity limit"
 msgstr "Teorainn neamh-ghníomhaíochta"
 
 #: modules/luci-base/root/usr/share/luci/menu.d/luci-base.json:16
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:580
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:581
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:986
 #: modules/luci-mod-status/ucode/template/admin_status/index.ut:9
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/plugins.js:95
@@ -12241,11 +12475,11 @@ msgstr "Stádas"
 msgid "Status file format version"
 msgstr "Leagan formáid comhaid stádais"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1803
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1839
 msgid "Steering flows (<abbr title=\"Receive Packet Steering\">RPS</abbr>)"
 msgstr "Sreafaí stiúrtha (<abbr title=\"Faigh Stiúradh Paicéad\">RPS</abbr>)"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:530
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:531
 msgid "Stop"
 msgstr "Stop"
 
@@ -12284,9 +12518,13 @@ msgstr "láidir"
 msgid "Submit"
 msgstr "Cuir isteach"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1807
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1843
 msgid "Suggested: 128"
 msgstr "Molta: 128"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1771
+msgid "Supported link speeds: %s"
+msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:478
 msgid "Suppress logging"
@@ -12328,6 +12566,12 @@ msgstr ""
 "Tá topeolaíocht anaithnid ag an lasc %q - b'fhéidir nach mbeadh na socruithe "
 "VLAN cruinn."
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:48
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:68
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:137
+msgid "Switch / VLAN Configuration"
+msgstr ""
+
 #: modules/luci-base/htdocs/luci-static/resources/network.js:3064
 #: modules/luci-compat/luasrc/model/network.lua:1426
 msgid "Switch VLAN"
@@ -12337,7 +12581,7 @@ msgstr "Athraigh VLAN"
 msgid "Switch port"
 msgstr "Port lasc"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:600
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:601
 msgid "Switch protocol"
 msgstr "Athraigh prótacal"
 
@@ -12346,6 +12590,10 @@ msgstr "Athraigh prótacal"
 #: modules/luci-compat/luasrc/view/cbi/ipaddr.htm:26
 msgid "Switch to CIDR list notation"
 msgstr "Athraigh go nodaigh liosta CIDR"
+
+#: modules/luci-mod-network/root/usr/share/luci/menu.d/luci-mod-network.json:50
+msgid "Switch/VLAN config"
+msgstr ""
 
 #: modules/luci-base/htdocs/luci-static/resources/ui.js:3203
 msgid "Symbolic link"
@@ -12371,7 +12619,7 @@ msgstr ""
 "Comhréir: <code>&lt;DUID-hex-str&gt;</code> <em>nó</em> <code>&lt;DUID-hex-"
 "str&gt;%&lt;IAID-hex-str&gt;</code>"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1130
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1131
 msgid ""
 "Syntax: <code>&lt;numeric priority&gt; &lt;domain-name&gt; [IP,...] [SVC "
 "parameter ...]</code>"
@@ -12420,7 +12668,7 @@ msgstr "Méid maolán log an chórais"
 msgid "System running in recovery (initramfs) mode."
 msgstr "Córas ag rith i mód aisghabhála (initramfs)."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1788
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1824
 msgid "TCP Layer 3 Master Device (tcp_l3mdev) accept"
 msgstr "Glactar le Gléas Máistir Sraith 3 TCP (tcp_l3mdev)"
 
@@ -12469,8 +12717,8 @@ msgid "TLS 1.3 or newer cipher"
 msgstr "TLS 1.3 nó cipher níos nuaí"
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1275
-msgid "TLS cet profile"
-msgstr "Próifíl TLS cet"
+msgid "TLS cert profile"
+msgstr ""
 
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1057
 msgid "TLS cipher"
@@ -12571,7 +12819,7 @@ msgstr ""
 "leat, na <abbr title=\"Identity Association Identifier\">IAID</abbr>s an "
 "óstaigh seo."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1025
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1026
 msgid ""
 "The <abbr title=\"Maximum Transmission Unit\">MTU</abbr> to be published in "
 "<abbr title=\"Router Advertisement, ICMPv6 Type 134\">RA</abbr> messages. "
@@ -12581,7 +12829,7 @@ msgstr ""
 "dteachtaireachtaí <abbr title=\"Fógra Ródaire, ICMPv6 Cineál 134\">RA</"
 "abbr>. 1280 bytes ar a laghad."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:910
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:911
 msgid ""
 "The <em>Managed address configuration</em> (M) flag indicates that IPv6 "
 "addresses are available via DHCPv6."
@@ -12589,7 +12837,7 @@ msgstr ""
 "Léiríonn an bhratach <em>Cumraíocht seoltaí bainistithe</em> (M) go bhfuil "
 "seoltaí IPv6 ar fáil trí DHCPv6."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:914
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:915
 msgid ""
 "The <em>Mobile IPv6 Home Agent</em> (H) flag indicates that the device is "
 "also acting as Mobile IPv6 home agent on this link."
@@ -12598,7 +12846,7 @@ msgstr ""
 "an gléas ag gníomhú mar ghníomhaire baile Soghluaiste IPv6 ar an nasc seo "
 "freisin."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:912
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:913
 msgid ""
 "The <em>Other configuration</em> (O) flag indicates that other information, "
 "such as DNS servers, is available via DHCPv6."
@@ -12617,7 +12865,7 @@ msgstr ""
 "Ní mór feidhmiúlacht DHCPv4 a chumasú ar bhonn in aghaidh an chomhéadain "
 "freisin."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1210
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1211
 msgid ""
 "The DNS server entries in the local resolv.conf are primarily sorted by the "
 "weight specified here"
@@ -12725,7 +12973,7 @@ msgid "The MTU must not exceed the parent device MTU of %d bytes"
 msgstr ""
 "Ní chóir go mbeadh an MTU níos mó ná an MTU tuismitheoireachta %d bytes"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:938
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:939
 msgid ""
 "The PD <em>preferred</em> (P) flag indicates that the network prefers "
 "clients use PD instead of individual addresses via DHCPv6 or SLAAC. Requires "
@@ -12734,6 +12982,13 @@ msgstr ""
 "Léiríonn an bhratach PD <em>preferred</em> (P) gur fearr leis an líonra go n-"
 "úsáideann cliaint PD seachas seoltaí aonair trí DHCPv6 nó SLAAC. Éilíonn sé "
 "DHCPv6 agus DHCPv6-PD."
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:162
+msgid ""
+"The Switch / VLAN configuration view is new and still considered "
+"experimental. Bugs in this view may result in network misconfiguration that "
+"can leave your device unreachable over the network."
+msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1434
 msgid "The VLAN ID must be unique"
@@ -12778,6 +13033,12 @@ msgstr ""
 "ionas nach gcuirfidh aon fhreastalaí ainm réamhtheachtacha faisnéis seoladh "
 "an chliaint leis ach an oiread."
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:52
+msgid ""
+"The bridge device \"%s\" has a VLAN configuration that this view cannot "
+"represent."
+msgstr ""
+
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:323
 msgid ""
 "The checkbox cannot be modified unless the <code>yggdrasil-jumper</code> "
@@ -12804,7 +13065,7 @@ msgstr ""
 msgid "The default (%s) is zero for both IPv4 and IPv6."
 msgstr "Is é an réamhshocrú (%s) ná náid do IPv4 agus IPv6 araon."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1776
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1812
 msgid ""
 "The default <abbr title=\"DHCP Unique Identifier\">DUID</abbr> for this "
 "device, used when acting as a DHCP server or client. The client identifier "
@@ -12846,8 +13107,8 @@ msgstr ""
 msgid "The device name \"%s\" is already taken"
 msgstr "Tá ainm an fheiste “%s” tógtha cheana féin"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:415
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:449
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:416
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:450
 msgid ""
 "The existing network configuration needs to be changed for LuCI to function "
 "properly."
@@ -12952,11 +13213,11 @@ msgstr "Ainm óstach an fhreastalaí tosaithe"
 msgid "The interface could not be found"
 msgstr "Ní fhéadfaí an comhéadan a fháil"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1377
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1378
 msgid "The interface name is already used"
 msgstr "Úsáidtear ainm an chomhéadain cheana féin"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1384
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1385
 msgid "The interface name is too long"
 msgstr "Tá ainm an chomhéadain rófhada"
 
@@ -13027,7 +13288,7 @@ msgstr ""
 "an trácht níos lú pléasctha, de réir mar a scaiptear freagraí óstach thar "
 "eatramh níos mó"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1044
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1045
 msgid ""
 "The maximum hops to be published in <abbr title=\"Router Advertisement\">RA</"
 "abbr> messages. Maximum is 255 hops."
@@ -13094,6 +13355,13 @@ msgstr ""
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/reboot.js:42
 msgid "The reboot command failed with code %d"
 msgstr "Theip ar an ordú athbhútáil le cód %d"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:929
+msgid ""
+"The requested change conflicts with the existing native VLAN assignment of "
+"one or more selected ports. No change was made; a port cannot have the same "
+"VLAN as both native and tagged."
+msgstr ""
 
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/flash.js:147
 msgid "The restore command failed with code %d"
@@ -13225,8 +13493,8 @@ msgstr ""
 "Níl formáid tacaithe sa chomhad íomhá uaslódáilte. Déan cinnte go roghnaíonn "
 "tú an fhormáid íomhá cineálach do d'ardán."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1749
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1761
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1785
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1797
 msgid "The value is overridden by configuration."
 msgstr "Déantar an luach a shárú trí chumraíocht."
 
@@ -13238,7 +13506,7 @@ msgstr ""
 "Sonraíonn an luach an t-eatramh (milleasoicind) ina ndéanann batman-adv "
 "tuilte an líonra lena fhaisnéis phrótacail."
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:779
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:800
 msgid ""
 "There are legacy iptables rules present on the system. Mixing iptables and "
 "nftables rules is discouraged and may lead to incomplete traffic filtering."
@@ -13281,7 +13549,12 @@ msgstr ""
 "Níl an cineál fíordheimhnithe seo infheidhme maidir leis an modh EAP "
 "roghnaithe."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1777
+#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:48
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:56
+msgid "This does not look like a valid PEM file"
+msgstr "Ní chuma é seo cosúil le comhad bailí PEM"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1813
 msgid ""
 "This identifier is randomly generated the first time the device is booted."
 msgstr ""
@@ -13434,7 +13707,7 @@ msgstr ""
 "Taispeánann an leathanach seo na méadrachtaí gan sreang, do gach comhéadan "
 "raidió atá ar fáil."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1772
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1808
 msgid "This prefix is randomly generated at first install."
 msgstr "Gintear an réimír seo go randamach ag an gcéad shuiteáil."
 
@@ -13545,11 +13818,11 @@ msgstr ""
 msgid "ToS"
 msgstr "Téarmaí Seirbhíse"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1097
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1098
 msgid "Toggle IPv6 PD via DHCPv6."
 msgstr "Athraigh IPv6 PD trí DHCPv6."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1840
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1876
 msgid "Tone"
 msgstr "Tón"
 
@@ -13585,11 +13858,11 @@ msgstr "Tráchta"
 msgid "Traffic Class"
 msgstr "Rang Tráchta"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:629
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:650
 msgid "Traffic filter chain \"%h\""
 msgstr "Slabhra scagaire tráchta “%h”"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:548
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:563
 msgctxt "nft counter"
 msgid "Traffic matched by rule: %.1000mPackets, %.1024mBytes"
 msgstr "Trácht meaitseáilte de réir riail: %.1000mPacáistí, %.1024mBeart"
@@ -13677,7 +13950,7 @@ msgstr "Comhéadan Tolláin"
 msgid "Tunnel Link"
 msgstr "Nasc Tollán"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1703
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1704
 msgid "Tunnel device"
 msgstr "Gléas tollán"
 
@@ -13690,7 +13963,7 @@ msgid "Tx-Power"
 msgstr "Tx-Cumhacht"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:53
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1737
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1738
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/60_wifi.js:178
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/map.js:43
 #: protocols/luci-proto-openvpn/htdocs/luci-static/resources/protocol/openvpn.js:1672
@@ -13709,7 +13982,7 @@ msgstr "Cineál feiste a úsáidtear"
 msgid "UC"
 msgstr "UC"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1792
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1828
 msgid "UDP Layer 3 Master Device (udp_l3mdev) accept"
 msgstr "Glactar le Gléas Máistir Sraith 3 UDP (udp_l3mdev)"
 
@@ -13740,7 +14013,7 @@ msgstr "UDP:"
 msgid "UID-range"
 msgstr "Raon UID"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1771
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1807
 msgid "ULA for IPv6 is analogous to IPv4 private network addressing."
 msgstr "Tá ULA do IPv6 cosúil le seoladh líonra príobháideach IPv4."
 
@@ -13856,7 +14129,7 @@ msgstr ""
 "Mura bhfuil tic ann ciallaíonn sé go bhfuil an t-idirghabhálaí crios ama "
 "(m.sh. GMT+1) le feiceáil"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1572
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1573
 msgid "Unconfigure"
 msgstr "Díchumraigh"
 
@@ -13872,7 +14145,7 @@ msgstr "Unet"
 msgid "Unexpected reply data format"
 msgstr "Formáid sonraí freagra gan choinne"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1770
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1806
 msgid ""
 "Unique Local Address (%s) - prefix <code>fd00::/8</code> (the L bit is "
 "always 1)."
@@ -13886,8 +14159,8 @@ msgstr ""
 "Aonaid: dBm. Áit a bhfuil -255 ar an leibhéal is laige, agus -10 ar an "
 "leibhéal is láidre."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1001
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1010
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1002
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1011
 msgid "Units: milliseconds. 0 means unspecified."
 msgstr "Aonaid: milleasoicindí. Ciallaíonn 0 neamhshonraithe."
 
@@ -13953,6 +14226,10 @@ msgstr "Cineál MAP gan tacaíocht"
 #: protocols/luci-proto-yggdrasil/htdocs/luci-static/resources/protocol/yggdrasil.js:37
 msgid "Unsupported URI scheme in %s"
 msgstr "Scéim URI gan tacaíocht i %s"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:50
+msgid "Unsupported VLAN configuration"
+msgstr ""
 
 #: modules/luci-compat/luasrc/model/network/proto_ncm.lua:69
 #: protocols/luci-proto-ncm/htdocs/luci-static/resources/protocol/ncm.js:31
@@ -14030,7 +14307,7 @@ msgstr ""
 "em> do rannáin gan ainm 'wifi-iface,' agus athsheolfar an líonra chun an "
 "chumraíocht nuashonraithe a chur i bhfeidhm."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:416
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:417
 msgid ""
 "Upon pressing \"Continue\", bridges configuration will be updated and the "
 "network will be restarted to apply the updated configuration."
@@ -14039,7 +14316,7 @@ msgstr ""
 "nuashonrú agus atosófar an líonra chun an chumraíocht nuashonraithe a chur i "
 "bhfeidhm."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:450
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:451
 msgid ""
 "Upon pressing \"Continue\", ifname options will get renamed and the network "
 "will be restarted to apply the updated configuration."
@@ -14085,8 +14362,9 @@ msgstr "Úsáid geata DHCP"
 msgid "Use DHCPv6"
 msgstr "Úsáid DHCPv6"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1201
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1202
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:145
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:162
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:139
 msgid "Use DNS servers advertised by peer"
 msgstr "Úsáid freastalaithe DNS a fógraíonn piaraí"
@@ -14128,7 +14406,7 @@ msgstr "Úsáid mar chóras comhaid fréimhe (/)"
 msgid "Use broadcast flag"
 msgstr "Úsáid bratach craolta"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1507
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1508
 msgid "Use builtin IPv6-management"
 msgstr "Úsáid bainistíocht ionsuite IPv6"
 
@@ -14136,20 +14414,22 @@ msgstr "Úsáid bainistíocht ionsuite IPv6"
 msgid "Use carrier status instead of MII result"
 msgstr "Úsáid stádas iompróra in ionad an toraidh MII"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1205
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1206
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:149
 msgid "Use custom DNS servers"
 msgstr "Úsáid freastalaithe saincheaptha DNS"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1197
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1198
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:134
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:158
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:128
 msgid "Use default gateway"
 msgstr "Úsáid geata réamhshocrú"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1214
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1215
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/ipip6.js:73
 #: protocols/luci-proto-mbim/htdocs/luci-static/resources/protocol/mbim.js:139
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:166
 #: protocols/luci-proto-qmi/htdocs/luci-static/resources/protocol/qmi.js:133
 msgid "Use gateway metric"
 msgstr "Úsáid méadrach geata"
@@ -14187,14 +14467,14 @@ msgstr "Úsáid teastais chórais"
 msgid "Use system certificates for inner-tunnel"
 msgstr "Úsáid teastais chórais le haghaidh tollán istigh"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:710
-msgid "Use the %s Button to add a new %s."
-msgstr "Úsáid an Cnaipe %s chun %s nua a chur leis."
-
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:656
 msgctxt "use the add button to add a new tag"
-msgid "Use the %s button to add a new %s."
-msgstr "Úsáid an cnaipe %s chun %s nua a chur leis."
+msgid "Use the <em>%s</em> button to add a new %s."
+msgstr "Úsáid an cnaipe <em>%s</em> chun %s nua a chur leis."
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:710
+msgid "Use the <em>Add</em> Button to add a new %s."
+msgstr "Úsáid an cnaipe <em>Cuir leis</em> chun %s nua a chur leis."
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js:777
 msgid "Use the <em>Add</em> Button to add a new UC."
@@ -14262,6 +14542,7 @@ msgid "User"
 msgstr "Úsáideoir"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:154
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:106
 msgid "User certificate (PEM encoded)"
 msgstr "Teastas úsáideora (ionchódaithe PEM)"
 
@@ -14270,11 +14551,13 @@ msgid "User identifier"
 msgstr "Aitheantóir úsáideora"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:166
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:118
 msgid "User key (PEM encoded)"
 msgstr "Eochair úsáideora (ionchódaithe PEM)"
 
 #: modules/luci-base/ucode/template/sysauth.ut:29
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:143
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:101
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:56
 #: themes/luci-theme-bootstrap/ucode/template/themes/bootstrap/sysauth.ut:13
 msgid "Username"
@@ -14292,11 +14575,11 @@ msgstr "Úsáid <strong>%h</strong> sa sreafa"
 msgid "VC"
 msgstr "VC"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1908
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1944
 msgid "VC-Mux"
 msgstr "VC-Mux"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1856
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1892
 msgid "VDSL"
 msgstr "VDSL"
 
@@ -14305,20 +14588,41 @@ msgctxt "MACVLAN mode"
 msgid "VEPA (Virtual Ethernet Port Aggregator)"
 msgstr "VEPA (Comhiomlánóir Port Ethernet Fíorúil)"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:544
+msgid "VLAN"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:1016
+msgid "VLAN %d does not exist."
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:794
+msgid "VLAN %d is already configured."
+msgstr ""
+
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:455
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1694
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1695
 msgid "VLAN (802.1ad)"
 msgstr "VLAN (802.1ad)"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:454
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1691
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1692
 msgid "VLAN (802.1q)"
 msgstr "VLAN (802.1q)"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:526
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1415
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:455
 msgid "VLAN ID"
 msgstr "ID VLAN"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/tools/bridgevlan.js:226
+msgid "VLAN ID %s is outside the valid range %d–%d."
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:447
+msgid "VLANs"
+msgstr ""
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:171
 msgid "VLANs on %q"
@@ -14343,10 +14647,24 @@ msgstr "Seoladh áitiúil VPN"
 msgid "VPN Local port"
 msgstr "Port áitiúil VPN"
 
+#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:94
+msgid "VPN Protocol"
+msgstr "Prótacal VPN"
+
+#: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:103
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:93
 #: protocols/luci-proto-ppp/htdocs/luci-static/resources/protocol/pptp.js:58
 #: protocols/luci-proto-vpnc/htdocs/luci-static/resources/protocol/vpnc.js:39
 msgid "VPN Server"
 msgstr "Freastalaí VPN"
+
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:154
+msgid "VPN Server certificate's SHA256 hash"
+msgstr "Hash SHA256 deimhniú Freastalaí VPN"
+
+#: protocols/luci-proto-openfortivpn/htdocs/luci-static/resources/protocol/openfortivpn.js:96
+msgid "VPN Server port"
+msgstr "Port freastalaí VPN"
 
 #: protocols/luci-proto-openconnect/htdocs/luci-static/resources/protocol/openconnect.js:141
 msgid "VPN Server's certificate SHA1 hash"
@@ -14407,7 +14725,7 @@ msgstr "Díoltóir"
 msgid "Vendor Class to send when requesting DHCP"
 msgstr "Aicme Díoltóra le seoladh agus DHCP á iarraidh"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:313
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:328
 msgid "Verdict map: <var>%h</var> is"
 msgstr "Léarscáil bhreithiúnais: is é <var>%h</var>"
 
@@ -14435,12 +14753,12 @@ msgid "Via shall be specified when %s is a multicast address"
 msgstr "Sonrófar Via nuair is seoladh ilchraolacháin é %s"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:457
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1709
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1710
 msgid "Virtual Ethernet"
 msgstr "Ethernet Fíorúil"
 
 #: modules/luci-base/htdocs/luci-static/resources/network.js:3057
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1712
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1713
 msgid "Virtual Routing and Forwarding (VRF)"
 msgstr "Ródáil agus Aghaidh Fíorúil (VRF)"
 
@@ -14536,7 +14854,7 @@ msgstr ""
 "Nuair a mheaitseálann óstach iontráil ansin socraítear an clib speisialta "
 "%s. Úsáid %s chun gach óstach aitheanta a mheaitseáil."
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1298
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1299
 msgid ""
 "When delegating prefixes to multiple downstreams, interfaces with a higher "
 "preference value are considered first when allocating subnets."
@@ -14758,6 +15076,16 @@ msgstr ""
 "Is cosúil go bhfuil tú ceangailte leis an bhfeiste faoi láthair tríd an "
 "gcomhéadan “%h”. Ar mhaith leat an comhéadan a dhúnadh síos i ndáiríre?"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:827
+msgid ""
+"You are about to remove VLAN %d%s. This will also remove the VLAN from every "
+"port that currently has it assigned (tagged or untagged)."
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:73
+msgid "You can enable VLAN filtering on a bridge from the"
+msgstr ""
+
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/startup.js:112
 msgid ""
 "You can enable or disable installed init scripts here. Changes will be "
@@ -14820,6 +15148,12 @@ msgstr ""
 msgid "and above"
 msgstr "agus thuas"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:59
+msgid ""
+"and either correct the unusual configuration or remove the offending VLAN "
+"assignments before returning here."
+msgstr ""
+
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/dmesg.js:261
 msgid "and:"
 msgstr "agus:"
@@ -14834,9 +15168,9 @@ msgid "any"
 msgstr "aon"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1149
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1841
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1849
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1854
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1877
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1885
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1890
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:88
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:103
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/routes.js:141
@@ -14851,7 +15185,7 @@ msgid "auto"
 msgstr "uathoibríoch"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:147
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:883
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:884
 msgid "automatic"
 msgstr "uathoibrithe"
 
@@ -14879,7 +15213,7 @@ msgstr "BaseT"
 msgid "between:"
 msgstr "idir:"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1914
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1950
 msgid "bridged"
 msgstr "droicheadaithe"
 
@@ -14959,11 +15293,11 @@ msgstr "díchumasú"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:147
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:1165
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:749
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:871
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1088
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1177
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1250
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:750
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:872
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1089
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1178
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1251
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js:99
 #: protocols/luci-proto-ipv6/htdocs/luci-static/resources/protocol/dhcpv6.js:26
 msgid "disabled"
@@ -15009,7 +15343,7 @@ msgid "e.g: dump"
 msgstr "m.sh.: dumpáil"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:147
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:751
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:752
 msgid "enabled"
 msgstr "cumasaithe"
 
@@ -15042,7 +15376,7 @@ msgctxt "DHCPv6 address request mode"
 msgid "force"
 msgstr "fórsa"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:887
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:888
 msgid "forced"
 msgstr "éigeantach"
 
@@ -15080,9 +15414,9 @@ msgctxt "nft unit"
 msgid "hour"
 msgstr "uair an chloig"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:877
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1094
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1181
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:878
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1095
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1182
 msgid "hybrid mode"
 msgstr "modh hibrideach"
 
@@ -15136,7 +15470,16 @@ msgstr "l2miss: Sraith 2 chailleann"
 msgid "l3miss: Layer 3 miss"
 msgstr "l3miss: Ciseal 3 chailleann"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:909
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:291
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:468
+msgid "label"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:553
+msgid "label (optional)"
+msgstr ""
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:910
 msgid "managed config (M)"
 msgstr "cumraíocht bhainistithe (M)"
 
@@ -15161,7 +15504,7 @@ msgstr "nóiméad"
 msgid "minutes"
 msgstr "nóiméad"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:913
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:914
 msgid "mobile home agent (H)"
 msgstr "gníomhaire tí soghluaiste (H)"
 
@@ -15175,6 +15518,7 @@ msgid "no"
 msgstr "níl"
 
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:94
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:231
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:76
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/29_ports.js:243
 msgid "no link"
@@ -15191,8 +15535,9 @@ msgstr "luach neamh-folamh"
 
 #: modules/luci-base/htdocs/luci-static/resources/form.js:4089
 #: modules/luci-mod-network/htdocs/luci-static/resources/tools/network.js:841
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:916
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:960
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:917
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:961
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:823
 #: modules/luci-mod-system/htdocs/luci-static/resources/view/system/plugins.js:106
 #: protocols/luci-proto-modemmanager/htdocs/luci-static/resources/protocol/modemmanager.js:170
 #: protocols/luci-proto-wireguard/htdocs/luci-static/resources/view/wireguard/status.js:48
@@ -15228,7 +15573,7 @@ msgstr "odhcpd"
 msgid "off"
 msgstr "as"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:885
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:886
 msgid "on available prefix"
 msgstr "ar réimír atá ar fáil"
 
@@ -15236,11 +15581,11 @@ msgstr "ar réimír atá ar fáil"
 msgid "open network"
 msgstr "líonra oscailte"
 
-#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:345
+#: modules/luci-mod-status/htdocs/luci-static/resources/view/status/nftables.js:360
 msgid "or"
 msgstr "nó"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:911
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:912
 msgid "other config (O)"
 msgstr "cumraíocht eile (O)"
 
@@ -15258,6 +15603,10 @@ msgctxt "nft unit"
 msgid "packets"
 msgstr "paicéid"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:75
+msgid "page."
+msgstr ""
+
 #: modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/30_network.js:46
 msgctxt "packets, abbreviated"
 msgid "pkts"
@@ -15271,7 +15620,7 @@ msgstr "luach deachúil dearfach"
 msgid "positive integer value"
 msgstr "luach sláimhir dhearfach"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:937
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:938
 msgid "prefix delegation (PD) preferred (P)"
 msgstr "toscaireacht réimír (PD) is fearr (P)"
 
@@ -15291,13 +15640,13 @@ msgstr ""
 "laghdaíonn sé lasbhaird trí theachtaireachtaí tionscnóra a bhailiú agus a "
 "chomhiomlánú i bpacáiste amháin seachas go leor"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:875
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1092
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1179
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:876
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1093
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1180
 msgid "relay mode"
 msgstr "modh athsheolacháin"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1915
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1951
 msgid "routed"
 msgstr "treoraithe"
 
@@ -15313,8 +15662,8 @@ msgstr "ag cuardach"
 msgid "sec"
 msgstr "soicind"
 
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:873
-#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1090
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:874
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/interfaces.js:1091
 msgid "server mode"
 msgstr "modh freastalaí"
 
@@ -15444,6 +15793,10 @@ msgstr "neamhshonraithe -nó- cruthaigh:"
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch.js:350
 msgid "untagged"
 msgstr "gan clib"
+
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:239
+msgid "up"
+msgstr ""
 
 #: modules/luci-base/htdocs/luci-static/resources/validation.js:510
 #: modules/luci-mod-network/htdocs/luci-static/resources/view/network/dns.js:72
@@ -15593,6 +15946,14 @@ msgstr "luach sláimhir bailí"
 msgid "valid multicast MAC address"
 msgstr "seoladh MAC bailí multicast"
 
+#: modules/luci-base/htdocs/luci-static/resources/validation.js:1006
+msgid ""
+"valid network device name between 1 and 15 characters not containing \":\", "
+"\"/\", \"%\" or spaces"
+msgstr ""
+"ainm bailí feiste líonra idir 1 agus 15 carachtar nach bhfuil “:”, “/”, “%” "
+"nó spásanna"
+
 #: modules/luci-base/htdocs/luci-static/resources/validation.js:1004
 msgid "valid network device name, not \".\" or \"..\""
 msgstr "ainm bailí gléas líonra, ní “.” nó “..”"
@@ -15702,6 +16063,33 @@ msgstr "Tugann {example_nx} ar ais {nxdomain}."
 msgid "« Back"
 msgstr "“Ar ais"
 
+#: modules/luci-mod-network/htdocs/luci-static/resources/view/network/switch-vlan.js:926
+msgid "… and %d more."
+msgstr ""
+
+#~ msgid ""
+#~ "CA certificate (PEM encoded; Use instead of system-wide store to verify "
+#~ "the gateway certificate."
+#~ msgstr ""
+#~ "Teastas CA (ionchódaithe PEM; Úsáid in ionad stór ar fud an chórais chun "
+#~ "deimhniú an geata a fhíorú."
+
+#~ msgid "TLS cet profile"
+#~ msgstr "Próifíl TLS cet"
+
+#~ msgid "<em>%s</em>"
+#~ msgstr "<em>%s</em>"
+
+#~ msgid "<em>Add</em>"
+#~ msgstr "<em>Cuir leis</em>"
+
+#~ msgid "Use the %s Button to add a new %s."
+#~ msgstr "Úsáid an Cnaipe %s chun %s nua a chur leis."
+
+#~ msgctxt "use the add button to add a new tag"
+#~ msgid "Use the %s button to add a new %s."
+#~ msgstr "Úsáid an cnaipe %s chun %s nua a chur leis."
+
 #~ msgid "Changes the administrator password for accessing the device"
 #~ msgstr "Athraíonn sé pasfhocal an riarthóra chun an gléas a rochtain"
 
@@ -15716,52 +16104,6 @@ msgstr "“Ar ais"
 
 #~ msgid "IP sets"
 #~ msgstr "Leagann IP"
-
-#~ msgid ""
-#~ "CA certificate (PEM encoded; Use instead of system-wide store to verify "
-#~ "the gateway certificate."
-#~ msgstr ""
-#~ "Teastas CA (ionchódaithe PEM; Úsáid in ionad stór ar fud an chórais chun "
-#~ "deimhniú an geata a fhíorú."
-
-#~ msgid "Invalid Base64 key string"
-#~ msgstr "Eochair sreang Base64 neamhbhailí"
-
-#~ msgid "Local IP address"
-#~ msgstr "Seoladh IP áitiúil"
-
-#~ msgid "OpenConnect"
-#~ msgstr "Oscailceangail"
-
-#~ msgid "OpenFortivpn"
-#~ msgstr "OpenFortivpn"
-
-#~ msgid "Optional, in seconds. If set to '0', no reconnect is attempted."
-#~ msgstr ""
-#~ "Roghnach, i soicindí. Má tá sé socraithe ar '0', ní dhéanfar iarracht ar "
-#~ "aon athnasc."
-
-#~ msgid "Persistent reconnect interval"
-#~ msgstr "Eatramh athnasctha leanúnach"
-
-#~ msgid "This does not look like a valid PEM file"
-#~ msgstr "Ní chuma é seo cosúil le comhad bailí PEM"
-
-#~ msgid "VPN Protocol"
-#~ msgstr "Prótacal VPN"
-
-#~ msgid "VPN Server certificate's SHA256 hash"
-#~ msgstr "Hash SHA256 deimhniú Freastalaí VPN"
-
-#~ msgid "VPN Server port"
-#~ msgstr "Port freastalaí VPN"
-
-#~ msgid ""
-#~ "valid network device name between 1 and 15 characters not containing \":"
-#~ "\", \"/\", \"%\" or spaces"
-#~ msgstr ""
-#~ "ainm bailí feiste líonra idir 1 agus 15 carachtar nach bhfuil “:”, “/”, "
-#~ "“%” nó spásanna"
 
 #~ msgid "Add template based configuration"
 #~ msgstr "Cuir cumraíocht bunaithe teimpléad"
