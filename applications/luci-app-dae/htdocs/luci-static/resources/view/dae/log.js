@@ -30,7 +30,7 @@ return view.extend({
 			}, _('Collecting data…'))
 		);
 
-		poll.add(L.bind(function() {
+		let logRefresh = function() {
 			return fs.read_direct('/var/log/dae/dae.log', 'text')
 			.then(function(content) {
 				let log = E('pre', { 'wrap': 'pre' }, [
@@ -52,15 +52,29 @@ return view.extend({
 
 				dom.content(log_textarea, log);
 			});
-		}));
+		};
+
+		poll.add(L.bind(logRefresh));
 
 		const scrollDownButton = E('button', {
 				'id': 'scrollDownButton',
 				'class': 'cbi-button cbi-button-neutral',
 			}, _('Scroll to tail', 'scroll to bottom (the tail) of the log file')
 		);
-		scrollDownButton.addEventListener('click', () => {
-			scrollUpButton.focus();
+		scrollDownButton.addEventListener('click', function() {
+			window.scrollTo(0, document.body.scrollHeight);
+		});
+
+		const clearLogButton = E('button', {
+				'id': 'clearLogButton',
+				'class': 'cbi-button cbi-button-negative',
+				'style': 'margin-left: 8px',
+			}, _('Clear log')
+		);
+		clearLogButton.addEventListener('click', function() {
+			fs.write('/var/log/dae/dae.log', '').then(logRefresh).catch(function(e) {
+				console.error('Failed to clear log:', e);
+			});
 		});
 
 		const scrollUpButton = E('button', {
@@ -68,15 +82,15 @@ return view.extend({
 				'class': 'cbi-button cbi-button-neutral',
 			}, _('Scroll to head', 'scroll to top (the head) of the log file')
 		);
-		scrollUpButton.addEventListener('click', () => {
-			scrollDownButton.focus();
+		scrollUpButton.addEventListener('click', function() {
+			window.scrollTo(0, 0);
 		});
 
 		return E([
 			E('style', [ css ]),
 			E('h2', {}, [ _('Log') ]),
 			E('div', {'class': 'cbi-map'}, [
-				E('div', {'style': 'padding-bottom: 20px'}, [scrollDownButton]),
+				E('div', {'style': 'padding-bottom: 20px'}, [scrollDownButton, clearLogButton]),
 				E('div', {'class': 'cbi-section'}, [
 					log_textarea,
 					E('div', {'style': 'text-align:right'},
