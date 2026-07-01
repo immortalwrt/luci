@@ -9,7 +9,18 @@
 return view.extend({
 	render() {
 		/* Thanks to luci-app-aria2 */
-		let css = '								#log_textarea {								text-align: left;					}								#log_textarea pre {							padding: .5rem;							word-break: break-all;						margin: 0;						}								.description {								background-color: #33ccff;				}';
+		let css = '					\
+			#log_textarea {				\
+				text-align: left;		\
+			}					\
+			#log_textarea pre {			\
+				padding: .5rem;			\
+				word-break: break-all;		\
+				margin: 0;			\
+			}					\
+			.description {				\
+				background-color: #33ccff;	\
+			}';
 
 		let log_textarea = E('div', { 'id': 'log_textarea' },
 			E('img', {
@@ -50,7 +61,7 @@ return view.extend({
 				'class': 'cbi-button cbi-button-neutral',
 			}, _('Scroll to tail', 'scroll to bottom (the tail) of the log file')
 		);
-		scrollDownButton.addEventListener('click', function() {
+		scrollDownButton.addEventListener('click', () => {
 			scrollUpButton.scrollIntoView();
 			scrollDownButton.blur();
 		});
@@ -72,7 +83,7 @@ return view.extend({
 				'class': 'cbi-button cbi-button-neutral',
 			}, _('Scroll to head', 'scroll to top (the head) of the log file')
 		);
-		scrollUpButton.addEventListener('click', function() {
+		scrollUpButton.addEventListener('click', () => {
 			scrollDownButton.scrollIntoView();
 			scrollUpButton.blur();
 		});
