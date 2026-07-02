@@ -561,10 +561,24 @@ function gen_outbound(flag, node, tag, proxy_table)
 				hop_interval_max = interval_max,
 				up_mbps = (node.hysteria2_up_mbps and tonumber(node.hysteria2_up_mbps)) and tonumber(node.hysteria2_up_mbps) or nil,
 				down_mbps = (node.hysteria2_down_mbps and tonumber(node.hysteria2_down_mbps)) and tonumber(node.hysteria2_down_mbps) or nil,
-				obfs = node.hysteria2_obfs_type and {
-					type = node.hysteria2_obfs_type,
-					password = node.hysteria2_obfs_password
-				} or nil,
+				obfs = (function(t)
+					if not t or t == "" then return nil end
+					local o = {
+						type = t,
+						password = node.hysteria2_obfs_password
+					}
+					if t == "gecko" then
+						local min = tonumber(node.hysteria2_obfs_MinPacketSize) or 512
+						local max = tonumber(node.hysteria2_obfs_MaxPacketSize) or 1200
+						if min <= 0 or min > max or max > 2048 then
+							min = 512
+							max = 1200
+						end
+						o.min_packet_size = min
+						o.max_packet_size = max
+					end
+					return o
+				end)(node.hysteria2_obfs_type),
 				password = node.hysteria2_auth_password or nil,
 				idle_timeout = (function(t)
 					if not version_ge_1_14_0 then return nil end
@@ -583,8 +597,11 @@ function gen_outbound(flag, node, tag, proxy_table)
 					result.server_port = nil
 					local realm = api.parse_realm_uri(node.hysteria2_realm_url)
 					if realm then
-						realm.server_url = realm.server_url and "https://" .. realm.server_url or nil
+						realm.server_url = (realm.scheme == "realm+http" and "http://" or "https://") .. realm.server_url
 						realm.stun_servers = realm.stun_servers or node.hysteria2_realm_stun
+						realm.scheme = nil
+						realm.address = nil
+						realm.port = nil
 						return realm
 					end
 					return nil
@@ -914,10 +931,24 @@ function gen_config_server(node)
 		protocol_table = {
 			up_mbps = (node.hysteria2_ignore_client_bandwidth ~= "1" and node.hysteria2_up_mbps and tonumber(node.hysteria2_up_mbps)) and tonumber(node.hysteria2_up_mbps) or nil,
 			down_mbps = (node.hysteria2_ignore_client_bandwidth ~= "1" and node.hysteria2_down_mbps and tonumber(node.hysteria2_down_mbps)) and tonumber(node.hysteria2_down_mbps) or nil,
-			obfs = node.hysteria2_obfs_type and {
-				type = node.hysteria2_obfs_type,
-				password = node.hysteria2_obfs_password
-			} or nil,
+			obfs = (function(t)
+				if not t or t == "" then return nil end
+				local o = {
+					type = t,
+					password = node.hysteria2_obfs_password
+				}
+				if t == "gecko" then
+					local min = tonumber(node.hysteria2_obfs_MinPacketSize) or 512
+					local max = tonumber(node.hysteria2_obfs_MaxPacketSize) or 1200
+					if min <= 0 or min > max or max > 2048 then
+						min = 512
+						max = 1200
+					end
+					o.min_packet_size = min
+					o.max_packet_size = max
+				end
+				return o
+			end)(node.hysteria2_obfs_type),
 			users = {
 				{
 					name = "user1",
@@ -929,8 +960,11 @@ function gen_config_server(node)
 			realm = node.hysteria2_realms and (function()
 				local realm = api.parse_realm_uri(node.hysteria2_realm_url)
 				if realm then
-					realm.server_url = realm.server_url and "https://" .. realm.server_url or nil
+					realm.server_url = (realm.scheme == "realm+http" and "http://" or "https://") .. realm.server_url
 					realm.stun_servers = realm.stun_servers or node.hysteria2_realm_stun
+					realm.scheme = nil
+					realm.address = nil
+					realm.port = nil
 					realm.stun_domain_resolver = "direct"
 					return realm
 				end
@@ -1666,7 +1700,8 @@ function gen_config(var)
 							invert = e.invert == "1" and true or nil
 						}
 						string.gsub(e.domain_list, '[^' .. "\r\n" .. ']+', function(w)
-							if w:find("#") == 1 then return end
+							w = api.trim(w)
+							if w == "" or w:find("#") == 1 then return end
 							if w:find("geosite:") == 1 then
 								local _geosite = w:sub(1 + #"geosite:")  --适配srs
 								local t = geo_rule_set("geosite", _geosite)
@@ -1703,7 +1738,7 @@ function gen_config(var)
 							domain_table.fakedns = true
 						end
 
-						if outboundTag then
+						if outboundTag and (rule.domain or rule.domain_suffix or rule.domain_keyword or rule.domain_regex or rule.rule_set) then
 							table.insert(dns_domain_rules, api.clone(domain_table))
 						end
 					end
@@ -1712,7 +1747,8 @@ function gen_config(var)
 						local ip_cidr = {}
 						local is_private = false
 						string.gsub(e.ip_list, '[^' .. "\r\n" .. ']+', function(w)
-							if w:find("#") == 1 then return end
+							w = api.trim(w)
+							if w == "" or w:find("#") == 1 then return end
 							if w:find("geoip:") == 1 then
 								local _geoip = w:sub(1 + #"geoip:")     --适配srs
 								if _geoip == "private" then
@@ -1760,7 +1796,18 @@ function gen_config(var)
 		end
 	end
 
+	table.insert(route.rules, {
+		action = "route",
+		ip_is_private = true,
+		outbound = "direct"
+	})
+
 	if COMMON.default_outbound_tag then
+		table.insert(route.rules, {
+			action = "route",
+			port_range = { "0:65535" },
+			outbound = COMMON.default_outbound_tag
+		})
 		route.final = COMMON.default_outbound_tag
 	end
 
