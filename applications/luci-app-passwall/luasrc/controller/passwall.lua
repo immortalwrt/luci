@@ -107,6 +107,7 @@ function index()
 	for _, com in ipairs(coms.order) do
 		entry({"admin", "services", appname, "check_" .. com}, call("com_check", com)).leaf = true
 		entry({"admin", "services", appname, "update_" .. com}, call("com_update", com)).leaf = true
+		entry({"admin", "services", appname, "version_" .. com}, call("com_version", com)).leaf = true
 	end
 
 	--[[Backup]]
@@ -804,6 +805,11 @@ function com_update(comname)
 	http_write_json(json)
 end
 
+function com_version(comname)
+	local version = api.get_app_version(comname)
+	http_write_json_ok(version)
+end
+
 function read_rulelist()
 	local rule_type = http.formvalue("type")
 	local rule_path
@@ -1069,10 +1075,20 @@ function fetch_certsha256()
 	local port = (id ~= "") and uci:get(appname, id, "port") or 0
 	local sni = (id ~= "") and uci:get(appname, id, "tls_serverName") or ""
 	sni = (sni ~= "") and sni or address
+	local protocol = uci:get(appname, id, "protocol")
+	local h3, timeout = false, 10
+	if protocol == "hysteria2" then
+		h3 = true
+		timeout = 60
+		if port == 0 then
+			local hop = uci:get(appname, id, "hysteria2_hop") or "0"
+			port = tonumber(hop:match("^%s*(%d+)"))
+		end
+	end
 	if address == "" or port == 0 then
 		http_write_json_error()
 		return
 	end
-	local data = api.fetch_cert_sha256(address, port, sni, 5)
+	local data = api.fetch_cert_sha256(address, port, sni, timeout, h3)
 	http_write_json(data ~= "" and { code = 1, data = data } or { code = 0 })
 end

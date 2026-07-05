@@ -475,6 +475,9 @@ msgstr "负载均衡"
 msgid "Node Addition Method"
 msgstr "节点添加方式"
 
+msgid "Backup Node Addition Method"
+msgstr "后备节点添加方式"
+
 msgid "Manual"
 msgstr "手动"
 
@@ -490,14 +493,15 @@ msgstr "节点匹配规则"
 msgid ""
 "Example: <code>^A && B && !C && D$</code><br>"
 "This means the node remark must start with A (^), include B, exclude C (!), and end with D ($).<br>"
-"Conditions are joined by <code>&&</code>, and their order does not affect the result."
+"Conditions are joined by <code>&&</code> (AND), and their order does not affect the result.<br>"
+"Multiple groups can be separated by <code>||</code> (OR), matching succeeds if any group matches.<br>"
+"Example: <code>A && B || C && D</code> means (A AND B) OR (C AND D)."
 msgstr ""
 "示例：<code>^A && B && !C && D$</code><br>"
 "表示节点备注需同时满足：以 A 开头（^）、包含 B、不包含 C（!）、并以 D 结尾（$）。<br>"
-"多个条件使用 <code>&&</code> 连接，条件顺序不影响结果。"
-
-msgid "Keep the match scope small. Too many nodes can impact router performance."
-msgstr "建议尽量缩小匹配范围，节点过多会增加路由器负载。"
+"多个条件使用 <code>&&</code>（与）连接，条件顺序不影响结果。<br>"
+"多组条件之间可使用 <code>||</code>（或）分隔，任意一组匹配即视为成功。<br>"
+"示例：<code>A && B || C && D</code> 表示 (A 且 B) 或 (C 且 D)。"
 
 msgid "Balancing Strategy"
 msgstr "负载均衡策略"
@@ -781,8 +785,8 @@ msgstr "单位：分钟"
 msgid "stop automatically mode"
 msgstr "定时关闭模式"
 
-msgid "stop Time(Every day)"
-msgstr "关闭时间(每天)"
+msgid "stop Time"
+msgstr "关闭时间"
 
 msgid "stop Interval(Hour)"
 msgstr "关闭间隔(小时)"
@@ -790,8 +794,8 @@ msgstr "关闭间隔(小时)"
 msgid "start automatically mode"
 msgstr "定时开启模式"
 
-msgid "start Time(Every day)"
-msgstr "开启时间(每天)"
+msgid "start Time"
+msgstr "开启时间"
 
 msgid "start Interval(Hour)"
 msgstr "开启间隔(小时)"
@@ -799,8 +803,8 @@ msgstr "开启间隔(小时)"
 msgid "restart automatically mode"
 msgstr "定时重启模式"
 
-msgid "restart Time(Every day)"
-msgstr "重启时间(每天)"
+msgid "restart Time"
+msgstr "重启时间"
 
 msgid "restart Interval(Hour)"
 msgstr "重启间隔(小时)"
@@ -1015,17 +1019,14 @@ msgstr "中国域名列表(Chnlist)更新URL"
 msgid "Rule status"
 msgstr "规则版本"
 
-msgid "Enable auto update rules"
-msgstr "开启自动更新规则"
-
-msgid "Update Time(every day)"
-msgstr "更新时间(每天)"
+msgid "Update Time"
+msgstr "更新时间"
 
 msgid "Update Interval(hour)"
 msgstr "更新间隔(小时)"
 
-msgid "Update Mode"
-msgstr "更新模式"
+msgid "Auto Update Mode"
+msgstr "自动更新模式"
 
 msgid "Loop Mode"
 msgstr "循环"
@@ -1134,9 +1135,6 @@ msgstr "移动中"
 
 msgid "App Update"
 msgstr "组件更新"
-
-msgid "Please confirm that your firmware supports FPU."
-msgstr "请确认你的固件支持 FPU。"
 
 msgid "if you want to run from memory, change the path, /tmp beginning then save the application and update it manually."
 msgstr "如果你希望从内存中运行，请更改路径，/tmp 开头，然后保存应用后，再手动更新。"
@@ -1822,8 +1820,14 @@ msgstr "TLS 用于验证 leaf 证书的 name。"
 msgid "Fetch Manually"
 msgstr "手动获取"
 
-msgid "Fetch Failed"
-msgstr "获取失败"
+msgid "Fetch Failed!"
+msgstr "获取失败！"
+
+msgid "Requires OpenSSL to retrieve the TLS certificate chain fingerprint."
+msgstr "获取 TLS 证书链指纹需要 OpenSSL 支持。"
+
+msgid "QUIC protocols such as HY2 also require curl with http3 support."
+msgstr "HY2 等 QUIC 协议还需要 curl 支持 http3。"
 
 msgid "TLS Certificate (PEM)"
 msgstr "TLS 证书（PEM）"
@@ -2140,3 +2144,6 @@ msgstr "Gecko 包大小（最小）"
 
 msgid "Gecko Packet Size (max)"
 msgstr "Gecko 包大小（最大）"
+
+msgid "valid time (hh:mm)"
+msgstr "有效时间（hh:mm）"

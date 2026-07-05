@@ -3,6 +3,8 @@ local appname = "passwall"
 local has_xray = api.finded_com("xray")
 local has_singbox = api.finded_com("sing-box")
 
+api.set_default_cbi()
+
 m = Map(appname)
 api.set_apply_on_parse(m)
 
@@ -97,13 +99,8 @@ if has_xray or has_singbox then
 	end
 end
 
----- Auto Update
-o = s:option(Flag, "auto_update", translate("Enable auto update rules"))
-o.default = 0
-o.rmempty = false
-
----- Week Update
-o = s:option(ListValue, "week_update", translate("Update Mode"))
+o = s:option(ListValue, "update_week_mode", translate("Auto Update Mode"))
+o:value("", translate("Disable"))
 o:value(8, translate("Loop Mode"))
 o:value(7, translate("Every day"))
 o:value(1, translate("Every Monday"))
@@ -113,29 +110,24 @@ o:value(4, translate("Every Thursday"))
 o:value(5, translate("Every Friday"))
 o:value(6, translate("Every Saturday"))
 o:value(0, translate("Every Sunday"))
-o.default = 7
-o:depends("auto_update", true)
-o.rmempty = true
 
----- Time Update
-o = s:option(ListValue, "time_update", translate("Update Time(every day)"))
-for t = 0, 23 do o:value(t, t .. ":00") end
-o.default = 0
-o:depends("week_update", "0")
-o:depends("week_update", "1")
-o:depends("week_update", "2")
-o:depends("week_update", "3")
-o:depends("week_update", "4")
-o:depends("week_update", "5")
-o:depends("week_update", "6")
-o:depends("week_update", "7")
-o.rmempty = true
+o = s:option(Value, "update_time_mode", translate("Update Time"))
+for t = 0, 23 do o:value(t .. ":00") end
+o.default = "0:00"
+o.datatype = "timehhmm"
+o:depends("update_week_mode", "0")
+o:depends("update_week_mode", "1")
+o:depends("update_week_mode", "2")
+o:depends("update_week_mode", "3")
+o:depends("update_week_mode", "4")
+o:depends("update_week_mode", "5")
+o:depends("update_week_mode", "6")
+o:depends("update_week_mode", "7")
 
----- Interval Update
-o = s:option(ListValue, "interval_update", translate("Update Interval(hour)"))
+o = s:option(ListValue, "update_interval_mode", translate("Update Interval(hour)"))
 for t = 1, 24 do o:value(t, t .. " " .. translate("hour")) end
 o.default = 2
-o:depends("week_update", "8")
+o:depends("update_week_mode", "8")
 o.rmempty = true
 
 ---- 更新选项，始终被js隐藏
@@ -150,8 +142,10 @@ end
 
 s:append(Template(appname .. "/rule/rule_version"))
 
+local cfgname = "shunt_rules"
+
 if has_xray or has_singbox then
-	s = m:section(TypedSection, "shunt_rules", "Sing-Box/Xray " .. translate("Shunt Rule"), "<a style='color: red'>" .. translate("Please note attention to the priority, the higher the order, the higher the priority.") .. "</a>")
+	s = m:section(TypedSection, cfgname, "Sing-Box/Xray " .. translate("Shunt Rule"), "<a style='color: red'>" .. translate("Please note attention to the priority, the higher the order, the higher the priority.") .. "</a>")
 	s.template = "cbi/tblsection"
 	s.anonymous = false
 	s.addremove = true
@@ -173,4 +167,9 @@ if has_xray or has_singbox then
 	o = s:option(DummyValue, "remarks", translate("Remarks"))
 end
 
-return m
+local sortable = Template(appname .. "/cbi/sortable")
+sortable.api = api
+sortable.target_cfgname = cfgname
+m:append(sortable)
+
+return api.return_map(m)
