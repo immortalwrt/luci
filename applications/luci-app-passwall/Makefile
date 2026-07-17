@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-passwall
-PKG_VERSION:=26.7.16
+PKG_VERSION:=26.7.24
 PKG_RELEASE:=1
 
 PKG_CONFIG_DEPENDS:= \
@@ -30,7 +30,7 @@ LUCI_PKGARCH:=all
 LUCI_DEPENDS:=+coreutils +coreutils-base64 +coreutils-nohup +coreutils-timeout +curl \
 	+chinadns-ng +dns2socks +ip-full +libuci-lua +lua +luci-compat +luci-lib-jsonc \
 	+microsocks +resolveip +tcping +lyaml +unzip +ipt2socks \
-	+kmod-nft-socket +kmod-nft-tproxy +kmod-nft-nat \
+	+kmod-nft-socket +kmod-nft-tproxy +kmod-nft-nat +kmod-nf-reject +kmod-nf-reject6 \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Brook:brook \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Haproxy:haproxy \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Hysteria:hysteria \
