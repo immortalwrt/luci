@@ -31,7 +31,7 @@ function killcmd(procid, signal) {
 		signal = 0;
 	}
 	// by default, we simply re-nice a process to check it is running
-	return system(`kill -${signal} ${procid}`);
+	return system(['kill', `-${signal}`, procid]);
 }
 
 function trimnonewline(input) {
@@ -134,7 +134,7 @@ const methods = {
 					if (length(dnsServer) > 0) push(command, '-d', dnsServer);
 					push(command, '-- get_registered_ip');
 
-					const result = system(`${join(' ', command)}`);
+					const result = system(command);
 				}
 
 				lastUpdate = int(readfile(`${rundir}/${section}.update`) || 0);
