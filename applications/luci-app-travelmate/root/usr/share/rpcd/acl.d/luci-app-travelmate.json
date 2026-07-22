@@ -8,19 +8,18 @@
 				]
 			},
 			"uci": [
-				"travelmate"
+				"travelmate",
+				"wireless"
 			]
 		},
 		"read": {
 			"cgi-io": [
+				"download",
 				"exec"
 			],
 			"file": {
 				"/etc/travelmate/*.login": [
 					"list"
-				],
-				"/var/run/travelmate/travelmate.pid": [
-					"read"
 				],
 				"/var/run/travelmate/travelmate.scan": [
 					"read"
@@ -48,6 +47,12 @@
 				],
 				"/etc/init.d/travelmate scan *": [
 					"exec"
+				]
+			},
+			"ubus": {
+				"file": [
+					"exec",
+					"stat"
 				]
 			},
 			"uci": [
