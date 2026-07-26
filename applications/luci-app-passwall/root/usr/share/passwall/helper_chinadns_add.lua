@@ -178,6 +178,10 @@ if not is_file_nonzero(file_vpslist) then
 	uci:foreach(appname, "nodes", function(t)
 		process_address(t.address)
 		process_address(t.download_address)
+		local dns, _ = api.get_domain_port_from_url(t.domain_resolver_dns or t.domain_resolver_dns_https or "")
+		if dns and dns ~= "" then
+			process_address(dns)
+		end
 	end)
 	uci:foreach(appname, "subscribe_list", function(t)  --订阅链接
 		local url, _ = api.get_domain_port_from_url(t.url or "")
@@ -326,11 +330,16 @@ end
 --中国列表
 if CHNLIST ~= "0" and is_file_nonzero(RULES_PATH .. "/chnlist") then
 	if CHNLIST == "direct" then
+		local sets = {
+			setflag .. "psw_chn",
+			setflag .. "psw_chn6"
+		}
+		local suffix = (NFTFLAG == "1") and "_static" or ""
 		tmp_lines = {
 			"chnlist-file " .. RULES_PATH .. "/chnlist",
-			"ipset-name4 " .. setflag .. "psw_chn",
-			"ipset-name6 " .. setflag .. "psw_chn6",
-			"add-tagchn-ip",
+			"ipset-name4 " .. setflag .. "psw_chn" .. suffix,
+			"ipset-name6 " .. setflag .. "psw_chn6" .. suffix,
+			"add-tagchn-ip" .. ((NFTFLAG == "1") and (" " .. table.concat(sets, ",")) or ""),
 			"chnlist-first"
 		}
 		merge_array(config_lines, tmp_lines)
