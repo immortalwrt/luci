@@ -164,22 +164,21 @@ return view.extend({
 	},
 
 	handleReloadDDnsRule(m, section_id, ev) {
-		return fs.exec('/etc/init.d/ddns',
-							[ 'restart', section_id ])
+		return fs.exec('/etc/init.d/ddns', [ 'restart', section_id ])
 			.then(L.bind(m.load, m))
 			.then(L.bind(m.render, m))
 			.catch(function(e) { ui.addNotification(null, E('p', e.message)) });
 	},
 
 	handleStopDDnsRule(m, section_id, ev) {
-		return fs.exec('/usr/lib/ddns/dynamic_dns_lucihelper.sh',
-							[ '-S', section_id, '--', 'stop' ])
+		return fs.exec('/etc/init.d/ddns', [ 'stop', section_id ])
+			.then(L.bind(m.load, m))
 			.then(L.bind(m.render, m))
 			.catch(function(e) { ui.addNotification(null, E('p', e.message)) });
 	},
 
 	handleToggleDDns(m, ev) {
-        let action = this.status['_enabled'];
+		let action = this.status['_enabled'];
 		return this.callInitAction('ddns', action ? 'disable' : 'enable')
 			.then(L.bind(function () { return this.callInitAction('ddns', action ? 'stop' : 'start')}, this))
 			.then(L.bind(m.render, m))
@@ -220,8 +219,8 @@ return view.extend({
 			const stop = rows[i].querySelector('.cbi-section-actions .stop');
 			const cfg_enabled = uci.get('ddns', section_id, 'enabled');
 
-			reload.disabled = (status['_enabled'] == 0 || cfg_enabled == 0);
-			stop.disabled = (!service[section_id].pid);
+			reload.disabled = (cfg_enabled == 0)
+			stop.disabled = !(service[section_id] && service[section_id].pid);
 
 			const host = uci.get('ddns', section_id, 'lookup_host') || _('Configuration Error');
 			const ip = service[section_id]?.ip || _('No Data');
@@ -555,11 +554,9 @@ return view.extend({
 					'title': _('Stop this service'),
 				};
 
-			if (status['_enabled'] == 0 || cfg_enabled == 0)
+			if (cfg_enabled == 0)
 				reload_opt['disabled'] = 'disabled';
-
-			if (!resolved[section_id] || !resolved[section_id].pid ||
-					(resolved[section_id].pid && cfg_enabled == '1'))
+			if (!(resolved[section_id] && resolved[section_id].pid))
 				stop_opt['disabled'] = 'disabled';
 
 			dom.content(tdEl.lastChild, [

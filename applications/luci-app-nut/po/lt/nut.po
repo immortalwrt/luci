@@ -13,7 +13,7 @@ msgstr ""
 "(n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Weblate 2026.5.dev0\n"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:242
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:244
 msgid "Additional Shutdown Time(s)"
 msgstr "Papildomas/-i išjungimo laikas/-ai"
 
@@ -38,7 +38,7 @@ msgstr "Pagalbinis/-ė"
 msgid "Auxiliary (Deprecated)"
 msgstr "Pagalbinis (nebenaudojamas)"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:178
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:183
 msgid "Bytes to read from interrupt pipe"
 msgstr "Baitai, kuriuos reikia perskaityti iš pertraukimo vamzdelio"
 
@@ -64,21 +64,21 @@ msgstr "Pasirinktinė pranešimo žinutė, skirta žinutės tipui"
 msgid "Deadtime"
 msgstr "„Deadtime“"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:118
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:114
 msgid "Default for UPSes without this field."
 msgstr "Numatyti nenutrūkstamo maitinimo šaltiniai, be šio lauko."
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:205
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:210
 msgid "Delay for kill power command"
 msgstr "Elektros sustabdymo atidėjimo komanda"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:214
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:219
 msgid "Delay to power on UPS if power returns after kill power"
 msgstr ""
 "Nenutrūkstamo maitinimo šaltinio elektros atidėjimas, jeigu elektra grįžta "
 "po jos nutrūkimo"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:155
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:172
 msgid "Description (Display)"
 msgstr "Aprašymas (Rodymas/-ti)"
 
@@ -86,15 +86,15 @@ msgstr "Aprašymas (Rodymas/-ti)"
 msgid "Display name"
 msgstr "Rodomasis pavadinimas/vardas"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:197
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:202
 msgid "Do not lock port when starting driver"
 msgstr "Neužrakinti prievado, kai pajungiama tvarkyklė"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:158
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:143
 msgid "Driver"
 msgstr "Tvarkyklė"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:142
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:138
 msgid "Driver Configuration"
 msgstr "Tvarkyklės konfigūracija"
 
@@ -102,16 +102,12 @@ msgstr "Tvarkyklės konfigūracija"
 msgid "Driver Global Settings"
 msgstr "Bendri tvarkyklės nustatymai"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:114
-msgid "Driver Path"
-msgstr "Tvarkyklės kelias"
-
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:238
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:240
 msgid "Driver Shutdown Order"
 msgstr "Tvarkyklių išjungimo tvarka"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:137
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:270
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:133
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:266
 msgid "Driver waits for data to be consumed by upsd before publishing more."
 msgstr ""
 "Prieš paskelbdamas daugiau, tvarkyklė laukia, kol „upsd“ sunaudos duomenis."
@@ -124,7 +120,7 @@ msgstr "Mesti/Šalinti šio naudotojo/vartotojo privilegijas"
 msgid "Enable"
 msgstr "Įjungti/Įgalinti"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:166
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:160
 msgid ""
 "Enables a hotplug script that makes all ttyUSB devices (e.g. serial USB) "
 "group read-write as user %s"
@@ -136,6 +132,25 @@ msgstr ""
 #: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_monitor.js:9
 msgid "Execute notify command"
 msgstr "Vykdyti pranešimo komandą"
+
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:150
+msgid ""
+"For USB HID based UPSes, USB Product Id is required for NUT to set "
+"permissions so the driver can access the UPS"
+msgstr ""
+
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:153
+msgid ""
+"For USB HID based UPSes, USB Vendor Id is required for NUT to set "
+"permissions so the driver can access the UPS"
+msgstr ""
+
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:156
+msgid ""
+"For USB HID based UPSes, allows use of multiple USB devices of the same type "
+"(USB product and USB vendor are identical). Other UPSes may also use this "
+"value."
+msgstr ""
 
 #: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:60
 msgid "Forced Shutdown"
@@ -181,7 +196,7 @@ msgstr ""
 msgid "IP Address"
 msgstr "IP adresas"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:159
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:144
 msgid "If this list is empty you need to %s"
 msgstr "Jei šis sąrašas yra tuščias, Jūs turite – „%s“"
 
@@ -189,7 +204,7 @@ msgstr "Jei šis sąrašas yra tuščias, Jūs turite – „%s“"
 msgid "Ignore"
 msgstr "Ignoruoti"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:170
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:175
 msgid "Ignore Low Battery"
 msgstr "Ignoruoti mažos baterijos/akumuliatoriaus būseną"
 
@@ -197,19 +212,19 @@ msgstr "Ignoruoti mažos baterijos/akumuliatoriaus būseną"
 msgid "Instant commands"
 msgstr "Akimirkos komandos"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:174
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:179
 msgid "Interrupt Only"
 msgstr "Tik pertraukimas"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:178
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:183
 msgid "Interrupt Size"
 msgstr "Pertraukimo dydis"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:191
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:196
 msgid "Manufacturer (Display)"
 msgstr "Gamintojas (Rodymas/-ti)"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:182
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:187
 msgid "Max USB HID Length Reported"
 msgstr "Praneštas maksimalus „USB HID“ ilgis"
 
@@ -217,12 +232,12 @@ msgstr "Praneštas maksimalus „USB HID“ ilgis"
 msgid "Maximum Age of Data"
 msgstr "Maksimalus duomenų amžius"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:122
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:118
 msgid "Maximum Retries"
 msgstr "Maksimalus pakartojimų/bandymų iš naujo skaičius"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:118
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:186
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:114
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:191
 msgid "Maximum Start Delay"
 msgstr "Maksimalus paleidimo/-sties atidėjimas"
 
@@ -230,11 +245,11 @@ msgstr "Maksimalus paleidimo/-sties atidėjimas"
 msgid "Maximum connections"
 msgstr "Maksimalus prisijungimų skaičius"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:122
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:118
 msgid "Maximum number of times to try starting a driver."
 msgstr "Maksimalus bandymų paleisti tvarkyklę skaičius."
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:132
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:128
 msgid "Maximum time in seconds between refresh of UPS status"
 msgstr ""
 "Maksimalus laikas sekundėmis, tarp nenutrūkstamo maitinimo šaltinio būklės/"
@@ -244,7 +259,7 @@ msgstr ""
 msgid "Minimum required number or power supplies"
 msgstr "Minimalus reikalingas skaičius arba maitinimo šaltiniai"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:194
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:199
 msgid "Model (Display)"
 msgstr "Modelis (Rodymas/-ti)"
 
@@ -320,11 +335,11 @@ msgid "Network UPS Tools Server Configuration"
 msgstr ""
 "Tinklo nenutrūkstamo maitinimo šaltinio įrankiai; serverio konfigūracija"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:197
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:202
 msgid "No Lock"
 msgstr "Jokio užrakto"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:201
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:206
 msgid "No low/high voltage transfer OIDs"
 msgstr ""
 "Nėra žemos/aukštos įtampos perdavime; objektų atributikų identifikatorių "
@@ -342,11 +357,11 @@ msgstr "Pranešimų nustatymai"
 msgid "Notify command"
 msgstr "Pranešimo komanda"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:205
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:210
 msgid "Off Delay(s)"
 msgstr "Išjungimo atidėjimas/-ai"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:214
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:219
 msgid "On Delay(s)"
 msgstr "Įjungimo atidėjimas/-ai"
 
@@ -361,10 +376,6 @@ msgstr ""
 "Kelias, kuriame yra – „CA“ sertifikatai, atitinkantys skleidėjo/vedėjo "
 "sertifikatą"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:114
-msgid "Path to drivers (instead of default)"
-msgstr "Kelias į tvarkykles (vietoj numatyto)"
-
 #: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server_admin.js:24
 msgid "Path to state file"
 msgstr "Kelias į būsenos/būklės failą"
@@ -373,7 +384,7 @@ msgstr "Kelias į būsenos/būklės failą"
 msgid "Period after which data is considered stale"
 msgstr "Laikotarpis, po kurio duomenys yra laikomi pasenusiais"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:132
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:128
 msgid "Poll Interval"
 msgstr "Apklausos intervalas"
 
@@ -385,14 +396,14 @@ msgstr "Apklausos dažnis"
 msgid "Poll frequency alert"
 msgstr "Apklausos dažnio įspėjimas"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:223
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:228
 msgid "Polling Frequency(s)"
 msgstr "Apklausos dažnis (-iai)"
 
 #: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_cgi.js:28
 #: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_monitor.js:32
 #: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:83
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:228
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:233
 msgid "Port"
 msgstr "Prievadas"
 
@@ -408,7 +419,7 @@ msgstr "Pirminis/Pagrindinis"
 msgid "Primary (Deprecated)"
 msgstr "Pirminis/Pagrindinis (nebenaudojamas)"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:232
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:237
 msgid "Product (regex)"
 msgstr "Produktas (reguliarusis reiškinys)"
 
@@ -418,7 +429,7 @@ msgstr ""
 "Reikalauti „SSL“ ir įsitikinti, kad serverio „CN“ sulygina įrenginio (t.y "
 "skleidėjo/vedėjo) pavadinimą"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:127
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:123
 msgid "Retry Delay"
 msgstr "Pakartojimo/Bandymo iš naujo atidėjimas"
 
@@ -435,39 +446,39 @@ msgstr "Vykdyti tvarkykles „chroot(2)“ sąsajoje"
 msgid "RunAs User"
 msgstr "Vykdyti kaip naudotojas/vartotojas"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:151
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:168
 msgid "SNMP Community"
 msgstr "„SNMP“ bendruomenė"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:248
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:247
 msgid "SNMP retries"
 msgstr "„SNMP“ bandymai iš naujo"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:252
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:251
 msgid "SNMP timeout(s)"
 msgstr "„SNMP“ pasibaigusios užklausos laikas (-ai)"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:256
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:255
 msgid "SNMP version"
 msgstr "„SNMP“ versija"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:258
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:257
 msgid "SNMPv1"
 msgstr "„SNMPv1“"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:259
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:258
 msgid "SNMPv2c"
 msgstr "„SNMPv2c“"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:260
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:259
 msgid "SNMPv3"
 msgstr "„SNMPv3“"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:245
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:156
 msgid "Serial Number"
 msgstr "Serijos numeris"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:165
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:159
 msgid "Set USB serial port permissions"
 msgstr "Nustatyti „USB“ nuoseklaus/-iojo prievado leidimus"
 
@@ -479,21 +490,20 @@ msgstr "Nustatyti kintamuosius"
 msgid "Shutdown command"
 msgstr "Išjungimo komanda"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:137
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:270
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:133
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:266
 msgid "Synchronous Communication"
 msgstr "Sinchroninė komunikacija"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:143
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:139
 msgid "The name of this section will be used as UPS name elsewhere"
 msgstr ""
 "Šio skyriaus pavadinimas bus naudojamas kaip nenutrūkstamo maitinimo "
 "šaltinio pavadinimas kitur"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:155
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:191
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:194
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:245
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:172
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:196
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:199
 msgid ""
 "This is passed through to the driver, so make sure your driver supports this "
 "option"
@@ -501,13 +511,13 @@ msgstr ""
 "Tai yra perduodama tvarkyklei, todėl įsitikinkite, kad Jūsų tvarkyklė "
 "palaiko šią parinktį"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:127
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:123
 msgid "Time in seconds between driver start retry attempts."
 msgstr ""
 "Laikas sekundėmis, tarp tvarkyklės paleidimo/-sties pakartojimų/bandymų iš "
 "naujo."
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:186
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:191
 msgid "Time in seconds that upsdrvctl will wait for driver to finish starting"
 msgstr ""
 "Laikas sekundėmis, kurį „upsdrvctl“ lauks, kol tvarkyklė baigs pasikrauti"
@@ -533,15 +543,15 @@ msgstr "Visuotiniai nenutrūkstamo maitinimo šaltinio serverio nustatymai"
 msgid "UPS name"
 msgstr "Nenutrūkstamo maitinimo šaltinio pavadinimas"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:147
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:164
 msgid "USB Bus(es) (regex)"
 msgstr "„USB“ (reguliarusis reiškinys)"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:235
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:150
 msgid "USB Product Id"
 msgstr "„USB“ produkto ID"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:267
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:153
 msgid "USB Vendor Id"
 msgstr "„USB“ pardavėjo/tiekėjo ID"
 
@@ -566,7 +576,7 @@ msgstr "Naudotojo/Vartotojo tipas (pirminis/pagrindinis┃pagalbinis)"
 msgid "Username"
 msgstr "Naudotojo/Vartotojo vardas (t.y. Slapyvardis)"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:264
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:263
 msgid "Vendor (regex)"
 msgstr "Pardavėjas/Tiekėjas (reguliarusis reiškinys)"
 
@@ -574,7 +584,7 @@ msgstr "Pardavėjas/Tiekėjas (reguliarusis reiškinys)"
 msgid "Verify all connection with SSL"
 msgstr "Patvirtinti visus prisijungimus su „SSL“"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:182
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:187
 msgid "Workaround for buggy firmware"
 msgstr "Klaidingos programinės įrangos laikinas apėjimas"
 
@@ -590,13 +600,19 @@ msgstr "Rašyti į – „syslog“ ir vykdyti komandą – „notify“"
 msgid "chroot"
 msgstr "„chroot“"
 
-#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:159
+#: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_server.js:144
 msgid "install drivers"
 msgstr "įdiegti tvarkykles"
 
 #: applications/luci-app-nut/htdocs/luci-static/resources/view/nut/nut_monitor_admin.js:20
 msgid "upsmon drops privileges to this user"
 msgstr "„upsmon“ atmeta šio naudotojo/vartotojo privilegijas"
+
+#~ msgid "Driver Path"
+#~ msgstr "Tvarkyklės kelias"
+
+#~ msgid "Path to drivers (instead of default)"
+#~ msgstr "Kelias į tvarkykles (vietoj numatyto)"
 
 #~ msgid ""
 #~ "User as which to execute driver; requires device file accessed by driver "
