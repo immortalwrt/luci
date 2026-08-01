@@ -32,7 +32,7 @@ o.default = 1
 o.rmempty = false
 
 local auto_switch_tip
-local current_node = api.get_cache_var("socks_" .. arg[1])
+local current_node = api.get_cache_var(arg[1])
 if current_node then
 	local n = m:get(current_node)
 	if n then
@@ -141,12 +141,12 @@ o.default = 30
 o:depends("enable_autoswitch", true)
 
 o = s:option(Value, "autoswitch_connect_timeout", translate("Timeout seconds"), translate("Units:seconds"))
-o.datatype = "min(1)"
+o.datatype = "range(3,10)"
 o.default = 3
 o:depends("enable_autoswitch", true)
 
 o = s:option(Value, "autoswitch_retry_num", translate("Timeout retry num"))
-o.datatype = "min(1)"
+o.datatype = "range(1,5)"
 o.default = 1
 o:depends("enable_autoswitch", true)
 

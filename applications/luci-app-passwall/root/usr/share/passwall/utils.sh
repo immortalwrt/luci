@@ -475,7 +475,10 @@ ln_run() {
 		[ -x "${file_func}" ] || echolog "  - $(readlink ${file_func}) 没有执行权限，无法启动：${file_func} $*"
 	fi
 	#echo "${file_func} $*" >&2
-	[ -n "${file_func}" ] || echolog "  - 找不到 ${ln_name}，无法启动..."
+	[ -n "${file_func}" ] || {
+		echolog "  - 找不到 ${ln_name}，无法启动..."
+		return 1
+	}
 	[ "${output}" != "/dev/null" ] && [ -n "$(echo "${output}" | grep -E "default|SOCKS_")" ] && [ "${ln_name}" != "chinadns-ng" ] && {
 		local persist_log_path=$(config_t_get global persist_log_path)
 		local sys_log=$(config_t_get global sys_log "0")
@@ -503,13 +506,6 @@ ln_run() {
 	process_count=$(ls $TMP_SCRIPT_FUNC_PATH | wc -l)
 	process_count=$((process_count + 1))
 	echo "${file_func:-echolog "  - ${ln_name}"} $@ >${output}" > $TMP_SCRIPT_FUNC_PATH/$process_count
-}
-
-is_socks_wrap() {
-	case "$1" in
-		Socks_*) return 0 ;;
-		*)       return 1 ;;
-	esac
 }
 
 kill_all() {

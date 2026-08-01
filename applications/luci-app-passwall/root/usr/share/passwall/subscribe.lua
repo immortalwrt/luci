@@ -29,6 +29,7 @@ local has_ssr = api.is_finded("ssr-local") and api.is_finded("ssr-redir")
 local has_singbox = api.finded_com("sing-box")
 local has_xray = api.finded_com("xray")
 local has_hysteria2 = api.finded_com("hysteria")
+local DEFAULT_ALLOWINSECURE = true
 local DEFAULT_FILTER_KEYWORD_MODE = uci:get(appname, "@global_subscribe[0]", "filter_keyword_mode") or "0"
 local DEFAULT_FILTER_KEYWORD_DISCARD_LIST = uci:get(appname, "@global_subscribe[0]", "filter_discard_list") or {}
 local DEFAULT_FILTER_KEYWORD_KEEP_LIST = uci:get(appname, "@global_subscribe[0]", "filter_keep_list") or {}
@@ -180,10 +181,10 @@ do
 				local flag = "Socks节点列表[" .. i .. "]备用节点的列表"
 				local currentNodes = {}
 				local newNodes = {}
-				for k, node_id in ipairs(t.autoswitch_backup_node) do
-					if node_id then
-						local currentNode = uci:get_all(appname, node_id) or nil
-						if currentNode then
+				for k, asb_node_id in ipairs(t.autoswitch_backup_node) do
+					if asb_node_id then
+						local currentNode = uci:get_all(appname, asb_node_id) or {}
+						if currentNode[".type"] == "nodes" then
 							currentNodes[#currentNodes + 1] = {
 								log = true,
 								remarks = flag .. "[" .. k .. "]",
@@ -291,17 +292,20 @@ do
 
 			for k, e in pairs(rules) do
 				local _node_id = node[e[".name"]] or nil
-				if _node_id and not _node_id:find("Socks_") then
-					CONFIG[#CONFIG + 1] = {
-						log = false,
-						currentNode = _node_id and uci:get_all(appname, _node_id) or nil,
-						remarks = "分流" .. e.remarks .. "节点",
-						set = function(o, server)
-							if not server then server = "" end
-							uci:set(appname, node_id, e[".name"], server)
-							o.newNodeId = server
-						end
-					}
+				if _node_id then
+					local section = uci:get_all(appname, _node_id) or {}
+					if section[".type"] == "nodes" then
+						CONFIG[#CONFIG + 1] = {
+							log = false,
+							currentNode = section,
+							remarks = "分流" .. e.remarks .. "节点",
+							set = function(o, server)
+								if not server then server = "" end
+								uci:set(appname, node_id, e[".name"], server)
+								o.newNodeId = server
+							end
+						}
+					end
 				end
 			end
 		elseif node.protocol and node.protocol == '_balancing' then
@@ -309,17 +313,18 @@ do
 			local currentNodes = {}
 			local newNodes = {}
 			if node.balancing_node then
-				for k, node in pairs(node.balancing_node) do
+				for k, b_node_id in pairs(node.balancing_node) do
 					currentNodes[#currentNodes + 1] = {
 						log = true,
-						node = node,
+						node = b_node_id,
 						currentNode = (function()
-							if node and node:find("Socks_") then
-								return { Socks = node }
+							local section = uci:get_all(appname, b_node_id) or {}
+							if section[".type"] == "socks" then
+								return { Socks = b_node_id }
 							end
-							return node and uci:get_all(appname, node) or nil
+							return section
 						end)(),
-						remarks = node,
+						remarks = b_node_id,
 						set = function(o, server)
 							if o and server and server ~= "nil" then
 								table.insert(o.newNodes, server)
@@ -342,37 +347,41 @@ do
 
 			--后备节点
 			local currentNode = uci:get_all(appname, node_id) or nil
-			if currentNode and currentNode.fallback_node and not currentNode.fallback_node:find("Socks_") then
-				CONFIG[#CONFIG + 1] = {
-					log = true,
-					id = node_id,
-					remarks = "Xray负载均衡节点[" .. node_id .. "]后备节点",
-					currentNode = uci:get_all(appname, currentNode.fallback_node) or nil,
-					set = function(o, server)
-						uci:set(appname, node_id, "fallback_node", server)
-						o.newNodeId = server
-					end,
-					delete = function(o)
-						uci:delete(appname, node_id, "fallback_node")
-					end
-				}
+			if currentNode and currentNode.fallback_node then
+				local section = uci:get_all(appname, currentNode.fallback_node) or {}
+				if section[".type"] == "nodes" then
+					CONFIG[#CONFIG + 1] = {
+						log = true,
+						id = node_id,
+						remarks = "Xray负载均衡节点[" .. node_id .. "]后备节点",
+						currentNode = section,
+						set = function(o, server)
+							uci:set(appname, node_id, "fallback_node", server)
+							o.newNodeId = server
+						end,
+						delete = function(o)
+							uci:delete(appname, node_id, "fallback_node")
+						end
+					}
+				end
 			end
 		elseif node.protocol and node.protocol == '_urltest' then
 			local flag = "Sing-Box URLTest节点[" .. node_id .. "]列表"
 			local currentNodes = {}
 			local newNodes = {}
 			if node.urltest_node then
-				for k, node in pairs(node.urltest_node) do
+				for k, u_node_id in pairs(node.urltest_node) do
 					currentNodes[#currentNodes + 1] = {
 						log = true,
-						node = node,
+						node = u_node_id,
 						currentNode = (function()
-							if node and node:find("Socks_") then
-								return { Socks = node }
+							local section = uci:get_all(appname, u_node_id) or {}
+							if section[".type"] == "socks" then
+								return { Socks = u_node_id }
 							end
-							return node and uci:get_all(appname, node) or nil
+							return section
 						end)(),
-						remarks = node,
+						remarks = u_node_id,
 						set = function(o, server)
 							if o and server and server ~= "nil" then
 								table.insert(o.newNodes, server)
@@ -395,37 +404,43 @@ do
 		else
 			--前置代理节点
 			local currentNode = uci:get_all(appname, node_id) or nil
-			if currentNode and currentNode.preproxy_node and not currentNode.preproxy_node:find("Socks_") then
-				CONFIG[#CONFIG + 1] = {
-					log = true,
-					id = node_id,
-					remarks = "节点[" .. node_id .. "]前置代理节点",
-					currentNode = uci:get_all(appname, currentNode.preproxy_node) or nil,
-					set = function(o, server)
-						uci:set(appname, node_id, "preproxy_node", server)
-						o.newNodeId = server
-					end,
-					delete = function(o)
-						uci:delete(appname, node_id, "preproxy_node")
-					end
-				}
+			if currentNode and currentNode.preproxy_node then
+				local section = uci:get_all(appname, currentNode.preproxy_node) or {}
+				if section[".type"] == "nodes" then
+					CONFIG[#CONFIG + 1] = {
+						log = true,
+						id = node_id,
+						remarks = "节点[" .. node_id .. "]前置代理节点",
+						currentNode = uci:get_all(appname, currentNode.preproxy_node) or nil,
+						set = function(o, server)
+							uci:set(appname, node_id, "preproxy_node", server)
+							o.newNodeId = server
+						end,
+						delete = function(o)
+							uci:delete(appname, node_id, "preproxy_node")
+						end
+					}
+				end
 			end
 			--落地节点
 			local currentNode = uci:get_all(appname, node_id) or nil
-			if currentNode and currentNode.to_node and not currentNode.to_node:find("Socks_") then
-				CONFIG[#CONFIG + 1] = {
-					log = true,
-					id = node_id,
-					remarks = "节点[" .. node_id .. "]落地节点",
-					currentNode = uci:get_all(appname, currentNode.to_node) or nil,
-					set = function(o, server)
-						uci:set(appname, node_id, "to_node", server)
-						o.newNodeId = server
-					end,
-					delete = function(o)
-						uci:delete(appname, node_id, "to_node")
-					end
-				}
+			if currentNode and currentNode.to_node then
+				local section = uci:get_all(appname, currentNode.to_node) or {}
+				if section[".type"] == "nodes" then
+					CONFIG[#CONFIG + 1] = {
+						log = true,
+						id = node_id,
+						remarks = "节点[" .. node_id .. "]落地节点",
+						currentNode = uci:get_all(appname, currentNode.to_node) or nil,
+						set = function(o, server)
+							uci:set(appname, node_id, "to_node", server)
+							o.newNodeId = server
+						end,
+						delete = function(o)
+							uci:delete(appname, node_id, "to_node")
+						end
+					}
+				end
 			end
 		end
 	end)
@@ -502,6 +517,7 @@ end
 -- 处理数据
 local function processData(szType, content, add_mode, group, sub_cfg)
 	--log(2, content, add_mode, group)
+	local sub_allowinsecure = DEFAULT_ALLOWINSECURE
 	local sub_ss_type = DEFAULT_SS_TYPE
 	local sub_trojan_type = DEFAULT_TROJAN_TYPE
 	local sub_vmess_type = DEFAULT_VMESS_TYPE
@@ -509,6 +525,9 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 	local sub_hysteria2_type = DEFAULT_HYSTERIA2_TYPE
 	local sub_hy_up_mbps, sub_hy_down_mbps = 1000, 1000
 	if sub_cfg then
+		if sub_cfg.allowInsecure and sub_cfg.allowInsecure ~= "1" then
+			sub_allowinsecure = nil
+		end
 		local ss_type = sub_cfg.ss_type or "global"
 		if ss_type ~= "global" and core_has[ss_type] then
 			sub_ss_type = ss_type
@@ -681,7 +700,8 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 			result.tls_serverName = (info.sni and info.sni ~= "") and info.sni or info.host
 			result.tls_pinSHA256 = info.pcs
 			result.tls_CertByName = info.vcn
-			result.tls_allowInsecure = info.allowinsecure or info.allowInsecure or info.insecure
+			local insecure = info.allowinsecure or info.allowInsecure or info.insecure
+			result.tls_allowInsecure = (insecure == "1" or insecure == "0") and insecure or (sub_allowinsecure and "1" or "0")
 		else
 			result.tls = "0"
 		end
@@ -957,7 +977,8 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 							result.reality_mldsa65Verify = params.pqv or nil
 						end
 					end
-					result.tls_allowInsecure = params.allowinsecure or params.allowInsecure or params.insecure
+					local insecure = params.allowinsecure or params.allowInsecure or params.insecure
+					result.tls_allowInsecure = (insecure == "1" or insecure == "0") and insecure or (sub_allowinsecure and "1" or "0")
 					result.uot = params.udp
 				else
 					result.error_msg = "请更换 Xray 或 Sing-Box 来支持 SS 更多的传输方式。"
@@ -1075,7 +1096,8 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 				end
 				result.tls_pinSHA256 = params.pcs
 				result.tls_CertByName = params.vcn
-				result.tls_allowInsecure = params.allowinsecure or params.allowInsecure or params.insecure
+				local insecure = params.allowinsecure or params.allowInsecure or params.insecure
+				result.tls_allowInsecure = (insecure == "1" or insecure == "0") and insecure or (sub_allowinsecure and "1" or "0")
 			end
 
 			if not params.type then params.type = "tcp" end
@@ -1330,7 +1352,8 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 					result.use_mldsa65Verify = (params.pqv and params.pqv ~= "") and "1" or nil
 					result.reality_mldsa65Verify = params.pqv or nil
 				end
-				result.tls_allowInsecure = params.allowinsecure or params.allowInsecure or params.insecure
+				local insecure = params.allowinsecure or params.allowInsecure or params.insecure
+				result.tls_allowInsecure = (insecure == "1" or insecure == "0") and insecure or (sub_allowinsecure and "1" or "0")
 			end
 
 			result.port = port
@@ -1386,7 +1409,8 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 		result.hysteria_auth_type = "string"
 		result.hysteria_auth_password = params.auth
 		result.tls_serverName = params.peer or params.sni or ""
-		result.tls_allowInsecure = params.allowinsecure or params.allowInsecure or params.insecure
+		local insecure = params.allowinsecure or params.allowInsecure or params.insecure
+		result.tls_allowInsecure = (insecure == "1" or insecure == "0") and insecure or (sub_allowinsecure and "1" or "0")
 		result.alpn = params.alpn
 		result.hysteria_up_mbps = params.upmbps or sub_hy_up_mbps
 		result.hysteria_down_mbps = params.downmbps or sub_hy_down_mbps
@@ -1431,7 +1455,8 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 		result.tls_serverName = params.sni
 		result.tls_pinSHA256 = params.pcs or params.pinsha256
 		result.tls_CertByName = params.vcn
-		result.tls_allowInsecure = params.allowinsecure or params.insecure
+		local insecure = params.allowinsecure or params.insecure
+		result.tls_allowInsecure = (insecure == "1" or insecure == "0") and insecure or (sub_allowinsecure and "1" or "0")
 		result.hysteria2_up_mbps = params.upmbps or (sub_cfg and sub_hy_up_mbps or nil)
 		result.hysteria2_down_mbps = params.downmbps or (sub_cfg and sub_hy_down_mbps or nil)
 		result.hysteria2_hop = params.mport
@@ -1512,7 +1537,8 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 		result.tuic_alpn = params.alpn or "h3"
 		result.tuic_congestion_control = params.congestion_control or "cubic"
 		result.tuic_udp_relay_mode = params.udp_relay_mode or "native"
-		result.tls_allowInsecure = params.allowinsecure or params.insecure or params.allow_insecure
+		local insecure = params.allowinsecure or params.insecure or params.allow_insecure
+		result.tls_allowInsecure = (insecure == "1" or insecure == "0") and insecure or (sub_allowinsecure and "1" or "0")
 	elseif szType == "anytls" then
 		if has_singbox then
 			result.type = 'sing-box'
@@ -1579,7 +1605,8 @@ local function processData(szType, content, add_mode, group, sub_cfg)
 				end
 			end
 			result.port = port
-			result.tls_allowInsecure = params.allowinsecure or params.insecure
+			local insecure = params.allowinsecure or params.insecure
+			result.tls_allowInsecure = (insecure == "1" or insecure == "0") and insecure or (sub_allowinsecure and "1" or "0")
 		end
 	elseif szType == 'naive+https' or szType == 'naive+quic' then
 		if has_singbox then
@@ -1917,7 +1944,7 @@ local function update_node(manual)
 			chain_node_type = (outbound_iface_group ~= "") and "iface" or chain_node_type
 		end
 		for _, vv in ipairs(list) do
-			local cfgid = uci:section(appname, "nodes", api.gen_short_uuid())
+			local cfgid = uci:section(appname, "nodes", api.gen_random_char())
 			for kkk, vvv in pairs(vv) do
 				if type(vvv) == "table" and next(vvv) ~= nil then
 					uci:set_list(appname, cfgid, kkk, vvv)
