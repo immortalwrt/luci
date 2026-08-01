@@ -65,7 +65,7 @@ m.uci:foreach(appname, "socks", function(s)
 			remark = id .. " - " .. (remark or translate("Misconfigured"))
 		}
 		socks_list[#socks_list + 1] = {
-			id = "Socks_" .. s[".name"],
+			id = s[".name"],
 			remark = translate("Socks Config") .. " " .. string.format("[%s %s]", s.port, translate("Port")),
 			group = "Socks"
 		}
@@ -154,6 +154,7 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 		if current_node.protocol == "_shunt" then
 			local shunt_lua = loadfile("/usr/lib/lua/luci/model/cbi/passwall/client/include/shunt_options.lua")
 			setfenv(shunt_lua, getfenv(1))(m, s, {
+				s_cfgid = s:cfgsections()[1],
 				node_id = current_node_id,
 				node = current_node,
 				socks_list = socks_list,
@@ -370,24 +371,6 @@ if api.is_finded("smartdns") then
 	o:depends({ dns_shunt = "smartdns", smartdns_dns_mode = "socks" })
 	o.cfgvalue = function(self, section)
 		return m:get(section, self.option) or {"tcp://1.1.1.1"}
-	end
-	function o.write(self, section, value)
-		local t = {}
-		local t2 = {}
-		if type(value) == "table" then
-			local x
-			for _, x in ipairs(value) do
-				if x and #x > 0 then
-					if not t2[x] then
-						t2[x] = x
-						t[#t+1] = x
-					end
-				end
-			end
-		else
-			t = { value }
-		end
-		return DynamicList.write(self, section, t)
 	end
 end
 
@@ -649,11 +632,11 @@ o.default = "0"
 o.rmempty = false
 
 o = s:taboption("log", ListValue, "loglevel", "Sing-Box/Xray " .. translate("Log Level"))
-o.default = "warning"
-o:value("debug")
-o:value("info")
-o:value("warning")
-o:value("error")
+o.default = "warn"
+o:value("debug", "Debug")
+o:value("info", "Info")
+o:value("warn", "Warning")
+o:value("error", "Error")
 
 o = s:taboption("log", Flag, "advanced_log_feature", translate("Advanced log feature"), translate("For professionals only."))
 o.default = "0"
@@ -695,10 +678,9 @@ s2.anonymous = true
 s2.addremove = true
 s2.extedit = api.url("socks_config", "%s")
 function s2.create(e, t)
-	local uuid = api.gen_short_uuid()
-	t = uuid
-	TypedSection.create(e, t)
-	luci.http.redirect(e.extedit:format(t))
+	local uid = "socks_" .. api.gen_random_char(5)
+	TypedSection.create(e, uid)
+	luci.http.redirect(e.extedit:format(uid))
 end
 function s2.remove(e, t)
 	local socks = "Socks_" .. t
@@ -765,7 +747,7 @@ o.group = {}
 o = s2:option(DummyValue, "now_node", translate("Current Node"))
 o.rawhtml = true
 o.cfgvalue = function(_, n)
-	local current_node = api.get_cache_var("socks_" .. n)
+	local current_node = api.get_cache_var(n)
 	if current_node then
 		local node = m:get(current_node)
 		if node then

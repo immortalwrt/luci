@@ -5,7 +5,6 @@ local sys = api.sys
 local jsonc = api.jsonc
 local appname = "passwall"
 local fs = api.fs
-local split = api.split
 local ech_domain = {}
 
 local local_version = api.get_app_version("sing-box"):match("[^v]+")
@@ -86,6 +85,11 @@ local function convert_geofile()
 	--api.log("Sing-Box 规则集转换：")
 	convert(GEO_VAR.SITE_PATH, "geosite", GEO_VAR.SITE_TAGS)
 	convert(GEO_VAR.IP_PATH, "geoip", GEO_VAR.IP_TAGS)
+end
+
+local function get_log_level(s)
+	if s == "warning" then s = "warn" end
+	return s
 end
 
 function gen_outbound(flag, node, tag, proxy_table)
@@ -190,7 +194,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 			if not GLOBAL.DNS_SERVER[dns_key] then
 				GLOBAL.DNS_SERVER[dns_key] = {
 					server = {
-						tag = "dns-node-" .. api.gen_short_uuid(),
+						tag = "dns-node-" .. api.gen_random_char(),
 						type = dns_proto,
 						server = server_address,
 						server_port = server_port,
@@ -232,7 +236,8 @@ function gen_outbound(flag, node, tag, proxy_table)
 				--max_version = "1.3",
 				fragment = fragment,
 				record_fragment = record_fragment,
-				certificate = (node.tls_certificate == "1" and node.tls_certificate_pem ~= "") and split(node.tls_certificate_pem, "\n") or nil,
+				certificate = (node.tls_certificate == "1" and node.tls_certificate_pem ~= "") and api.split(node.tls_certificate_pem, "\n") or nil,
+				cipher_suites = (node.cipherSuites and node.cipherSuites ~= "") and api.split(node.cipherSuites, ":") or nil,
 				ech = (node.ech == "1") and (function()
 					local function get_ech_domain(s) --兼容xray "域名+DNS" 格式ech
 						local domain, dns = s:match("^([^+]+)%+(.+)$")
@@ -613,6 +618,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 				idle_session_check_interval = "30s",
 				idle_session_timeout = "30s",
 				min_idle_session = 5,
+				client_metadata = api.compare_versions(local_version, ">=", "1.13.16") and "anytls/0.0.13" or nil,
 				tls = tls
 			}
 		end
@@ -1041,7 +1047,7 @@ function gen_config_server(node)
 	local config = {
 		log = {
 			disabled = (not node or node.log == "0") and true or false,
-			level = node.loglevel or "info",
+			level = get_log_level(node.loglevel) or "info",
 			timestamp = true,
 			--output = logfile,
 		},
@@ -1104,6 +1110,9 @@ function gen_config(var)
 	local dns_socks_address = var["dns_socks_address"]
 	local dns_socks_port = var["dns_socks_port"]
 	local no_run = var["no_run"]
+	local use_proxy_list = var["use_proxy_list"]
+	local use_gfw_list = var["use_gfw_list"]
+	local chn_list = var["chn_list"]
 
 	local dns_domain_rules = {}
 	local dns = nil
@@ -1262,36 +1271,25 @@ function gen_config(var)
 			})
 		end
 
-		function gen_socks_config_node(node_id, socks_id, remarks)
-			if node_id then
-				socks_id = node_id:sub(1 + #"Socks_")
-			end
-			local result
-			local socks_node = uci:get_all(appname, socks_id) or nil
-			if socks_node then
-				if not remarks then
-					remarks = socks_node.port
-				end
-				result = {
-					[".name"] = "Socksid_" .. socks_id,
-					remarks = remarks,
+		function get_node_by_id(node_id)
+			if not node_id or node_id == "" or node_id == "nil" then return nil end
+			local section = uci:get_all(appname, node_id) or {}
+			if section[".type"] == "socks" then
+				local result = {
+					[".name"] = node_id,
+					remarks = "socks[%s]" % section.port,
 					type = "sing-box",
 					protocol = "socks",
 					address = "127.0.0.1",
-					port = socks_node.port,
+					port = section.port,
 					uot = "1"
 				}
+				return result
 			end
-			return result
-		end
-
-		function get_node_by_id(node_id)
-			if not node_id or node_id == "" or node_id == "nil" then return nil end
-			if node_id:find("Socks_") then
-				return gen_socks_config_node(node_id)
-			else
-				return uci:get_all(appname, node_id)
+			if section[".type"] == "nodes" then
+				return section
 			end
+			return nil
 		end
 
 		function gen_urltest_outbound(_node)
@@ -1551,7 +1549,54 @@ function gen_config(var)
 			end
 
 			--shunt rule
-			uci:foreach(appname, "shunt_rules", function(e)
+			local function foreach_shunt_rule(callback)
+				uci:foreach(appname, "shunt_rules", callback)
+
+				if use_gfw_list ~= "1" or chn_list ~= "0" then return end
+
+				-- GFW 模式下使用分流节点时添加特定规则
+				local function read_proxy_list(path)
+					if use_proxy_list ~= "1" then return "" end
+					local map, list = {}, {}
+					local f = io.open(path)
+					if f then
+						for line in f:lines() do
+							if line ~= "" and not line:find("#", 1, true) and not map[line] then
+								map[line] = 1
+								list[#list + 1] = line
+							end
+						end
+						f:close()
+					end
+					return table.concat(list, "\n")
+				end
+
+				local domain_list = read_proxy_list("/usr/share/passwall/rules/proxy_host")
+				local ip_list = read_proxy_list("/usr/share/passwall/rules/proxy_ip")
+
+				local bin = api.finded_com("geoview")
+				if bin then
+					local geo_file = (uci:get(appname, "@global_rules[0]", "v2ray_location_asset") or "/usr/share/v2ray/"):match("^(.*)/") .. "/geosite.dat"
+					if luci.sys.call('"' .. bin .. '" -type geosite -input "' .. geo_file .. '" | grep -q "^GFW$"') == 0 then
+						domain_list = (domain_list == "") and "geosite:gfw" or domain_list .. "\ngeosite:gfw"
+					end
+				end
+
+				if domain_list ~= "" or ip_list ~= "" then
+					node["GFW_Mode_List"] = "_default"
+					callback({
+						[".name"] = "GFW_Mode_List",
+						remarks = "GFW_Mode_List",
+						domain_list = (domain_list ~= "") and domain_list or nil,
+						ip_list = (ip_list ~= "") and ip_list or nil,
+						group = node["shunt_group"]
+					})
+				end
+			end
+			foreach_shunt_rule(function(e)
+				if node["shunt_group"] ~= e.group then
+					return
+				end
 				local outboundTag = gen_shunt_node(e[".name"])
 				if outboundTag and e.remarks then
 					if outboundTag == "default" then
@@ -1754,6 +1799,14 @@ function gen_config(var)
 					table.insert(rules, rule)
 				end
 			end)
+
+			if use_gfw_list == "1" and chn_list == "0" then  -- GFW 模式下使用分流节点时添加兜底规则
+				table.insert(rules, {
+					action = "route",
+					port_range = { "0:65535" },
+					outbound = "direct"
+				})
+			end
 		else
 			COMMON.default_outbound_tag = gen_outbound_get_tag(flag, node or node_id, nil, {
 				fragment = singbox_settings.fragment == "1" or nil,
@@ -1938,18 +1991,8 @@ function gen_config(var)
 			else default_dns_flag = "direct"
 			end
 		end
-		if default_dns_flag == "remote" then
-			if remote_dns_fake then
-				table.insert(dns.rules, {
-					query_type = { "A", "AAAA" },
-					server = fakedns_tag,
-					disable_cache = true,
-					rewrite_ttl = 30,
-					strategy = remote_strategy
-				})
-			end
-		end
 		dns.final = default_dns_flag
+		dns.strategy = default_dns_flag == "remote" and remote_strategy or direct_strategy
 
 		--按分流顺序DNS
 		if dns_domain_rules and #dns_domain_rules > 0 then
@@ -1973,12 +2016,43 @@ function gen_config(var)
 						dns_rule.disable_cache = nil
 					end
 					if value.outboundTag == "direct" then
-						dns_rule.strategy = direct_strategy
+						local block_rule
+						if direct_strategy == "ipv4_only" then
+							block_rule = api.clone(dns_rule)
+							block_rule.query_type = { "AAAA" }
+						elseif direct_strategy == "ipv6_only" then
+							block_rule = api.clone(dns_rule)
+							block_rule.query_type = { "A" }
+						end
+						if block_rule then
+							block_rule.action = "predefined"
+							block_rule.rcode = "NOERROR"
+							block_rule.disable_cache = nil
+							block_rule.server = nil
+							table.insert(dns.rules, block_rule)
+						end
 					end
 					if value.outboundTag ~= "block" and value.outboundTag ~= "direct" then
 						dns_rule.server = "remote"
 						dns_rule.rewrite_ttl = 30
-						dns_rule.strategy = remote_strategy
+						if true then
+							local block_rule
+							if remote_strategy == "ipv4_only" then
+								block_rule = api.clone(dns_rule)
+								block_rule.query_type = { "AAAA" }
+							elseif remote_strategy == "ipv6_only" then
+								block_rule = api.clone(dns_rule)
+								block_rule.query_type = { "A" }
+							end
+							if block_rule then
+								block_rule.action = "predefined"
+								block_rule.rcode = "NOERROR"
+								block_rule.disable_cache = nil
+								block_rule.server = nil
+								block_rule.rewrite_ttl = nil
+								table.insert(dns.rules, block_rule)
+							end
+						end
 						dns_rule.client_subnet = remote_dns_client_ip
 						if value.outboundTag ~= COMMON.default_outbound_tag and (remote_server.address or remote_server.server) then
 							local remote_dns_server = api.clone(remote_server)
@@ -1991,9 +2065,13 @@ function gen_config(var)
 						end
 						if value.fakedns then
 							local fakedns_dns_rule = api.clone(dns_rule)
-							fakedns_dns_rule.query_type = {
-								"A", "AAAA"
-							}
+							if remote_strategy == "ipv4_only" then
+								fakedns_dns_rule.query_type = { "A" }
+							elseif remote_strategy == "ipv6_only" then
+								fakedns_dns_rule.query_type = { "AAAA" }
+							else
+								fakedns_dns_rule.query_type = { "A", "AAAA" }
+							end
 							fakedns_dns_rule.server = fakedns_tag
 							fakedns_dns_rule.disable_cache = true
 							table.insert(dns.rules, fakedns_dns_rule)
@@ -2001,6 +2079,31 @@ function gen_config(var)
 					end
 					table.insert(dns.rules, dns_rule)
 				end
+			end
+		end
+		if default_dns_flag == "remote" then
+			local dns_rule_query_type = { "A", "AAAA" }
+			if remote_strategy == "ipv4_only" then
+				dns_rule_query_type = { "A" }
+			elseif remote_strategy == "ipv6_only" then
+				dns_rule_query_type = { "AAAA" }
+			end
+			if remote_dns_fake then
+				-- When default is not direct and enable fakedns, default DNS use FakeDNS.
+				local fakedns_dns_rule = {
+					query_type = dns_rule_query_type,
+					server = fakedns_tag,
+					disable_cache = true,
+					rewrite_ttl = 30
+				}
+				table.insert(dns.rules, fakedns_dns_rule)
+			else
+				local remote_dns_rule = {
+					query_type = dns_rule_query_type,
+					server = "remote",
+					disable_cache = true,
+				}
+				table.insert(dns.rules, remote_dns_rule)
 			end
 		end
 		local dns_in_inbound = {
@@ -2110,7 +2213,7 @@ function gen_config(var)
 		local config = {
 			log = {
 				disabled = log == "0" and true or false,
-				level = loglevel,
+				level = get_log_level(loglevel),
 				timestamp = true,
 				output = logfile,
 			},

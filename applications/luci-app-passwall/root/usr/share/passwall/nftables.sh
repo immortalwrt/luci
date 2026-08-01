@@ -236,7 +236,9 @@ gen_nftset() {
 			nft "add set $NFTABLE_NAME $nftset_name { type $ip_type; flags interval, timeout; timeout $timeout_argument_set; gc-interval $gc_interval_time; auto-merge; }"
 		fi
 	fi
-	[ $# -gt 0 ] || [ ! -t 0 ] && insert_nftset "$nftset_name" "$@"
+	if [ $# -gt 0 ]; then
+		insert_nftset "$nftset_name" "$@"
+	fi
 }
 
 get_jump_nft() {
@@ -261,6 +263,7 @@ load_acl() {
 		for sid in $(ls -F ${TMP_ACL_PATH} | grep '/$' | awk -F '/' '{print $1}' | grep -v 'default'); do
 			eval "$(uci -q show "${CONFIG}.${sid}" | cut -d'.' -sf 3-)"
 
+			mode=${mode:-0}
 			tcp_no_redir_ports=${tcp_no_redir_ports:-default}
 			udp_no_redir_ports=${udp_no_redir_ports:-default}
 			use_global_config=${use_global_config:-0}
@@ -275,6 +278,10 @@ load_acl() {
 			chn_list=${chn_list:-direct}
 			tcp_proxy_mode=${tcp_proxy_mode:-proxy}
 			udp_proxy_mode=${udp_proxy_mode:-proxy}
+			[ "$mode" = "0" ] && {
+				tcp_no_redir_ports="1:65535"
+				udp_no_redir_ports="1:65535"
+			}
 			[ "$tcp_no_redir_ports" = "default" ] && tcp_no_redir_ports=$TCP_NO_REDIR_PORTS
 			[ "$udp_no_redir_ports" = "default" ] && udp_no_redir_ports=$UDP_NO_REDIR_PORTS
 			[ "$tcp_proxy_drop_ports" = "default" ] && tcp_proxy_drop_ports=$TCP_PROXY_DROP_PORTS
@@ -1052,7 +1059,14 @@ add_firewall_rule() {
 	[ "$USE_SHUNT_NODE" = "1" ] && {
 		local GEOIP_CODE=""
 		local shunt_ids=$(uci show $CONFIG | grep "=shunt_rules" | awk -F '.' '{print $2}' | awk -F '=' '{print $1}')
+		local shunt_group
+		if [ "${USE_SHUNT_TCP}" = "1" ]; then
+			shunt_group=$(config_n_get $_TCP_NODE shunt_group)
+		elif [ "${USE_SHUNT_UDP}" = "1" ]; then
+			shunt_group=$(config_n_get $_UDP_NODE shunt_group)
+		fi
 		for shunt_id in $shunt_ids; do
+			[ "${shunt_group}" != "$(config_n_get ${shunt_id} group)" ] && continue
 			config_n_get $shunt_id ip_list | sed 's/#.*//' | grep -E "(\.((2(5[0-5]|[0-4][0-9]))|[0-1]?[0-9]{1,2})){3}" | insert_nftset $NFTSET_SHUNT_STATIC
 			config_n_get $shunt_id ip_list | sed 's/#.*//' | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | insert_nftset $NFTSET_SHUNT6_STATIC
 			[ "$USE_GEOVIEW" = "1" ] && {
