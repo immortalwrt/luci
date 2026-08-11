@@ -43,11 +43,11 @@ end
 
 local socks_list = {}
 
-local tcp_socks_server = "127.0.0.1" .. ":" .. (m:get("@global[0]", "tcp_node_socks_port") or "1070")
+local socks_server = "127.0.0.1" .. ":" .. (m:get("@global[0]", "node_socks_port") or "1070")
 local socks_table = {}
 socks_table[#socks_table + 1] = {
-	id = tcp_socks_server,
-	remark = tcp_socks_server .. " - " .. translate("TCP Node")
+	id = socks_server,
+	remark = socks_server .. " - " .. translate("Proxy Node")
 }
 m:foreach("socks", function(s)
 	if s.enabled == "1" and s.node then
@@ -62,11 +62,13 @@ m:foreach("socks", function(s)
 			id = id,
 			remark = id .. " - " .. (remark or translate("Misconfigured"))
 		}
-		socks_list[#socks_list + 1] = {
-			id = s[".name"],
-			remark = translate("Socks Config") .. " " .. string.format("[%s %s]", s.port, translate("Port")),
-			group = "Socks"
-		}
+		if has_singbox or has_xray then
+			socks_list[#socks_list + 1] = {
+				id = s[".name"],
+				remark = translate("Socks Config") .. " " .. string.format("[%s %s]", s.port, translate("Port")),
+				group = "Socks"
+			}
+		end
 	end
 end)
 
@@ -103,44 +105,13 @@ s:tab("Main", translate("Main"))
 o = s:taboption("Main", Flag, "enabled", translate("Main switch"))
 o.rmempty = false
 
----- TCP Node
-o = s:taboption("Main", ListValue, "tcp_node", "<a style='color: red'>" .. translate("TCP Node") .. "</a>")
+---- Node
+o = s:taboption("Main", ListValue, "node", "<a style='color: red'>" .. translate("Proxy Node") .. "</a>")
 o.template = m:template_path("/cbi/nodes_listvalue")
 o:value("", translate("Close"))
 o.group = {""}
 
----- UDP Node
-o = s:taboption("Main", ListValue, "udp_node", "<a style='color: red'>" .. translate("UDP Node") .. "</a>")
-o.template = m:template_path("/cbi/nodes_listvalue")
-o:value("", translate("Close"))
-o:value("tcp", translate("Same as the tcp node"))
-o.group = {"",""}
-o:depends("_node_sel_other", "1")
-o.remove = function(self, section)
-	local v = s.fields["shunt_udp_node"]:formvalue(section)
-	if not v or v == "close" then
-		return m:del(section, self.option)
-	else
-		return m:set(section, self.option, "tcp")
-	end
-end
-
-o = s:taboption("Main", ListValue, "shunt_udp_node", "<a style='color: red'>" .. translate("UDP Node") .. "</a>")
-o:value("close", translate("Close"))
-o:value("tcp", translate("Same as the tcp node"))
-o:depends("_node_sel_shunt", "1")
-o.cfgvalue = function(self, section)
-	local v = m:get(section, "udp_node") or ""
-	if v == "" then v = "close" end
-	if v ~= "close" and v ~= "tcp" then v = "tcp" end
-	return v
-end
-o.write = function(self, section, value)
-	if value == "close" then value = "" end
-	return m:set(section, "udp_node", value)
-end
-
-current_node_id = m:get(s.section, "tcp_node")
+current_node_id = m:get(s.section, "node")
 current_node = current_node_id and m:get(current_node_id) or {}
 
 -- Shunt Start
@@ -157,7 +128,7 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 				balancing_list = balancing_list,
 				iface_list = iface_list,
 				normal_list = normal_list,
-				verify_option = s.fields["tcp_node"],
+				verify_option = s.fields["node"],
 				tab = "Shunt",
 				tab_desc = translate("Shunt Rule")
 			})
@@ -168,36 +139,37 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 		tips.cfgvalue = function(t, n)
 			return string.format('<a style="color: red">%s</a>', translate("There are no available nodes, please add or subscribe nodes first."))
 		end
-		tips:depends({ tcp_node = "", ["!reverse"] = true })
+		tips:depends({ node = "", ["!reverse"] = true })
 		for k, v in pairs(shunt_list) do
-			tips:depends("tcp_node", v.id)
+			tips:depends("node", v.id)
 		end
 		for k, v in pairs(balancing_list) do
-			tips:depends("tcp_node", v.id)
+			tips:depends("node", v.id)
 		end
 	end
 end
 
-o = s:taboption("Main", Value, "tcp_node_socks_port", translate("TCP Node") .. " Socks " .. translate("Listen Port"))
+o = s:taboption("Main", Value, "node_socks_port", translate("Node") .. " Socks " .. translate("Listen Port"))
 o.default = 1070
-o.datatype = "port"
-o:depends({ tcp_node = "", ["!reverse"] = true })
+o.datatype = "range(1,65535)"
+o.rmempty = false
+o:depends({ node = "", ["!reverse"] = true })
 --[[
 if has_singbox or has_xray then
-	o = s:taboption("Main", Value, "tcp_node_http_port", translate("TCP Node") .. " HTTP " .. translate("Listen Port") .. " " .. translate("0 is not use"))
+	o = s:taboption("Main", Value, "node_http_port", translate("Node") .. " HTTP " .. translate("Listen Port") .. " " .. translate("0 is not use"))
 	o.default = 0
 	o.datatype = "port"
 end
 ]]--
-o = s:taboption("Main", Flag, "tcp_node_socks_bind_local", translate("TCP Node") .. " Socks " .. translate("Bind Local"), translate("When selected, it can only be accessed localhost."))
+o = s:taboption("Main", Flag, "node_socks_bind_local", translate("Node") .. " Socks " .. translate("Bind Local"), translate("When selected, it can only be accessed localhost."))
 o.default = "1"
-o:depends({ tcp_node = "", ["!reverse"] = true })
+o:depends({ node = "", ["!reverse"] = true })
 
 -- Node → DNS Depends Settings
 o = s:taboption("Main", DummyValue, "_node_sel_shunt", "")
 o.template = m:template_path("/cbi/hidevalue")
 o.value = "1"
-o:depends({ tcp_node = "__always__" })
+o:depends({ node = "__always__" })
 
 o = s:taboption("Main", DummyValue, "_node_sel_other", "")
 o.template = m:template_path("/cbi/hidevalue")
@@ -256,9 +228,9 @@ o:depends("direct_dns_mode", "tcp")
 o = s:taboption("DNS", Flag, "filter_proxy_ipv6", translate("Filter Proxy Host IPv6"))
 o.default = "0"
 
--- TCP分流时dns过滤模式保存逻辑
+-- 分流时dns过滤模式保存逻辑
 function dns_mode_save(section)
-	local f = s.fields["tcp_node"]
+	local f = s.fields["node"]
 	local id_val = f and f:formvalue(section) or ""
 	if id_val == "" then
 		return
@@ -478,10 +450,10 @@ o.validate = function(self, value, t)
 		if not _dns_mode and s.fields["smartdns_dns_mode"] then
 			_dns_mode = s.fields["smartdns_dns_mode"]:formvalue(t)
 		end
-		local _tcp_node = s.fields["tcp_node"]:formvalue(t)
-		if _dns_mode and _tcp_node then
-			if (m:get(_tcp_node, "type") or ""):lower() ~= _dns_mode and not _tcp_node:find("socks_") then
-				return nil, translatef("TCP node must be '%s' type to use FakeDNS.", _dns_mode)
+		local _node = s.fields["node"]:formvalue(t)
+		if _dns_mode and _node then
+			if (m:get(_node, "type") or ""):lower() ~= _dns_mode and not _node:find("socks_") then
+				return nil, translatef("Node must be '%s' type to use FakeDNS.", _dns_mode)
 			end
 		end
 	end
@@ -625,11 +597,7 @@ o.cfgvalue = function(t, n)
 end
 
 s:tab("log", translate("Log"))
-o = s:taboption("log", Flag, "log_tcp", translate("Enable") .. " " .. translatef("%s Node Log", "TCP"))
-o.default = "0"
-o.rmempty = false
-
-o = s:taboption("log", Flag, "log_udp", translate("Enable") .. " " .. translatef("%s Node Log", "UDP"))
+o = s:taboption("log", Flag, "log_node", translate("Enable Node Log"))
 o.default = "0"
 o.rmempty = false
 
@@ -682,7 +650,16 @@ s2.addremove = true
 s2.extedit = api.url("socks_config", "%s")
 function s2.create(e, t)
 	local uid = "socks_" .. api.gen_random_char(5)
+	local n = 1
+	m:foreach("socks", function(s)
+		if s[".name"] == section then
+			return false
+		end
+		n = n + 1
+	end)
 	TypedSection.create(e, uid)
+	m:set(uid, "port", 1080 + n)
+	m:set(uid, "http_port", 0)
 	luci.http.redirect(e.extedit:format(uid))
 end
 function s2.remove(e, t)
@@ -691,18 +668,12 @@ function s2.remove(e, t)
 	if node0 then
 		new_node = node0[".name"]
 	end
-	if (m:get("@global[0]", "tcp_node") or "") == t then
-		m:set('@global[0]', "tcp_node", new_node)
-	end
-	if (m:get("@global[0]", "udp_node") or "") == t then
-		m:set('@global[0]', "udp_node", new_node)
+	if (m:get("@global[0]", "node") or "") == t then
+		m:set('@global[0]', "node", new_node)
 	end
 	m:foreach("acl_rule", function(s)
-		if s["tcp_node"] and s["tcp_node"] == t then
-			m:set(s[".name"], "tcp_node", "default")
-		end
-		if s["udp_node"] and s["udp_node"] == t then
-			m:set(s[".name"], "udp_node", "default")
+		if s["node"] and s["node"] == t then
+			m:set(s[".name"], "node", "default")
 		end
 	end)
 	m:foreach("nodes", function(s)
@@ -731,12 +702,6 @@ function s2.remove(e, t)
 	TypedSection.remove(e, t)
 end
 
-o = s2:option(DummyValue, "status", translate("Status"))
-o.rawhtml = true
-o.cfgvalue = function(t, n)
-	return string.format('<div class="_status" socks_id="%s"></div>', n)
-end
-
 ---- Enable
 o = s2:option(Flag, "enabled", translate("Enable"))
 o.default = 1
@@ -758,35 +723,25 @@ o.cfgvalue = function(_, n)
 	end
 end
 
-local n = 1
-m:foreach("socks", function(s)
-	if s[".name"] == section then
-		return false
-	end
-	n = n + 1
-end)
-
-o = s2:option(Value, "port", "Socks " .. translate("Listen Port"))
-o.default = n + 1080
-o.datatype = "port"
-o.rmempty = false
-
---[[
-if has_singbox or has_xray then
-	o = s2:option(Value, "http_port", "HTTP " .. translate("Listen Port"))
-	o.default = 0
-	o.datatype = "port"
+o = s2:option(DummyValue, "port_status", translate("Port Status"))
+o.rawhtml = true
+o.cfgvalue = function(t, n)
+	local socks = m:get(n, "port") or "0"
+	local http = m:get(n, "http_port") or "0"
+	return string.format([[
+	<div class="_socks_status" socks_id="%s">
+		<span class="_socks"></span> SOCKS: %s
+		<br>
+		<span class="_http"></span> HTTP: %s
+	</div>
+	]], n, socks, http)
 end
-]]--
 
-local tcp = s.fields["tcp_node"]
-local udp = s.fields["udp_node"]
-local socks = s2.fields["node"]
+local o_node = s.fields["node"]
+local o_socks = s2.fields["node"]
 for k, v in pairs(socks_list) do
-	tcp:value(v.id, v["remark"])
-	tcp.group[#tcp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
-	udp:value(v.id, v["remark"])
-	udp.group[#udp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+	o_node:value(v.id, v["remark"])
+	o_node.group[#o_node.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
 end
 for k, v in pairs(nodes_table) do
 	if #normal_list == 0 and #iface_list == 0 then
@@ -794,33 +749,29 @@ for k, v in pairs(nodes_table) do
 	end
 	if v.protocol == "_shunt" then
 		if has_singbox or has_xray then
-			tcp:value(v.id, v["remark"])
-			tcp.group[#tcp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
-			udp:value(v.id, v["remark"])
-			udp.group[#udp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+			o_node:value(v.id, v["remark"])
+			o_node.group[#o_node.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
 
-			s.fields["_node_sel_shunt"]:depends({ tcp_node = v.id })
+			s.fields["_node_sel_shunt"]:depends({ node = v.id })
 			if m:get(v.id, "type") == "Xray" then
-				s.fields["xray_dns_mode"]:depends({ tcp_node = v.id })
+				s.fields["xray_dns_mode"]:depends({ node = v.id })
 			else
-				s.fields["singbox_dns_mode"]:depends({ tcp_node = v.id })
-				s.fields["remote_rewrite_ttl"]:depends({ tcp_node = v.id })
+				s.fields["singbox_dns_mode"]:depends({ node = v.id })
+				s.fields["remote_rewrite_ttl"]:depends({ node = v.id })
 			end
 		end
 	else
-		tcp:value(v.id, v["remark"])
-		tcp.group[#tcp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
-		udp:value(v.id, v["remark"])
-		udp.group[#udp.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+		o_node:value(v.id, v["remark"])
+		o_node.group[#o_node.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
 	end
 	if v.type == "Socks" then
 		if has_singbox or has_xray then
-			socks:value(v.id, v["remark"])
-			socks.group[#socks.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+			o_socks:value(v.id, v["remark"])
+			o_socks.group[#o_socks.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
 		end
 	else
-		socks:value(v.id, v["remark"])
-		socks.group[#socks.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
+		o_socks:value(v.id, v["remark"])
+		o_socks.group[#o_socks.group+1] = (v.group and v.group ~= "") and v.group or translate("default")
 	end
 end
 
