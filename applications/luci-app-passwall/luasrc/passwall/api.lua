@@ -1,4 +1,7 @@
 module("luci.passwall.api", package.seeall)
+appname = "passwall"
+c_config = "passwall"
+s_config = "passwall_server"
 local com = require "luci.passwall.com"
 nixio = require "nixio"
 fs = require "nixio.fs"
@@ -16,9 +19,11 @@ OPENWRT_ARCH = nil
 DISTRIB_ARCH = nil
 OPENWRT_BOARD = nil
 
-CACHE_PATH = "/tmp/etc/" .. appname .. "_tmp"
-LOG_FILE = "/tmp/log/" .. appname .. ".log"
-TMP_PATH = "/tmp/etc/" .. appname
+LOCK_PREFIX = "/tmp/lock/" .. c_config
+LOG_FILE = "/tmp/log/" .. c_config .. ".log"
+TMP_PATH = "/tmp/etc/" .. c_config
+CACHE_PATH = TMP_PATH .. "_tmp"
+S_TMP_PATH = "/tmp/etc/" .. s_config
 TMP_IFACE_PATH = TMP_PATH .. "/iface"
 
 function log(...)
@@ -30,15 +35,89 @@ function log(...)
 	end
 end
 
-function is_js_luci()
-	return sys.call('[ -f "/www/luci-static/resources/uci.js" ]') == 0
-end
-
 function is_old_uci()
 	return sys.call("grep -E 'require[ \t]*\"uci\"' /usr/lib/lua/luci/model/uci.lua >/dev/null 2>&1") == 0
 end
 
+function uci_del(config, section, option)
+	if option then
+		return uci:delete(config, section, option)
+	else
+		return uci:delete(config, section)
+	end
+end
+
+function uci_get(config, section, option)
+	if not section then
+		return uci:get_all(config)
+	elseif option then
+		return uci:get(config, section, option) or nil
+	else
+		return uci:get_all(config, section)
+	end
+end
+
+function uci_set(config, section, option, value)
+	if type(value) == "number" then
+		value = value .. ""
+	end
+	if #value > 0 then
+		if option then
+			if type(value) == "table" then
+				return uci:set_list(config, section, option, value)
+			else
+				return uci:set(config, section, option, value)
+			end
+		else
+			return uci:set(config, section, value)
+		end
+	else
+		return uci_del(config, section, option)
+	end
+end
+
+function uci_del_c(section, option)
+	return uci_del(c_config, section, option)
+end
+
+function uci_foreach_c(stype, func)
+	uci:foreach(c_config, stype, func)
+end
+
+function uci_get_c(section, option)
+	return uci_get(c_config, section, option)
+end
+
+function uci_set_c(section, option, value)
+	return uci_set(c_config, section, option, value)
+end
+
+function uci_save_c(commit, apply)
+	return uci_save(uci, c_config, commit, apply)
+end
+
+function uci_del_s(section, option)
+	return uci_del(s_config, section, option)
+end
+
+function uci_foreach_s(stype, func)
+	uci:foreach(s_config, stype, func)
+end
+
+function uci_get_s(section, option)
+	return uci_get(s_config, section, option)
+end
+
+function uci_set_s(section, option, value)
+	return uci_set(s_config, section, option, value)
+end
+
+function uci_save_s(commit, apply)
+	return uci_save(uci, s_config, commit, apply)
+end
+
 function uci_save(cursor, config, commit, apply)
+	if not cursor then cursor = uci end
 	if is_old_uci() then
 		cursor:save(config)
 		if commit then
@@ -199,7 +278,7 @@ end
 
 function curl_direct(url, file, args)
 	--直连访问
-	local chn_list = uci:get(appname, "@global[0]", "chn_list") or "direct"
+	local chn_list = uci_get_c("@global[0]", "chn_list") or "direct"
 	local Dns = (chn_list == "proxy") and "1.1.1.1" or "223.5.5.5"
 	if not args then args = {} end
 	local tmp_args = clone(args)
@@ -214,7 +293,7 @@ function curl_direct(url, file, args)
 end
 
 function curl_auto(url, file, args)
-	local localhost_proxy = uci:get(appname, "@global[0]", "localhost_proxy") or "1"
+	local localhost_proxy = uci_get_c("@global[0]", "localhost_proxy") or "1"
 	if localhost_proxy == "1" then
 		return curl_base(url, file, args) -- 当路由器本机开启代理时，采用passwall规则进行访问
 	else
@@ -369,6 +448,12 @@ function is_timehhmm(str)
 end
 datatypes.timehhmm = is_timehhmm
 
+function is_uuid(str)
+	local pattern = "^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$"
+	return string.match(str, pattern) ~= nil
+end
+datatypes.uuid = is_uuid
+
 function is_normal_node(e)
 	if e and e.type and e.protocol and (e.protocol == "_balancing" or e.protocol == "_shunt" or e.protocol == "_iface" or e.protocol == "_urltest") then
 		return false
@@ -476,11 +561,11 @@ function get_domain_from_url(url)
 end
 
 function get_valid_nodes()
-	local show_node_info = uci_get_type("global_other", "show_node_info", "0")
+	local show_node_info = uci_get_c("@global_other[0]", "show_node_info") or "0"
 	local nodes = {}
 	local default_nodes = {}
 	local other_nodes = {}
-	uci:foreach(appname, "nodes", function(e)
+	uci_foreach_c("nodes", function(e)
 		e.id = e[".name"]
 		if e.type and e.remarks then
 			local type_name = e.type
@@ -553,7 +638,7 @@ function get_node_list()
 		socks_list = {},
 		normal_list = {},
 	}
-	uci:foreach(appname, "socks", function(s)
+	uci_foreach_c("socks", function(s)
 		if s.enabled == "1" and s.node then
 			node_list.socks_list[#node_list.socks_list + 1] = {
 				id = s[".name"],
@@ -642,6 +727,29 @@ function get_full_node_remarks(n)
 	return remarks
 end
 
+function get_random_normal_node(exclude_id)
+	local exclude_id_lookup = {}
+	if type(exclude_id) == "table" then
+		for i, v in ipairs(exclude_id) do
+			exclude_id_lookup[v] = true
+		end
+	elseif type(exclude_id) == "string" then
+		exclude_id_lookup[exclude_id] = true
+	end
+	local normal_list = {}
+	for k, e in ipairs(get_valid_nodes()) do
+		if e.node_type == "normal" and not exclude_id_lookup[e[".name"]] then
+			normal_list[#normal_list + 1] = e
+		end
+	end
+	if #normal_list > 0 then
+		math.randomseed(os.time())
+		local num = math.random(1, #normal_list)
+		return normal_list[num]
+	end
+	return nil
+end
+
 function gen_uuid()
 	local uuid = sys.exec("echo -n $(cat /proc/sys/kernel/random/uuid)")
 	return uuid
@@ -652,23 +760,7 @@ function gen_random_char(length)
 	return sys.exec("echo -n $(head /dev/urandom | tr -dc A-Za-z0-9 | head -c %s)" % length)
 end
 
-function uci_get_type(type, config, default)
-	local value = uci:get_first(appname, type, config, default) or sys.exec("echo -n $(uci -q get " .. appname .. ".@" .. type .."[0]." .. config .. ")")
-	if (value == nil or value == "") and (default and default ~= "") then
-		value = default
-	end
-	return value
-end
-
-function uci_get_type_id(id, config, default)
-	local value = uci:get(appname, id, config, default) or sys.exec("echo -n $(uci -q get " .. appname .. "." .. id .. "." .. config .. ")")
-	if (value == nil or value == "") and (default and default ~= "") then
-		value = default
-	end
-	return value
-end
-
-local function chmod_755(file)
+function chmod_755(file)
 	if file and file ~= "" then
 		if not fs.access(file, "rwx", "rx", "rx") then
 			fs.chmod(file, 755)
@@ -677,7 +769,7 @@ local function chmod_755(file)
 end
 
 function get_customed_path(e)
-	return uci_get_type("global_app", e .. "_file")
+	return uci_get_c("@global_app[0]", e .. "_file")
 end
 
 function finded_com(e)
@@ -716,16 +808,16 @@ function clone(org)
 end
 
 function get_bin_version_cache(file, cmd)
-	sys.call("mkdir -p /tmp/etc/passwall_tmp")
+	sys.call("mkdir -p " .. CACHE_PATH)
 	if fs.access(file) then
 		chmod_755(file)
 		local md5 = sys.exec("echo -n $(md5sum " .. file .. " | awk '{print $1}')")
-		if fs.access("/tmp/etc/passwall_tmp/" .. md5) then
-			return sys.exec("echo -n $(cat /tmp/etc/passwall_tmp/%s)" % md5)
+		if fs.access(CACHE_PATH .. "/" .. md5) then
+			return sys.exec("echo -n $(cat %s)" % { CACHE_PATH .. "/" .. md5 })
 		else
 			local version = sys.exec(string.format("echo -n $(%s %s)", file, cmd))
 			if version and version ~= "" then
-				sys.call("echo '" .. version .. "' > " .. "/tmp/etc/passwall_tmp/" .. md5)
+				sys.call("echo '%s' > %s"  % { version, CACHE_PATH .. "/" .. md5})
 				return version
 			end
 		end
@@ -736,7 +828,7 @@ end
 function get_app_path(app_name)
 	if com[app_name] then
 		local def_path = com[app_name].default_path
-		local path = uci_get_type("global_app", app_name:gsub("%-","_") .. "_file")
+		local path = uci_get_c("@global_app[0]", app_name:gsub("%-","_") .. "_file")
 		path = path and (#path>0 and path or def_path) or def_path
 		return path
 	end
@@ -1014,7 +1106,7 @@ local default_file_tree = {
 }
 
 local function get_api_json(url)
-	local gh_proxy = uci_get_type("global_app", "github_proxy", "0")
+	local gh_proxy = uci_get_c("@global_app[0]", "github_proxy") or "0"
 	local return_code, content
 	if gh_proxy == "1" then
 		url = "https://gh-proxy.org/" .. url
@@ -1138,7 +1230,7 @@ function to_download(app_name, url, size)
 	local _curl_args = clone(curl_args)
 	table.insert(_curl_args, "--speed-limit 51200 --speed-time 15 --max-time 300")
 
-	local gh_proxy = uci_get_type("global_app", "github_proxy", "0")
+	local gh_proxy = uci_get_c("@global_app[0]", "github_proxy") or "0"
 	local return_code, result
 	if gh_proxy == "1" then
 		url = "https://gh-proxy.org/" .. url
@@ -1296,7 +1388,7 @@ end
 function to_check_self()
 	local url = "https://raw.githubusercontent.com/Openwrt-Passwall/openwrt-passwall/main/luci-app-passwall/Makefile"
 	local tmp_file = "/tmp/passwall_makefile"
-	local gh_proxy = uci_get_type("global_app", "github_proxy", "0")
+	local gh_proxy = uci_get_c("@global_app[0]", "github_proxy") or "0"
 	local return_code, result
 	if gh_proxy == "1" then
 		url = "https://gh-proxy.org/" .. url
@@ -1333,14 +1425,73 @@ function to_check_self()
 	}
 end
 
+function is_js_luci()
+	return sys.call('[ -f "/www/luci-static/resources/uci.js" ]') == 0
+end
+
 function set_default_cbi()
 	local cbi = require "luci.cbi"
 	if true then
+		--Map
+		local Map = cbi.Map
+		local default_init = Map.__init__
+		function Map.__init__(self, config, ...)
+			if not config then config = c_config end
+			default_init(self, config, ...)
+			self.api = require "luci.passwall.api"
+		end
+		if is_js_luci() == true then
+			local default_parse = Map.parse
+			function Map.parse(self, ...)
+				apply_redirect(self)
+				local old = self.on_after_save
+				self.on_after_save = function(self)
+					if old then old(self) end
+					self:set("@global[0]", "timestamp", os.time())
+				end
+				return default_parse(self, ...)
+			end
+		end
+		function Map.foreach(self, stype, func)
+			self.uci:foreach(self.config, stype, func)
+		end
+		function Map.template_path(self, template)
+			return appname .. template
+		end
+		function Map.appendTemplate(self, template, data)
+			local obj = cbi.Template(self:template_path(template))
+			obj.map = self
+			if data and next(data) then
+				for k, v in pairs(data) do
+					obj[k] = v
+				end
+			end
+			self:append(obj)
+			return obj
+		end
+	end
+	if true then
+		--AbstractSection
+		local AbstractSection = cbi.AbstractSection
+		function AbstractSection.appendTemplate(self, template, data)
+			local obj = cbi.Template(self.map:template_path(template))
+			obj.map = self.map
+			obj.section = self
+			if data and next(data) then
+				for k, v in pairs(data) do
+					obj[k] = v
+				end
+			end
+			self:append(obj)
+			return obj
+		end
+	end
+	if true then
 		--TextValue
 		local TextValue = cbi.TextValue
-		local original_init = TextValue.__init__
+		local default_init = TextValue.__init__
 		function TextValue.__init__(self, ...)
-			original_init(self, ...)
+			default_init(self, ...)
 			self.template  = appname .. "/cbi/tvalue"
 		end
 	end
@@ -1371,115 +1522,122 @@ function return_map(map)
 	if true then
 		-- header
 		local header = cbi.Template(appname .. "/cbi/header")
-		header.api = api
-		header.config = map.config
+		header.map = map
 		table.insert(map.children, 1, header)
 	end
 	if true then
 		-- footer
 		local footer = cbi.Template(appname .. "/cbi/footer")
-		footer.api = api
-		footer.config = map.config
+		footer.map = map
 		map:append(footer)
 	end
-
 	return map
 end
 
-function luci_types(id, m, s, type_name, option_prefix)
+function luci_types(s, s2)
 	local cbi = require "luci.cbi"
+	local m = s.map
+	local id = s2.section
+	local type_name = s2.type_name
+	local option_prefix = s2.option_prefix
 	local fv_type
 	local field_type = s.fields["type"]
 	if field_type then
 		fv_type = field_type:formvalue(id)
 	end
-	local rewrite_option_table = {}
-	for key, value in pairs(s.fields) do
-		if key:find(option_prefix) == 1 then
-			if not s.fields[key].not_rewrite then
-				if s.fields[key].rewrite_option then
-					if not rewrite_option_table[s.fields[key].rewrite_option] then
-						rewrite_option_table[s.fields[key].rewrite_option] = 1
+	for i, v in ipairs(s2.children) do
+		local o = s2.children[i]
+		o.config_option = o.option
+		o.option_prefix = option_prefix
+		o.option = option_prefix .. o.option
+		if not o.not_rewrite then
+			o.cfgvalue = function(self, section)
+				-- Add a custom `custom_cfgvalue` attribute. If a custom `custom_cfgvalue` function exists, the custom `cfgvalue` logic will be used.
+				if self.custom_cfgvalue then
+					return self:custom_cfgvalue(section)
+				else
+					if self.rewrite_option then
+						return m:get(section, self.rewrite_option)
 					else
-						rewrite_option_table[s.fields[key].rewrite_option] = rewrite_option_table[s.fields[key].rewrite_option] + 1
+						return m:get(section, self.config_option)
 					end
 				end
-
-				s.fields[key].cfgvalue = function(self, section)
-					-- 添加自定义 custom_cfgvalue 属性，如果有自定义的 custom_cfgvalue 函数，则使用自定义的 cfgvalue 逻辑
-					if self.custom_cfgvalue then
-						return self:custom_cfgvalue(section)
+			end
+			o.write = function(self, section, value)
+				if s.fields["type"]:formvalue(id) == type_name then
+					-- Add a custom `custom_write` attribute; if a custom `custom_write` function exists, then use the custom write logic.
+					if self.custom_write then
+						self:custom_write(section, value)
+					else
+						local new_val = value
+						if util.instanceof(self, cbi.DynamicList) then
+							local new_t = {}
+							if type(value) == "table" then
+								new_t = table_remove_duplicates(value)
+							else
+								new_t = { value }
+							end
+							if self.cast == "string" then
+								new_val = table.concat(new_t, " ")
+							else
+								new_val = new_t
+							end
+						end
+						if self.rewrite_option then
+							m:set(section, self.rewrite_option, new_val)
+						else
+							m:set(section, self.config_option, new_val)
+						end
+					end
+				end
+			end
+			o.remove = function(self, section)
+				if s.fields["type"]:formvalue(id) == type_name then
+					-- Add a custom `custom_remove` attribute; if a custom `custom_remove` function exists, use the custom remove logic.
+					if self.custom_remove then
+						self:custom_remove(section)
 					else
 						if self.rewrite_option then
-							return m:get(section, self.rewrite_option)
+							m:del(section, self.rewrite_option)
 						else
-							if self.option:find(option_prefix) == 1 then
-								return m:get(section, self.option:sub(1 + #option_prefix))
-							end
+							m:del(section, self.config_option)
 						end
 					end
 				end
-				s.fields[key].write = function(self, section, value)
-					if s.fields["type"]:formvalue(id) == type_name then
-						-- 添加自定义 custom_write 属性，如果有自定义的 custom_write 函数，则使用自定义的 write 逻辑
-						if self.custom_write then
-							self:custom_write(section, value)
-						else
-							local new_val = value
-							if util.instanceof(self, cbi.DynamicList) then
-								local new_t = {}
-								if type(value) == "table" then
-									new_t = table_remove_duplicates(value)
-								else
-									new_t = { value }
-								end
-								if self.cast == "string" then
-									new_val = table.concat(new_t, " ")
-								else
-									new_val = new_t
-								end
-							end
-							if self.rewrite_option then
-								m:set(section, self.rewrite_option, new_val)
-							else
-								if self.option:find(option_prefix) == 1 then
-									m:set(section, self.option:sub(1 + #option_prefix), new_val)
-								end
-							end
-						end
-					end
-				end
-				s.fields[key].remove = function(self, section)
-					if s.fields["type"]:formvalue(id) == type_name then
-						-- 添加自定义 custom_remove 属性，如果有自定义的 custom_remove 函数，则使用自定义的 remove 逻辑
-						if self.custom_remove then
-							self:custom_remove(section)
-						else
-							if self.rewrite_option and rewrite_option_table[self.rewrite_option] == 1 then
-								m:del(section, self.rewrite_option)
-							else
-								if self.option:find(option_prefix) == 1 then
-									m:del(section, self.option:sub(1 + #option_prefix))
-								end
-							end
-						end
-					end
-				end
-			end
-
-			local deps = s.fields[key].deps
-			if #deps > 0 then
-				for index, value in ipairs(deps) do
-					deps[index]["type"] = type_name
-				end
-			else
-				s.fields[key]:depends({ type = type_name })
-			end
-
-			if fv_type and fv_type ~= type_name then
-				s.fields[key].rmempty = true
 			end
 		end
+
+		local deps = o.deps
+		if #deps > 0 then
+			local function process_deps(dep)
+				local rewrite_deps = {}
+				for k, v in pairs(dep) do
+					if k:find("!") then
+						rewrite_deps[k] = v
+					else
+						rewrite_deps[option_prefix .. k] = v
+					end
+				end
+				if not rewrite_deps['!reverse'] then
+					rewrite_deps["type"] = type_name
+				end
+				return rewrite_deps
+			end
+			for index, value in ipairs(deps) do
+				local rewrite_deps = process_deps(value)
+				if rewrite_deps then
+					deps[index] = rewrite_deps
+				end
+			end
+		else
+			o:depends({ type = type_name })
+		end
+
+		if fv_type and fv_type ~= type_name then
+			o.rmempty = true
+		end
+
+		s:append(o)
 	end
 end
 
@@ -1563,20 +1721,8 @@ function format_go_time(input, default)
 	return result
 end
 
-function set_apply_on_parse(map)
-	if not map then return end
-	if is_js_luci() then
-		apply_redirect(map)
-		local old = map.on_after_save
-		map.on_after_save = function(self)
-			if old then old(self) end
-			map:set("@global[0]", "timestamp", os.time())
-		end
-	end
-end
-
 function apply_redirect(m)
-	local tmp_uci_file = "/etc/config/" .. appname .. "_redirect"
+	local tmp_uci_file = "/etc/config/" .. c_config .. "_redirect"
 	if m.redirect and m.redirect ~= "" then
 		if fs.access(tmp_uci_file) then
 			local redirect
@@ -1591,13 +1737,18 @@ function apply_redirect(m)
 		else
 			fs.writefile(tmp_uci_file, "config redirect\n")
 		end
+		local old = m.on_after_save
 		m.on_after_save = function(self)
+			if old then
+				old(self)
+			end
 			local redirect = self.redirect
 			if redirect and redirect ~= "" then
-				uci:set(appname .. "_redirect", "@redirect[0]", "url", redirect)
+				uci:set(c_config .. "_redirect", "@redirect[0]", "url", redirect)
 			end
 		end
 	else
+		uci:revert(c_config .. "_redirect")
 		sys.call("/bin/rm -f " .. tmp_uci_file)
 	end
 end
@@ -1699,7 +1850,7 @@ end
 function get_socks_backup_nodes(id)
 	id = trim(id)
 	if id == "" then return "" end
-	local socks = uci:get_all(appname, id)
+	local socks = uci_get_c(id)
 	local nodes
 	if socks.backup_node_add_mode and socks.backup_node_add_mode == "batch" then
 		local node = {}
@@ -1720,7 +1871,7 @@ function get_socks_backup_nodes(id)
 end
 
 function get_core(field, candidates)
-	local v = uci:get(appname, "@global_subscribe[0]", field)
+	local v = uci_get_c("@global_subscribe[0]", field)
 	if v and v ~= "" then
 		for _, c in ipairs(candidates) do
 			if c[2] == v and c[1] then
@@ -1923,4 +2074,37 @@ function table_remove_duplicates(t)
 		end
 	end
 	return new_t
+end
+
+function gen_wireguard_key()
+	if sys.call("command -v wg >/dev/null") == 0 then
+		local private_key = sys.exec('echo -n $(wg genkey)')
+		local public_key = sys.exec('echo -n $(echo "%s" | wg pubkey)' % private_key)
+		return {
+			private_key = private_key,
+			public_key = public_key
+		}
+	end
+	local xray = finded_com("xray")
+	if xray then
+		local result = sys.exec(xray .. " wg | awk -F ': ' '{print $2}'")
+		local s = split(result, "\n")
+		local private_key = s[1]
+		local public_key = s[2]
+		return {
+			private_key = private_key,
+			public_key = public_key
+		}
+	end
+	local sb = finded_com("sing-box")
+	if sb then
+		local result = sys.exec(sb .. " generate wg-keypair | awk '{print $2}'")
+		local s = split(result, "\n")
+		local private_key = s[1]
+		local public_key = s[2]
+		return {
+			private_key = private_key,
+			public_key = public_key
+		}
+	end
 end

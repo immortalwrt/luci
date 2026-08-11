@@ -1,30 +1,21 @@
 api = require "luci.passwall.api"
-appname = "passwall"
-
 api.set_default_cbi()
 
-m = Map(appname, translate("Node Config"))
+m = Map()
 m.redirect = api.url("node_list")
-api.set_apply_on_parse(m)
 
 if not arg[1] or not m:get(arg[1]) then
 	luci.http.redirect(m.redirect)
 end
 
-fs = require "nixio.fs"
-formvalue_key = "cbid." .. appname .. "." .. arg[1] .. "."
+formvalue_key = "cbid." .. m.config .. "." .. arg[1] .. "."
 
-local header = Template(appname .. "/node_config/header")
-header.api = api
-header.config = m.config
-header.section = arg[1]
-m:append(header)
-
-m:append(Template(appname .. "/cbi/nodes_multivalue_com"))
-m:append(Template(appname .. "/cbi/nodes_listvalue_com"))
+m:appendTemplate("/node_config/header", {section = arg[1]})
+m:appendTemplate("/cbi/nodes_multivalue_com")
+m:appendTemplate("/cbi/nodes_listvalue_com")
 
 groups = {}
-m.uci:foreach(appname, "nodes", function(s)
+m:foreach("nodes", function(s)
 	if s[".name"] ~= arg[1] then
 		if s.group and s.group ~= "" then
 			groups[s.group] = true
@@ -32,13 +23,13 @@ m.uci:foreach(appname, "nodes", function(s)
 	end
 end)
 
-s = m:section(NamedSection, arg[1], "nodes", "")
+local s = m:section(NamedSection, arg[1], "nodes", translate("Node Config"))
 s.addremove = false
 s.dynamic = false
 
 o = s:option(DummyValue, "passwall", "　")
 o.rawhtml  = true
-o.template = "passwall/node_config/link_share_man"
+o.template = m:template_path("/node_config/link_share_man")
 o.value = arg[1]
 
 o = s:option(Value, "remarks", translate("Node Remarks"))
@@ -67,10 +58,10 @@ o.write = function(self, section, value)
 	m:set(section, self.option, value)
 end
 
-local types_dir = "/usr/lib/lua/luci/model/cbi/passwall/client/type/"
+local types_dir = "/usr/lib/lua/luci/model/cbi/" .. api.appname .. "/client/type/"
 s.val = {}
-s.val["type"] = m.uci:get(appname, arg[1], "type")
-s.val["protocol"] = m.uci:get(appname, arg[1], "protocol")
+s.val["type"] = m:get(arg[1], "type")
+s.val["protocol"] = m:get(arg[1], "protocol")
 
 if luci.http.formvalue("cbi.submit") == "1" then
 	local formvalue_type = luci.http.formvalue(formvalue_key .. "type")
@@ -82,33 +73,35 @@ end
 o = s:option(ListValue, "type", translate("Type"))
 
 if api.is_finded("ipt2socks") then
-	s.fields["type"]:value("Socks", translate("Socks"))
+	local type_name = "Socks"
 
-	if s.val["type"] == "Socks" then
-		local function _n(name)
-			return "socks_" .. name
-		end
-		o = s:option(ListValue, _n("del_protocol"), "　") --始终隐藏，用于删除 protocol
-		o:depends({ [_n("__hide")] = "1" })
+	s.fields["type"]:value(type_name, "Socks")
+
+	if s.val["type"] == type_name then
+		local s2 = NamedSection(m, arg[1], "server")
+		s2.type_name = type_name
+		s2.option_prefix = "socks_"
+
+		o = s2:option(ListValue, "del_protocol", "　") --始终隐藏，用于删除 protocol
+		o:depends({ __hide = "1" })
 		o.rewrite_option = "protocol"
 
-		o = s:option(Value, _n("address"), translate("Address (Support Domain Name)"))
+		o = s2:option(Value, "address", translate("Address (Support Domain Name)"))
 
-		o = s:option(Value, _n("port"), translate("Port"))
+		o = s2:option(Value, "port", translate("Port"))
 		o.datatype = "port"
 
-		o = s:option(Value, _n("username"), translate("Username"))
+		o = s2:option(Value, "username", translate("Username"))
 
-		o = s:option(Value, _n("password"), translate("Password"))
+		o = s2:option(Value, "password", translate("Password"))
 		o.password = true
 
-		api.luci_types(arg[1], m, s, "Socks", "socks_")
+		api.luci_types(s, s2)
 	end
-
 end
 
 local type_table = {}
-for filename in fs.dir(types_dir) do
+for filename in api.fs.dir(types_dir) do
 	table.insert(type_table, filename)
 end
 table.sort(type_table)
@@ -118,10 +111,6 @@ for index, value in ipairs(type_table) do
 	setfenv(p_func, getfenv(1))(m, s)
 end
 
-local footer = Template(appname .. "/node_config/footer")
-footer.api = api
-footer.config = m.config
-footer.section = arg[1]
-m:append(footer)
+m:appendTemplate("/node_config/footer", {section = arg[1]})
 
 return api.return_map(m)
