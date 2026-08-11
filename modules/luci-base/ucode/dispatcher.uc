@@ -1,11 +1,10 @@
 // Copyright 2022 Jo-Philipp Wich <jo@mein.io>
 // Licensed to the public under the Apache License 2.0.
 
-import { open, stat, glob, lsdir, unlink, basename } from 'fs';
+import { open, readfile, stat, glob, lsdir, unlink, basename } from 'fs';
 import { striptags, entityencode } from 'html';
 import { connect } from 'ubus';
 import { cursor } from 'uci';
-import { rand } from 'math';
 import { openlog, syslog, closelog, LOG_INFO, LOG_WARNING, LOG_AUTHPRIV } from 'log';
 
 import { hash, load_catalog, change_catalog, translate, ntranslate, getuid } from 'luci.core';
@@ -351,6 +350,7 @@ function build_pagetree() {
 		action: 'object',
 		auth: 'object',
 		cors: 'bool',
+		css: 'string',
 		depends: 'object',
 		order: 'int',
 		setgroup: 'string',
@@ -487,12 +487,12 @@ function session_retrieve(sid, allowed_users) {
 }
 
 function randomid(num_bytes) {
-	let bytes = [];
+	let data = readfile('/dev/urandom', num_bytes);
 
-	while (num_bytes-- > 0)
-		push(bytes, sprintf('%02x', rand() % 256));
+	if (length(data) != num_bytes)
+		return null;
 
-	return join('', bytes);
+	return hexenc(data);
 }
 
 function session_setup(user, pass, path) {
@@ -759,7 +759,7 @@ function lookup(...segments) {
 			push(path, name);
 
 	for (let name in path) {
-		node = node.children[name];
+		node = node.children?.[name];
 
 		if (!node)
 			return null;

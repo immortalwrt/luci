@@ -66,8 +66,8 @@ return view.extend({
 		if (error)
 			ui.addNotification(null, E('p', _('Some options are unavailable because swanctl failed to load: %s').format(error)), 'warning');
 
-		m = new form.Map('ipsec', _('Remote/Tunnel configuration'),
-			_('On this page, you can configure the IPsec tunnels and remotes.'));
+		m = new form.Map('ipsec', _('Connection configurations'),
+			_('On this page, you can configure the IPsec connections.'));
 		m.tabbed = true;
 
 		// Remote Configuration
@@ -85,23 +85,21 @@ return view.extend({
 			_('Configuration is enabled or not'));
 		o.rmempty = false;
 
-		o = s.taboption('general', form.Value, 'gateway', _('Gateway (Remote Endpoint)'),
-			_('IP address or FQDN name of the tunnel remote endpoint'));
+		o = s.taboption('general', form.DynamicList, 'remote_addrs', _('Remote Endpoints'),
+			_('IP address or FQDN name of the tunnel remote endpoints.') + ' ' +
+			_('If no value is specified, "%any" is assumed.'));
 		o.datatype = 'or(hostname,ipaddr)';
-		o.rmempty = false;
+		o.placeholder = '%any';
 
-		o = s.taboption('general', form.Value, 'local_gateway', _('Local Gateway'),
-			_('IP address or FQDN of the tunnel local endpoint'));
+		o = s.taboption('general', form.DynamicList, 'local_addrs', _('Local Endpoints'),
+			_('IP address or FQDN name of the tunnel local endpoints.') + ' ' +
+			_('If no value is specified, "%any" is assumed.'));
 		o.datatype = 'or(hostname,ipaddr)';
+		o.placeholder = '%any';
 		o.modalonly = true;
 
-		o = s.taboption('general', form.Value, 'local_sourceip', _('Local Source IP'),
-			_('Virtual IP(s) to request in IKEv2 configuration payloads requests'));
-		o.datatype = 'ipaddr';
-		o.modalonly = true;
-
-		o = s.taboption('general', form.Value, 'local_ip', _('Local IP'),
-			_('Local address(es) to use in IKE negotiation'));
+		o = s.taboption('general', form.DynamicList, 'vips', _('Virtual IP addresses'),
+			_('Virtual IP addresses used as the source IP for outgoing traffic.'));
 		o.datatype = 'ipaddr';
 		o.modalonly = true;
 
@@ -188,11 +186,35 @@ return view.extend({
 		o.depends('authentication_method', 'pubkey');
 		o.modalonly = true;
 
+		o = s.taboption('authentication', form.DynamicList, 'remote_ca_certs', _('Remote CA Certificates'),
+			_('Restrict the remote peer\'s certificate to be issued by one of these CAs'));
+		o.datatype = 'file';
+		o.depends('authentication_method', 'pubkey');
+		o.optional = true;
+		o.modalonly = true;
+
+		o = s.taboption('authentication', form.ListValue, 'send_cert', _('Send Certificate'),
+			_('Whether to send our own certificate to the remote peer'));
+		o.value('always');
+		o.value('ifasked');
+		o.value('never');
+		o.default = 'ifasked';
+		o.depends('authentication_method', 'pubkey');
+		o.optional = true;
+		o.modalonly = true;
+
+		o = s.taboption('authentication', form.Flag, 'send_certreq', _('Send Certificate Request'),
+			_('Send certificate request payloads to offer trusted root CA certificates to the peer'));
+		o.default = '1';
+		o.depends('authentication_method', 'pubkey');
+		o.modalonly = true;
 
 		o = s.taboption('advanced', form.Flag, 'mobike', _('MOBIKE'),
 			_('MOBIKE (IKEv2 Mobility and Multihoming Protocol)'));
 		o.default = '1';
 		o.modalonly = true;
+		o.depends('keyexchange', 'ikev2');
+		o.depends('keyexchange', 'ike');
 
 		o = s.taboption('advanced', form.ListValue, 'fragmentation', _('IKE Fragmentation'),
 			_('Use IKE fragmentation'));
@@ -205,19 +227,20 @@ return view.extend({
 
 		o = s.taboption('advanced', form.Value, 'keyingtries', _('Keying Retries'),
 			_('Number of retransmissions attempts during initial negotiation'));
-		o.datatype = 'uinteger';
-		o.default = '3';
+		o.datatype = 'or(uinteger, "%forever")';
+		o.placeholder = '3';
 		o.modalonly = true;
 
 		o = s.taboption('advanced', form.Value, 'dpddelay', _('DPD Delay'),
 			_('Interval to check liveness of a peer'));
 		o.validate = validateTimeFormat;
-		o.default = '30s';
+		o.placeholder = '30s';
 		o.modalonly = true;
 
 		o = s.taboption('advanced', form.Value, 'inactivity', _('Inactivity'),
 			_('Interval before closing an inactive CHILD_SA'));
 		o.validate = validateTimeFormat;
+		o.placeholder = '0s';
 		o.modalonly = true;
 
 		o = s.taboption('advanced', form.Value, 'rekeytime', _('Rekey Time'),
@@ -229,6 +252,14 @@ return view.extend({
 			_('Limit on time to complete rekeying/reauthentication'));
 		o.validate = validateTimeFormat;
 		o.modalonly = true;
+
+		o = s.taboption('advanced', form.Flag, 'encap', _('ESP Encapsulation'),
+			_('To enforce UDP encapsulation of ESP packets, the IKE daemon can manipulate the NAT detection payloads.') + '<br />' +
+			_('This makes the peer believe that a NAT situation exist on the transmission path, forcing it to encapsulate ESP packets in UDP.') + '<br />' +
+			_('Usually this is not required but it can help to work around connectivity issues with too restrictive intermediary firewalls that block ESP packets.'));
+		o.modalonly = true;
+		o.default = '0';
+		o.rmempty = true;
 
 		o = s.taboption('advanced', form.ListValue, 'keyexchange', _('Keyexchange'),
 			_('Version of IKE for negotiation'));
@@ -259,11 +290,6 @@ return view.extend({
 		o.datatype = 'cidr';
 		o.placeholder = '192.168.2.1/24';
 		o.rmempty = false;
-
-		o = s.taboption('general', form.Value, 'local_nat', _('Local NAT'),
-			_('NAT range for tunnels with overlapping IP addresses'));
-		o.datatype = 'cidr';
-		o.modalonly = true;
 
 		o = s.taboption('general', form.ListValue, 'if_id', ('XFRM Interface ID'),
 			_('XFRM interface ID set on input and output interfaces'));
@@ -328,11 +354,6 @@ return view.extend({
 		o.datatype = 'file';
 		o.modalonly = true;
 
-		o = s.taboption('advanced', form.Value, 'lifetime', _('Lifetime'),
-			_('Maximum duration of the CHILD_SA before closing'));
-		o.validate = validateTimeFormat;
-		o.modalonly = true;
-
 		o = s.taboption('advanced', form.ListValue, 'dpdaction', _('DPD Action'),
 			_('Action when DPD timeout occurs'));
 		o.value('none');
@@ -343,8 +364,20 @@ return view.extend({
 		o.modalonly = true;
 
 		o = s.taboption('advanced', form.Value, 'rekeytime', _('Rekey Time'),
-			_('Duration of the CHILD_SA before rekeying'));
+			_('Interval before a CHILD_SA is rekeyed.') + ' ' +
+			_('Also used to derive lifetime (110% of this value).') + '<br />' +
+			_('If not configured, the default value is "1h".')
+		);
+		o.placeholder = '1h';
 		o.validate = validateTimeFormat;
+		o.rmempty = true;
+		o.modalonly = true;
+
+		o = s.taboption('advanced', form.Value, 'lifetime', _('Life Time'),
+			_('Maximum time before the CHILD_SA gets closed, as a hard limit.')
+		);
+		o.validate = validateTimeFormat;
+		o.rmempty = true;
 		o.modalonly = true;
 
 		o = s.taboption('advanced', form.Flag, 'ipcomp', _('IPComp'),
@@ -369,6 +402,44 @@ return view.extend({
 			'%s; %s'.format(_('Replay Window of the CHILD_SA'),
 				_('Values larger than 32 are supported by the Netlink backend only')));
 		o.datatype = 'uinteger';
+		o.modalonly = true;
+
+		o = s.taboption('advanced', form.Value, 'rekeybytes', _('Rekey Bytes'),
+			_('Number of bytes processed before initiating CHILD_SA rekeying.') + ' ' +
+			_('Also used to derive lifebytes if set (110% of this value).') + ' ' +
+			_('Use "0" to disable byte based rekeying.')
+		);
+		o.datatype = 'uinteger';
+		o.placeholder = '0';
+		o.rmempty = true;
+		o.modalonly = true;
+
+		o = s.taboption('advanced', form.Value, 'lifebytes', _('Life Bytes'),
+			_('Maximum number of bytes processed before the CHILD_SA gets closed.') + ' ' +
+			_('Use "0" to disable (default).')
+		);
+		o.datatype = 'uinteger';
+		o.placeholder = '0';
+		o.rmempty = true;
+		o.modalonly = true;
+
+		o = s.taboption('advanced', form.Value, 'rekeypackets', _('Rekey Packets'),
+			_('Number of packets processed before initiating CHILD_SA rekeying.') + ' ' +
+			_('Also used to derive lifepackets if set (110% of this value).') + ' ' +
+			_('Use "0" to disable packet based rekeying (default).')
+		);
+		o.datatype = 'uinteger';
+		o.placeholder = '0';
+		o.rmempty = true;
+		o.modalonly = true;
+
+		o = s.taboption('advanced', form.Value, 'lifepackets', _('Life Packets'),
+			_('Maximum number of packets processed before the CHILD_SA gets closed.') + ' ' +
+			_('Use "0" to disable (default).')
+		);
+		o.datatype = 'uinteger';
+		o.placeholder = '0';
+		o.rmempty = true;
 		o.modalonly = true;
 
 		// Crypto Proposals
