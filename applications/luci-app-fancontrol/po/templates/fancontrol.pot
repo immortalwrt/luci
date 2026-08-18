@@ -1,0 +1,278 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:361
+msgid ""
+"After starting, the fan stops only after temperature falls this many degrees "
+"below the start temperature. This prevents rapid on/off cycling."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:331
+msgid ""
+"Automatic detection works on most devices. Select explicit sysfs entries "
+"only when necessary."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:426
+msgid ""
+"Brief PWM applied when a stopped fan starts. It helps fans that cannot start "
+"reliably at low duty. Set to 0 together with a zero duration to disable."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:306
+msgid "Collecting data..."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:294
+msgid ""
+"Configure a continuous PWM curve based on device temperature. Automatic "
+"hardware detection is suitable for most devices."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:333
+msgid ""
+"Controls startup assistance and fail-safe behavior. Full-speed safety "
+"defaults are recommended."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:329
+msgid "Controls when the fan starts and how its speed rises with temperature."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:451
+msgid "Debug logging"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:420
+msgid ""
+"Divides the raw sensor value before control calculations. Standard Linux "
+"temperature inputs use 1000; sensors reporting whole degrees use 1."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:335
+msgid "Enable"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:281
+msgid "Enter \"auto\" or an absolute sysfs path."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:293
+#: applications/luci-app-fancontrol/root/usr/share/luci/menu.d/luci-app-fancontrol.json:3
+msgid "Fan Control"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:239
+msgid "Fan speed"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:256
+msgid "Fault"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:346
+msgid "Full-speed temperature"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:353
+msgid "Full-speed temperature must be higher than start temperature."
+msgstr ""
+
+#: applications/luci-app-fancontrol/root/usr/share/rpcd/acl.d/luci-app-fancontrol.json:3
+msgid "Grant access to Fan Control"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:330
+msgid "Hardware"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:373
+msgid "Highest PWM allowed by the curve. A value of 255 means 100% duty cycle."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:432
+msgid "How long the startup kick is applied. Unit: milliseconds."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:384
+msgid ""
+"How often the temperature is read and the PWM output is updated. Unit: "
+"seconds."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:403
+msgid "Hwmon device name"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:367
+msgid ""
+"Lowest PWM used while the fan is running. Increase it if the fan stalls or "
+"cannot maintain rotation. Range: 1–255."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:369
+msgid "Maximum PWM"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:376
+msgid "Maximum PWM must not be lower than minimum running PWM."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:363
+msgid "Minimum running PWM"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:234
+msgid "None"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:412
+msgid ""
+"Optional pwmN_enable path used to select manual PWM mode. With \"auto\", the "
+"matching control is used when available."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:255
+msgid "PWM device"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:408
+msgid "PWM mode control"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:237
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:397
+msgid "PWM output"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:350
+msgid ""
+"PWM rises linearly and reaches the configured maximum at this temperature. "
+"Unit: °C."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:443
+msgid ""
+"PWM used when the temperature sensor cannot be read. Keeping 255 is the "
+"safest choice."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:449
+msgid ""
+"PWM written when the service stops. Keeping the fan at full speed avoids "
+"losing cooling after an unexpected exit."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:380
+msgid "Polling interval"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:406
+msgid ""
+"Preferred hwmon name when PWM output is automatic. The pwmfan driver is "
+"preferred by default."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:395
+msgid ""
+"Preferred thermal zone type when temperature input is automatic, for example "
+"cpu_top_thermal. Leave as \"auto\" unless several sensors are available."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:338
+msgid "Run the controller and apply this temperature curve."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:246
+msgid "Running"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:244
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:296
+msgid "Runtime Status"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:332
+msgid "Safety"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:439
+msgid "Sensor failure PWM"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:445
+msgid "Service exit PWM"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:326
+msgid "Settings"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:422
+msgid "Start kick PWM"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:435
+msgid "Start kick PWM must be non-zero when a kick duration is configured."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:428
+msgid "Start kick duration"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:340
+msgid "Start temperature"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:357
+msgid "Stop hysteresis"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:246
+msgid "Stopped"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:235
+msgid "Temperature"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:328
+msgid "Temperature Curve"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:414
+msgid "Temperature divisor"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:254
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:386
+msgid "Temperature input"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:344
+msgid ""
+"The fan remains off below this temperature and starts at the minimum running "
+"PWM when it is reached. Unit: °C."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:392
+msgid "Thermal zone type"
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:390
+msgid ""
+"Use \"auto\" to select a CPU or SoC thermal sensor, or enter an absolute "
+"thermal zone or hwmon tempN_input path."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:401
+msgid ""
+"Use \"auto\" to select a writable hwmon pwmN output, or enter its absolute "
+"path. cooling_device cur_state is not a PWM output."
+msgstr ""
+
+#: applications/luci-app-fancontrol/htdocs/luci-static/resources/view/fancontrol.js:454
+msgid ""
+"Write temperature, PWM and RPM values to the system log at every polling "
+"interval."
+msgstr ""
