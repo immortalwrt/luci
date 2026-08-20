@@ -52,6 +52,8 @@ FWI=$(uci -q get firewall.passwall.path 2>/dev/null)
 FAKE_IP="198.18.0.0/15"
 FAKE_IP_6="fc00::/18"
 
+USE_GEOVIEW=0
+
 factor() {
 	local ports="$1"
 	if [ -z "$1" ] || [ -z "$2" ] || [ "$ports" = "1:65535" ]; then
@@ -296,15 +298,15 @@ load_acl() {
 			[ -n "$(get_cache_var "ACL_${sid}_dns_port")" ] && dns_redirect_port=$(get_cache_var "ACL_${sid}_dns_port")
 			[ -n "$(get_cache_var "ACL_${sid}_fakedns")" ] && use_fakedns=$(get_cache_var "ACL_${sid}_fakedns")
 			[ -n "$tcp_node" ] && {
-				if is_socks_wrap "$tcp_node"; then
-					tcp_node_remark="Socks 配置($(config_n_get ${tcp_node#Socks_} port) 端口)"
+				if [ "$(config_get_type $tcp_node)" = "socks" ]; then
+					tcp_node_remark="Socks 配置($(config_n_get $tcp_node port) 端口)"
 				else
 					tcp_node_remark=$(config_n_get $tcp_node remarks)
 				fi
 			}
 			[ -n "$udp_node" ] && {
-				if is_socks_wrap "$udp_node"; then
-					udp_node_remark="Socks 配置($(config_n_get ${udp_node#Socks_} port) 端口)"
+				if [ "$(config_get_type $udp_node)" = "socks" ]; then
+					udp_node_remark="Socks 配置($(config_n_get $udp_node port) 端口)"
 				else
 					udp_node_remark=$(config_n_get $udp_node remarks)
 				fi
@@ -315,13 +317,13 @@ load_acl() {
 			[ -n "$udp_node" ] && [ "$(config_n_get $udp_node protocol)" = "_shunt" ] && use_shunt_udp=1
 
 			[ "${use_global_config}" = "1" ] && {
-				if is_socks_wrap "$TCP_NODE"; then
-					tcp_node_remark="Socks 配置($(config_n_get ${TCP_NODE#Socks_} port) 端口)"
+				if [ "$(config_get_type $TCP_NODE)" = "socks" ]; then
+					tcp_node_remark="Socks 配置($(config_n_get $TCP_NODE port) 端口)"
 				else
 					tcp_node_remark=$(config_n_get $TCP_NODE remarks)
 				fi
-				if is_socks_wrap "$UDP_NODE"; then
-					udp_node_remark="Socks 配置($(config_n_get ${UDP_NODE#Socks_} port) 端口)"
+				if [ "$(config_get_type $UDP_NODE)" = "socks" ]; then
+					udp_node_remark="Socks 配置($(config_n_get $UDP_NODE port) 端口)"
 				else
 					udp_node_remark=$(config_n_get $UDP_NODE remarks)
 				fi
@@ -453,6 +455,28 @@ load_acl() {
 							gen_nftset $shunt_set_name_static ipv4_addr 0
 							gen_nftset $shunt6_set_name ipv6_addr "2d"
 							gen_nftset $shunt6_set_name_static ipv6_addr 0
+							# 预加载分流规则 ip 到 nftset
+							local GEOIP_CODE=""
+							local shunt_ids=$(uci show $CONFIG | grep "=shunt_rules" | awk -F '.' '{print $2}' | awk -F '=' '{print $1}')
+							local shunt_group shunt_id
+							if [ "${use_shunt_tcp}" = "1" ]; then
+								shunt_group=$(config_n_get $tcp_node shunt_group)
+							elif [ "${use_shunt_udp}" = "1" ]; then
+								shunt_group=$(config_n_get $udp_node shunt_group)
+							fi
+							for shunt_id in $shunt_ids; do
+								[ "${shunt_group}" != "$(config_n_get ${shunt_id} group)" ] && continue
+								config_n_get $shunt_id ip_list | sed 's/#.*//' | grep -E "(\.((2(5[0-5]|[0-4][0-9]))|[0-1]?[0-9]{1,2})){3}" | insert_nftset $shunt_set_name_static
+								config_n_get $shunt_id ip_list | sed 's/#.*//' | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | insert_nftset $shunt6_set_name_static
+								[ "$USE_GEOVIEW" = "1" ] && {
+									local geoip_code=$(config_n_get $shunt_id ip_list | tr -s "\r\n" "\n" | sed -e "/^$/d" | grep -E "^geoip:" | grep -v "^geoip:private" | sed -E 's/^geoip:(.*)/\1/' | sed ':a;N;$!ba;s/\n/,/g')
+									[ -n "$geoip_code" ] && GEOIP_CODE="${GEOIP_CODE:+$GEOIP_CODE,}$geoip_code"
+								}
+							done
+							if [ -n "$GEOIP_CODE" ]; then
+								get_geoip $GEOIP_CODE ipv4 | grep -E "(\.((2(5[0-5]|[0-4][0-9]))|[0-1]?[0-9]{1,2})){3}" | insert_nftset $shunt_set_name_static
+								get_geoip $GEOIP_CODE ipv6 | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | insert_nftset $shunt6_set_name_static
+							fi
 						}
 					}
 					[ -n "${dns_redirect_port}" ] && dns_redirect=${dns_redirect_port}
@@ -709,8 +733,8 @@ load_acl() {
 		#  加载TCP默认代理模式
 		if [ -n "${TCP_PROXY_MODE}" ]; then
 			[ -n "$TCP_NODE" ] && {
-				if is_socks_wrap "$TCP_NODE"; then
-					msg2="${msg}使用 TCP 节点[Socks 配置($(config_n_get ${TCP_NODE#Socks_} port) 端口)]"
+				if [ "$(config_get_type $TCP_NODE)" = "socks" ]; then
+					msg2="${msg}使用 TCP 节点[Socks 配置($(config_n_get $TCP_NODE port) 端口)]"
 				else
 					msg2="${msg}使用 TCP 节点[$(config_n_get $TCP_NODE remarks)]"
 				fi
@@ -773,8 +797,8 @@ load_acl() {
 		#  加载UDP默认代理模式
 		if [ -n "${UDP_PROXY_MODE}" ]; then
 			[ -n "$UDP_NODE" ] || [ "$TCP_UDP" = "1" ] && {
-				if is_socks_wrap "$UDP_NODE"; then
-					msg2="${msg}使用 UDP 节点[Socks 配置($(config_n_get ${UDP_NODE#Socks_} port) 端口)](TPROXY:${UDP_REDIR_PORT})"
+				if [ "$(config_get_type $UDP_NODE)" = "socks" ]; then
+					msg2="${msg}使用 UDP 节点[Socks 配置($(config_n_get $UDP_NODE port) 端口)](TPROXY:${UDP_REDIR_PORT})"
 				else
 					msg2="${msg}使用 UDP 节点[$(config_n_get $UDP_NODE remarks)](TPROXY:${UDP_REDIR_PORT})"
 				fi
@@ -954,7 +978,8 @@ add_firewall_rule() {
 	if [ -f $RULES_PATH/chnroute.nft ] && [ -s $RULES_PATH/chnroute.nft ] && [ $(awk 'END{print NR}' $RULES_PATH/chnroute.nft) -ge 8 ]; then
 		nft -f $RULES_PATH/chnroute.nft
 	else
-		cat $RULES_PATH/chnroute | tr -s '\n' | sed 's/#.*//' | gen_nftset $NFTSET_CHN_STATIC ipv4_addr 0
+		gen_nftset $NFTSET_CHN_STATIC ipv4_addr 0
+		cat $RULES_PATH/chnroute | tr -s '\n' | sed 's/#.*//' | insert_nftset $NFTSET_CHN_STATIC
 	fi
 	gen_nftset $NFTSET_BLACK ipv4_addr "2d"
 	gen_nftset $NFTSET_BLACK_STATIC ipv4_addr 0
@@ -975,7 +1000,8 @@ add_firewall_rule() {
 		#echolog "使用缓存加载chnroute6..."
 		nft -f $RULES_PATH/chnroute6.nft
 	else
-		cat $RULES_PATH/chnroute6 | tr -s '\n' | sed 's/#.*//' | gen_nftset $NFTSET_CHN6_STATIC ipv6_addr 0
+		gen_nftset $NFTSET_CHN6_STATIC ipv6_addr 0
+		cat $RULES_PATH/chnroute6 | tr -s '\n' | sed 's/#.*//' | insert_nftset $NFTSET_CHN6_STATIC
 	fi
 	gen_nftset $NFTSET_BLACK6 ipv6_addr "2d"
 	gen_nftset $NFTSET_BLACK6_STATIC ipv6_addr 0
@@ -993,7 +1019,7 @@ add_firewall_rule() {
 	local USE_BLOCK_LIST_ALL=${USE_BLOCK_LIST}
 	local _TCP_NODE=$(config_t_get global tcp_node)
 	local _UDP_NODE=$(config_t_get global udp_node)
-	local USE_GEOVIEW=$(config_t_get global_rules enable_geoview)
+	USE_GEOVIEW=$(config_t_get global_rules enable_geoview)
 	[ -z "$(first_type $(config_t_get global_app geoview_file) geoview)" ] && USE_GEOVIEW=0
 
 	[ -n "$_TCP_NODE" ] && [ "$(config_n_get $_TCP_NODE protocol)" = "_shunt" ] && USE_SHUNT_TCP=1 && USE_SHUNT_NODE=1
@@ -1059,7 +1085,7 @@ add_firewall_rule() {
 	[ "$USE_SHUNT_NODE" = "1" ] && {
 		local GEOIP_CODE=""
 		local shunt_ids=$(uci show $CONFIG | grep "=shunt_rules" | awk -F '.' '{print $2}' | awk -F '=' '{print $1}')
-		local shunt_group
+		local shunt_group shunt_id
 		if [ "${USE_SHUNT_TCP}" = "1" ]; then
 			shunt_group=$(config_n_get $_TCP_NODE shunt_group)
 		elif [ "${USE_SHUNT_UDP}" = "1" ]; then
