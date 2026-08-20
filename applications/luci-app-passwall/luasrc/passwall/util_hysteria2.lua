@@ -1,9 +1,21 @@
 module("luci.passwall.util_hysteria2", package.seeall)
 local api = require "luci.passwall.api"
-local uci = api.uci
 local jsonc = api.jsonc
 
 function gen_config_server(node)
+	local users = nil
+	if node.users and #node.users > 0 then
+		users = {}
+		for i, v in ipairs(node.users) do
+			local user = api.uci_get_s(v) or {}
+			if user[".type"] == "user" then
+				users[user.username] = user.password
+			end
+		end
+		if not next(users) then
+			users = nil
+		end
+	end
 	local config = {
 		listen = (function()
 			if node.hysteria2_realms and node.hysteria2_realm_url then
@@ -25,10 +37,10 @@ function gen_config_server(node)
 				password = node.hysteria2_obfs_password
 			}
 		} or nil,
-		auth = {
-			type = "password",
-			password = node.hysteria2_auth_password
-		},
+		auth = users and {
+			type = "userpass",
+			userpass = users
+		} or nil,
 		bandwidth = (node.hysteria2_up_mbps or node.hysteria2_down_mbps) and {
 			up = node.hysteria2_up_mbps and node.hysteria2_up_mbps .. " mbps" or nil,
 			down = node.hysteria2_down_mbps and node.hysteria2_down_mbps .. " mbps" or nil
@@ -60,7 +72,7 @@ function gen_config(var)
 		print("node 不能为空")
 		return
 	end
-	local node = uci:get_all("passwall", node_id)
+	local node = api.uci_get_c(node_id)
 	local local_tcp_redir_port = var["local_tcp_redir_port"]
 	local local_udp_redir_port = var["local_udp_redir_port"]
 	local local_socks_address = var["local_socks_address"] or "0.0.0.0"
