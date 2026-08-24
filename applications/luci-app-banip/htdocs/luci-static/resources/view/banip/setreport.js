@@ -254,15 +254,18 @@ return view.extend({
 				if (count > 0) {
 					stats.hits.push({ 'name': key, 'elements': elements, 'hits': count, 'value': count });
 				}
-				stats.worst.push({ 'name': key, 'elements': elements, 'hits': count, 'value': elements });
+				/*
+					worst ranks the cost of a set, not its idleness: how many
+					elements it carries per packet it actually catches. Ordering by
+					hits first would put a 38 element set with no hits above a
+					680k element set that caught 61 packets, which inverts what the
+					list is for. The add-one denominator keeps a zero hit set finite
+					and ranks it by its size, which is exactly its cost.
+				*/
+				stats.worst.push({ 'name': key, 'elements': elements, 'hits': count, 'value': elements / (count + 1) });
 			});
 			stats.hits.sort(function (a, b) { return b.value - a.value; });
-			/*
-				worst first: fewest hits, and among those the largest set. Two
-				ordinal keys rather than an elements per hit ratio, which would
-				need an invented smoothing term to survive a zero denominator.
-			*/
-			stats.worst.sort(function (a, b) { return (a.hits - b.hits) || (b.value - a.value); });
+			stats.worst.sort(function (a, b) { return b.value - a.value; });
 			return stats;
 		}
 
@@ -405,14 +408,10 @@ return view.extend({
 
 		/*
 			ranked lists with relative bars
-
-			A quota only means something once the counters exist. The report
-			carries an empty string rather than a zero while the 'count' option
-			is off, which is what separates "not counted" from "counted zero".
 		*/
-		function topList(title, hint, entries, color, empty) {
+		function topList(title, hint, entries, color, empty, fmtValue) {
 			const list = entries.slice(0, 10);
-			/* the worst list is not ordered by the bar metric, so take the max */
+			/* both lists are ranked by their bar metric, so the peak is the head */
 			const peak = list.reduce(function (max, entry) {
 				return entry.value > max ? entry.value : max;
 			}, 0);
@@ -423,13 +422,17 @@ return view.extend({
 			} else if (hits.counted === 0) {
 				note = _('packet counters disabled');
 			}
+			const pair = `${_('elements')} / ${_('packets')}`;
 			const rows = list.map(function (entry) {
 				const width = peak > 0 ? Math.round(entry.value / peak * 100) : 0;
 				return E('div', { 'class': 'ban-row' }, [
 					E('div', { 'class': 'ban-row-top' }, [
 						E('span', { 'class': 'ban-row-name' }, [entry.name]),
-						E('span', { 'class': 'ban-row-cnt' }, [
-							`${fmtCount(entry.elements)} / ${fmtCount(entry.hits)}`
+						E('span', {
+							'class': 'ban-row-cnt',
+							'title': `${fmtCount(entry.elements)} / ${fmtCount(entry.hits)} ${pair}`
+						}, [
+							fmtValue ? fmtValue(entry) : `${fmtCount(entry.elements)} / ${fmtCount(entry.hits)}`
 						])
 					]),
 					E('div', { 'class': 'ban-bar' }, [
@@ -467,7 +470,8 @@ return view.extend({
 				]),
 				E('div', { 'class': 'ban-grid' }, [
 					topList(_('Top Sets'), _('elements / packets'), hits.hits, 'info', _('no hits yet')),
-					topList(_('Worst Sets'), _('elements / packets'), hits.worst, 'err', '-')
+					topList(_('Worst Sets'), _('elements per packet'), hits.worst, 'err', '-',
+						function (entry) { return fmtCount(Math.round(entry.value)); })
 				]),
 				E('div', { 'class': 'ban-grid' }, [
 					E('div', { 'class': 'ban-card' }, [
