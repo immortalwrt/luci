@@ -335,16 +335,24 @@ function get_resourse_mtime(path)
         local found = find_case_insensitive_path(path)
         if found then
             real_path = found
+        elseif uci_get_config("config", "small_flash_memory") == "1" then
+            local fallback_path = path:gsub("^/etc/openclash/", "/tmp/etc/openclash/")
+            local fallback_found = find_case_insensitive_path(fallback_path)
+            if fallback_found then
+                real_path = fallback_found
+            else
+                return "File Not Exist"
+            end
         else
             return "File Not Exist"
         end
     end
     local file = fs.readlink(real_path) or real_path
-	local resourse_etag_version = SYS.exec(string.format("source /usr/share/openclash/openclash_etag.sh && GET_ETAG_TIMESTAMP_BY_PATH '%s'", real_path))
+	local resourse_etag_version = SYS.exec(string.format("source /usr/share/openclash/openclash_etag.sh && GET_ETAG_TIMESTAMP_BY_PATH '%s'", file))
     if resourse_etag_version and resourse_etag_version ~= "" then
 		return resourse_etag_version
 	end
-	local resourse_version = os.date("%Y-%m-%d %H:%M:%S", mtime(real_path))
+	local resourse_version = os.date("%Y-%m-%d %H:%M:%S", mtime(file))
 	if resourse_version and resourse_version ~= "" then
         return resourse_version
 	end
@@ -391,6 +399,7 @@ function get_age_keys(file)
 				if not pub and s.public then pub = s.public end
 				if not sec and s.secret then sec = s.secret end
 			end
+			return false
 		end
 	end)
 	return { public = pub, secret = sec }
@@ -457,7 +466,7 @@ end
 function decode64(data)
 	if not data then return nil end
 	data = data:gsub('[%s]', '')
-	if #data % 4 ~= 0 then return data end
+	if #data % 4 ~= 0 then return nil end
 
 	local out = {}
 	for i = 1, #data, 4 do
@@ -487,6 +496,96 @@ function decode64(data)
 	return table.concat(out)
 end
 
+function config_refs(old_file_name, new_file_name)
+	if not old_file_name or old_file_name == "" then return end
+	local old_name_no_ext = filename(basename(old_file_name))
+	local old_file_full = basename(old_file_name)
+	local is_rename = new_file_name and new_file_name ~= ""
+	local new_name_no_ext, new_file_full
+
+	if is_rename then
+		new_name_no_ext = filename(basename(new_file_name))
+		new_file_full = basename(new_file_name)
+	end
+
+	uci:foreach("openclash", "config_subscribe",
+		function(s)
+			if s.name == old_name_no_ext then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					uci:set("openclash", s[".name"], "name", new_name_no_ext)
+				else
+					uci:delete("openclash", s[".name"])
+				end
+				return false
+			end
+		end
+	)
+
+	uci:foreach("openclash", "subscribe_info",
+		function(s)
+			if s.name == old_name_no_ext then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					uci:set("openclash", s[".name"], "name", new_name_no_ext)
+				else
+					uci:delete("openclash", s[".name"])
+				end
+				return false
+			end
+		end
+	)
+
+	uci:foreach("openclash", "groups",
+		function(s)
+			if s.config == old_file_full then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					uci:set("openclash", s[".name"], "config", new_file_full)
+				else
+					uci:delete("openclash", s[".name"])
+				end
+			end
+		end
+	)
+
+	uci:foreach("openclash", "proxy-provider",
+		function(s)
+			if s.config == old_file_full then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					uci:set("openclash", s[".name"], "config", new_file_full)
+				else
+					uci:delete("openclash", s[".name"])
+				end
+			end
+		end
+	)
+
+	uci:foreach("openclash", "servers",
+		function(s)
+			if s.config == old_file_full then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					uci:set("openclash", s[".name"], "config", new_file_full)
+				else
+					uci:delete("openclash", s[".name"])
+				end
+			end
+		end
+	)
+
+	uci:foreach("openclash", "config_age_secret",
+		function(s)
+			if s.name == old_name_no_ext then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					uci:set("openclash", s[".name"], "name", new_name_no_ext)
+				else
+					uci:delete("openclash", s[".name"])
+				end
+				return false
+			end
+		end
+	)
+
+	uci:commit("openclash")
+end
+
 --- Returns the appropriate ps command string for the system's ps implementation.
 -- Detects procps-ng (ps -efw) vs busybox (ps -w).
 -- @return String containing the ps command prefix
@@ -509,18 +608,65 @@ function pkg_type()
 	end
 end
 
---- Returns the installed version of luci-app-openclash.
--- Supports both opkg and apk package managers.
--- @return String containing the version number, or "0" if not found
-function oc_version()
-	local v
-	if pkg_type() == "opkg" then
-		v = SYS.exec("rm -f /var/lock/opkg.lock && opkg status luci-app-openclash 2>/dev/null |grep '^Version:' |awk '{print $2}' |tr -d '\n'")
-	else
-		v = SYS.exec("rm -f /lib/apk/db/lock && apk info luci-app-openclash 2>/dev/null |grep '^luci-app-openclash-[0-9]' |sed 's/luci-app-openclash-//' |tr -d '\n'")
+--- Reads the CDN proxy address list from /usr/share/openclash/res/cdn.list.
+-- Lines starting with "#" are treated as comments and skipped.
+-- @return Table of CDN address strings (deduplicated, in file order)
+function cdn_list()
+	local list = {}
+	local seen = {}
+	local raw = fs.readfile("/usr/share/openclash/res/cdn.list")
+	if raw then
+		for line in raw:gmatch("[^\r\n]+") do
+			line = line:gsub("^%s+", ""):gsub("%s+$", "")
+			if line ~= "" and line:sub(1, 1) ~= "#" and not seen[line] then
+				seen[line] = true
+				list[#list + 1] = line
+			end
+		end
 	end
+	return list
+end
+
+--- Read a field of an installed package directly from the package database
+-- (/usr/lib/opkg/status or /lib/apk/db/installed), avoiding the opkg/apk
+-- binaries and their lock files (/var/lock/opkg.lock, /lib/apk/db/lock).
+-- Safe to call repeatedly/concurrently and never blocks on a lock.
+-- @param pkg   Package name, e.g. "luci-app-openclash" or "libc"
+-- @param field Field name; opkg: "Version"/"Architecture", apk: "V"/"A"
+-- @return String field value, or "" when not found
+function read_pkg_field(pkg, field)
+	local text
+	if pkg_type() == "opkg" then
+		text = fs.readfile("/usr/lib/opkg/status")
+	else
+		text = fs.readfile("/lib/apk/db/installed")
+	end
+	if not text then return "" end
+	text = text:gsub("\r\n", "\n")
+
+	local prefix = (pkg_type() == "opkg") and ("Package: " .. pkg .. "\n") or ("P:" .. pkg .. "\n")
+	local start = text:find(prefix, 1, true)
+	if not start then return "" end
+	local block_end = text:find("\n\n", start + #prefix, true) or #text
+	local block = text:sub(start + #prefix, block_end - 1)
+	local colon = (pkg_type() == "opkg") and ": " or ":"
+	local val = block:match("\n" .. field .. colon .. "([^\r\n]+)")
+	if not val then
+		val = block:match("^" .. field .. colon .. "([^\r\n]+)")
+	end
+	return val or ""
+end
+
+function oc_version()
+	local v = read_pkg_field("luci-app-openclash", pkg_type() == "opkg" and "Version" or "V")
 	if v == "" then
 		v = "0"
 	end
 	return v
+end
+
+function IsYamlExt(e)
+	e = e or ""
+	local lower = string.lower(e)
+	return lower:sub(-5) == ".yaml" or lower:sub(-4) == ".yml"
 end
