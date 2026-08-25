@@ -2,6 +2,22 @@
 . /usr/share/openclash/log.sh
 . /usr/share/openclash/openclash_etag.sh
 
+DOWNLOAD_FAILURE_OUTPUT() {
+    failure_exit_code="$1"
+    failure_http_code="$2"
+    failure_output="$3"
+
+    if [ -n "$failure_output" ]; then
+        printf '%s' "$failure_output"
+    elif [ -n "$failure_http_code" ] && [ "$failure_http_code" != "000" ]; then
+        printf 'HTTP status %s' "$failure_http_code"
+    elif [ -n "$failure_exit_code" ]; then
+        printf 'curl exit code %s' "$failure_exit_code"
+    else
+        printf 'unknown error'
+    fi
+}
+
 DOWNLOAD_FILE_CURL() {
     [ -z "$1" ] || [ -z "$2" ] && return 1
     DOWNLOAD_URL=$1
@@ -9,6 +25,7 @@ DOWNLOAD_FILE_CURL() {
     FILE_PATH=$3
     DOWNLOAD_UA=$4
     SECRET_KEY=$5
+    CUSTOM_HEADERS=$6
     [ -z "$DOWNLOAD_UA" ] && DOWNLOAD_UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
     HEADER_TMP="/tmp/openclash_curl_header_$$"
     DOWNLOAD_TMP="${DOWNLOAD_PATH}.download.$$"
@@ -25,10 +42,19 @@ DOWNLOAD_FILE_CURL() {
 
     rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
 
+    set --
+    if [ -n "$CUSTOM_HEADERS" ]; then
+        while IFS= read -r hdr; do
+            [ -n "$hdr" ] && set -- "$@" -H "$hdr"
+        done <<EOF
+$CUSTOM_HEADERS
+EOF
+    fi
+
     if [ "$SHOW_DOWNLOAD_PROGRESS" = "1" ] || [ "$SHOW_DOWNLOAD_PROGRESS" = "true" ]; then
         TEMP_LOG="/tmp/curl_log_$$"
 
-        LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - 0%】"
+        LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - 0%】..."
 
         (
             if [ -n "$SECRET_KEY" ] && [ -n "$ETAG_HEADER" ]; then
@@ -37,23 +63,27 @@ DOWNLOAD_FILE_CURL() {
                     -H "User-Agent: ${DOWNLOAD_UA}" \
                     -H "X-Age-Public-Key: ${SECRET_KEY}" \
                     -H "$ETAG_HEADER" \
+                    "$@" \
                     "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>"$TEMP_LOG"
             elif [ -n "$SECRET_KEY" ]; then
                 curl -# -L --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
                     -D "$HEADER_TMP" \
                     -H "User-Agent: ${DOWNLOAD_UA}" \
                     -H "X-Age-Public-Key: ${SECRET_KEY}" \
+                    "$@" \
                     "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>"$TEMP_LOG"
             elif [ -n "$ETAG_HEADER" ]; then
                 curl -# -L --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
                     -D "$HEADER_TMP" \
                     -H "User-Agent: ${DOWNLOAD_UA}" \
                     -H "$ETAG_HEADER" \
+                    "$@" \
                     "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>"$TEMP_LOG"
             else
                 curl -# -L --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
                     -D "$HEADER_TMP" \
                     -H "User-Agent: ${DOWNLOAD_UA}" \
+                    "$@" \
                     "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>"$TEMP_LOG"
             fi
             echo $? > "${TEMP_LOG}.exit"
@@ -71,7 +101,7 @@ DOWNLOAD_FILE_CURL() {
 
                 if [ -n "$PROGRESS" ] && [ "$PROGRESS" -ne "$LAST_PROGRESS" ]; then
                     if [ "$PROGRESS" -gt "$LAST_PROGRESS" ]; then
-                        LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - ${PROGRESS}%】"
+                        LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - ${PROGRESS}%】..."
                         LAST_PROGRESS="$PROGRESS"
                     fi
                 fi
@@ -84,7 +114,7 @@ DOWNLOAD_FILE_CURL() {
         HTTP_CODE=$(grep -i "^HTTP" "$HEADER_TMP" 2>/dev/null | tail -1 | cut -d' ' -f2)
 
         if [ "$EXIR_CODE" -eq 0 ] && [ "$LAST_PROGRESS" -ne 100 ]; then
-            LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - 100%】"
+            LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - 100%】..."
         fi
 
         if [ "$EXIR_CODE" -ne 0 ]; then
@@ -99,9 +129,9 @@ DOWNLOAD_FILE_CURL() {
         fi
 
         if [ "$EXIR_CODE" -ne 0 ] || [ "$HTTP_CODE" != "200" ]; then
-            LOG_OUT "【$DOWNLOAD_PATH】Download Failed:【$OUTPUT】"
+            OUTPUT=$(DOWNLOAD_FAILURE_OUTPUT "$EXIR_CODE" "$HTTP_CODE" "${OUTPUT:-}")
+            LOG_OUT "【${DOWNLOAD_PATH}】Download Failed:【${OUTPUT}】"
             rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
-            SLOG_CLEAN
             return 1
         fi
     else
@@ -116,23 +146,28 @@ DOWNLOAD_FILE_CURL() {
                     -H "User-Agent: ${DOWNLOAD_UA}" \
                     -H "X-Age-Public-Key: ${SECRET_KEY}" \
                     -H "$ETAG_HEADER" \
+                    "$@" \
                     "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>&1)
             elif [ -n "$SECRET_KEY" ]; then
                 CURL_OUTPUT=$(curl -w "\n%{http_code}" -SsL --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
                     -D "$HEADER_TMP" \
                     -H "User-Agent: ${DOWNLOAD_UA}" \
                     -H "X-Age-Public-Key: ${SECRET_KEY}" \
+                    "$@" \
                     "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>&1)
             elif [ -n "$ETAG_HEADER" ]; then
                 CURL_OUTPUT=$(curl -w "\n%{http_code}" -SsL --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
                     -D "$HEADER_TMP" \
                     -H "User-Agent: ${DOWNLOAD_UA}" \
                     -H "$ETAG_HEADER" \
+                    "$@" \
                     "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>&1)
             else
                 CURL_OUTPUT=$(curl -w "\n%{http_code}" -SsL --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
                     -D "$HEADER_TMP" \
-                    -H "User-Agent: ${DOWNLOAD_UA}" "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>&1)
+                    -H "User-Agent: ${DOWNLOAD_UA}" \
+                    "$@" \
+                    "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>&1)
             fi
             EXIR_CODE=$?
             HTTP_CODE=$(echo "$CURL_OUTPUT" | tail -n1)
@@ -149,17 +184,16 @@ DOWNLOAD_FILE_CURL() {
 
         if [ "$EXIR_CODE" -ne 0 ] || [ "$HTTP_CODE" != "200" ]; then
             OUTPUT=$(echo "$CURL_OUTPUT" | sed '$d' | grep -a 'curl:' | tail -n 1)
-            LOG_OUT "【$DOWNLOAD_PATH】Download Failed:【$OUTPUT】"
+            OUTPUT=$(DOWNLOAD_FAILURE_OUTPUT "$EXIR_CODE" "$HTTP_CODE" "$OUTPUT")
+            LOG_OUT "【${DOWNLOAD_PATH}】Download Failed:【${OUTPUT}】"
             rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
-            SLOG_CLEAN
             return 1
         fi
     fi
 
     if ! mv -f "$DOWNLOAD_TMP" "$DOWNLOAD_PATH"; then
-        LOG_OUT "【$DOWNLOAD_PATH】Download Failed:【Unable to save download file】"
+        LOG_OUT "【${DOWNLOAD_PATH}】Download Failed:【Unable to save download file】"
         rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
-        SLOG_CLEAN
         return 1
     fi
     NEW_ETAG=$(grep -i "^etag:" "$HEADER_TMP" 2>/dev/null | tail -1 | cut -d' ' -f2- | tr -d '\r\n' | sed 's/^"//;s/"$//')
