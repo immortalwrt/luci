@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-openclash
-PKG_VERSION:=0.47.110
+PKG_VERSION:=0.47.156
 PKG_MAINTAINER:=vernesong <https://github.com/vernesong/OpenClash>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
@@ -59,7 +59,7 @@ endef
 
 define Package/$(PKG_NAME)/prerm
 #!/bin/sh
-	[ -n "$(pidof clash)" ] && /etc/init.d/openclash stop 2>/dev/null
+	[ -n "$$(pidof clash)" ] && /etc/init.d/openclash stop 2>/dev/null
 	if [ -f "/etc/config/openclash" ] && [ ! -f "/tmp/openclash.bak" ]; then
 		cp -f "/etc/config/openclash" "/tmp/openclash.bak" >/dev/null 2>&1
 		cp -rf "/etc/openclash" "/tmp/openclash" >/dev/null 2>&1
@@ -71,9 +71,9 @@ endef
 
 define Package/$(PKG_NAME)/postrm
 #!/bin/sh
-	DEFAULT_DNSMASQ_CFGID="$$(uci -q show "dhcp.@dnsmasq[0]" | awk 'NR==1 {split($0, conf, /[.=]/); print conf[2]}' 2>/dev/null)"
-	if [ -f "/tmp/etc/dnsmasq.conf.$DEFAULT_DNSMASQ_CFGID" ]; then
-	   DNSMASQ_CONF_DIR="$$(awk -F '=' '/^conf-dir=/ {print $2}' "/tmp/etc/dnsmasq.conf.$DEFAULT_DNSMASQ_CFGID" 2>/dev/null)"
+	DEFAULT_DNSMASQ_CFGID="$$(uci -q show "dhcp.@dnsmasq[0]" | awk 'NR==1 {split($$0, conf, /[.=]/); print conf[2]}' 2>/dev/null)"
+	if [ -f "/tmp/etc/dnsmasq.conf.$$DEFAULT_DNSMASQ_CFGID" ]; then
+	   DNSMASQ_CONF_DIR="$$(awk -F '=' '/^conf-dir=/ {print $$2}' "/tmp/etc/dnsmasq.conf.$$DEFAULT_DNSMASQ_CFGID" 2>/dev/null)"
 	else
 	   DNSMASQ_CONF_DIR="/tmp/dnsmasq.d"
 	fi
@@ -82,17 +82,20 @@ define Package/$(PKG_NAME)/postrm
 	rm -rf /etc/config/openclash >/dev/null 2>&1
 	rm -rf /tmp/openclash.log >/dev/null 2>&1
 	rm -rf /tmp/openclash_start.log >/dev/null 2>&1
-	rm -rf /tmp/openclash_last_version >/dev/null 2>&1
 	rm -rf /tmp/openclash.change >/dev/null 2>&1
-	rm -rf /tmp/clash_last_version >/dev/null 2>&1
 	rm -rf /usr/share/openclash >/dev/null 2>&1
-	rm -rf ${DNSMASQ_CONF_DIR}/dnsmasq_openclash_custom_domain.conf >/dev/null 2>&1
-	rm -rf ${DNSMASQ_CONF_DIR}/dnsmasq_openclash_chnroute_pass.conf >/dev/null 2>&1
-	rm -rf ${DNSMASQ_CONF_DIR}/dnsmasq_openclash_chnroute6_pass.conf >/dev/null 2>&1
+	rm -rf /tmp/openclash_version_history.json >/dev/null 2>&1
+    rm -rf /tmp/openclash_cdn_info.json >/dev/null 2>&1
+	rm -rf $${DNSMASQ_CONF_DIR}/dnsmasq_openclash_custom_domain.conf >/dev/null 2>&1
+	rm -rf $${DNSMASQ_CONF_DIR}/dnsmasq_openclash_chnroute_pass.conf >/dev/null 2>&1
+	rm -rf $${DNSMASQ_CONF_DIR}/dnsmasq_openclash_chnroute6_pass.conf >/dev/null 2>&1
 	rm -rf /tmp/etc/openclash >/dev/null 2>&1
 	rm -rf /tmp/openclash_announcement >/dev/null 2>&1
 	rm -rf /www/luci-static/resources/openclash >/dev/null 2>&1
 	rm -rf /tmp/oix* >/dev/null 2>&1
+	rm -rf /tmp/openclash_oix_version.json >/dev/null 2>&1
+	rm -rf /tmp/openclash_version_history_* >/dev/null 2>&1
+	rm -rf /tmp/openclash_cdn_info_* >/dev/null 2>&1
 	sed -i '/OpenClash Append/,/OpenClash Append End/d' "/usr/lib/lua/luci/model/network.lua" >/dev/null 2>&1
 	sed -i '/.*kB maximum content size*/c\HTTP_MAX_CONTENT      = 1024*100		-- 100 kB maximum content size' /usr/lib/lua/luci/http.lua >/dev/null 2>&1
 	sed -i '/.*kB maximum content size*/c\export let HTTP_MAX_CONTENT = 1024*100;		// 100 kB maximum content size' /usr/share/ucode/luci/http.uc >/dev/null 2>&1

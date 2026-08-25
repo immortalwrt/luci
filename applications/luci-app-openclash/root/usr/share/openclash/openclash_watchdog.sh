@@ -9,6 +9,8 @@ CLASH="/etc/openclash/clash"
 CFG_UPDATE_INT=0
 SKIP_PROXY_ADDRESS=1
 SKIP_PROXY_ADDRESS_INTERVAL=30
+UPNP_INT=1
+UPNP_INTERVAL=30
 STREAM_AUTO_SELECT=0
 FIREWALL_RELOAD=0
 MAX_FIREWALL_RELOAD=3
@@ -51,12 +53,16 @@ begin
                      begin
                         provider_config = YAML.load_file(path, secret: provider['age-secret-key']) rescue nil
                      rescue Exception => e
-                        YAML.LOG_WARN('Set Proxies Address Skip Failed,【' + path + ': ' + e.message+'】')
-                        continue
+                        YAML.LOG_WARN('Set Proxies Address Skip: Failed【' + path + ': ' + e.message+'】')
+                        next
                      end
                   else
                      if file_is_age_encrypted
-                        YAML.LOG_WARN('Set Proxies Address Skip Failed,【' + path + ': File is AGE encrypted but no secret key provided】')
+                        if name == 'oixCloud'
+                           YAML.LOG('Set Proxies Address Skip: Bypass【oixCloud】')
+                        else
+                           YAML.LOG_WARN('Set Proxies Address Skip: Failed【' + path + '】File is AGE encrypted but no secret key provided')
+                        end
                         next
                      end
                      provider_config = YAML.load_file(path)
@@ -67,10 +73,10 @@ begin
                         servers_to_process.push(p['server']) if p.key?('server')
                      end
                   end
-               rescue Psych::SyntaxError, ArgumentError
+               rescue StandardError
                   if not provider.key?('age-secret-key') or provider['age-secret-key'].to_s.empty?
                      if file_is_age_encrypted
-                        YAML.LOG_WARN('Failed to parse config file with Lua helper【' + path + ': File is AGE encrypted, cannot parse with Lua】')
+                        YAML.LOG_WARN('Failed to parse config file with Lua helper【' + path + '】File is AGE encrypted, cannot parse with Lua')
                         next
                      end
                      begin
@@ -159,7 +165,7 @@ begin
       system(set_commands.join('; ')) if not set_commands.empty?
    end
 rescue Exception => e
-   YAML.LOG_ERROR('Set Proxies Address Skip Failed,【' + e.message + '】');
+   YAML.LOG_ERROR('Set Proxies Address Skip: Failed【' + e.message + '】');
 end" 2>/dev/null >> $LOG_FILE
 }
 
@@ -238,7 +244,7 @@ fi
          LOG_WATCHDOG "Setting Firewall For Rules Order..."
          /etc/init.d/openclash reload "firewall"
          let FIREWALL_RELOAD++
-      elif [ -n "$(ip tuntap list |grep utun)" ] && [ -z "$(ip route list table 354)" ]; then
+      elif [ -n "$(ip link show utun 2>/dev/null)" ] && [ -z "$(ip route list table 354)" ]; then
          ## 路由表检查
          LOG_WATCHDOG "Setting Firewall For IP Rules Table Recreate..."
          /etc/init.d/openclash reload "firewall"
@@ -303,56 +309,61 @@ fi
    fi
 
 ## UPNP
-   if [ -f "$upnp_lease_file" ]; then
-      #del
-      if [ -n "$FW4" ]; then
-         for i in `$(nft list chain inet fw4 openclash_upnp |grep "return")`
-         do
-            upnp_ip=$(echo "$i" |awk -F 'ip saddr ' '{print $2}' |awk  '{print $1}')
-            upnp_dp=$(echo "$i" |awk -F 'sport ' '{print $2}' |awk  '{print $1}')
-            upnp_type=$(echo "$i" |awk -F 'sport ' '{print $1}' |awk  '{print $4}' |tr '[a-z]' '[A-Z]')
-            if [ -n "$upnp_ip" ] && [ -n "$upnp_dp" ] && [ -n "$upnp_type" ]; then
-               if [ -z "$(cat "$upnp_lease_file" |grep "$upnp_ip" |grep "$upnp_dp" |grep "$upnp_type")" ]; then
-                  handle=$(nft -a list chain inet fw4 openclash_upnp |grep "$i" |awk -F '# handle ' '{print$2}')
-                  nft delete rule inet fw4 openclash_upnp handle ${handle}
-               fi
-            fi
-         done >/dev/null 2>&1
-      else
-         for i in `$(iptables -t mangle -nL openclash_upnp |grep "RETURN")`
-         do
-            upnp_ip=$(echo "$i" |awk '{print $4}')
-            upnp_dp=$(echo "$i" |awk -F 'spt:' '{print $2}')
-            upnp_type=$(echo "$i" |awk '{print $2}' |tr '[a-z]' '[A-Z]')
-            if [ -n "$upnp_ip" ] && [ -n "$upnp_dp" ] && [ -n "$upnp_type" ]; then
-               if [ -z "$(cat "$upnp_lease_file" |grep "$upnp_ip" |grep "$upnp_dp" |grep "$upnp_type")" ]; then
-                  iptables -t mangle -D openclash_upnp -p "$upnp_type" -s "$upnp_ip" --sport "$upnp_dp" -j RETURN 2>/dev/null
-               fi
-            fi
-         done >/dev/null 2>&1
-      fi
-      #add
-      if [ -s "$upnp_lease_file" ] && [ -n "$(iptables --line-numbers -t nat -xnvL openclash_upnp 2>/dev/null)"] || [ -n "$(nft list chain inet fw4 openclash_upnp 2>/dev/null)"]; then
-         cat "$upnp_lease_file" |while read -r line
-         do
-            if [ -n "$line" ]; then
-               upnp_ip=$(echo "$line" |awk -F ':' '{print $3}')
-               upnp_dp=$(echo "$line" |awk -F ':' '{print $4}')
-               upnp_type=$(echo "$line" |awk -F ':' '{print $1}' |tr '[A-Z]' '[a-z]')
+   if [ "$UPNP_INT" -eq 1 ] || [ "$(expr "$UPNP_INT" % "$UPNP_INTERVAL")" -eq 0 ]; then
+      if [ -f "$upnp_lease_file" ]; then
+         #del
+         if [ -n "$FW4" ]; then
+            nft list chain inet fw4 openclash_upnp 2>/dev/null |grep "return" |while read -r i
+            do
+               upnp_ip=$(echo "$i" |awk -F 'ip saddr ' '{print $2}' |awk  '{print $1}')
+               upnp_dp=$(echo "$i" |awk -F 'sport ' '{print $2}' |awk  '{print $1}')
+               upnp_type=$(echo "$i" |awk -F 'sport ' '{print $1}' |awk  '{print $4}' |tr '[a-z]' '[A-Z]')
                if [ -n "$upnp_ip" ] && [ -n "$upnp_dp" ] && [ -n "$upnp_type" ]; then
-                  if [ -n "$FW4" ]; then
-                     if [ -z "$(nft list chain inet fw4 openclash_upnp |grep "$upnp_ip" |grep "$upnp_dp" |grep "$upnp_type")" ]; then
-                        nft add rule inet fw4 openclash_upnp ip saddr { "$upnp_ip" } "$upnp_type" sport "$upnp_dp" counter return 2>/dev/null
-                     fi
-                  else
-                     if [ -z "$(iptables -t mangle -nL openclash_upnp |grep "$upnp_ip" |grep "$upnp_dp" |grep "$upnp_type")" ]; then
-                        iptables -t mangle -A openclash_upnp -p "$upnp_type" -s "$upnp_ip" --sport "$upnp_dp" -j RETURN 2>/dev/null
+                  if [ -z "$(cat "$upnp_lease_file" |grep "$upnp_ip" |grep "$upnp_dp" |grep "$upnp_type")" ]; then
+                     handle=$(nft -a list chain inet fw4 openclash_upnp |grep "$i" |awk -F '# handle ' '{print$2}')
+                     nft delete rule inet fw4 openclash_upnp handle ${handle}
+                  fi
+               fi
+            done >/dev/null 2>&1
+         else
+            iptables -t mangle -nL openclash_upnp 2>/dev/null |grep "RETURN" |while read -r i
+            do
+               upnp_ip=$(echo "$i" |awk '{print $4}')
+               upnp_dp=$(echo "$i" |awk -F 'spt:' '{print $2}')
+               upnp_type=$(echo "$i" |awk '{print $2}' |tr '[a-z]' '[A-Z]')
+               if [ -n "$upnp_ip" ] && [ -n "$upnp_dp" ] && [ -n "$upnp_type" ]; then
+                  if [ -z "$(cat "$upnp_lease_file" |grep "$upnp_ip" |grep "$upnp_dp" |grep "$upnp_type")" ]; then
+                     iptables -t mangle -D openclash_upnp -p "$upnp_type" -s "$upnp_ip" --sport "$upnp_dp" -j RETURN 2>/dev/null
+                  fi
+               fi
+            done >/dev/null 2>&1
+         fi
+         #add
+         if [ -s "$upnp_lease_file" ] && { { [ -z "$FW4" ] && [ -n "$(iptables --line-numbers -t mangle -xnvL openclash_upnp 2>/dev/null)" ]; } || { [ -n "$FW4" ] && [ -n "$(nft list chain inet fw4 openclash_upnp 2>/dev/null)" ]; }; }; then
+            cat "$upnp_lease_file" |while read -r line
+            do
+               if [ -n "$line" ]; then
+                  upnp_ip=$(echo "$line" |awk -F ':' '{print $3}')
+                  upnp_dp=$(echo "$line" |awk -F ':' '{print $4}')
+                  upnp_type=$(echo "$line" |awk -F ':' '{print $1}' |tr '[A-Z]' '[a-z]')
+                  if [ -n "$upnp_ip" ] && [ -n "$upnp_dp" ] && [ -n "$upnp_type" ]; then
+                     if [ -n "$FW4" ]; then
+                        if [ -z "$(nft list chain inet fw4 openclash_upnp |grep "$upnp_ip" |grep "$upnp_dp" |grep "$upnp_type")" ]; then
+                           nft add rule inet fw4 openclash_upnp ip saddr { "$upnp_ip" } "$upnp_type" sport "$upnp_dp" counter return 2>/dev/null
+                        fi
+                     else
+                        if [ -z "$(iptables -t mangle -nL openclash_upnp |grep "$upnp_ip" |grep "$upnp_dp" |grep "$upnp_type")" ]; then
+                           iptables -t mangle -A openclash_upnp -p "$upnp_type" -s "$upnp_ip" --sport "$upnp_dp" -j RETURN 2>/dev/null
+                        fi
                      fi
                   fi
                fi
-            fi
-         done >/dev/null 2>&1
+            done >/dev/null 2>&1
+         fi
       fi
+      let UPNP_INT++
+   else
+      let UPNP_INT++
    fi
 
 ## Skip Proxies Address
@@ -397,59 +408,59 @@ fi
       if [ "$STREAM_AUTO_SELECT" -ne 0 ]; then
          if [ "$(expr "$STREAM_AUTO_SELECT" % "$stream_auto_select_interval")" -eq 0 ] || [ "$STREAM_AUTO_SELECT" -eq 1 ]; then
             if [ "$stream_auto_select_netflix" -eq 1 ]; then
-               LOG_TIP "【Netflix】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【Netflix】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "Netflix" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_disney" -eq 1 ]; then
-               LOG_TIP "【Disney Plus】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【Disney Plus】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "Disney Plus" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_google_not_cn" -eq 1 ]; then
-               LOG_TIP "【Google Not CN】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【Google Not CN】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "Google" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_ytb" -eq 1 ]; then
-               LOG_TIP "【YouTube Premium】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【YouTube Premium】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "YouTube Premium" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_prime_video" -eq 1 ]; then
-               LOG_TIP "【Amazon Prime Video】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【Amazon Prime Video】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "Amazon Prime Video" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_hbo_max" -eq 1 ]; then
-               LOG_TIP "【HBO Max】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【HBO Max】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "HBO Max" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_tvb_anywhere" -eq 1 ]; then
-               LOG_TIP "【TVB Anywhere+】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【TVB Anywhere+】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "TVB Anywhere+" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_dazn" -eq 1 ]; then
-               LOG_TIP "【DAZN】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【DAZN】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "DAZN" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_paramount_plus" -eq 1 ]; then
-               LOG_TIP "【Paramount Plus】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【Paramount Plus】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "Paramount Plus" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_discovery_plus" -eq 1 ]; then
-               LOG_TIP "【Discovery Plus】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【Discovery Plus】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "Discovery Plus" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_bilibili" -eq 1 ]; then
-               LOG_TIP "【Bilibili】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【Bilibili】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "Bilibili" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_openai" -eq 1 ]; then
-               LOG_TIP "【OpenAI】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【OpenAI】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "OpenAI" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_claude" -eq 1 ]; then
-               LOG_TIP "【Claude】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【Claude】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "Claude" >> $LOG_FILE
             fi
             if [ "$stream_auto_select_gemini" -eq 1 ]; then
-               LOG_TIP "【Gemini】Start Auto Select Unlock Proxy..."
+               LOG_INFO "【Gemini】Start Auto Select Unlock Proxy..."
                /usr/share/openclash/openclash_streaming_unlock.lua "Gemini" >> $LOG_FILE
             fi
          fi
@@ -459,6 +470,5 @@ fi
       LOG_ERROR "Streaming Unlock Could not Work Because of Router-Self Proxy Disabled, Exiting..."
    fi
 
-   SLOG_CLEAN
    sleep 60
 done 2>/dev/null
