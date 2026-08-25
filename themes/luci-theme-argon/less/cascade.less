@@ -40,7 +40,6 @@
   --gray-dark: #32325d;
   --light: #ced4da;
   --lighter: #e9ecef;
-
   --success: #2dce89;
   --info: #11cdef;
   --warning: #fb6340;
@@ -234,6 +233,7 @@ select[multiple="multiple"] {
 
   &.error {
     background-color: var(--warning);
+    color: var(--yellow);
   }
 
   h4 {
@@ -273,6 +273,31 @@ select[multiple="multiple"] {
 
 .alert-message .btn {
   padding: .3rem .6rem;
+}
+
+/* LuCI's ui.js dismisses notification banners by adding the .fade-out
+   class and removing the banner node once a transitionend event fires
+   on it. Without a transitioned opacity on .alert-message the Dismiss
+   button has no visible effect and the banner stays open forever. */
+.alert-message {
+  transition: opacity .4s ease;
+
+  &.fade-out {
+    opacity: 0;
+  }
+
+  &.fade-in {
+    animation: alert-message-fade-in .4s ease;
+  }
+}
+
+@keyframes alert-message-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 #maincontent > .alert-message {
@@ -483,6 +508,17 @@ body:not([data-page="admin-dashboard"]) {
   #cbi-wireless>#wifi_assoclist_table>.tr:nth-child(2) {
     border-top: thin solid #ddd;
     padding: 1.1em 1.25rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  body:not([data-page="admin-dashboard"]) {
+    tr>td,
+    tr>th,
+    .tr>.td,
+    .tr>.th {
+      border-top: thin solid #444 !important;
+    }
   }
 }
 
@@ -2251,7 +2287,6 @@ span[data-tooltip] .label {
   padding: 0.5rem;
   opacity: 0;
   transition: opacity .25s ease-in;
-  transform: translate(-50%, 10%);
 }
 
 .cbi-tooltip-container:hover .cbi-tooltip:not(:empty) {
