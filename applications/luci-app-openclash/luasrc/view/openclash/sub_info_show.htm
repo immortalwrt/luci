@@ -1,27 +1,29 @@
 <%+cbi/valueheader%>
 <%
+    local fs = require "luci.openclash"
+    local plugin_version = fs.oc_version()
+%>
+<%
 	local fs = require "luci.openclash"
 	local val = self:cfgvalue(section)
 	local filename = fs.filename(val)
 	local idname = math.random(1000)..(string.match(filename, "[%w_]+") or "")
 %>
 
-<div class="sub_div">
-    <span id='<%=idname%>' class="sub_tab"></span>
-    <button type="button" class="sub_setting" title='<%:Refresh%>' alt='<%:Refresh%>' onclick='return sub_info_refresh_<%=idname%>(true)'>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M23 4v6h-6"></path>
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-        </svg>
-    </button>
-    <button type="button" class="sub_setting" title='<%:Specify URL%>' alt='<%:Specify URL%>' onclick='return set_subinfo_url_<%=idname%>(this,"<%=filename%>")'>
-        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4">
-            <path d="M4 6H44V36H29L24 41L19 36H4V6Z"/>
-            <path d="M23 21H25.0025" />
-            <path d="M33.001 21H34.9999"/>
-            <path d="M13.001 21H14.9999"/>
-        </svg>
-    </button>
+<script src="/luci-static/resources/openclash/js/oc-icons.js?v=<%=plugin_version%>"></script>
+<div class="oc">
+    <div class="sub_div">
+        <span id='<%=idname%>' class="sub_tab"></span>
+        <button type="button" class="sub_setting" title='<%:Refresh%>' alt='<%:Refresh%>' onclick='return sub_info_refresh_<%=idname%>(true)'>
+            <svg viewBox="0 0 24 24"><use href="#oc-icon-refresh"/></svg>
+        </button>
+        <button type="button" class="sub_setting" title='<%:Specify URL%>' alt='<%:Specify URL%>' onclick='return setUrlConfig_<%=idname%>()'>
+            <svg viewBox="0 0 48 48"><use href="#oc-icon-chat"/></svg>
+        </button>
+        <button type="button" class="sub_setting" title='<%:Edit Subscription%>' alt='<%:Edit Subscription%>' onclick='return uploadConfig_<%=idname%>()'>
+            <svg width="14" height="14"><use href="#oc-icon-settings"/></svg>
+        </button>
+    </div>
 </div>
 
 <script type="text/javascript">//<![CDATA[
@@ -30,45 +32,18 @@ var retry_<%=idname%> = 0;
 var s_<%=idname%>;
 sub_info_refresh_<%=idname%>(false);
 
-setTimeout(function(){
-    initDarkMode();
-}, 200);
-
-function initDarkMode() {
-    if (typeof isDarkBackground === 'undefined') {
-        setTimeout(function() {
-            initDarkMode();
-        }, 100);
-        return;
-    }
-    
-    if (isDarkBackground(document.body)) {
-        document.documentElement.setAttribute('data-darkmode', 'true');
-    }
-}
-
 function progressbar_<%=idname%>(v, m, pc, np, f, t, tr) {
     var screenWidth = window.innerWidth || document.documentElement.clientWidth;
     var fontSize = '12px';
-    var minWidth = '220px';
-    var topPosition = tr == "null" ? '6px' : '2px';
 
     if (screenWidth <= 320) {
         fontSize = '8px';
-        minWidth = '160px';
-        topPosition = tr == "null" ? '8px' : '4px';
     } else if (screenWidth <= 480) {
         fontSize = '9px';
-        minWidth = '180px';
-        topPosition = tr == "null" ? '7px' : '3px';
     } else if (screenWidth <= 768) {
         fontSize = '10px';
-        minWidth = '200px';
-        topPosition = tr == "null" ? '6px' : '3px';
     } else if (screenWidth <= 1024) {
         fontSize = '11px';
-        minWidth = '220px';
-        topPosition = tr == "null" ? '6px' : '2px';
     }
 
     // Build title for native tooltip (format: "v / m (pc%)\nt (Remaining tr days)")
@@ -78,18 +53,18 @@ function progressbar_<%=idname%>(v, m, pc, np, f, t, tr) {
     }
 
     return String.format(
-        '<div class="progress_bar_bg" title="' + titleText + '" style="position:relative; border-radius: 6px; min-width: %s; display: flex; align-items: center;">' +
-        (pc >= 50 ? '<div class="progress_bar_high" style="width:%d%%; height:34px; border-radius: 6px">' :
-        (pc < 50 && pc >= 20 ? '<div class="progress_bar_medium" style="width:%d%%; height:34px; border-radius: 6px">' :
-        '<div class="progress_bar_low" style="width:%d%%; height:34px; border-radius: 6px">')) +
-        '<div style="position:absolute; left:0; top:50%%; transform: translateY(-50%%); text-align:center; width:100%%; padding:0 4px; box-sizing:border-box; line-height:1.2;">' +
-        '<small class="text_show" style="font-size:%s; line-height:1.2;">%s '+ (f ? f : '/') +' %s ' + (np ? "" : '(%s%%)') +
-        (tr == "null" ? '<div style="visibility: hidden; line-height:1.2;">' : '<div style="visibility: visible; line-height:1.2;">') +
+        '<div class="progress_bar_bg" title="' + titleText + '">' +
+        (pc >= 50 ? '<div class="progress_bar_fill progress_bar_high" style="width:%d%%">' :
+        (pc < 50 && pc >= 20 ? '<div class="progress_bar_fill progress_bar_medium" style="width:%d%%">' :
+        '<div class="progress_bar_fill progress_bar_low" style="width:%d%%">')) +
+        '<div class="progress_bar_text">' +
+        '<small class="text_show" style="font-size:%s;">%s '+ (f ? f : '/') +' %s ' + (np ? "" : '(%s%%)') +
+        (tr == "null" ? '<div class="progress_bar_expire" style="visibility: hidden;">' : '<div class="progress_bar_expire" style="visibility: visible;">') +
         '%s (<%:Remaining%> %s <%:days%>)</small>' +
         '</div>' +
         '</div>' +
         '</div>',
-        minWidth, pc, fontSize, v, m, pc, t, tr
+        pc, fontSize, v, m, pc, t, tr
     );
 };
 
@@ -209,6 +184,14 @@ function dispaly_progressbar(id, status) {
                 (provider.expire),
                 (provider.day_left)
             );
+            var textShow = document.getElementById(id).querySelector('.text_show');
+            if (textShow && textShow.scrollWidth > textShow.clientWidth) {
+                var size = parseFloat(window.getComputedStyle(textShow).fontSize) || 12;
+                while (textShow.scrollWidth > textShow.clientWidth && size > 6) {
+                    size -= 1;
+                    textShow.style.fontSize = size + 'px';
+                }
+            }
         } else {
             document.getElementById(id).innerHTML = window["progressbar_multi_" + id](status.providers);
         }
@@ -261,7 +244,7 @@ function sub_info_refresh_<%=idname%>(force) {
 
             if (!needsErrorHandling) {
                 retry_<%=idname%> = 0;
-                localStorage.setItem("sub_info_<%=filename%>", JSON.stringify(status));
+                (window.requestIdleCallback || function(cb) { setTimeout(cb, 1); })(function() { localStorage.setItem("sub_info_<%=filename%>", JSON.stringify(status)); });
                 dispaly_progressbar('<%=idname%>', status);
             }
 		} else {
@@ -275,146 +258,35 @@ function sub_info_refresh_<%=idname%>(force) {
             retry_<%=idname%> = 0;
             dispaly_progressbar('<%=idname%>', status);
             if (status && status.providers) {
-                localStorage.setItem("sub_info_<%=filename%>", JSON.stringify(status));
+                (window.requestIdleCallback || function(cb) { setTimeout(cb, 1); })(function() { localStorage.setItem("sub_info_<%=filename%>", JSON.stringify(status)); });
             }
             s_<%=idname%> = setTimeout("sub_info_refresh_<%=idname%>(false)", 60000*15);
         };
 	});
 };
 
-function set_subinfo_url_<%=idname%>(btn, filename) {
-    if (filename == null || filename == "") {
-        return false;
-    }
+function setUrlConfig_<%=idname%>() {
+    SubscriptionUrlSetter.show("<%=filename%>", "sub_info_refresh_<%=idname%>(true)");
+    return false;
+}
 
-    var dialogDiv = document.createElement('div');
-    dialogDiv.className = 'config-upload-model-overlay show';
+function uploadConfig_<%=idname%>() {
+    if (typeof ConfigUploader === 'undefined') return false;
 
-    var contentDiv = document.createElement('div');
-    contentDiv.className = 'config-upload-model';
-
-    var headerDiv = document.createElement('div');
-    headerDiv.className = 'config-upload-header';
-
-    var titleDiv = document.createElement('div');
-    titleDiv.className = 'config-upload-title';
-    titleDiv.innerHTML = '<%:Set Subscription Info URL%>';
-    headerDiv.appendChild(titleDiv);
-
-    var closeBtn = document.createElement('button');
-    closeBtn.className = 'icon-btn';
-    closeBtn.type = 'button';
-    closeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-    closeBtn.onclick = function() {
-        document.body.removeChild(portal);
-    };
-    headerDiv.appendChild(closeBtn);
-
-    var bodyDiv = document.createElement('div');
-    bodyDiv.className = 'config-upload-content';
-
-    var formGroup = document.createElement('div');
-    formGroup.className = 'form-group';
-
-    var label = document.createElement('label');
-    label.className = 'highlight-label';
-    label.innerHTML = '<%:Paste the new url of subscribe infos sources here:%>';
-    formGroup.appendChild(label);
-
-    var textarea = document.createElement('textarea');
-    textarea.className = 'form-textarea';
-    textarea.placeholder = '<%:Enter URLs, one per line, use #name=example end for specifing display name%> (https://example.com#name=example)';
-    formGroup.appendChild(textarea);
-
-    bodyDiv.appendChild(formGroup);
-
-    var footerDiv = document.createElement('div');
-    footerDiv.className = 'config-upload-footer';
-
-    var statusDiv = document.createElement('div');
-    statusDiv.className = 'config-upload-status';
-    footerDiv.appendChild(statusDiv);
-
-    var buttonsDiv = document.createElement('div');
-    buttonsDiv.className = 'config-upload-buttons';
-
-    var cancelBtn = document.createElement('button');
-    cancelBtn.className = 'btn cancel-btn';
-    cancelBtn.type = 'button';
-    cancelBtn.innerHTML = '<%:Cancel%>';
-
-    var confirmBtn = document.createElement('button');
-    confirmBtn.className = 'btn upload-btn';
-    confirmBtn.type = 'button';
-    confirmBtn.innerHTML = '<%:Submit%>';
-
-    confirmBtn.onclick = function() {
-        var new_url = textarea.value.trim();
-        document.body.removeChild(portal);
-
-        XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "set_subinfo_url")%>', {filename: filename, url: new_url}, function(x, status) {
-            if (x && x.status == 200 && status.info == "Success") {
-                sub_info_refresh_<%=idname%>(true);
-                alert("<%:Specify subscribe infos sources url successfully!%>");
-            } else if (x && x.status == 200 && status.info == "Delete success") {
-                sub_info_refresh_<%=idname%>(true);
-                alert("<%:Delete Specify Subscribe infos sources url successfully!%>");
-            } else {
-                alert("<%:Specify subscribe infos sources url failed:%>\n" + status.info);
-            }
-        });
-    };
-
-    cancelBtn.onclick = function() {
-        document.body.removeChild(portal);
-    };
-
-    buttonsDiv.appendChild(cancelBtn);
-    buttonsDiv.appendChild(confirmBtn);
-    footerDiv.appendChild(buttonsDiv);
-
-    contentDiv.appendChild(headerDiv);
-    contentDiv.appendChild(bodyDiv);
-    contentDiv.appendChild(footerDiv);
-    dialogDiv.appendChild(contentDiv);
-
-    var portal = document.createElement('div');
-    portal.className = 'oc';
-    portal.appendChild(dialogDiv);
-    document.body.appendChild(portal);
-
-    textarea.focus();
-
-    var handleSubURL = function(urlresult) {
-        var urls = '';
-        if (urlresult.type && urlresult.type === "multiple") {
-            for (var data in urlresult.providers) {
-                urls += urlresult.providers[data].url + '#name=' + urlresult.providers[data].name + '\n';
-            }
-        }
-        if (urlresult.type && urlresult.type === "single") {
-            urls = urlresult.url;
-        }
-        textarea.value = urls;
-    };
-
-    var existingData = localStorage.getItem('sub_info_' + filename);
-    if (existingData) {
-        existingData = JSON.parse(existingData);
-        if (existingData.url_result) {
-            handleSubURL(existingData.url_result);
-            return;
-        }
-    };
-
-    XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "get_subscribe_info_data")%>', {
+    var filename = "<%=filename%>";
+    var cb = "sub_info_refresh_<%=idname%>(true)";
+    XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "get_subscribe_data")%>', {
         filename: filename
     }, function(x, status) {
-        if (x && x.status == 200 && status) {
-            handleSubURL(status);
+        if (ConfigUploader.showEditSubscribe) {
+            ConfigUploader.showEditSubscribe((x && x.status == 200) ? status : null, filename, cb);
+        } else {
+            ConfigUploader.show(cb);
         }
     });
-};
+    return false;
+}
 
 //]]></script>
+</div>
 <%+cbi/valuefooter%>
