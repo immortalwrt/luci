@@ -13,7 +13,7 @@ jsonc = require "luci.jsonc"
 i18n = require "luci.i18n"
 
 appname = "passwall"
-curl_args = { "-skfL", "--connect-timeout 3", "--retry 3" }
+curl_args = { "-skfL", "--connect-timeout 3", "--retry 3", "-H 'Accept: */*'" }
 command_timeout = 300
 OPENWRT_ARCH = nil
 DISTRIB_ARCH = nil
@@ -1378,11 +1378,22 @@ function to_move(app_name,file)
 end
 
 function get_version()
-	local version = sys.exec("opkg list-installed luci-app-passwall 2>/dev/null | awk '{print $3}'")
-	if not version or #version == 0 then
-		version = sys.exec("apk list luci-app-passwall 2>/dev/null | awk '/installed/ {print $1}' | cut -d'-' -f4-")
+	local version
+	local version_file = CACHE_PATH .. "/passwall_version"
+	sys.call("mkdir -p " .. CACHE_PATH)
+	if fs.access(version_file) then
+		version = fs.readfile(version_file)
+	else
+		version = sys.exec("opkg list-installed luci-app-passwall 2>/dev/null | awk '{print $3}'")
+		if not version or version == "" then
+			version = sys.exec("apk list luci-app-passwall 2>/dev/null | awk '/installed/ {print $1}' | cut -d'-' -f4-")
+		end
+		version = (version or ""):match("^%s*(.-)%s*$")
+		if version ~= "" then
+			fs.writefile(version_file, version)
+		end
 	end
-	return (version or ""):gsub("\n", ""):match("^([^-]+)")
+	return version:match("^([^-]+)") or ""
 end
 
 function to_check_self()

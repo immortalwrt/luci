@@ -139,7 +139,7 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 		tips.cfgvalue = function(t, n)
 			return string.format('<a style="color: red">%s</a>', translate("There are no available nodes, please add or subscribe nodes first."))
 		end
-		tips:depends({ node = "", ["!reverse"] = true })
+		tips:depends("_node", "1")
 		for k, v in pairs(shunt_list) do
 			tips:depends("node", v.id)
 		end
@@ -153,7 +153,7 @@ o = s:taboption("Main", Value, "node_socks_port", translate("Node") .. " Socks "
 o.default = 1070
 o.placeholder = 1070
 o.datatype = "range(1,65535)"
-o:depends({ node = "", ["!reverse"] = true })
+o:depends("_node", "1")
 --[[
 if has_singbox or has_xray then
 	o = s:taboption("Main", Value, "node_http_port", translate("Node") .. " HTTP " .. translate("Listen Port") .. " " .. translate("0 is not use"))
@@ -163,7 +163,12 @@ end
 ]]--
 o = s:taboption("Main", Flag, "node_socks_bind_local", translate("Node") .. " Socks " .. translate("Bind Local"), translate("When selected, it can only be accessed localhost."))
 o.default = "1"
-o:depends({ node = "", ["!reverse"] = true })
+o:depends("_node", "1")
+
+o = s:taboption("Main", DummyValue, "_node", "")
+o.template = m:template_path("/cbi/hidevalue")
+o.value = "1"
+o:depends({ node = "",  ['!reverse'] = true })
 
 -- Node → DNS Depends Settings
 o = s:taboption("Main", DummyValue, "_node_sel_shunt", "")
@@ -364,6 +369,8 @@ o:value("tcp", "TCP")
 o:value("udp", "UDP")
 o:value("doh", "DoH")
 o:value("http3", "HTTP3(DoH3)")
+o:value("tls", "TLS(DoT)")
+o:value("quic", "QUIC(DoQ)")
 o:depends("dns_mode", "sing-box")
 o:depends("smartdns_dns_mode", "sing-box")
 o.cfgvalue = function(self, section)
@@ -406,6 +413,8 @@ o:depends({xray_dns_mode = "udp"})
 o:depends({xray_dns_mode = "tcp"})
 o:depends({singbox_dns_mode = "udp"})
 o:depends({singbox_dns_mode = "tcp"})
+o:depends({singbox_dns_mode = "tls"})
+o:depends({singbox_dns_mode = "quic"})
 
 ---- DoH
 o = s:taboption("DNS", Value, "remote_dns_doh", translate("Remote DNS DoH"))
@@ -747,7 +756,7 @@ for k, v in pairs(nodes_table) do
 	if #normal_list == 0 and #iface_list == 0 then
 		break
 	end
-	if v.protocol == "_shunt" then
+	if v.protocol and v.protocol == "_shunt" then
 		if has_singbox or has_xray then
 			o_node:value(v.id, v["remark"])
 			o_node.group[#o_node.group+1] = (v.group and v.group ~= "") and v.group or translate("default")

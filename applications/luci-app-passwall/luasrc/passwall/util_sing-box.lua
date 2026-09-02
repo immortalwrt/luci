@@ -597,6 +597,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 						realm.address = nil
 						realm.port = nil
 						realm.port_mapping = (node.hysteria2_realm_upnp == "1") and { enabled = true } or nil
+						realm.http_client = "direct_http_client"
 						return realm
 					end
 					return nil
@@ -642,6 +643,19 @@ function gen_outbound(flag, node, tag, proxy_table)
 				quic = node.naive_quic == "1" and true or false,
 				quic_congestion_control = (node.naive_quic == "1" and node.naive_congestion_control) and node.naive_congestion_control or nil,
 				tls = tls
+			}
+		end
+
+		if node.protocol == "snell" then
+			protocol_table = {
+				version = tonumber(node.snell_version),
+				psk = node.snell_psk,
+				userkey = node.password,
+				reuse = node.snell_reuse == "1" and true or false,
+				network = node.snell_network,
+				obfs_mode = node.snell_version == "4" and node.snell_obfs_mode or nil,
+				obfs_host = node.snell_version == "4" and node.snell_obfs_host or nil,
+				mode = node.snell_version == "6" and node.snell_mode or nil,
 			}
 		end
 
@@ -801,6 +815,10 @@ function gen_config_server(node)
 					u.allowed_ips = user.allowed_ips or {}
 					u.persistent_keepalive_interval = 0
 				end
+				if node.protocol == "snell" then
+					u.name = user.username
+					u.userkey = user.password
+				end
 				users[#users + 1] = u
 			end
 		end
@@ -953,6 +971,7 @@ function gen_config_server(node)
 					realm.port = nil
 					realm.stun_domain_resolver = "direct"
 					realm.port_mapping = (node.hysteria2_realm_upnp == "1") and { enabled = true } or nil
+					realm.http_client = { detour = "direct" }
 					return realm
 				end
 				return nil
@@ -979,6 +998,16 @@ function gen_config_server(node)
 		if users then
 			inbound.peers = users
 		end
+	end
+
+	if node.protocol == "snell" then
+		protocol_table = {
+			users = users,
+			version = tonumber(node.snell_version),
+			psk = node.snell_psk,
+			obfs_mode = node.snell_version == "5" and node.snell_obfs_mode or nil,
+			mode = node.snell_version == "6" and node.snell_mode or nil,
+		}
 	end
 
 	if node.protocol == "direct" then
@@ -1098,8 +1127,10 @@ function gen_config(var)
 	local direct_dns_query_strategy = var["direct_dns_query_strategy"]
 	local remote_dns_udp_server = var["remote_dns_udp_server"]
 	local remote_dns_udp_port = var["remote_dns_udp_port"]
+	local remote_dns_quic = var["remote_dns_quic"]
 	local remote_dns_tcp_server = var["remote_dns_tcp_server"]
 	local remote_dns_tcp_port = var["remote_dns_tcp_port"]
+	local remote_dns_tls = var["remote_dns_tls"]
 	local remote_dns_doh = var["remote_dns_doh"]
 	local remote_dns_http3 = var["remote_dns_http3"]
 	local remote_dns_client_ip = var["remote_dns_client_ip"]
@@ -1167,8 +1198,8 @@ function gen_config(var)
 							format = format,
 							path = _type == "local" and w or nil,
 							url = _type == "remote" and w or nil,
-							--download_detour = _type == "remote" and "",
-							--update_interval = _type == "remote" and "",
+							http_client = (_type == "remote" and version_ge_1_14_0) and "remote_http_client" or nil,
+							--update_interval = _type == "remote" and "1d" or nil,
 						}
 					end
 				end
@@ -1854,13 +1885,19 @@ function gen_config(var)
 			remote_server.type = "udp"
 			remote_server.server = remote_dns_udp_server
 			remote_server.server_port = server_port
-
+			if remote_dns_quic then
+				remote_server.type = "quic"
+				remote_server.server_port = tonumber(remote_dns_udp_port) or 853
+			end
 		elseif remote_dns_tcp_server then
 			local server_port = tonumber(remote_dns_tcp_port) or 53
 			remote_server.type = "tcp"
 			remote_server.server = remote_dns_tcp_server
 			remote_server.server_port = server_port
-
+			if remote_dns_tls then
+				remote_server.type = "tls"
+				remote_server.server_port = tonumber(remote_dns_tcp_port) or 853
+			end
 		elseif remote_dns_doh then
 			local _a = api.parseDoH(remote_dns_doh)
 			if _a then
@@ -2179,13 +2216,9 @@ function gen_config(var)
 		})
 	else
 		table.insert(dns.rules, 1, {
-			action = "evaluate",
+			preferred_by = "hosts",
+			action = "route",
 			server = "hosts"
-		})
-		table.insert(dns.rules, 2, {
-			match_response = true,
-			ip_accept_any = true,
-			action = "respond"
 		})
 	end
 
@@ -2201,6 +2234,36 @@ function gen_config(var)
 		for k, v in pairs(rule_set_table) do
 			table.insert(route.rule_set, v)
 		end
+	end
+
+	local http_clients
+	if outbounds then
+		local proxy_tag = COMMON.default_outbound_tag
+		if proxy_tag == "block" or proxy_tag == "direct" then  -- 如默认节点是特殊节点，则选一个可用节点作为出口(urltest优先)
+			local first_node
+			for _, v in ipairs(outbounds) do
+				if not v["_flag_proxy_tag"] and not v.detour and v["_id"] and ((v.server and (v.server_port or v.server_ports)) or v.type == "urltest") then
+					first_node = first_node or v.tag
+					if v.type == "urltest" then
+						proxy_tag = v.tag
+						break
+					end
+				end
+			end
+			if proxy_tag == COMMON.default_outbound_tag then
+				proxy_tag = first_node
+			end
+		end
+		http_clients = {
+			{
+				tag = "remote_http_client",
+				detour = proxy_tag
+			},
+			{
+				tag = "direct_http_client",
+				detour = "direct"
+			}
+		}
 	end
 
 	if inbounds or outbounds then
@@ -2219,8 +2282,10 @@ function gen_config(var)
 			outbounds = outbounds,
 			-- 路由
 			route = route,
-			--实验性
+			-- 实验性
 			experimental = experimental,
+			-- HTTP Client
+			http_clients = version_ge_1_14_0 and http_clients or nil,
 		}
 		table.insert(outbounds, {
 			type = "direct",
