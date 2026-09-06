@@ -99,6 +99,16 @@
  */
 
 const startupConf = [
+	[form.Flag, 'enabled', _('Enable'), null,
+	{
+		enabled: '1',
+		disabled: '0',
+		default: '1',
+		rmempty: false,
+		retain: true,
+		remove: writeFlagDisabled,
+	}],
+
 	[form.Flag, 'stdout', _('Log stdout'), null,
 	{
 		enabled: '1',
