@@ -93,43 +93,64 @@ function gen_outbound(flag, node, tag, proxy_table)
 		end
 		local remarks = node.remarks
 
-		local proxy_tag = nil
-		local fragment = nil
-		local record_fragment = nil
-		local run_socks_instance = true
+		local proxy_tag, fragment, record_fragment
 		if proxy_table ~= nil and type(proxy_table) == "table" then
 			proxy_tag = proxy_table.tag or nil
 			fragment = (proxy_table.fragment and node.protocol ~= "naive" and not node.hysteria2_realms) and true or nil
 			record_fragment = (proxy_table.record_fragment and node.protocol ~= "naive" and not node.hysteria2_realms) and true or nil
-			run_socks_instance = proxy_table.run_socks_instance
 		end
 
 		if node.type ~= "sing-box" then
-			local relay_port = node.port
-			local new_port = api.get_new_port()
-			local config_file = string.format("%s_%s_%s.json", flag, tag, new_port)
-			if tag and node_id and not tag:find(node_id) then
-				config_file = string.format("%s_%s_%s_%s.json", flag, tag, node_id, new_port)
-			end
-			if run_socks_instance then
-				sys.call(string.format('/usr/share/passwall/app.sh run_socks "%s"> /dev/null',
-					string.format("flag=%s node=%s bind=%s socks_port=%s config_file=%s relay_port=%s",
-						new_port, --flag
-						node_id, --node
-						"127.0.0.1", --bind
-						new_port, --socks port
-						config_file, --config file
-						(proxy_tag and relay_port) and tostring(relay_port) or "" --relay port
+			if node.type == "Socks" then
+				node.protocol = "socks"
+				proxy_tag = "socks <- " .. node_id
+			else
+				local new_port
+				local run_socks_instance = true
+				if NO_RUN then
+					TMP_PORT = TMP_PORT and TMP_PORT + 1 or 3001
+					new_port = TMP_PORT
+					run_socks_instance = nil
+				else
+					local relay_port = (proxy_tag and node.port) and tostring(node.port) or ""
+					if relay_port == "" then
+						local cache = api.get_socks_port_by_cache(node_id)
+						if cache then
+							new_port = cache
+							run_socks_instance = nil
+						end
+					end
+					if run_socks_instance then
+						new_port = api.get_new_port()
+						local config_file = string.format("nodesocks_%s_%s.json", node_id, new_port)
+						if tag and node_id and not tag:find(node_id) then
+							config_file = string.format("nodesocks_%s_%s_%s.json", tag, node_id, new_port)
+						end
+						sys.call(string.format('/usr/share/passwall/app.sh run_socks "%s"> /dev/null',
+							string.format("flag=%s node=%s bind=%s socks_port=%s config_file=%s relay_port=%s",
+								new_port, --flag
+								node_id, --node
+								"127.0.0.1", --bind
+								new_port, --socks port
+								config_file, --config file
+								relay_port --relay port
+								)
+							)
 						)
-					)
-				)
+						if relay_port == "" then
+							api.set_socks_port_to_cache(node_id, new_port)
+						end
+					end
+				end
+				if new_port then
+					node = {
+						protocol = "socks",
+						address = "127.0.0.1",
+						port = new_port
+					}
+					proxy_tag = "socks <- " .. node_id
+				end
 			end
-			node = {
-				protocol = "socks",
-				address = "127.0.0.1",
-				port = new_port
-			}
-			proxy_tag = "socks <- " .. node_id
 		else
 			if proxy_tag then
 				node.detour = proxy_tag
@@ -326,9 +347,20 @@ function gen_outbound(flag, node, tag, proxy_table)
 					Host = node.ws_host,
 					["User-Agent"] = node.user_agent
 				} or nil,
-				max_early_data = tonumber(node.ws_maxEarlyData) or nil,
-				early_data_header_name = (node.ws_earlyDataHeaderName) and node.ws_earlyDataHeaderName or nil --要与 Xray-core 兼容，请将其设置为 Sec-WebSocket-Protocol。它需要与服务器保持一致。
 			}
+			local path = api.UrlDecode(node.ws_path)
+			local path_dat = api.split(path, "?")
+			local params = {}
+			for _, v in pairs(api.split(path_dat[2], '&')) do
+				local t = api.split(v, '=')
+				params[t[1]] = t[2]
+			end
+			local ed = tonumber(params.ed)
+			if ed then
+				v2ray_transport.path = path_dat[1]
+				v2ray_transport.max_early_data = ed
+			end
+			v2ray_transport.early_data_header_name = params.eh or "Sec-WebSocket-Protocol"
 		end
 
 		if node.transport == "httpupgrade" then
@@ -481,9 +513,9 @@ function gen_outbound(flag, node, tag, proxy_table)
 				obfs = node.hysteria_obfs,
 				auth = (node.hysteria_auth_type == "base64") and node.hysteria_auth_password or nil,
 				auth_str = (node.hysteria_auth_type == "string") and node.hysteria_auth_password or nil,
-				recv_window_conn = tonumber(node.hysteria_recv_window_conn),  --1.14 将变更为 stream_receive_window
-				recv_window = tonumber(node.hysteria_recv_window),  --1.14 将变更为 connection_receive_window
-				disable_mtu_discovery = (node.hysteria_disable_mtu_discovery == "1") and true or false,  --1.14 将变更为 disable_path_mtu_discovery
+				stream_receive_window = tonumber(node.hysteria_recv_window_conn),
+				connection_receive_window = tonumber(node.hysteria_recv_window),
+				disable_path_mtu_discovery = (node.hysteria_disable_mtu_discovery == "1") and true or false,
 				tls = tls
 			}
 		end
@@ -741,7 +773,7 @@ function gen_config_server(node)
 			type = "ws",
 			path = node.ws_path or "/",
 			headers = (node.ws_host ~= nil) and { Host = node.ws_host } or nil,
-			early_data_header_name = (node.ws_earlyDataHeaderName) and node.ws_earlyDataHeaderName or nil --要与 Xray-core 兼容，请将其设置为 Sec-WebSocket-Protocol。它需要与服务器保持一致。
+			early_data_header_name = (node.ws_earlyDataHeaderName) and node.ws_earlyDataHeaderName or "Sec-WebSocket-Protocol"
 		}
 	end
 
@@ -910,10 +942,10 @@ function gen_config_server(node)
 			down_mbps = tonumber(node.hysteria_down_mbps),
 			obfs = node.hysteria_obfs,
 			users = users,
-			recv_window_conn = node.hysteria_recv_window_conn and tonumber(node.hysteria_recv_window_conn) or nil, --1.14 to stream_receive_window
-			recv_window_client = node.hysteria_recv_window_client and tonumber(node.hysteria_recv_window_client) or nil, --1.14 to connection_receive_window
-			max_conn_client = node.hysteria_max_conn_client and tonumber(node.hysteria_max_conn_client) or nil,  --1.14 to max_concurrent_streams
-			disable_mtu_discovery = (node.hysteria_disable_mtu_discovery == "1") and true or false,  --1.14 to disable_path_mtu_discover
+			stream_receive_window = node.hysteria_recv_window_conn and tonumber(node.hysteria_recv_window_conn) or nil,
+			connection_receive_window = node.hysteria_recv_window_client and tonumber(node.hysteria_recv_window_client) or nil,
+			max_concurrent_streams = node.hysteria_max_conn_client and tonumber(node.hysteria_max_conn_client) or nil,
+			disable_path_mtu_discovery = (node.hysteria_disable_mtu_discovery == "1") and true or false,
 			tls = tls
 		}
 	end
@@ -1140,10 +1172,11 @@ function gen_config(var)
 	local dns_cache = var["dns_cache"]
 	local dns_socks_address = var["dns_socks_address"]
 	local dns_socks_port = var["dns_socks_port"]
-	local no_run = var["no_run"]
 	local use_proxy_list = var["use_proxy_list"]
 	local use_gfw_list = var["use_gfw_list"]
 	local chn_list = var["chn_list"]
+	local run_in_global = var["run_in_global"]
+	NO_RUN = var["no_run"]
 
 	local dns_domain_rules = {}
 	local dns = nil
@@ -1337,7 +1370,9 @@ function gen_config(var)
 				ut_nodes = _node.urltest_node
 			end
 
-			-- api.log("  - 加载 Sing-Box URLTest 节点【" .. (_node.remarks or "") .. "】，子节点数量：" .. #(ut_nodes or {}))
+			if not NO_RUN and run_in_global then
+				api.log("  - 加载 Sing-Box URLTest 节点【" .. (_node.remarks or "") .. "】，子节点数量：" .. #(ut_nodes or {}))
+			end
 
 			local valid_nodes = {}
 			for i = 1, #(ut_nodes or {}) do
@@ -1352,7 +1387,7 @@ function gen_config(var)
 					end
 				end
 				if is_new_ut_node then
-					local outboundTag = gen_outbound_get_tag(flag, ut_node_id, ut_node_tag, { fragment = singbox_settings.fragment == "1" or nil, record_fragment = singbox_settings.record_fragment == "1" or nil, run_socks_instance = not no_run })
+					local outboundTag = gen_outbound_get_tag(flag, ut_node_id, ut_node_tag, { fragment = singbox_settings.fragment == "1" or nil, record_fragment = singbox_settings.record_fragment == "1" or nil })
 					if outboundTag then
 						valid_nodes[#valid_nodes + 1] = outboundTag
 					end
@@ -1455,7 +1490,6 @@ function gen_config(var)
 						to_node.port = new_port
 						to_outbound = gen_outbound(node[".name"], to_node, tag, {
 							tag = tag,
-							run_socks_instance = not no_run
 						})
 					else
 						to_outbound = gen_outbound(node[".name"], to_node)
@@ -1548,7 +1582,6 @@ function gen_config(var)
 					local proxy_table = {
 						fragment = singbox_settings.fragment == "1",
 						record_fragment = singbox_settings.record_fragment == "1",
-						run_socks_instance = not no_run,
 					}
 					local preproxy_node_id = node[rule_name .. "_proxy_tag"]
 					if preproxy_node_id == _node_id then preproxy_node_id = nil end
@@ -1832,7 +1865,6 @@ function gen_config(var)
 			COMMON.default_outbound_tag = gen_outbound_get_tag(flag, node or node_id, nil, {
 				fragment = singbox_settings.fragment == "1" or nil,
 				record_fragment = singbox_settings.record_fragment == "1" or nil,
-				run_socks_instance = not no_run
 			})
 		end
 
@@ -2293,7 +2325,7 @@ function gen_config(var)
 			routing_mark = 255,
 		})
 		for index, value in ipairs(config.outbounds) do
-			if not value["_flag_proxy_tag"] and not value.detour and value["_id"] and value.server and (value.server_port or value.server_ports) and not no_run then
+			if not value["_flag_proxy_tag"] and not value.detour and value["_id"] and value.server and (value.server_port or value.server_ports) and not NO_RUN then
 				sys.call(string.format("echo '%s' >> %s", value["_id"], api.TMP_PATH .. "/direct_node_list"))
 			end
 			if not value.detour and not value.bind_interface and value.server then
@@ -2441,7 +2473,7 @@ if arg[1] then
 			var = jsonc.parse(arg[2])
 		end
 		print(func(var))
-		if (next(GEO_VAR.SITE_TAGS) or next(GEO_VAR.IP_TAGS)) and not no_run then
+		if (next(GEO_VAR.SITE_TAGS) or next(GEO_VAR.IP_TAGS)) and not NO_RUN then
 			convert_geofile()
 		end
 	end

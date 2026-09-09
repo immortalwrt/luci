@@ -112,6 +112,10 @@ o:value("", translate("Close"))
 o.group = {""}
 
 current_node_id = m:get(s.section, "node")
+local node_value = s.fields["node"]:formvalue(s.section)
+if node_value then
+	current_node_id = node_value
+end
 current_node = current_node_id and m:get(current_node_id) or {}
 
 -- Shunt Start
@@ -120,17 +124,10 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 		if current_node.protocol == "_shunt" then
 			local shunt_lua = loadfile("/usr/lib/lua/luci/model/cbi/passwall/client/include/shunt_options.lua")
 			setfenv(shunt_lua, getfenv(1))(m, s, {
-				s_cfgid = s.section,
-				node_id = current_node_id,
 				node = current_node,
-				socks_list = socks_list,
-				urltest_list = urltest_list,
-				balancing_list = balancing_list,
-				iface_list = iface_list,
-				normal_list = normal_list,
 				verify_option = s.fields["node"],
 				tab = "Shunt",
-				tab_desc = translate("Shunt Rule")
+				tab_desc = translate("Shunt Rule"),
 			})
 		end
 	else
@@ -165,20 +162,18 @@ o = s:taboption("Main", Flag, "node_socks_bind_local", translate("Node") .. " So
 o.default = "1"
 o:depends("_node", "1")
 
-o = s:taboption("Main", DummyValue, "_node", "")
-o.template = m:template_path("/cbi/hidevalue")
-o.value = "1"
+o = s:taboption("Main", HideValue, "node_save_before", "")
+o.value = current_node[".name"]
+o.cbid = function(self, section) return "node_save_before" end
+
+o = s:taboption("Main", HideValue, "_node", "")
 o:depends({ node = "",  ['!reverse'] = true })
 
 -- Node → DNS Depends Settings
-o = s:taboption("Main", DummyValue, "_node_sel_shunt", "")
-o.template = m:template_path("/cbi/hidevalue")
-o.value = "1"
+o = s:taboption("Main", HideValue, "_node_sel_shunt", "")
 o:depends({ node = "__always__" })
 
-o = s:taboption("Main", DummyValue, "_node_sel_other", "")
-o.template = m:template_path("/cbi/hidevalue")
-o.value = "1"
+o = s:taboption("Main", HideValue, "_node_sel_other", "")
 o:depends({ _node_sel_shunt = "1",  ['!reverse'] = true })
 
 -- [[ DNS Settings ]]--
@@ -565,7 +560,7 @@ o:value("disable", translate("No Proxy"))
 o:value("proxy", translate("Proxy"))
 o.default = "proxy"
 
-o = s:taboption("Proxy", DummyValue, "switch_mode", " ")
+o = s:taboption("Proxy", DummyValue, "switch_mode", "")
 o.template = m:template_path("/global/proxy")
 
 ---- Check the transparent proxy component
@@ -617,21 +612,46 @@ o:value("info", "Info")
 o:value("warn", "Warning")
 o:value("error", "Error")
 
-o = s:taboption("log", Flag, "advanced_log_feature", translate("Advanced log feature"), translate("For professionals only."))
-o.default = "0"
-o = s:taboption("log", Flag, "sys_log", translate("Logging to system log"), translate("Logging to the system log for more advanced functions. For example, send logs to a dedicated log server."))
-o:depends("advanced_log_feature", "1")
-o.default = "0"
-o = s:taboption("log", Value, "persist_log_path", translate("Persist log file directory"), translate("The path to the directory used to store persist log files, the \"/\" at the end can be omitted. Leave it blank to disable this feature."))
-o:depends({ ["advanced_log_feature"] = 1, ["sys_log"] = 0 })
-o = s:taboption("log", Value, "log_event_filter", translate("Log Event Filter"), translate("Support regular expression."))
-o:depends("advanced_log_feature", "1")
-o = s:taboption("log", Value, "log_event_cmd", translate("Shell Command"), translate("Shell command to execute, replace log content with %s."))
-o:depends("advanced_log_feature", "1")
+o = s:taboption("log", DummyValue, "_node_log", translate("Log File"))
+o.rawhtml = true
+o.cfgvalue = function(t, n)
+	local log_file = api.TMP_PATH .. "/acl/default/global.log"
+	local log_url = api.url("get_redir_log") .. "?id=default"
+	local s = "<code>%s</code>&nbsp;&nbsp;" % log_file
+	if api.fs.access(log_file) then
+		local btn = string.format(
+			'<input class="btn cbi-button cbi-button-apply" type="button" value="%s" onclick="window.open(\'%s\', \'_blank\')" />',
+			translate("View Log"),
+			log_url
+		)
+		s = s .. btn
+	end
+	return s
+end
+o:depends("log_node", "1")
 
 o = s:taboption("log", Flag, "log_chinadns_ng", translate("Enable") .. " ChinaDNS-NG " .. translate("Log"))
 o.default = "0"
 o.rmempty = false
+o:depends("dns_shunt", "chinadns-ng")
+
+o = s:taboption("log", DummyValue, "_chinadns_ng_log", translate("Log File"))
+o.rawhtml = true
+o.cfgvalue = function(t, n)
+	local log_file = api.TMP_PATH .. "/acl/default/chinadns_ng.log"
+	local log_url = api.url("get_chinadns_log") .. "?flag=default"
+	local s = "<code>%s</code>&nbsp;&nbsp;" % log_file
+	if api.fs.access(log_file) then
+		local btn = string.format(
+			'<input class="btn cbi-button cbi-button-apply" type="button" value="%s" onclick="window.open(\'%s\', \'_blank\')" />',
+			translate("View Log"),
+			log_url
+		)
+		s = s .. btn
+	end
+	return s
+end
+o:depends("log_chinadns_ng", "1")
 
 o = s:taboption("log", DummyValue, "_log_tips", "　")
 o.rawhtml = true
@@ -646,6 +666,8 @@ o.template = m:template_path("/global/faq")
 s:tab("maintain", translate("Maintain"))
 o = s:taboption("maintain", DummyValue, "")
 o.template = m:template_path("/global/backup")
+
+m:appendTemplate("/include/node_change", { verify_option = s.fields["node"], shunt_list = api.jsonc.stringify(shunt_list) })
 
 -- [[ Socks Server ]]--
 o = s:taboption("Main", Flag, "socks_enabled", "Socks " .. translate("Main switch"))
@@ -784,7 +806,7 @@ for k, v in pairs(nodes_table) do
 	end
 end
 
-m:appendTemplate("/global/footer", {shunt_list = api.jsonc.stringify(shunt_list)})
+m:appendTemplate("/global/footer")
 
 m:appendTemplate("/cbi/sortable", {sectiontype = s2.sectiontype})
 

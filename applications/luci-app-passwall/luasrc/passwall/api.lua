@@ -163,12 +163,16 @@ function sh_uci_commit(config)
 	exec_call(string.format("uci -q commit %s", config))
 end
 
+function del_cache_var(key)
+	sys.call(string.format('. /usr/share/passwall2/utils.sh ; del_cache_var "%s"', key))
+end
+
 function set_cache_var(key, val)
-	sys.call(string.format('. /usr/share/passwall/utils.sh ; set_cache_var %s "%s"', key, val))
+	sys.call(string.format('. /usr/share/passwall/utils.sh ; set_cache_var "%s" "%s"', key, val))
 end
 
 function get_cache_var(key)
-	local val = sys.exec(string.format('. /usr/share/passwall/utils.sh ; echo -n $(get_cache_var %s)', key))
+	local val = sys.exec(string.format('. /usr/share/passwall/utils.sh ; echo -n $(get_cache_var "%s")', key))
 	if val == "" then val = nil end
 	return val
 end
@@ -1517,11 +1521,111 @@ function set_default_cbi()
 			return cbi.AbstractValue.write(self, section, new_val)
 		end
 	end
+	if true then
+		--HideValue
+		local HideValue = util.class(cbi.DummyValue)
+		function HideValue.__init__(self, ...)
+			cbi.DummyValue.__init__(self, ...)
+			self.template = self.map:template_path("/cbi/hidevalue")
+			self.value = "1"
+		end
+		cbi.HideValue = HideValue
+	end
+end
+
+function set_type_cbi(s)
+	local cbi = require "luci.cbi"
+	local s1 = s.parent
+	function s.option(s_self, class, option, ...)
+		local obj  = class(s_self.map, s_self, option, ...)
+		obj.config_option = option
+		obj.option_prefix = s_self.option_prefix
+		obj.option = s_self.option_prefix .. option
+		obj.cfgvalue = function(self, section)
+			if self.rewrite_option then
+				return self.map:get(section, self.rewrite_option)
+			else
+				return self.map:get(section, self.config_option)
+			end
+		end
+		obj.write = function(self, section, value)
+			if s1.fields["type"]:formvalue(s_self.section) == s_self.type_name then
+				local new_val = value
+				if util.instanceof(self, cbi.DynamicList) then
+					local new_t = {}
+					if type(value) == "table" then
+						new_t = table_remove_duplicates(value)
+					else
+						new_t = { value }
+					end
+					if self.cast == "string" then
+						new_val = table.concat(new_t, " ")
+					else
+						new_val = new_t
+					end
+				end
+				if self.rewrite_option then
+					self.map:set(section, self.rewrite_option, new_val)
+				else
+					self.map:set(section, self.config_option, new_val)
+				end
+			end
+		end
+		obj.remove = function(self, section)
+			if s1.fields["type"]:formvalue(s_self.section) == s_self.type_name then
+				if self.rewrite_option then
+					self.map:del(section, self.rewrite_option)
+				else
+					self.map:del(section, self.config_option)
+				end
+			end
+		end
+		obj.deplist2json = function(self, section, deplist)
+			local deps, i, d = { }
+			if type(self.deps) == "table" then
+				if not next(self.deps) then
+					self:depends({ type = s.type_name })
+				end
+				local list = deplist or self.deps
+				for i, d in ipairs(list) do
+					if s.type_name and not d["type"] then
+						d["type"] = s.type_name
+					end
+					local a, k, v = { }
+					for k, v in pairs(d) do
+						if k:find("!", 1, true) then
+							a[k] = v
+						elseif k:find("^", 1, true) then
+							a[k:sub(2)] = v
+						elseif k:find(".", 1, true) then
+							a['cbid%s' % k] = v
+						elseif s_self.fields[k] then
+							a['cbid.%s.%s.%s' %{ self.config, section, s_self.fields[k].option }] = v
+						else
+							a['cbid.%s.%s.%s' %{ self.config, section, k }] = v
+						end
+					end
+					deps[#deps+1] = a
+				end
+			end
+			return util.serialize_json(deps)
+		end
+		s_self:append(obj)
+		s_self.fields[option] = obj
+		return obj
+	end
+end
+
+function type_cbi_section(s, s2)
+	for i, v in ipairs(s2.children) do
+		local o = s2.children[i]
+		s:append(o)
+		s.fields[o.option] = o
+	end
 end
 
 function return_map(map)
 	local cbi = require "luci.cbi"
-	local api = require "luci.passwall.api"
 	if true then
 		-- header
 		local header = cbi.Template(appname .. "/cbi/header")
@@ -1535,113 +1639,6 @@ function return_map(map)
 		map:append(footer)
 	end
 	return map
-end
-
-function luci_types(s, s2)
-	local cbi = require "luci.cbi"
-	local m = s.map
-	local id = s2.section
-	local type_name = s2.type_name
-	local option_prefix = s2.option_prefix
-	local fv_type
-	local field_type = s.fields["type"]
-	if field_type then
-		fv_type = field_type:formvalue(id)
-	end
-	for i, v in ipairs(s2.children) do
-		local o = s2.children[i]
-		o.config_option = o.option
-		o.option_prefix = option_prefix
-		o.option = option_prefix .. o.option
-		if not o.not_rewrite then
-			o.cfgvalue = function(self, section)
-				-- Add a custom `custom_cfgvalue` attribute. If a custom `custom_cfgvalue` function exists, the custom `cfgvalue` logic will be used.
-				if self.custom_cfgvalue then
-					return self:custom_cfgvalue(section)
-				else
-					if self.rewrite_option then
-						return m:get(section, self.rewrite_option)
-					else
-						return m:get(section, self.config_option)
-					end
-				end
-			end
-			o.write = function(self, section, value)
-				if s.fields["type"]:formvalue(id) == type_name then
-					-- Add a custom `custom_write` attribute; if a custom `custom_write` function exists, then use the custom write logic.
-					if self.custom_write then
-						self:custom_write(section, value)
-					else
-						local new_val = value
-						if util.instanceof(self, cbi.DynamicList) then
-							local new_t = {}
-							if type(value) == "table" then
-								new_t = table_remove_duplicates(value)
-							else
-								new_t = { value }
-							end
-							if self.cast == "string" then
-								new_val = table.concat(new_t, " ")
-							else
-								new_val = new_t
-							end
-						end
-						if self.rewrite_option then
-							m:set(section, self.rewrite_option, new_val)
-						else
-							m:set(section, self.config_option, new_val)
-						end
-					end
-				end
-			end
-			o.remove = function(self, section)
-				if s.fields["type"]:formvalue(id) == type_name then
-					-- Add a custom `custom_remove` attribute; if a custom `custom_remove` function exists, use the custom remove logic.
-					if self.custom_remove then
-						self:custom_remove(section)
-					else
-						if self.rewrite_option then
-							m:del(section, self.rewrite_option)
-						else
-							m:del(section, self.config_option)
-						end
-					end
-				end
-			end
-		end
-
-		local deps = o.deps
-		if #deps > 0 then
-			local function process_deps(dep)
-				local rewrite_deps = {}
-				for k, v in pairs(dep) do
-					if k:find("!") then
-						rewrite_deps[k] = v
-					else
-						rewrite_deps[option_prefix .. k] = v
-					end
-				end
-				if not rewrite_deps['!reverse'] then
-					rewrite_deps["type"] = type_name
-				end
-				return rewrite_deps
-			end
-			for index, value in ipairs(deps) do
-				local rewrite_deps = process_deps(value)
-				if rewrite_deps then
-					deps[index] = rewrite_deps
-				end
-			end
-		else
-			o:depends({ type = type_name })
-		end
-
-		if fv_type and fv_type ~= type_name then
-			o.rmempty = true
-		end
-
-		s:append(o)
-	end
 end
 
 function get_std_domain(domain)
@@ -2078,4 +2075,12 @@ function gen_wireguard_key()
 			public_key = public_key
 		}
 	end
+end
+
+function get_socks_port_by_cache(node_id)
+	return get_cache_var("node_%s_socks_port" % { node_id })
+end
+
+function set_socks_port_to_cache(node_id, v)
+	set_cache_var("node_%s_socks_port" % { node_id }, v)
 end
