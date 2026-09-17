@@ -20,6 +20,7 @@ function index()
 			luci.sys.call('cp -f /usr/share/passwall/0_default_config /etc/config/passwall')
 		else return end
 	end
+	luci.sys.call("mkdir -p /etc/passwall/rules")
 	local api = require "luci.passwall.api"
 	local appname = api.appname		-- global definitions not available
 	local fs = api.fs
@@ -142,14 +143,14 @@ end
 
 function show_menu()
 	api.sh_uci_del(c_config, "@global[0]", "hide_from_luci", true)
-	luci.sys.call("rm -rf /tmp/luci-*")
+	api.remove("/tmp/luci-*")
 	luci.sys.call("/etc/init.d/rpcd restart >/dev/null")
 	http.redirect(api.url())
 end
 
 function hide_menu()
 	api.sh_uci_set(c_config, "@global[0]", "hide_from_luci", "1", true)
-	luci.sys.call("rm -rf /tmp/luci-*")
+	api.remove("/tmp/luci-*")
 	luci.sys.call("/etc/init.d/rpcd restart >/dev/null")
 	http.redirect(luci.dispatcher.build_url("admin", "status", "overview"))
 end
@@ -227,7 +228,7 @@ function gen_client_config()
 	if nixio.fs.access(config_file) then
 		http.prepare_content("application/json")
 		http.write(luci.sys.exec("cat " .. config_file))
-		luci.sys.call("rm -f " .. config_file)
+		api.remove(config_file)
 	else
 		http.redirect(api.url("node_list"))
 	end
@@ -854,13 +855,15 @@ end
 local backup_files = {
     "/etc/config/passwall",
     "/etc/config/passwall_server",
-    "/usr/share/passwall/rules/block_host",
-    "/usr/share/passwall/rules/block_ip",
-    "/usr/share/passwall/rules/direct_host",
-    "/usr/share/passwall/rules/direct_ip",
-    "/usr/share/passwall/rules/proxy_host",
-    "/usr/share/passwall/rules/proxy_ip",
-    "/usr/share/passwall/rules/domains_excluded"
+    "/etc/passwall/rules/block_host",
+    "/etc/passwall/rules/block_ip",
+    "/etc/passwall/rules/direct_host",
+    "/etc/passwall/rules/direct_ip",
+    "/etc/passwall/rules/proxy_host",
+    "/etc/passwall/rules/proxy_ip",
+    "/etc/passwall/rules/lanlist_ipv4",
+    "/etc/passwall/rules/lanlist_ipv6",
+    "/etc/passwall/rules/domains_excluded"
 }
 
 function create_backup()
@@ -868,16 +871,16 @@ function create_backup()
 	local tar_file = "/tmp/passwall-" .. date .. "-backup.tar.gz"
 	local version_file = "/tmp/passwall-version"
 	local version = api.get_version()
-	fs.remove(tar_file)
+	api.remove(tar_file)
 	fs.writefile(version_file, version .. "\n")
 	local cmd = "tar -czf " .. tar_file .. " " .. table.concat(backup_files, " ") .. " " .. "-C /tmp passwall-version"
 	luci.sys.call(cmd)
-	fs.remove(version_file)
+	api.remove(version_file)
 	http.header("Content-Disposition", "attachment; filename=passwall-" .. date .. "-backup.tar.gz")
 	http.header("X-Backup-Filename", "passwall-" .. date .. "-backup.tar.gz")
 	http.prepare_content("application/octet-stream")
 	http.write(fs.readfile(tar_file))
-	fs.remove(tar_file)
+	api.remove(tar_file)
 end
 
 function restore_backup()
@@ -945,8 +948,8 @@ function restore_backup()
 				api.log(" * PassWall 备份文件解压失败，请重试！")
 				result = { status = "error", message = "Decompression failed" }
 			end
-			luci.sys.call("rm -rf " .. temp_dir)
-			fs.remove(file_path)
+			api.remove(temp_dir)
+			api.remove(file_path)
 		else
 			result = { status = "success", message = "Chunk received" }
 		end
@@ -965,6 +968,13 @@ function reset_config()
 		luci.sys.call('/etc/init.d/passwall stop')
 		if luci.sys.call('[ -s "/usr/share/passwall/0_default_config" ]') == 0 then
 			luci.sys.call('cp -f /usr/share/passwall/0_default_config /etc/config/passwall')
+			local files = {
+				"direct_host", "direct_ip", "proxy_host", "proxy_ip", "block_host", "block_ip",
+				"lanlist_ipv4", "lanlist_ipv6", "domains_excluded"
+			}
+			for _, f in ipairs(files) do
+				luci.sys.call("cp -f /usr/share/passwall/rules/" .. f .. " /etc/passwall/rules/" .. f)
+			end
 			api.log(" * 恢复默认配置成功。")
 		else
 			api.log(" * 找不到默认配置文件，重置失败！")

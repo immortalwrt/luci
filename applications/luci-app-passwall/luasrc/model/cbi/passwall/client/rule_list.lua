@@ -2,10 +2,10 @@ local api = require "luci.passwall.api"
 local fs = api.fs
 local sys = api.sys
 local datatypes = api.datatypes
-local path = string.format("/usr/share/%s/rules/", api.appname)
-local gfwlist_path = path .. "gfwlist"
-local chnlist_path = path .. "chnlist"
-local chnroute_path = path .. "chnroute"
+local path = string.format("/etc/%s/rules/", api.appname)
+local gfwlist_path = "/usr/share/" .. api.appname .. "/rules/gfwlist"
+local chnlist_path = "/usr/share/" .. api.appname .. "/rules/chnlist"
+local chnroute_path = "/usr/share/" .. api.appname .. "/rules/chnroute"
 
 api.set_default_cbi()
 
@@ -45,11 +45,9 @@ o.cfgvalue = function(self, section)
 end
 o.write = function(self, section, value)
 	fs.writefile(direct_host, value:gsub("\r\n", "\n"))
-	sys.call("rm -rf /tmp/etc/passwall_tmp/dns_*")
 end
 o.remove = function(self, section, value)
 	fs.writefile(direct_host, "")
-	sys.call("rm -rf /tmp/etc/passwall_tmp/dns_*")
 end
 o.validate = function(self, value)
 	local hosts= {}
@@ -103,11 +101,9 @@ o.cfgvalue = function(self, section)
 end
 o.write = function(self, section, value)
 	fs.writefile(proxy_host, value:gsub("\r\n", "\n"))
-	sys.call("rm -rf /tmp/etc/passwall_tmp/dns_*")
 end
 o.remove = function(self, section, value)
 	fs.writefile(proxy_host, "")
-	sys.call("rm -rf /tmp/etc/passwall_tmp/dns_*")
 end
 o.validate = function(self, value)
 	local hosts= {}

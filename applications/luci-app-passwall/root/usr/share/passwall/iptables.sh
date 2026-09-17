@@ -41,7 +41,7 @@ ip6t_m="$ip6t -t mangle -w"
 [ -z "$ip6t" ] || [ -z "$(lsmod | grep 'ip6table_mangle')" ] && ip6t_m="eval #$ip6t_m"
 FWI=$(uci -q get firewall.passwall.path 2>/dev/null)
 FAKE_IP="198.18.0.0/15"
-FAKE_IP_6="fc00::/18"
+FAKE_IP_6="2001:2::/48"
 
 USE_GEOVIEW=0
 EXCLUDE_VPSIP="^(0\.0\.0\.0|127\.0\.0\.1|1\.1\.1\.1|1\.1\.1\.2|8\.8\.8\.8|8\.8\.4\.4|9\.9\.9\.9)$"
@@ -408,7 +408,7 @@ load_acl() {
 				else
 					[ -n "${DIRECT_DNSMASQ_PORT}" ] && dns_redirect=${DIRECT_DNSMASQ_PORT}
 				fi
-				if ([ -n "$tcp_port" ] || [ -n "$udp_port" ]) && [ -n "$dns_redirect" ]; then
+				if [ -n "$dns_redirect" ]; then
 					$ipt_m -A PSW $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j RETURN
 					$ip6t_m -A PSW $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j RETURN 2>/dev/null
 					$ipt_m -A PSW $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j RETURN
@@ -597,7 +597,7 @@ load_acl() {
 			[ -n "${DIRECT_DNSMASQ_PORT}" ] && DNS_REDIRECT=${DIRECT_DNSMASQ_PORT}
 		fi
 
-		if ([ -n "${TCP_PROXY_MODE}" ] || [ -n "${UDP_PROXY_MODE}" ]) && [ -n "$DNS_REDIRECT" ]; then
+		if [ -n "$DNS_REDIRECT" ]; then
 			$ipt_m -A PSW $(comment "默认") -p udp --dport 53 -j RETURN
 			$ip6t_m -A PSW $(comment "默认") -p udp --dport 53 -j RETURN 2>/dev/null
 			$ipt_m -A PSW $(comment "默认") -p tcp --dport 53 -j RETURN
@@ -606,7 +606,9 @@ load_acl() {
 			$ip6t_n -A PSW_DNS $(comment "默认") -p udp --dport 53 -j REDIRECT --to-ports ${DNS_REDIRECT} 2>/dev/null
 			$ipt_n -A PSW_DNS $(comment "默认") -p tcp --dport 53 -j REDIRECT --to-ports ${DNS_REDIRECT}
 			$ip6t_n -A PSW_DNS $(comment "默认") -p tcp --dport 53 -j REDIRECT --to-ports ${DNS_REDIRECT} 2>/dev/null
-			echolog "     - ${msg}DNS 重定向到专用服务器[${DNS_REDIRECT}]"
+			[ "$DNS_REDIRECT" = "53" ] || {
+				echolog "     - ${msg}DNS 重定向到专用服务器[${DNS_REDIRECT}]"
+			}
 		fi
 
 		[ -n "${TCP_PROXY_MODE}" ] || [ -n "${UDP_PROXY_MODE}" ] && {
@@ -842,33 +844,37 @@ update_wan_sets() {
 
 	[ -z "$(command -v get_wan_ips)" ] && . "$UTILS_PATH"
 
-	local WAN_IP=$(get_wan_ips ip4)
-	[ -n "$WAN_IP" ] && {
-		ipset -F "$IPSET_WAN"
-		for wan_ip in $WAN_IP; do
-			ipset -! add "$IPSET_WAN" "$wan_ip"
-		done
-		[ "$log" = "log" ] && {
-			local wan_ip
-			for wan_ip in $WAN_IP; do
-				echolog "  - [$?]加入WAN IPv4到ipset[$IPSET_WAN]：${wan_ip}"
-			done
-		}
-	}
+	(
+		flock -x 9 || exit 1
 
-	local WAN6_IP=$(get_wan_ips ip6)
-	[ -n "$WAN6_IP" ] && {
-		ipset -F "$IPSET_WAN6"
-		for wan6_ip in $WAN6_IP; do
-			ipset -! add "$IPSET_WAN6" "$wan6_ip"
-		done
-		[ "$log" = "log" ] && {
-			local wan6_ip
-			for wan6_ip in $WAN6_IP; do
-				echolog "  - [$?]加入WAN IPv6到ipset[$IPSET_WAN6]：${wan6_ip}"
+		local WAN_IP=$(get_wan_ips ip4)
+		[ -n "$WAN_IP" ] && {
+			# ipset -F "$IPSET_WAN"
+			for wan_ip in $WAN_IP; do
+				ipset -! add "$IPSET_WAN" "$wan_ip"
 			done
+			[ "$log" = "log" ] && {
+				local wan_ip
+				for wan_ip in $WAN_IP; do
+					echolog "  - [$?]加入WAN IPv4到ipset[$IPSET_WAN]：${wan_ip}"
+				done
+			}
 		}
-	}
+
+		local WAN6_IP=$(get_wan_ips ip6)
+		[ -n "$WAN6_IP" ] && {
+			# ipset -F "$IPSET_WAN6"
+			for wan6_ip in $WAN6_IP; do
+				ipset -! add "$IPSET_WAN6" "$wan6_ip"
+			done
+			[ "$log" = "log" ] && {
+				local wan6_ip
+				for wan6_ip in $WAN6_IP; do
+					echolog "  - [$?]加入WAN IPv6到ipset[$IPSET_WAN6]：${wan6_ip}"
+				done
+			}
+		}
+	) 9>"${LOCK_PATH}/${CONFIG}_update_wan_sets.lock"
 }
 
 set_tproxy_sysctl() {
@@ -930,10 +936,10 @@ add_firewall_rule() {
 
 	#直连列表
 	[ "$USE_DIRECT_LIST_ALL" = "1" ] && {
-		cat $RULES_PATH/direct_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv4_REGEX" | sed -e "s/^/add $IPSET_WHITE &/g" -e "s/$/ timeout 0/g" | ipset -! -R
-		cat $RULES_PATH/direct_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv6_REGEX" | sed -e "s/^/add $IPSET_WHITE6 &/g" -e "s/$/ timeout 0/g" | ipset -! -R
+		cat $USER_RULES_PATH/direct_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv4_REGEX" | sed -e "s/^/add $IPSET_WHITE &/g" -e "s/$/ timeout 0/g" | ipset -! -R
+		cat $USER_RULES_PATH/direct_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv6_REGEX" | sed -e "s/^/add $IPSET_WHITE6 &/g" -e "s/$/ timeout 0/g" | ipset -! -R
 		[ "$USE_GEOVIEW" = "1" ] && {
-			local GEOIP_CODE=$(cat $RULES_PATH/direct_ip | tr -s "\r\n" "\n" | sed -e "/^$/d" | grep -E "^geoip:" | grep -v "^geoip:private" | sed -E 's/^geoip:(.*)/\1/' | sed ':a;N;$!ba;s/\n/,/g')
+			local GEOIP_CODE=$(cat $USER_RULES_PATH/direct_ip | tr -s "\r\n" "\n" | sed -e "/^$/d" | grep -E "^geoip:" | grep -v "^geoip:private" | sed -E 's/^geoip:(.*)/\1/' | sed ':a;N;$!ba;s/\n/,/g')
 			if [ -n "$GEOIP_CODE" ]; then
 				get_geoip $GEOIP_CODE ipv4 | sed -e "s/^/add $IPSET_WHITE &/g" -e "s/$/ timeout 0/g" | ipset -! -R
 				get_geoip $GEOIP_CODE ipv6 | sed -e "s/^/add $IPSET_WHITE6 &/g" -e "s/$/ timeout 0/g" | ipset -! -R
@@ -944,10 +950,10 @@ add_firewall_rule() {
 
 	#代理列表
 	[ "$USE_PROXY_LIST_ALL" = "1" ] && {
-		cat $RULES_PATH/proxy_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv4_REGEX" | sed -e "s/^/add $IPSET_BLACK &/g" -e "s/$/ timeout 0/g" | ipset -! -R
-		cat $RULES_PATH/proxy_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv6_REGEX" | sed -e "s/^/add $IPSET_BLACK6 &/g" -e "s/$/ timeout 0/g" | ipset -! -R
+		cat $USER_RULES_PATH/proxy_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv4_REGEX" | sed -e "s/^/add $IPSET_BLACK &/g" -e "s/$/ timeout 0/g" | ipset -! -R
+		cat $USER_RULES_PATH/proxy_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv6_REGEX" | sed -e "s/^/add $IPSET_BLACK6 &/g" -e "s/$/ timeout 0/g" | ipset -! -R
 		[ "$USE_GEOVIEW" = "1" ] && {
-			local GEOIP_CODE=$(cat $RULES_PATH/proxy_ip | tr -s "\r\n" "\n" | sed -e "/^$/d" | grep -E "^geoip:" | grep -v "^geoip:private" | sed -E 's/^geoip:(.*)/\1/' | sed ':a;N;$!ba;s/\n/,/g')
+			local GEOIP_CODE=$(cat $USER_RULES_PATH/proxy_ip | tr -s "\r\n" "\n" | sed -e "/^$/d" | grep -E "^geoip:" | grep -v "^geoip:private" | sed -E 's/^geoip:(.*)/\1/' | sed ':a;N;$!ba;s/\n/,/g')
 			if [ -n "$GEOIP_CODE" ]; then
 				get_geoip $GEOIP_CODE ipv4 | sed -e "s/^/add $IPSET_BLACK &/g" -e "s/$/ timeout 0/g" | ipset -! -R
 				get_geoip $GEOIP_CODE ipv6 | sed -e "s/^/add $IPSET_BLACK6 &/g" -e "s/$/ timeout 0/g" | ipset -! -R
@@ -958,10 +964,10 @@ add_firewall_rule() {
 
 	#屏蔽列表
 	[ "$USE_BLOCK_LIST_ALL" = "1" ] && {
-		cat $RULES_PATH/block_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv4_REGEX" | sed -e "s/^/add $IPSET_BLOCK &/g" -e "s/$/ timeout 0/g" | ipset -! -R
-		cat $RULES_PATH/block_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv6_REGEX" | sed -e "s/^/add $IPSET_BLOCK6 &/g" -e "s/$/ timeout 0/g" | ipset -! -R
+		cat $USER_RULES_PATH/block_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv4_REGEX" | sed -e "s/^/add $IPSET_BLOCK &/g" -e "s/$/ timeout 0/g" | ipset -! -R
+		cat $USER_RULES_PATH/block_ip | tr -s "\r\n" "\n" | sed 's/#.*//' | grep -E "$IPv6_REGEX" | sed -e "s/^/add $IPSET_BLOCK6 &/g" -e "s/$/ timeout 0/g" | ipset -! -R
 		[ "$USE_GEOVIEW" = "1" ] && {
-			local GEOIP_CODE=$(cat $RULES_PATH/block_ip | tr -s "\r\n" "\n" | sed -e "/^$/d" | grep -E "^geoip:" | grep -v "^geoip:private" | sed -E 's/^geoip:(.*)/\1/' | sed ':a;N;$!ba;s/\n/,/g')
+			local GEOIP_CODE=$(cat $USER_RULES_PATH/block_ip | tr -s "\r\n" "\n" | sed -e "/^$/d" | grep -E "^geoip:" | grep -v "^geoip:private" | sed -E 's/^geoip:(.*)/\1/' | sed ':a;N;$!ba;s/\n/,/g')
 			if [ -n "$GEOIP_CODE" ]; then
 				get_geoip $GEOIP_CODE ipv4 | sed -e "s/^/add $IPSET_BLOCK &/g" -e "s/$/ timeout 0/g" | ipset -! -R
 				get_geoip $GEOIP_CODE ipv6 | sed -e "s/^/add $IPSET_BLOCK6 &/g" -e "s/$/ timeout 0/g" | ipset -! -R
@@ -1561,6 +1567,7 @@ stop() {
 		rm -rf $TMP_PATH2/singbox*
 		rm -rf $TMP_PATH2/dnsmasq*
 		rm -rf $TMP_PATH2/geo_output
+		rm -rf $TMP_PATH2/user_rules
 	}
 	flush_include
 }

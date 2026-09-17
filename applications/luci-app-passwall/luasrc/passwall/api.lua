@@ -19,7 +19,7 @@ OPENWRT_ARCH = nil
 DISTRIB_ARCH = nil
 OPENWRT_BOARD = nil
 
-LOCK_PREFIX = "/tmp/lock/" .. c_config
+LOCK_PREFIX = "/var/lock/" .. c_config
 LOG_FILE = "/tmp/log/" .. c_config .. ".log"
 TMP_PATH = "/tmp/etc/" .. c_config
 CACHE_PATH = TMP_PATH .. "_tmp"
@@ -197,16 +197,19 @@ function exec_call(cmd)
 end
 
 function base64Decode(text)
-	if not text then return '' end
-	local encoded = text:gsub("%z", ""):gsub("%c", ""):gsub("_", "/"):gsub("-", "+")
+	if type(text) ~= "string" then return "" end
+	local encoded = text:gsub("%z", ""):gsub("%c", ""):gsub("_", "/"):gsub("-", "+"):gsub("=+$", "")
+	if encoded == "" then return text end
+	if not encoded:match("^[A-Za-z0-9+/]*$") then return text end
 	local mod4 = #encoded % 4
-	encoded = encoded .. string.sub('====', mod4 + 1)
-	local result = nixio.bin.b64decode(encoded)
-	if result then
-		return result:gsub("%z", "")
-	else
-		return text
-	end
+	if mod4 == 1 then return text end
+	local padded = encoded .. string.rep("=", (4 - mod4) % 4)
+	local result = nixio.bin.b64decode(padded)
+	if not result then return text end
+	-- Verify that the normalized input is canonical Base64.
+	local reencoded = nixio.bin.b64encode(result):gsub("=+$", "")
+	if reencoded ~= encoded then return text end
+	return (result:gsub("%z", ""))
 end
 
 function base64Encode(text)
@@ -226,6 +229,24 @@ function UrlDecode(szText)
 	return szText and szText:gsub("%+", " "):gsub("%%(%x%x)", function(h)
 		return string.char(tonumber(h, 16))
 	end) or nil
+end
+
+-- 计算文件 MD5
+function md5_file(path)
+	if type(path) ~= "string" then return "" end
+	local quoted = "'" .. path:gsub("'", "'\\''") .. "'"
+	local out = sys.exec("md5sum " .. quoted)
+	if not out then return "" end
+	return out:sub(1, 32)
+end
+
+-- 计算字符串 MD5
+function md5_string(str)
+	if type(str) ~= "string" then return "" end
+	local quoted = "'" .. str:gsub("'", "'\\''") .. "'"
+	local out = sys.exec("printf '%s' " .. quoted .. " | md5sum")
+	if not out then return "" end
+	return out:sub(1, 32)
 end
 
 --提取URL中的域名和端口(no ip)
@@ -375,11 +396,13 @@ function repeat_exist(table, value)
 end
 
 function remove(...)
-	for index, value in ipairs({...}) do
-		if value and #value > 0 and value ~= "/" then
-			sys.call(string.format("rm -rf %s", value))
-		end
-	end
+    for i = 1, select("#", ...) do
+        local value = select(i, ...)
+        if type(value) == "string" and #value > 0 and value ~= "/" then
+            local quoted = "'" .. value:gsub("'", "'\\''") .. "'"
+            sys.call("rm -rf " .. quoted)
+        end
+    end
 end
 
 function is_install(package)
@@ -815,7 +838,7 @@ function get_bin_version_cache(file, cmd)
 	sys.call("mkdir -p " .. CACHE_PATH)
 	if fs.access(file) then
 		chmod_755(file)
-		local md5 = sys.exec("echo -n $(md5sum " .. file .. " | awk '{print $1}')")
+		local md5 = md5_file(file)
 		if fs.access(CACHE_PATH .. "/" .. md5) then
 			return sys.exec("echo -n $(cat %s)" % { CACHE_PATH .. "/" .. md5 })
 		else
@@ -1220,9 +1243,9 @@ function to_download(app_name, url, size)
 		return {code = 1, error = i18n.translate("Download url is required.")}
 	end
 
-	sys.call("/bin/rm -f /tmp/".. app_name .."_download.*")
+	remove("/tmp/" .. app_name .. "_download.*")
 
-	local tmp_file = trim(util.exec("mktemp -u -t ".. app_name .."_download.XXXXXX"))
+	local tmp_file = trim(util.exec("mktemp -u -t " .. app_name .. "_download.XXXXXX"))
 
 	if size then
 		local kb1 = get_free_space("/tmp")
@@ -1284,7 +1307,7 @@ function to_extract(app_name, file, subfix)
 		end
 	end
 
-	sys.call("/bin/rm -rf /tmp/".. app_name .."_extract.*")
+	remove("/tmp/" .. app_name .. "_extract.*")
 
 	local new_file_size = get_file_space(file)
 	local tmp_free_size = get_free_space("/tmp")
@@ -1324,20 +1347,20 @@ function to_move(app_name,file)
 
 	local app_path = result.app_path
 	local bin_path = file
-	local cmd_rm_tmp = "/bin/rm -rf /tmp/" .. app_name .. "_download.*"
+	local rm_tmp = "/tmp/" .. app_name .. "_download.*"
 	if fs.stat(file, "type") == "dir" then
 		bin_path = file .. "/" .. com[app_name].name:lower()
-		cmd_rm_tmp = "/bin/rm -rf /tmp/" .. app_name .. "_extract.*"
+		rm_tmp = "/tmp/" .. app_name .. "_extract.*"
 	end
 
 	if not file or file == "" then
-		sys.call(cmd_rm_tmp)
+		remove(rm_tmp)
 		return {code = 1, error = i18n.translate("Client file is required.")}
 	end
 
 	local new_version = get_app_version(app_name, bin_path)
 	if new_version == "" then
-		sys.call(cmd_rm_tmp)
+		remove(rm_tmp)
 		return {
 			code = 1,
 			error = i18n.translate("The client file is not suitable for current device.") .. app_name .. "__" .. bin_path
@@ -1359,14 +1382,14 @@ function to_move(app_name,file)
 	if final_dir_free_size > 0 then
 		final_dir_free_size = final_dir_free_size + old_app_size
 		if new_app_size > final_dir_free_size then
-			sys.call(cmd_rm_tmp)
+			remove(rm_tmp)
 			return {code = 1, error = i18n.translatef("%s not enough space.", final_dir)}
 		end
 	end
 
 	result = exec("/bin/mv", { "-f", bin_path, app_path }, nil, command_timeout) == 0
 
-	sys.call(cmd_rm_tmp)
+	remove(rm_tmp)
 	if flag == 0 then
 		sys.call("/etc/init.d/passwall restart >/dev/null 2>&1 &")
 	end
@@ -1542,11 +1565,18 @@ function set_type_cbi(s)
 		obj.option_prefix = s_self.option_prefix
 		obj.option = s_self.option_prefix .. option
 		obj.cfgvalue = function(self, section)
+			local v
 			if self.rewrite_option then
-				return self.map:get(section, self.rewrite_option)
+				v = self.map:get(section, self.rewrite_option)
 			else
-				return self.map:get(section, self.config_option)
+				v = self.map:get(section, self.config_option)
 			end
+			if util.instanceof(self, cbi.MultiValue) then
+				if v and self.cast == "table" then
+					return table.concat(v, " ")
+				end
+			end
+			return v
 		end
 		obj.write = function(self, section, value)
 			if s1.fields["type"]:formvalue(s_self.section) == s_self.type_name then
@@ -1557,6 +1587,21 @@ function set_type_cbi(s)
 						new_t = table_remove_duplicates(value)
 					else
 						new_t = { value }
+					end
+					if self.cast == "string" then
+						new_val = table.concat(new_t, " ")
+					else
+						new_val = new_t
+					end
+				end
+				if util.instanceof(self, cbi.MultiValue) then
+					local new_t = {}
+					if type(value) == "table" then
+						new_t = table_remove_duplicates(value)
+					else
+						string.gsub(value, '[^' .. " " .. ']+', function(v)
+							new_t[#new_t + 1] = v
+						end)
 					end
 					if self.cast == "string" then
 						new_val = table.concat(new_t, " ")
@@ -1619,6 +1664,7 @@ end
 function type_cbi_section(s, s2)
 	for i, v in ipairs(s2.children) do
 		local o = s2.children[i]
+		o.section = s
 		s:append(o)
 		s.fields[o.option] = o
 	end
@@ -1892,6 +1938,25 @@ function fetch_cert_sha256(host, port, sni, timeout, http3)
 		return ""
 	end
 	return fp:upper()
+end
+
+function sha256_xray_sb(str)
+	local decoded = base64Decode(str)
+	if decoded ~= str and #decoded == 32 then return str end
+	local hex = str:gsub(":", "")
+	if #hex ~= 64 or not hex:match("^[A-Fa-f0-9]+$") then return str end
+	local binary = hex:gsub("%x%x", function(byte)
+		return string.char(tonumber(byte, 16))
+	end)
+	return base64Encode(binary)
+end
+
+function sha256_sb_xray(str)
+	local binary = base64Decode(str)
+	if binary == str or #binary ~= 32 then return str end
+	return (binary:gsub(".", function(byte)
+		return string.format("%02X", string.byte(byte))
+	end))
 end
 
 function vps_domain_exclude(domain)

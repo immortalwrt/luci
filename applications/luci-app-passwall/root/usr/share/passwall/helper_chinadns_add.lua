@@ -24,9 +24,10 @@ local fs = api.fs
 local datatypes = api.datatypes
 
 local TMP_PATH = api.TMP_PATH
-local TMP_ACL_PATH = TMP_PATH .. "/acl"
 local RULES_PATH = "/usr/share/passwall/rules"
-local FLAG_PATH = TMP_ACL_PATH .. "/" .. FLAG
+local USER_RULES_PATH = "/etc/passwall/rules"
+local CACHE_RULES_PATH = api.CACHE_PATH .. "/user_rules"
+local FLAG_PATH = TMP_PATH .. "/acl/" .. FLAG
 local config_lines = {}
 local tmp_lines = {}
 local USE_GEOVIEW = api.uci_get_c("@global_rules[0]", "enable_geoview")
@@ -103,9 +104,8 @@ local function get_geosite(list_arg, out_path)
 	return 1
 end
 
-if not fs.access(FLAG_PATH) then
-	fs.mkdir(FLAG_PATH)
-end
+sys.call("mkdir -p %s" % FLAG_PATH)
+sys.call("mkdir -p %s" % CACHE_RULES_PATH)
 
 local setflag = (NFTFLAG == "1") and "inet@passwall@" or ""
 
@@ -126,11 +126,11 @@ end
 
 --自定义规则组，后声明的组具有更高优先级
 --屏蔽列表
-local file_block_host = TMP_ACL_PATH .. "/block_host"
+local file_block_host = CACHE_RULES_PATH .. "/block_host"
 if USE_BLOCK_LIST == "1" and not fs.access(file_block_host) then
 	local block_domain, lookup_block_domain = {}, {}
 	local geosite_arg = ""
-	local f = io.open(RULES_PATH .. "/block_host")
+	local f = io.open(USER_RULES_PATH .. "/block_host")
 	if f then
 		for line in f:lines() do
 			if not line:find("#") and line:find("geosite:") then
@@ -169,7 +169,7 @@ if USE_BLOCK_LIST == "1" and is_file_nonzero(file_block_host) then
 end
 
 --始终用国内DNS解析节点域名
-local file_vpslist = TMP_ACL_PATH .. "/vpslist"
+local file_vpslist = TMP_PATH .. "/vpslist"
 if not is_file_nonzero(file_vpslist) then
 	local f_out = io.open(file_vpslist, "w")
 	local written_domains = {}
@@ -213,11 +213,11 @@ if is_file_nonzero(file_vpslist) then
 end
 
 --直连（白名单）列表
-local file_direct_host = TMP_ACL_PATH .. "/direct_host"
+local file_direct_host = CACHE_RULES_PATH .. "/direct_host"
 if USE_DIRECT_LIST == "1" and not fs.access(file_direct_host) then
 	local direct_domain, lookup_direct_domain = {}, {}
 	local geosite_arg = ""
-	local f = io.open(RULES_PATH .. "/direct_host")
+	local f = io.open(USER_RULES_PATH .. "/direct_host")
 	if f then
 		for line in f:lines() do
 			if not line:find("#") and line:find("geosite:") then
@@ -263,11 +263,11 @@ if USE_DIRECT_LIST == "1" and is_file_nonzero(file_direct_host) then
 end
 
 --代理（黑名单）列表
-local file_proxy_host = TMP_ACL_PATH .. "/proxy_host"
+local file_proxy_host = CACHE_RULES_PATH .. "/proxy_host"
 if USE_PROXY_LIST == "1" and not fs.access(file_proxy_host) then
 	local proxy_domain, lookup_proxy_domain = {}, {}
 	local geosite_arg = ""
-	local f = io.open(RULES_PATH .. "/proxy_host")
+	local f = io.open(USER_RULES_PATH .. "/proxy_host")
 	if f then
 		for line in f:lines() do
 			if not line:find("#") and line:find("geosite:") then
@@ -356,7 +356,7 @@ if CHNLIST ~= "0" and is_file_nonzero(RULES_PATH .. "/chnlist") then
 			"add-tagchn-ip" .. ((NFTFLAG == "1") and (" " .. table.concat(sets, ",")) or "")
 		}
 		merge_array(config_lines, tmp_lines)
-		log(string.format("  - 中国域名表(chnroute)：%s", DNS_LOCAL or "默认"))
+		log(string.format("  - 中国域名表(chnlist)：%s", DNS_LOCAL or "默认"))
 	end
 
 	--回中国模式
@@ -373,7 +373,7 @@ if CHNLIST ~= "0" and is_file_nonzero(RULES_PATH .. "/chnlist") then
 		}
 		if NO_IPV6_TRUST == "1" then table.insert(tmp_lines, "no-ipv6 tag:chn_proxy") end
 		insert_array_after(config_lines, tmp_lines, "#--1")
-		log(string.format("  - 中国域名表(chnroute)：%s", DNS_TRUST or "默认"))
+		log(string.format("  - 中国域名表(chnlist)：%s", DNS_TRUST or "默认"))
 	end
 end
 
@@ -381,9 +381,11 @@ end
 if IS_SHUNT_NODE then
 	local white_domain, lookup_white_domain = {}, {}
 	local shunt_domain, lookup_shunt_domain = {}, {}
-	local file_white_host = FLAG_PATH .. "/shunt_direct_host"
-	local file_shunt_host = FLAG_PATH .. "/shunt_proxy_host"
+	local CACHE_FLAG_PATH = CACHE_RULES_PATH .. "/" .. FLAG
+	local file_white_host = CACHE_FLAG_PATH .. "/shunt_direct_host"
+	local file_shunt_host = CACHE_FLAG_PATH .. "/shunt_proxy_host"
 	local geosite_white_arg, geosite_shunt_arg = "", ""
+	local SHUNT_LIST = ""
 
 	local t = api.uci_get_c(NODE)
 	local default_node_id = t["default_node"] or "_direct"
@@ -420,11 +422,25 @@ if IS_SHUNT_NODE then
 				end
 			end
 
+			SHUNT_LIST = SHUNT_LIST .. domain_list .. _node_id
+
 			if _node_id ~= "_direct" then
 				log(string.format("  - Sing-Box/Xray分流规则(%s)：%s", s.remarks, DNS_TRUST or "默认"))
 			end
 		end
 	end)
+
+	local MD5_FILE = CACHE_FLAG_PATH .. "/md5.txt"
+	local cache_md5 = ""
+	if fs.access(MD5_FILE) then
+		cache_md5 = fs.readfile(MD5_FILE)
+	end
+	local new_md5 = api.md5_string(SHUNT_LIST)
+	if cache_md5 == "" or new_md5 == "" or cache_md5 ~= new_md5 then
+		api.remove(CACHE_FLAG_PATH)
+		sys.call("mkdir -p %s" % CACHE_FLAG_PATH)
+		fs.writefile(MD5_FILE, new_md5)
+	end
 
 	if is_file_nonzero(file_white_host) == nil then
 		if #white_domain > 0 then
@@ -551,4 +567,4 @@ if #config_lines > 0 then
 	end
 end
 
-log("  - ChinaDNS-NG已作为Dnsmasq上游，如果你自行配置了错误的DNS流程，将会导致域名(直连/代理域名)分流失效！！！")
+log("  - ChinaDNS-NG已作为Dnsmasq上游，如果你自行配置了错误的DNS流程，将会导致域名(直连/代理)分流失效！！！")

@@ -90,6 +90,7 @@ if load_balancing_options then -- [[ Load balancing Start ]]
 	o = s:option(MultiValue, "balancing_node", translate("Load balancing node list"), translate("Load balancing node list, <a target='_blank' href='https://xtls.github.io/config/routing.html#balancerobject'>document</a>"))
 	o:depends({ node_add_mode = "manual" })
 	o.widget = "checkbox"
+	o.cast = "table"
 	o.template = m:template_path("/cbi/nodes_multivalue")
 	o.group = {}
 	for k1, v1 in pairs(node_list) do
@@ -98,30 +99,6 @@ if load_balancing_options then -- [[ Load balancing Start ]]
 				o:value(v.id, v.remark)
 				o.group[#o.group+1] = v.group or ""
 			end
-		end
-	end
-	-- 读取旧 DynamicList
-	function o.cfgvalue(self, section)
-		return table.concat(m:get(section, "balancing_node") or {}, " ")
-	end
-	-- 写入保持 DynamicList
-	function o.write(self, section, value)
-		local old = m:get(section, "balancing_node") or {}
-		local new, set = {}, {}
-		for v in value:gmatch("%S+") do
-			new[#new + 1] = v
-			set[v] = 1
-		end
-		for _, v in ipairs(old) do
-			if not set[v] then
-				m:set(section, "balancing_node", new)
-				return
-			end
-			set[v] = nil
-		end
-		for _ in pairs(set) do
-			m:set(section, "balancing_node", new)
-			return
 		end
 	end
 
@@ -453,9 +430,12 @@ o.default = ""
 o.rows = 5
 o.wrap = "off"
 o:depends({ tls_certificate = true })
+o.cfgvalue = function(self, section)
+	return (m:get(section, "tls_certificate_pem") or ""):gsub("\\n", "\n")
+end
 o.validate = function(self, value)
-	value = api.trim(value):gsub("\r\n", "\n"):gsub("[ \t]*\n[ \t]*", "\n"):gsub("\n+", "\n")
-	return value
+	value = api.trim(value):gsub("\r\n", "\n"):gsub("\r", "\n"):gsub("[ \t]*\n[ \t]*", "\n"):gsub("\n+", "\n")
+	return value:gsub("\n", "\\n")
 end
 
 o = s:option(Flag, "ech", translate("ECH"))

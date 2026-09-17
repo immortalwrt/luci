@@ -81,7 +81,7 @@ run_ipt2socks() {
 	[ -n "$tcp_tproxy" ] || _extra_param="${_extra_param} -R"
 	flag="${flag}_TCP_UDP"
 	_extra_param="${_extra_param} -o 60 -n 65535 -v"
-	ln_run "$(first_type ipt2socks)" "ipt2socks_${flag}" $log_file -l $local_port -b 0.0.0.0 -s $socks_address -p $socks_port ${_extra_param}
+	ln_run "$(first_type ipt2socks)" "ipt2socks_${flag}" $log_file -l $local_port -b 0.0.0.0 -B :: -s $socks_address -p $socks_port ${_extra_param}
 }
 
 run_singbox() {
@@ -94,7 +94,7 @@ run_singbox() {
 		[ "$type" != "sing-box" ] && [ -n "$SINGBOX_BIN" ] && type="sing-box"
 	}
 	[ -z "$type" ] && return 1
-	[ -n "$log_file" ] || local log_file="/dev/null"
+	[ -n "$log_file" ] || log_file="/dev/null"
 	json_init
 	if [ "$log_file" = "/dev/null" ]; then
 		json_add_string "log" "0"
@@ -102,7 +102,7 @@ run_singbox() {
 		json_add_string "log" "1"
 		json_add_string "logfile" "${log_file}"
 	fi
-	[ -z "$loglevel" ] && local loglevel=$(config_n_get @global[0] loglevel "warn")
+	[ -z "$loglevel" ] && loglevel=$(config_n_get @global[0] loglevel "warn")
 	json_add_string "loglevel" "$loglevel"
 
 	[ -n "$flag" ] && json_add_string "flag" "$flag"
@@ -213,8 +213,8 @@ run_xray() {
 	}
 	[ -z "$type" ] && return 1
 	json_init
-	[ -n "$log_file" ] || local log_file="/dev/null"
-	[ -z "$loglevel" ] && local loglevel=$(config_n_get @global[0] loglevel "warning")
+	[ -n "$log_file" ] || log_file="/dev/null"
+	[ -z "$loglevel" ] && loglevel=$(config_n_get @global[0] loglevel "warning")
 	[ -n "$flag" ] && json_add_string "flag" "$flag"
 	[ -n "$node" ] && json_add_string "node" "$node"
 	[ -n "$use_proxy_list" ] && json_add_string "use_proxy_list" "$use_proxy_list"
@@ -340,7 +340,7 @@ run_chinadns_ng() {
 }
 
 run_socks() {
-	local flag node bind socks_port config_file http_port http_config_file relay_port log_file no_run
+	local flag node bind socks_port config_file http_port http_config_file relay_port log_file no_run loglevel
 	eval_set_val "$@"
 	[ -n "$config_file" ] && [ -z "$(echo ${config_file} | grep $TMP_PATH)" ] && config_file=$TMP_PATH/$config_file
 	[ -n "$http_port" ] || http_port=0
@@ -350,6 +350,7 @@ run_socks() {
 	elif [ "${log_file#"$TMP_PATH/"}" = "$log_file" ]; then
 		log_file=$TMP_PATH/$log_file
 	fi
+	loglevel=${loglevel:-warn}
 
 	local type=$(echo $(config_n_get $node type) | tr 'A-Z' 'a-z')
 	local remarks=$(config_n_get $node remarks)
@@ -442,7 +443,7 @@ run_socks() {
 		}
 		[ -n "$relay_port" ] && _args="${_args} server_host=$server_host server_port=$server_port"
 		[ -n "$no_run" ] && _args="${_args} no_run=1"
-		run_singbox flag=$flag node=$node socks_address=$bind socks_port=$socks_port config_file=$config_file log_file=$log_file ${_args}
+		run_singbox flag=$flag node=$node socks_address=$bind socks_port=$socks_port config_file=$config_file log_file=$log_file loglevel=$loglevel ${_args}
 	;;
 	xray)
 		[ "$http_port" != "0" ] && {
@@ -452,7 +453,7 @@ run_socks() {
 		}
 		[ -n "$relay_port" ] && _args="${_args} server_host=$server_host server_port=$server_port"
 		[ -n "$no_run" ] && _args="${_args} no_run=1"
-		run_xray flag=$flag node=$node socks_address=$bind socks_port=$socks_port config_file=$config_file log_file=$log_file ${_args}
+		run_xray flag=$flag node=$node socks_address=$bind socks_port=$socks_port config_file=$config_file log_file=$log_file loglevel=$loglevel ${_args}
 	;;
 	naiveproxy)
 		json_add_string "run_type" "socks"
@@ -480,6 +481,7 @@ run_socks() {
 		}
 		json_add_string "local_socks_address" "$bind"
 		json_add_string "local_socks_port" "$socks_port"
+		json_add_string "loglevel" "$loglevel"
 		lua $UTIL_SS gen_config "$(json_dump)" > $config_file
 		[ -n "$no_run" ] || ln_run "$(first_type sslocal)" "sslocal" $log_file -c "$config_file" -v
 	;;
@@ -493,7 +495,10 @@ run_socks() {
 		json_add_string "local_socks_address" "$bind"
 		json_add_string "local_socks_port" "$socks_port"
 		lua $UTIL_HYSTERIA2 gen_config "$(json_dump)" > $config_file
-		[ -n "$no_run" ] || ln_run "$(first_type $(config_n_get @global_app[0] hysteria_file))" "hysteria" $log_file -c "$config_file" client
+		[ -n "$no_run" ] || {
+			HYSTERIA_LOG_LEVEL="$loglevel" \
+			ln_run "$(first_type "$(config_n_get @global_app[0] hysteria_file)")" "hysteria" $log_file -c "$config_file" client
+		}
 	;;
 	esac
 
@@ -792,6 +797,7 @@ start_global() {
 		}
 		local plugin_sh="${config_file%.json}_plugin.sh"
 		json_add_string "plugin_sh" "$plugin_sh"
+		json_add_string "loglevel" "$(config_n_get @global[0] loglevel "warn")"
 		lua $UTIL_SS gen_config "$(json_dump)" > $config_file
 		ln_run "$(first_type sslocal)" "sslocal" $log_file -c "$config_file" -v
 	;;
@@ -808,7 +814,9 @@ start_global() {
 		}
 		json_add_string "tcp_proxy_way" "${TCP_PROXY_WAY}"
 		lua $UTIL_HYSTERIA2 gen_config "$(json_dump)" > $config_file
-		ln_run "$(first_type $(config_n_get @global_app[0] hysteria_file))" "hysteria" $log_file -c "$config_file" client
+		local loglevel=$(config_n_get @global[0] loglevel "warn")
+		HYSTERIA_LOG_LEVEL="$loglevel" \
+		ln_run "$(first_type "$(config_n_get @global_app[0] hysteria_file)")" "hysteria" $log_file -c "$config_file" client
 	;;
 	esac
 	if [ -n "${_socks_flag}" ]; then
@@ -910,7 +918,6 @@ socks_node_switch() {
 }
 
 clean_crontab() {
-	[ -f "${LOCK_PATH}/${CONFIG}_cron.lock" ] && return
 	touch /etc/crontabs/root
 	#sed -i "/${CONFIG}/d" /etc/crontabs/root >/dev/null 2>&1
 	sed -i "/$(echo "/etc/init.d/${CONFIG}" | sed 's#\/#\\\/#g')/d" /etc/crontabs/root >/dev/null 2>&1
@@ -929,8 +936,7 @@ start_crontab() {
 		[ "$start_daemon" = "1" ] && { $APP_PATH/monitor.sh > /dev/null 2>&1 & }
 	fi
 
-	if [ -f "${LOCK_PATH}/${CONFIG}_cron.lock" ]; then
-		rm -f "${LOCK_PATH}/${CONFIG}_cron.lock"
+	if [ "$1" = "cron" ]; then
 		echolog "当前为计划任务自动运行，不重新配置定时任务。"
 		return
 	fi
@@ -970,7 +976,7 @@ start_crontab() {
 		if [ "$week" = "8" ]; then
 			update_loop=1
 		else
-			echo "$svr_t /etc/init.d/$CONFIG $action > /dev/null 2>&1 &" >>/etc/crontabs/root
+			echo "$svr_t /etc/init.d/$CONFIG $action cron > /dev/null 2>&1 &" >>/etc/crontabs/root
 		fi
 		echolog "$logmsg"
 	}
@@ -1038,7 +1044,7 @@ start_crontab() {
 }
 
 stop_crontab() {
-	[ -f "${LOCK_PATH}/${CONFIG}_cron.lock" ] && return
+	[ "$1" = "cron" ] && return
 	clean_crontab
 	/etc/init.d/cron restart
 	#echolog "清除定时执行命令。"
@@ -1622,7 +1628,7 @@ acl_app() {
 								run_${type} flag=$node node=$node redir_port=$redir_port ${_extra_param} config_file=$config_file log_file=$log_file loglevel=$loglevel
 							else
 								config_file="acl/${node}_SOCKS_${socks_port}.json"
-								run_socks flag=$node node=$node bind=127.0.0.1 socks_port=$socks_port config_file=$config_file log_file=$log_file
+								run_socks flag=$node node=$node bind=127.0.0.1 socks_port=$socks_port config_file=$config_file log_file=$log_file loglevel=$loglevel
 								# log_file=$TMP_ACL_PATH/ipt2socks_${node}_${redir_port}.log
 								log_file="/dev/null"
 								run_ipt2socks flag=acl_${node} tcp_tproxy=${is_tproxy} local_port=$redir_port socks_address=127.0.0.1 socks_port=$socks_port log_file=$log_file
@@ -1693,7 +1699,7 @@ start() {
 		}
 	fi
 
-	start_crontab
+	start_crontab $1
 	echolog "运行完成！\n"
 
 	[ "$ENABLED" = 1 ] && [ "$1" = "boot" ] && {
@@ -1730,7 +1736,7 @@ stop() {
 	unset V2RAY_LOCATION_ASSET
 	unset XRAY_LOCATION_ASSET
 	unset SS_SYSTEM_DNS_RESOLVER_FORCE_BUILTIN
-	stop_crontab
+	stop_crontab $1
 	source $APP_PATH/helper_smartdns.sh del
 	rm -rf $GLOBAL_DNSMASQ_CONF
 	rm -rf $GLOBAL_DNSMASQ_CONF_PATH
@@ -1755,6 +1761,12 @@ stop() {
 	rm -f ${LOCK_PATH}/${CONFIG}_socks_auto_switch*
 	rm -f ${LOCK_PATH}/${CONFIG}_lease2hosts*
 	rm -f ${LOCK_PATH}/${CONFIG}_monitor*
+	if ! busybox pgrep -af "${CONFIG}/" | grep -q '/subscribe\.lua'; then
+		rm -f "${LOCK_PATH}/${CONFIG}_subscribe.lock"
+	fi
+	if ! busybox pgrep -af "${CONFIG}/" | grep -q '/rule_update\.lua'; then
+		rm -f "${LOCK_PATH}/${CONFIG}_rule_update.lock"
+	fi
 	echolog "清空并关闭相关程序和缓存完成。"
 	exit 0
 }
@@ -1822,15 +1834,14 @@ get_config() {
 
 	DNSMASQ_CONF_DIR=/tmp/dnsmasq.d
 	DEFAULT_DNSMASQ_CFGID="$(uci -q show "dhcp.@dnsmasq[0]" | awk 'NR==1 {split($0, conf, /[.=]/); print conf[2]}')"
-	if [ -f "/tmp/etc/dnsmasq.conf.$DEFAULT_DNSMASQ_CFGID" ]; then
-		DNSMASQ_CONF_DIR="$(awk -F '=' '/^conf-dir=/ {print $2}' "/tmp/etc/dnsmasq.conf.$DEFAULT_DNSMASQ_CFGID")"
+	if [ -f "/var/etc/dnsmasq.conf.$DEFAULT_DNSMASQ_CFGID" ]; then
+		DNSMASQ_CONF_DIR="$(awk -F '=' '/^conf-dir=/ {print $2}' "/var/etc/dnsmasq.conf.$DEFAULT_DNSMASQ_CFGID")"
 		if [ -n "$DNSMASQ_CONF_DIR" ]; then
 			DNSMASQ_CONF_DIR=${DNSMASQ_CONF_DIR%*/}
 		else
 			DNSMASQ_CONF_DIR="/tmp/dnsmasq.d"
 		fi
 	fi
-	[ -d "$DNSMASQ_CONF_DIR" ] || mkdir -p "$DNSMASQ_CONF_DIR"
 	set_cache_var GLOBAL_DNSMASQ_CONF ${DNSMASQ_CONF_DIR}/dnsmasq-${CONFIG}.conf
 	set_cache_var GLOBAL_DNSMASQ_CONF_PATH ${GLOBAL_ACL_PATH}/dnsmasq.d
 
@@ -1874,6 +1885,6 @@ start)
 	start "$@"
 	;;
 stop)
-	stop
+	stop "$@"
 	;;
 esac

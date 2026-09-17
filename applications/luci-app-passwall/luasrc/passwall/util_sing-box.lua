@@ -8,6 +8,7 @@ local ech_domain = {}
 
 local local_version = api.get_app_version("sing-box"):match("[^v]+")
 local version_ge_1_14_0 = api.compare_versions(local_version, ">=", "1.14.0")
+local version_ge_1_15_0 = api.compare_versions(local_version, ">=", "1.15.0")
 
 local GLOBAL = {
 	DNS_SERVER = {},
@@ -242,13 +243,13 @@ function gen_outbound(flag, node, tag, proxy_table)
 				enabled = true,
 				disable_sni = (node.tls_disable_sni == "1") and true or false, --不要在 ClientHello 中发送服务器名称.
 				server_name = node.tls_serverName, --用于验证返回证书上的主机名，除非设置不安全。它还包含在 ClientHello 中以支持虚拟主机，除非它是 IP 地址。
-				insecure = node.tls_allowInsecure == "1" or (node.tls_pinSHA256 and node.tls_pinSHA256 ~= ""), --接受任何服务器证书。(兼顾 xray 的 pinnedPeerCertSha256 )
+				insecure = node.tls_allowInsecure == "1", --接受任何服务器证书。
 				alpn = alpn, --支持的应用层协议协商列表，按优先顺序排列。如果两个对等点都支持 ALPN，则选择的协议将是此列表中的一个，如果没有相互支持的协议则连接将失败。
 				--min_version = "1.2",
 				--max_version = "1.3",
 				fragment = fragment,
 				record_fragment = record_fragment,
-				certificate = (node.tls_certificate == "1" and node.tls_certificate_pem ~= "") and api.split(node.tls_certificate_pem, "\n") or nil,
+				certificate = (node.tls_certificate == "1" and node.tls_certificate_pem ~= "") and api.split(node.tls_certificate_pem:gsub("\\n", "\n"), "\n") or nil,
 				cipher_suites = (node.cipherSuites and node.cipherSuites ~= "") and api.split(node.cipherSuites, ":") or nil,
 				ech = (node.ech == "1") and (function()
 					local function get_ech_domain(s) --兼容xray "域名+DNS" 格式ech
@@ -273,7 +274,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 						ech.query_server_name = qname
 						ech_domain[qname] = true
 					elseif config then
-						ech.config = { config }
+						ech.config = api.split(config:gsub("\\n", "\n"), "\n")
 					elseif node.tls_serverName and node.tls_serverName ~= "" then
 						ech_domain[node.tls_serverName] = true
 					end
@@ -289,6 +290,13 @@ function gen_outbound(flag, node, tag, proxy_table)
 					short_id = node.reality_shortId
 				} or nil
 			}
+			if version_ge_1_15_0 then
+				if node.tls_pinSHA256 and node.tls_pinSHA256 ~= "" then
+					tls.certificate_sha256 = { api.sha256_xray_sb(node.tls_pinSHA256) }
+				end
+			else
+				tls.insecure = node.tls_allowInsecure == "1" or (node.tls_pinSHA256 and node.tls_pinSHA256 ~= "")
+			end
 		end
 
 		local mux = nil
@@ -709,8 +717,10 @@ function gen_config_server(node)
 
 	local tls = {
 		enabled = true,
-		certificate_path = node.tls_certificateFile,
-		key_path = node.tls_keyFile,
+		certificate_path = (node.tls_use_pem ~= "1") and node.tls_certificateFile or nil,
+		key_path = (node.tls_use_pem ~= "1") and node.tls_keyFile or nil,
+		certificate = (node.tls_use_pem == "1" and node.tls_certificate) and api.split(node.tls_certificate:gsub("\\n", "\n"), "\n") or nil,
+		key = (node.tls_use_pem == "1" and node.tls_key) and api.split(node.tls_key:gsub("\\n", "\n"), "\n") or nil,
 		alpn = (node.alpn and node.alpn ~= "default") and (function()
 			local alpn = {}
 			string.gsub(node.alpn, '[^,]+', function(w)
@@ -724,6 +734,8 @@ function gen_config_server(node)
 	if node.tls == "1" and node.reality == "1" then
 		tls.certificate_path = nil
 		tls.key_path = nil
+		tls.certificate = nil
+		tls.key = nil
 		tls.server_name = node.reality_handshake_server
 		tls.reality = {
 			enabled = true,
@@ -741,7 +753,7 @@ function gen_config_server(node)
 	if node.tls == "1" and node.ech == "1" then
 		tls.ech = {
 			enabled = true,
-			key = node.ech_key and { node.ech_key } or nil
+			key = node.ech_key and api.split(node.ech_key:gsub("\\n", "\n"), "\n") or nil
 		}
 	end
 
@@ -1466,6 +1478,10 @@ function gen_config(var)
 					end
 				end
 				if to_node then
+					local chained_tag = outbound.tag .. " -> " .. to_node[".name"] .. (to_node.remarks and ":" .. to_node.remarks or "")
+					for _, o in ipairs(outbounds_table) do
+						if o.tag == chained_tag then return chained_tag, last_insert_outbound end
+					end
 					local to_outbound
 					if to_node.type ~= "sing-box" then
 						local tag = to_node[".name"]
@@ -1527,7 +1543,7 @@ function gen_config(var)
 				local outbound, exist
 				if node.protocol == "_urltest" then
 					outbound, exist = gen_urltest_outbound(node)
-					if exist then
+					if exist and not node.chain_proxy then
 						return outbound.tag
 					end
 				elseif node.protocol == "_iface" then
@@ -1555,7 +1571,7 @@ function gen_config(var)
 				end
 				if outbound then
 					local default_outbound_tag, last_insert_outbound = set_outbound_detour(node, outbound, outbounds)
-					table.insert(outbounds, outbound)
+					if not exist then table.insert(outbounds, outbound) end
 					if last_insert_outbound then
 						table.insert(outbounds, last_insert_outbound)
 					end
@@ -1627,8 +1643,8 @@ function gen_config(var)
 					return table.concat(list, "\n")
 				end
 
-				local domain_list = read_proxy_list("/usr/share/passwall/rules/proxy_host")
-				local ip_list = read_proxy_list("/usr/share/passwall/rules/proxy_ip")
+				local domain_list = read_proxy_list("/etc/passwall/rules/proxy_host")
+				local ip_list = read_proxy_list("/etc/passwall/rules/proxy_ip")
 
 				local bin = api.finded_com("geoview")
 				if bin then
@@ -1970,7 +1986,7 @@ function gen_config(var)
 				tag = fakedns_tag,
 				type = "fakeip",
 				inet4_range = "198.18.0.0/15",
-				inet6_range = "fc00::/18",
+				inet6_range = "2001:2::/48",
 			})
 
 			if not experimental then
