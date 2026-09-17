@@ -31,7 +31,7 @@ o.validate = function(self, value)
 	if v then return v end
 	return nil, translate("Custom Config") .. " " .. translate("Must be JSON text!")
 end
-o.cfgvalue = function(self, section, value)
+o.cfgvalue = function(self, section)
 	local config_str = m:get(section, "config_str")
 	if config_str then
 		return api.base64Decode(config_str)
@@ -45,7 +45,8 @@ o = s:option(Value, "port", translate("Listen Port"))
 o.datatype = "port"
 o:depends({ custom = false })
 
-o = s:option(DynamicList, "users", translate("User"))
+o = s:option(MultiValue, "users", translate("User"))
+o.cast = "table"
 for i, v in ipairs(user_list) do
 	o:value(v[".name"], v.username)
 end
@@ -120,8 +121,8 @@ o.default = "0"
 o.rewrite_option = o.option
 o:depends({ custom = false })
 
-o = s:option(FileUpload, "tls_certificateFile", translate("Public key absolute path"), translate("as:") .. "/etc/ssl/fullchain.pem")
-o.default = m:get(s.section, "tls_certificateFile") or "/etc/config/ssl/" .. arg[1] .. ".pem"
+o = s:option(FileUpload, "tls_certificateFile", translate("Path to the certificate file"), translate("as:") .. "/etc/ssl/fullchain.crt")
+o.default = m:get(s.section, "tls_certificateFile") or "/etc/config/ssl/" .. arg[1] .. ".crt"
 if o and o:formvalue(arg[1]) then o.default = o:formvalue(arg[1]) end
 o.validate = function(self, value, t)
 	if value and value ~= "" then
@@ -135,7 +136,7 @@ o.validate = function(self, value, t)
 end
 o:depends({ custom = false })
 
-o = s:option(FileUpload, "tls_keyFile", translate("Private key absolute path"), translate("as:") .. "/etc/ssl/private.key")
+o = s:option(FileUpload, "tls_keyFile", translate("Path to the private key file"), translate("as:") .. "/etc/ssl/private.key")
 o.default = m:get(s.section, "tls_keyFile") or "/etc/config/ssl/" .. arg[1] .. ".key"
 if o and o:formvalue(arg[1]) then o.default = o:formvalue(arg[1]) end
 o.validate = function(self, value, t)
@@ -150,10 +151,10 @@ o.validate = function(self, value, t)
 end
 o:depends({ custom = false })
 
-o = s:option(FileUpload, "ech_keyFile", translate("ECH key absolute path"), translate("as:") .. "/etc/ssl/ech.pem")
+o = s:option(FileUpload, "ech_keyFile", translate("Path to the ECH key file"), translate("as:") .. "/etc/ssl/ech.pem")
 o.validate = function(self, value, t)
 	if value and value ~= "" then
-		if not fs.access(value) then
+		if not api.fs.access(value) then
 			return nil, translate("Can't find this file!")
 		else
 			return value
@@ -168,7 +169,7 @@ o.default = "0"
 o:depends({ custom = false })
 
 o = s:option(Value, "firewall_allow_src", translate("Source zone"))
-o.rmempty = false
+o.rmempty = not m.is_js_luci
 o.nocreate = true
 o.allowany = true
 o.default = "wan"

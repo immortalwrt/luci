@@ -96,6 +96,7 @@ if load_urltest_options then -- [[ URLTest Start ]]
 	o = s:option(MultiValue, "urltest_node", translate("URLTest node list"), translate("List of nodes to test, <a target='_blank' href='https://sing-box.sagernet.org/configuration/outbound/urltest'>document</a>"))
 	o:depends({ node_add_mode = "manual" })
 	o.widget = "checkbox"
+	o.cast = "table"
 	o.template = m:template_path("/cbi/nodes_multivalue")
 	o.group = {}
 	for k1, v1 in pairs(node_list) do
@@ -104,30 +105,6 @@ if load_urltest_options then -- [[ URLTest Start ]]
 				o:value(v.id, v.remark)
 				o.group[#o.group+1] = v.group or ""
 			end
-		end
-	end
-	-- 读取旧 DynamicList
-	function o.cfgvalue(self, section)
-		return table.concat(m:get(section, "urltest_node") or {}, " ")
-	end
-	-- 写入保持 DynamicList
-	function o.write(self, section, value)
-		local old = m:get(section, "urltest_node") or {}
-		local new, set = {}, {}
-		for v in value:gmatch("%S+") do
-			new[#new + 1] = v
-			set[v] = 1
-		end
-		for _, v in ipairs(old) do
-			if not set[v] then
-				m:set(section, "urltest_node", new)
-				return
-			end
-			set[v] = nil
-		end
-		for _ in pairs(set) do
-			m:set(section, "urltest_node", new)
-			return
 		end
 	end
 
@@ -547,9 +524,17 @@ o:depends({ protocol = "naive" })
 o = s:option(Flag, "tls_allowInsecure", translate("allowInsecure"), translate("Whether unsafe connections are allowed. When checked, Certificate validation will be skipped."))
 o.default = "0"
 o:depends({ tls = true })
-o:depends({ protocol = "hysteria"})
+o:depends({ protocol = "hysteria" })
 o:depends({ protocol = "tuic" })
 o:depends({ protocol = "hysteria2" })
+
+o = s:option(Value, "tls_pinSHA256", translate("TLS Chain Fingerprint (SHA256)"))
+o:depends({ tls = true })
+o:depends({ protocol = "hysteria" })
+o:depends({ protocol = "tuic" })
+o:depends({ protocol = "hysteria2" })
+o.description = translate("Once set, connects only when the server’s chain fingerprint matches.") ..
+		string.format("<a href='javascript:void(0)' onclick='javascript:fetchCertSha256(this)'>%s</a>", "→ " .. translate("Fetch Manually"))
 
 o = s:option(Flag, "tls_certificate", translate("TLS Certificate (PEM)"))
 o.default = "0"
@@ -564,9 +549,12 @@ o.default = ""
 o.rows = 5
 o.wrap = "off"
 o:depends({ tls_certificate = true })
+o.cfgvalue = function(self, section)
+	return (m:get(section, "tls_certificate_pem") or ""):gsub("\\n", "\n")
+end
 o.validate = function(self, value)
-	value = api.trim(value):gsub("\r\n", "\n"):gsub("[ \t]*\n[ \t]*", "\n"):gsub("\n+", "\n")
-	return value
+	value = api.trim(value):gsub("\r\n", "\n"):gsub("\r", "\n"):gsub("[ \t]*\n[ \t]*", "\n"):gsub("\n+", "\n")
+	return value:gsub("\n", "\\n")
 end
 
 o = s:option(Value, "cipherSuites", translate("Cipher Suites"), '<a href="https://go.dev/src/crypto/tls/cipher_suites.go#L44" target="_blank">***</a>' .. " " .. translate("Configures the list of supported cipher suites, separated by :"))
@@ -585,9 +573,12 @@ o.default = ""
 o.rows = 5
 o.wrap = "off"
 o:depends({ ech = true })
+o.cfgvalue = function(self, section)
+	return (m:get(section, "ech_config") or ""):gsub("\\n", "\n")
+end
 o.validate = function(self, value)
-	value = api.trim(value):gsub("\r\n", "\n"):gsub("[ \t]*\n[ \t]*", "\n"):gsub("\n+", "\n")
-	return value
+	value = api.trim(value):gsub("\r\n", "\n"):gsub("\r", "\n"):gsub("[ \t]*\n[ \t]*", "\n"):gsub("\n+", "\n")
+	return value:gsub("\n", "\\n")
 end
 
 o = s:option(Value, "ech_query_server_name", translate("ECH Query Domain"), translate("Overrides the domain name used for ECH HTTPS record queries."))
