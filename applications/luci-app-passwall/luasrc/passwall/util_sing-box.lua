@@ -56,10 +56,9 @@ function geo_convert_srs(var)
 	if not fs.access(output_srs_file) and bin then
 		local cmd = string.format("%q -type %q -action convert -input %q -list %q -output %q -lowmem=true",
 			bin, prefix, geo_path, rule_name, output_srs_file)
-		sys.call(cmd)
-		local status = fs.access(output_srs_file) and "success." or "failed!"
-		if status == "failed!" then
-			api.log(string.format("  - %s:%s 转换为srs格式：%s", prefix, rule_name, status))
+		local code, out = api.exec_call(cmd)
+		if code ~= 0 or not fs.access(output_srs_file) then
+			api.log(string.format("  - %s:%s 转换为srs格式：%s [%s]", prefix, rule_name, "failed!", out))
 		end
 	end
 end
@@ -624,7 +623,9 @@ function gen_outbound(flag, node, tag, proxy_table)
 					t = tonumber(tostring(t or "0"):match("^%d+"))
 					return (t and t >= 2 and t <= 60) and t .. "s" or nil
 				end)(node.hysteria2_keep_alive_period),
-				disable_path_mtu_discovery = version_ge_1_14_0 and (tonumber(node.hysteria2_disable_mtu_discovery) == 1) or nil,
+				stream_receive_window = tonumber(node.hysteria2_stream_recv_win) and tonumber(node.hysteria2_stream_recv_win)/1048576 .. " MB" or nil,
+				connection_receive_window = tonumber(node.hysteria2_conn_recv_win) and tonumber(node.hysteria2_conn_recv_win)/1048576 .. " MB" or nil,
+				disable_path_mtu_discovery = version_ge_1_14_0 and (node.hysteria2_disable_mtu_discovery == "1") or nil,
 				tls = tls,
 				realm = node.hysteria2_realms and (function()
 					result.server = nil
@@ -1985,7 +1986,7 @@ function gen_config(var)
 			table.insert(dns.servers, {
 				tag = fakedns_tag,
 				type = "fakeip",
-				inet4_range = "198.18.0.0/15",
+				inet4_range = "198.18.0.0/16",
 				inet6_range = "2001:2::/48",
 			})
 

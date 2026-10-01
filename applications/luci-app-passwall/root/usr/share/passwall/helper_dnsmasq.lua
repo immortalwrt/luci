@@ -193,7 +193,7 @@ function add_rule(var)
 	local CACHE_TEXT_FILE = CACHE_DNS_PATH .. ".txt"
 	local USE_CHINADNS_NG = "0"
 	local IS_SHUNT_NODE = api.uci_get_c(NODE, "protocol") == "_shunt"
-	local USE_GEOVIEW = api.uci_get_c("@global_rules[0]", "enable_geoview") or "0"
+	local USE_GEOVIEW = api.uci_get_c("@global_rules[0]", "enable_geoview")
 
 	local list1 = {}
 	local excluded_domain = {}
@@ -321,16 +321,16 @@ function add_rule(var)
 	local function foreach_geosite(list_arg, callback)
 		local geosite_path = api.uci_get_c("@global_rules[0]", "v2ray_location_asset") or "/usr/share/v2ray/"
 		geosite_path = geosite_path:match("^(.*)/") .. "/geosite.dat"
-		if not fs.access(geosite_path) then return end
+		if not fs.access(geosite_path) then return 1, "File geosite.dat not found" end
+		if not list_arg or list_arg == "" then return 1, "Site list cannot be empty" end
 		local bin = api.finded_com("geoview")
-		if not (bin and list_arg) then return end
 		local cmd = string.format("%q -type geosite -action extract -input %q -list %q -lowmem=true", bin, geosite_path, list_arg)
-		local pipe = io.popen(cmd)
-		if not pipe then return end
-		for line in pipe:lines() do
-			if line ~= "" then callback(line) end
+		local code, out = api.exec_call(cmd)
+		if code ~= 0 then return code, out end
+		for line in out:gmatch("[^\r\n]+") do
+			callback(line)
 		end
-		pipe:close()
+		return 0
 	end
 
 	local function get_dns_config_key()
@@ -351,13 +351,13 @@ function add_rule(var)
 			local t = api.uci_get_c(NODE)
 			api.uci_foreach_c("shunt_rules", function(s)
 				local _node_id = t[s[".name"]]
-				if _node_id and _node_id ~= "_blackhole" and t["shunt_group"] == s.group then
-					SHUNT_LIST = SHUNT_LIST .. (s.domain_list or "") .. _node_id
+				if _node_id and t["shunt_group"] == s.group then
+					SHUNT_LIST = SHUNT_LIST .. (s.domain_list or "") .. (_node_id:sub(1, 1) == "_" and "not-node" or "node")
 				end
 			end)
 		end
 		new_rules = new_rules .. api.md5_string(SHUNT_LIST)
-		return TMP_DNSMASQ_PATH .. DNSMASQ_CONF_FILE .. DEFAULT_DNS .. LOCAL_DNS .. TUN_DNS .. USE_DEFAULT_DNS .. CHINADNS_DNS .. USE_DIRECT_LIST .. USE_PROXY_LIST .. USE_BLOCK_LIST .. USE_GFW_LIST .. CHN_LIST .. DEFAULT_PROXY_MODE .. NO_PROXY_IPV6 .. address_md5 .. new_rules .. NFTFLAG .. USE_GEOVIEW
+		return TMP_DNSMASQ_PATH .. DNSMASQ_CONF_FILE .. DEFAULT_DNS .. LOCAL_DNS .. TUN_DNS .. USE_DEFAULT_DNS .. CHINADNS_DNS .. USE_DIRECT_LIST .. USE_PROXY_LIST .. USE_BLOCK_LIST .. USE_GFW_LIST .. CHN_LIST .. DEFAULT_PROXY_MODE .. NO_PROXY_IPV6 .. address_md5 .. new_rules .. NFTFLAG
 	end
 
 	local dnsmasq_default_dns
@@ -405,6 +405,7 @@ function add_rule(var)
 
 	if not fs.access(CACHE_DNS_PATH) then
 		fs.mkdir(CACHE_DNS_PATH)
+		local GEO_SUCCESS = true
 
 		--屏蔽列表
 		if USE_CHINADNS_NG == "0" and USE_BLOCK_LIST == "1" then
@@ -425,10 +426,15 @@ function add_rule(var)
 				f:close()
 			end
 			if USE_GEOVIEW == "1" and geosite_arg ~= "" then
-				foreach_geosite(geosite_arg, function(line)
+				local code, out = foreach_geosite(geosite_arg, function(line)
 					set_domain_address(line, "")
 				end)
-				log("  - 解析[屏蔽列表] Geosite 到屏蔽域名表(blocklist)完成")
+				if code == 0 then
+					log("  - 解析[屏蔽列表] Geosite 到屏蔽域名表(blocklist)完成")
+				else
+					log("  - 解析[屏蔽列表] Geosite 到屏蔽域名表(blocklist)失败！[" .. out .. "]")
+					GEO_SUCCESS = false
+				end
 			end
 		end
 
@@ -503,12 +509,17 @@ function add_rule(var)
 					log(string.format("  - 域名白名单(whitelist)：%s", fwd_dns or "默认"))
 				end
 				if USE_GEOVIEW == "1" and geosite_arg ~= "" then
-					foreach_geosite(geosite_arg, function(line)
+					local code, out = foreach_geosite(geosite_arg, function(line)
 						add_excluded_domain(line)
 						set_domain_dns(line, fwd_dns)
 						set_domain_ipset(line, table.concat(sets, ","))
 					end)
-					log("  - 解析[直连列表] Geosite 到域名白名单(whitelist)完成")
+					if code == 0 then
+						log("  - 解析[直连列表] Geosite 到域名白名单(whitelist)完成")
+					else
+						log("  - 解析[直连列表] Geosite 到域名白名单(whitelist)失败！[" .. out .. "]")
+						GEO_SUCCESS = false
+					end
 				end
 			end
 		end
@@ -556,7 +567,7 @@ function add_rule(var)
 					log(string.format("  - 代理域名表(blacklist)：%s", fwd_dns or "默认"))
 				end
 				if USE_GEOVIEW == "1" and geosite_arg ~= "" then
-					foreach_geosite(geosite_arg, function(line)
+					local code, out = foreach_geosite(geosite_arg, function(line)
 						add_excluded_domain(line)
 						if NO_PROXY_IPV6 == "1" then
 							set_domain_address(line, "::")
@@ -564,7 +575,12 @@ function add_rule(var)
 						set_domain_dns(line, fwd_dns)
 						set_domain_ipset(line, table.concat(sets, ","))
 					end)
-					log("  - 解析[代理列表] Geosite 到代理域名表(blacklist)完成")
+					if code == 0 then
+						log("  - 解析[代理列表] Geosite 到代理域名表(blacklist)完成")
+					else
+						log("  - 解析[代理列表] Geosite 到代理域名表(blacklist)失败！[" .. out .. "]")
+						GEO_SUCCESS = false
+					end
 				end
 			end
 		end
@@ -655,50 +671,27 @@ function add_rule(var)
 		end
 
 		--分流规则
-		if IS_SHUNT_NODE and USE_CHINADNS_NG == "0" then
+		if IS_SHUNT_NODE and USE_CHINADNS_NG == "0" and only_global ~= 1 then
 			local t = api.uci_get_c(NODE)
 			local default_node_id = t["default_node"] or "_direct"
 			api.uci_foreach_c("shunt_rules", function(s)
 				local _node_id = t[s[".name"]]
-				if _node_id and _node_id ~= "_blackhole" and t["shunt_group"] == s.group then
+				if _node_id and t["shunt_group"] == s.group then
 					if _node_id == "_default" then
 						_node_id = default_node_id
 					end
 
-					fwd_dns = nil
-					no_ipv6 = nil
+					fwd_dns = TUN_DNS
 
-					local sets = {}
-
-					if _node_id == "_direct" then
-						fwd_dns = LOCAL_DNS
-						if USE_DIRECT_LIST == "1" then
-							table.insert(sets, setflag_4 .. "psw_white")
-							table.insert(sets, setflag_6 .. "psw_white6")
-						else
-							local set_name = "psw_shunt"
-							local set6_name = "psw_shunt6"
-							if FLAG ~= "default" then
-								set_name = "psw_" .. FLAG .. "_shunt"
-								set6_name = "psw_" .. FLAG .. "_shunt6"
-							end
-							table.insert(sets, setflag_4 .. set_name)
-							table.insert(sets, setflag_6 .. set6_name)
-						end
-					else
-						local set_name = "psw_shunt"
-						local set6_name = "psw_shunt6"
-						if FLAG ~= "default" then
-							set_name = "psw_" .. FLAG .. "_shunt"
-							set6_name = "psw_" .. FLAG .. "_shunt6"
-						end
-						fwd_dns = TUN_DNS
-						table.insert(sets, setflag_4 .. set_name)
-						if NO_PROXY_IPV6 ~= "1" then
-							table.insert(sets, setflag_6 .. set6_name)
-						else
-							no_ipv6 = true
-						end
+					local sets = {
+						setflag_4 .. "psw_shunt",
+						setflag_6 .. "psw_shunt6"
+					}
+					if FLAG ~= "default" then
+						sets = {
+							setflag_4 .. "psw_" .. FLAG .. "_shunt",
+							setflag_6 .. "psw_" .. FLAG .. "_shunt6"
+						}
 					end
 
 					local domain_list = s.domain_list or ""
@@ -714,10 +707,6 @@ function add_rule(var)
 								end
 								line = api.get_std_domain(line)
 								add_excluded_domain(line)
-
-								if no_ipv6 then
-									set_domain_address(line, "::")
-								end
 								set_domain_dns(line, fwd_dns)
 								set_domain_ipset(line, table.concat(sets, ","))
 							end
@@ -725,20 +714,20 @@ function add_rule(var)
 					end
 
 					if USE_GFW_LIST == "1" and CHN_LIST == "0" and USE_GEOVIEW == "1" and geosite_arg ~= "" then  --仅GFW模式解析geosite
-						foreach_geosite(geosite_arg, function(line)
+						local code, out = foreach_geosite(geosite_arg, function(line)
 							add_excluded_domain(line)
-							if no_ipv6 then
-								set_domain_address(line, "::")
-							end
 							set_domain_dns(line, fwd_dns)
 							set_domain_ipset(line, table.concat(sets, ","))
 						end)
-						log(string.format("  - 解析分流规则(%s) Geosite 完成", s.remarks))
+						if code == 0 then
+							log(string.format("  - 解析分流规则(%s) Geosite 完成", s.remarks))
+						else
+							log(string.format("  - 解析分流规则(%s) Geosite 失败！[" .. out .. "]", s.remarks))
+							GEO_SUCCESS = false
+						end
 					end
 
-					if _node_id ~= "_direct" then
-						log(string.format("  - Sing-Box/Xray分流规则(%s)：%s", s.remarks, fwd_dns or "默认"))
-					end
+					log(string.format("  - Sing-Box/Xray分流规则(%s)：%s", s.remarks, fwd_dns or "默认"))
 				end
 			end)
 		elseif only_global == 1 and NO_PROXY_IPV6 == "1" then
@@ -788,6 +777,7 @@ function add_rule(var)
 			ipset_out:close()
 		end
 
+		if not GEO_SUCCESS then new_text = "" end
 		local f_out = io.open(CACHE_TEXT_FILE, "a")
 		f_out:write(new_text)
 		f_out:close()

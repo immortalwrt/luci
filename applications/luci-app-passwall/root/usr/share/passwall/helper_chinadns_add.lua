@@ -93,15 +93,13 @@ end
 local function get_geosite(list_arg, out_path)
 	local geosite_path = api.uci_get_c("@global_rules[0]", "v2ray_location_asset") or "/usr/share/v2ray/"
 	geosite_path = geosite_path:match("^(.*)/") .. "/geosite.dat"
-	if not is_file_nonzero(geosite_path) then return 1 end
+	if not is_file_nonzero(geosite_path) then return 1, "File geosite.dat not found" end
+	if not list_arg or list_arg == "" then return 1, "Site list cannot be empty" end
+	if not out_path or out_path == "" then return 1, "Output path cannot be empty" end
 	local bin = api.finded_com("geoview")
-	if bin and list_arg and out_path then
-		local cmd = string.format("%q -type geosite -append=true -input %q -list %q -output %q -lowmem=true",
-			bin, geosite_path, list_arg, out_path)
-		sys.call(cmd)
-		return 0
-	end
-	return 1
+	local cmd = string.format("%q -type geosite -append=true -input %q -list %q -output %q -lowmem=true",
+		bin, geosite_path, list_arg, out_path)
+	return api.exec_call(cmd)
 end
 
 sys.call("mkdir -p %s" % FLAG_PATH)
@@ -127,6 +125,10 @@ end
 --自定义规则组，后声明的组具有更高优先级
 --屏蔽列表
 local file_block_host = CACHE_RULES_PATH .. "/block_host"
+if not fs.access(file_block_host .. "_ok") then
+	api.remove(file_block_host .. "*")
+end
+local block_geosite_flag = fs.access(file_block_host) and fs.access(file_block_host .. "_ok") and fs.access(file_block_host .. "_geo")
 if USE_BLOCK_LIST == "1" and not fs.access(file_block_host) then
 	local block_domain, lookup_block_domain = {}, {}
 	local geosite_arg = ""
@@ -152,15 +154,25 @@ if USE_BLOCK_LIST == "1" and not fs.access(file_block_host) then
 		end
 		f_out:close()
 	end
+	local success = true
 	if USE_GEOVIEW == "1" and geosite_arg ~= "" then
-		if get_geosite(geosite_arg, file_block_host) == 0 then
+		local code, out = get_geosite(geosite_arg, file_block_host)
+		if code == 0 then
 			log("  - 解析[屏蔽列表] Geosite 到屏蔽域名表(blocklist)完成")
+			sys.call("touch " .. file_block_host .. "_geo")
 		else
-			log("  - 解析[屏蔽列表] Geosite 到屏蔽域名表(blocklist)失败！")
+			log("  - 解析[屏蔽列表] Geosite 到屏蔽域名表(blocklist)失败！[" .. out .. "]")
+			success = false
 		end
+	end
+	if success and fs.access(file_block_host) then
+		sys.call("touch " .. file_block_host .. "_ok")
 	end
 end
 if USE_BLOCK_LIST == "1" and is_file_nonzero(file_block_host) then
+	if block_geosite_flag then
+		log("  - [屏蔽列表] Geosite 使用缓存结果，跳过重复解析")
+	end
 	tmp_lines = {
 		"group null",
 		"group-dnl " .. file_block_host
@@ -214,6 +226,10 @@ end
 
 --直连（白名单）列表
 local file_direct_host = CACHE_RULES_PATH .. "/direct_host"
+if not fs.access(file_direct_host .. "_ok") then
+	api.remove(file_direct_host .. "*")
+end
+local direct_geosite_flag = fs.access(file_direct_host) and fs.access(file_direct_host .. "_ok") and fs.access(file_direct_host .. "_geo")
 if USE_DIRECT_LIST == "1" and not fs.access(file_direct_host) then
 	local direct_domain, lookup_direct_domain = {}, {}
 	local geosite_arg = ""
@@ -239,15 +255,25 @@ if USE_DIRECT_LIST == "1" and not fs.access(file_direct_host) then
 		end
 		f_out:close()
 	end
+	local success = true
 	if USE_GEOVIEW == "1" and geosite_arg ~= "" then
-		if get_geosite(geosite_arg, file_direct_host) == 0 then
+		local code, out = get_geosite(geosite_arg, file_direct_host)
+		if code == 0 then
 			log("  - 解析[直连列表] Geosite 到域名白名单(whitelist)完成")
+			sys.call("touch " .. file_direct_host .. "_geo")
 		else
-			log("  - 解析[直连列表] Geosite 到域名白名单(whitelist)失败！")
+			log("  - 解析[直连列表] Geosite 到域名白名单(whitelist)失败！[" .. out .. "]")
+			success = false
 		end
+	end
+	if success and fs.access(file_direct_host) then
+		sys.call("touch " .. file_direct_host .. "_ok")
 	end
 end
 if USE_DIRECT_LIST == "1" and is_file_nonzero(file_direct_host) then
+	if direct_geosite_flag then
+		log("  - [直连列表] Geosite 使用缓存结果，跳过重复解析")
+	end
 	local sets = {
 		setflag .. "psw_white",
 		setflag .. "psw_white6"
@@ -264,6 +290,10 @@ end
 
 --代理（黑名单）列表
 local file_proxy_host = CACHE_RULES_PATH .. "/proxy_host"
+if not fs.access(file_proxy_host .. "_ok") then
+	api.remove(file_proxy_host .. "*")
+end
+local proxy_geosite_flag = fs.access(file_proxy_host) and fs.access(file_proxy_host .. "_ok") and fs.access(file_proxy_host .. "_geo")
 if USE_PROXY_LIST == "1" and not fs.access(file_proxy_host) then
 	local proxy_domain, lookup_proxy_domain = {}, {}
 	local geosite_arg = ""
@@ -289,15 +319,25 @@ if USE_PROXY_LIST == "1" and not fs.access(file_proxy_host) then
 		end
 		f_out:close()
 	end
+	local success = true
 	if USE_GEOVIEW == "1" and geosite_arg ~= "" then
-		if get_geosite(geosite_arg, file_proxy_host) == 0 then
+		local code, out = get_geosite(geosite_arg, file_proxy_host)
+		if code == 0 then
 			log("  - 解析[代理列表] Geosite 到代理域名表(blacklist)完成")
+			sys.call("touch " .. file_proxy_host .. "_geo")
 		else
-			log("  - 解析[代理列表] Geosite 到代理域名表(blacklist)失败！")
+			log("  - 解析[代理列表] Geosite 到代理域名表(blacklist)失败！[" .. out .. "]")
+			success = false
 		end
+	end
+	if success and fs.access(file_proxy_host) then
+		sys.call("touch " .. file_proxy_host .. "_ok")
 	end
 end
 if USE_PROXY_LIST == "1" and is_file_nonzero(file_proxy_host) then
+	if proxy_geosite_flag then
+		log("  - [代理列表] Geosite 使用缓存结果，跳过重复解析")
+	end
 	local sets = {
 		setflag .. "psw_black",
 		setflag .. "psw_black6"
@@ -378,20 +418,23 @@ if CHNLIST ~= "0" and is_file_nonzero(RULES_PATH .. "/chnlist") then
 end
 
 --分流规则
-if IS_SHUNT_NODE then
-	local white_domain, lookup_white_domain = {}, {}
-	local shunt_domain, lookup_shunt_domain = {}, {}
+if IS_SHUNT_NODE and not only_global then
+	local direct_domain, lookup_direct_domain = {}, {}
+	local proxy_domain, lookup_proxy_domain = {}, {}
+	local black_domain, lookup_black_domain = {}, {}
 	local CACHE_FLAG_PATH = CACHE_RULES_PATH .. "/" .. FLAG
-	local file_white_host = CACHE_FLAG_PATH .. "/shunt_direct_host"
-	local file_shunt_host = CACHE_FLAG_PATH .. "/shunt_proxy_host"
-	local geosite_white_arg, geosite_shunt_arg = "", ""
+	local shunt_direct_host = CACHE_FLAG_PATH .. "/shunt_direct_host"
+	local shunt_direct_host_tmp = shunt_direct_host .. "_tmp"
+	local shunt_proxy_host = CACHE_FLAG_PATH .. "/shunt_proxy_host"
+	local shunt_black_host = CACHE_FLAG_PATH .. "/shunt_black_host"
+	local geosite_direct_arg, geosite_proxy_arg, geosite_black_arg = "", "", ""
 	local SHUNT_LIST = ""
 
 	local t = api.uci_get_c(NODE)
 	local default_node_id = t["default_node"] or "_direct"
 	api.uci_foreach_c("shunt_rules", function(s)
 		local _node_id = t[s[".name"]]
-		if _node_id and _node_id ~= "_blackhole" and t["shunt_group"] == s.group then
+		if _node_id and t["shunt_group"] == s.group then
 			if _node_id == "_default" then
 				_node_id = default_node_id
 			end
@@ -402,9 +445,11 @@ if IS_SHUNT_NODE then
 					if line:find("geosite:") then
 						line = string.match(line, ":([^:]+)$")
 						if _node_id == "_direct" then
-							geosite_white_arg = geosite_white_arg .. (geosite_white_arg ~= "" and "," or "") .. line
+							geosite_direct_arg = geosite_direct_arg .. (geosite_direct_arg ~= "" and "," or "") .. line
+						elseif  _node_id == "_blackhole" then
+							geosite_black_arg = geosite_black_arg .. (geosite_black_arg ~= "" and "," or "") .. line
 						else
-							geosite_shunt_arg = geosite_shunt_arg .. (geosite_shunt_arg ~= "" and "," or "") .. line
+							geosite_proxy_arg = geosite_proxy_arg .. (geosite_proxy_arg ~= "" and "," or "") .. line
 						end
 					else
 						if line:find("domain:") or line:find("full:") then
@@ -413,25 +458,26 @@ if IS_SHUNT_NODE then
 						line = api.get_std_domain(line)
 						if line ~= "" and not line:find("#") then
 							if _node_id == "_direct" then
-								insert_unique(white_domain, line, lookup_white_domain)
+								insert_unique(direct_domain, line, lookup_direct_domain)
+							elseif  _node_id == "_blackhole" then
+								insert_unique(black_domain, line, lookup_black_domain)
 							else
-								insert_unique(shunt_domain, line, lookup_shunt_domain)
+								insert_unique(proxy_domain, line, lookup_proxy_domain)
 							end
 						end
 					end
 				end
 			end
 
-			SHUNT_LIST = SHUNT_LIST .. domain_list .. _node_id
+			SHUNT_LIST = SHUNT_LIST .. domain_list .. (_node_id:sub(1, 1) == "_" and "not-node" or "node")
 
-			if _node_id ~= "_direct" then
-				log(string.format("  - Sing-Box/Xray分流规则(%s)：%s", s.remarks, DNS_TRUST or "默认"))
-			end
+			log(string.format("  - Sing-Box/Xray分流规则(%s)：%s", s.remarks, DNS_TRUST or "默认"))
 		end
 	end)
 
 	local MD5_FILE = CACHE_FLAG_PATH .. "/md5.txt"
 	local cache_md5 = ""
+	local USE_CACHE = true
 	if fs.access(MD5_FILE) then
 		cache_md5 = fs.readfile(MD5_FILE)
 	end
@@ -440,86 +486,124 @@ if IS_SHUNT_NODE then
 		api.remove(CACHE_FLAG_PATH)
 		sys.call("mkdir -p %s" % CACHE_FLAG_PATH)
 		fs.writefile(MD5_FILE, new_md5)
+		USE_CACHE = false
 	end
 
-	if is_file_nonzero(file_white_host) == nil then
-		if #white_domain > 0 then
-			local f_out = io.open(file_white_host, "w")
-			for i = 1, #white_domain do
-				f_out:write(white_domain[i] .. "\n")
+	if not is_file_nonzero(shunt_direct_host_tmp) then
+		if #direct_domain > 0 then
+			local f_out = io.open(shunt_direct_host_tmp, "w")
+			for i = 1, #direct_domain do
+				f_out:write(direct_domain[i] .. "\n")
 			end
 			f_out:close()
 		end
 	end
 
-	if is_file_nonzero(file_shunt_host) == nil then
-		if #shunt_domain > 0 then
-			local f_out = io.open(file_shunt_host, "w")
-			for i = 1, #shunt_domain do
-				f_out:write(shunt_domain[i] .. "\n")
+	if not is_file_nonzero(shunt_proxy_host) then
+		if #proxy_domain > 0 then
+			local f_out = io.open(shunt_proxy_host, "w")
+			for i = 1, #proxy_domain do
+				f_out:write(proxy_domain[i] .. "\n")
 			end
 			f_out:close()
 		end
 	end
 
-	if GFWLIST == "1" and CHNLIST == "0" and USE_GEOVIEW == "1" then  --仅GFW模式解析geosite
-		local return_white, return_shunt
-		if geosite_white_arg ~= "" then
-			return_white = get_geosite(geosite_white_arg, file_white_host)
+	if not is_file_nonzero(shunt_black_host) then
+		if #black_domain > 0 then
+			local f_out = io.open(shunt_black_host, "w")
+			for i = 1, #black_domain do
+				f_out:write(black_domain[i] .. "\n")
+			end
+			f_out:close()
 		end
-		if geosite_shunt_arg ~= "" then
-			return_shunt = get_geosite(geosite_shunt_arg, file_shunt_host)
+	end
+
+	if not USE_CACHE and USE_GEOVIEW == "1" then
+		local ok = true
+		local function resolve(arg, dest)
+		if arg == "" then return end
+			local code, out = get_geosite(arg, dest)
+			if code ~= 0 then
+				ok = false
+				log("  - 解析[分流节点] Geosite 失败！[" .. out .. "]")
+			end
 		end
-		if (return_white == nil or return_white == 0) and (return_shunt == nil or return_shunt == 0) then
+		resolve(geosite_direct_arg, shunt_direct_host_tmp)
+		resolve(geosite_proxy_arg,  shunt_proxy_host)
+		resolve(geosite_black_arg,  shunt_black_host)
+		if ok then
 			log("  - 解析[分流节点] Geosite 完成")
 		else
-			log("  - 解析[分流节点] Geosite 失败！")
+			api.remove(MD5_FILE)
 		end
 	end
 
-	local sets = {
-		setflag .. "psw_shunt",
-		setflag .. "psw_shunt6"
-	}
-	if FLAG ~= "default" then
-		sets = {
-			setflag .. "psw_" .. FLAG .. "_shunt",
-			setflag .. "psw_" .. FLAG .. "_shunt6"
-		}
+	if USE_CACHE and USE_GEOVIEW == "1" and (geosite_direct_arg ~= "" or geosite_proxy_arg ~= "" or geosite_black_arg ~= "") then
+		log("  - [分流节点] Geosite 使用缓存结果，跳过重复解析")
 	end
 
-	if is_file_nonzero(file_white_host) then
-		if USE_DIRECT_LIST == "1" then
-			--当白名单启用时，添加到白名单组一同处理
-			for i, v in ipairs(config_lines) do
-				if v == "group-dnl " .. file_direct_host then
-					config_lines[i] = "group-dnl " .. file_direct_host .. "," .. file_white_host
-					break
+	-- 与 chnlist 比对
+	if is_file_nonzero(shunt_direct_host_tmp) and CHNLIST ~= "0" and is_file_nonzero(RULES_PATH .. "/chnlist") then
+		local chn_domain_set = {}
+		local f_chn = io.open(RULES_PATH .. "/chnlist", "r")
+		if f_chn then
+			for line in f_chn:lines() do
+				if line ~= "" then
+					chn_domain_set[line] = true
 				end
 			end
-		else
-			--当白名单不启用时，创建新组，ipset到shuntlist
-			tmp_lines = {
-				"group whitelist",
-				"group-dnl " .. file_white_host,
-				"group-upstream " .. DNS_LOCAL,
-				"group-ipset " .. table.concat(sets, ",")
-			}
-			insert_array_after(config_lines, tmp_lines, "#--4")
+			f_chn:close()
 		end
+		local f_in = io.open(shunt_direct_host_tmp, "r")
+		local f_out = io.open(shunt_direct_host, "w")
+		if f_in and f_out then
+			for line in f_in:lines() do
+				line = string.lower(line)
+				-- 排除 cn、.cn 等缺少有效域名标签的条目
+				local valid_domain = line ~= "" and line:find("%.") and line:sub(1,1) ~= "."
+				if valid_domain and not chn_domain_set[line] then
+					f_out:write(line .. "\n")
+				end
+			end
+		end
+		if f_in then f_in:close() end
+		if f_out then f_out:close() end
+		api.remove(shunt_direct_host_tmp)
+	elseif is_file_nonzero(shunt_direct_host_tmp) then
+		os.rename(shunt_direct_host_tmp, shunt_direct_host)
 	end
 
-	if is_file_nonzero(file_shunt_host) then
+	local shunt_file
+	if is_file_nonzero(shunt_black_host) then
+		shunt_file = shunt_black_host
+	end
+	if is_file_nonzero(shunt_direct_host) then
+		shunt_file = (shunt_file and shunt_file .. "," or "") .. shunt_direct_host
+	end
+	if is_file_nonzero(shunt_proxy_host) then
+		shunt_file = (shunt_file and shunt_file .. "," or "") .. shunt_proxy_host
+	end
+
+	if shunt_file then
+		local sets = {
+			setflag .. "psw_shunt",
+			setflag .. "psw_shunt6"
+		}
+		if FLAG ~= "default" then
+			sets = {
+				setflag .. "psw_" .. FLAG .. "_shunt",
+				setflag .. "psw_" .. FLAG .. "_shunt6"
+			}
+		end
 		tmp_lines = {
 			"group shuntlist",
-			"group-dnl " .. file_shunt_host,
+			"group-dnl " .. shunt_file,
 			"group-upstream " .. DNS_TRUST,
 			"group-ipset " .. table.concat(sets, ",")
 		}
-		if NO_IPV6_TRUST == "1" then table.insert(tmp_lines, "no-ipv6 tag:shuntlist") end
 		insert_array_after(config_lines, tmp_lines, "#--2")
 	end
-
 end
 
 --只使用gfwlist模式，GFW列表以外的域名及默认使用本地DNS
@@ -539,7 +623,7 @@ end
 --是否接受直连 DNS 空响应
 if DEFAULT_TAG == "none_noip" then table.insert(config_lines, "noip-as-chnip") end
 
-if DEFAULT_TAG == nil or DEFAULT_TAG == "smart" or DEFAULT_TAG == "none_noip" then DEFAULT_TAG = "none" end
+if not DEFAULT_TAG or DEFAULT_TAG == "smart" or DEFAULT_TAG == "none_noip" then DEFAULT_TAG = "none" end
 
 table.insert(config_lines, "default-tag " .. DEFAULT_TAG)
 
