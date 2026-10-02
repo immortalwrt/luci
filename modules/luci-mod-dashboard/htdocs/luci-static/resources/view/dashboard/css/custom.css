@@ -8,7 +8,7 @@
 .Dashboard {
 	--dashboard-surface-alt: var(--background-color-medium, #f2f4f7);
 	--dashboard-text: var(--text-color-high, #1f2933);
-	--dashboard-text-muted: var(--text-color-low, #6b7280);
+	--dashboard-text-muted: var(--text-color-high, #4b5563);
 	--dashboard-border: var(--border-color-medium, rgba(0, 0, 0, 0.12));
 	--dashboard-primary: var(--primary-color-high, #1976d2);
 	--dashboard-success: var(--success-color-high, #00ac59);
@@ -33,7 +33,7 @@
 [data-darkmode="true"] .Dashboard {
 	--dashboard-surface-alt: var(--background-color-medium, #262b34);
 	--dashboard-text: var(--text-color-high, #e6e8eb);
-	--dashboard-text-muted: var(--text-color-low, #9aa3ad);
+	--dashboard-text-muted: var(--text-color-high, #9aa3ad);
 	--dashboard-border: var(--border-color-medium, rgba(255, 255, 255, 0.12));
 	--dashboard-series-4: #a98cf0;
 	--dashboard-series-5: #e5652c;
@@ -46,7 +46,7 @@
 	:root:not([data-darkmode="false"]) .Dashboard {
 		--dashboard-surface-alt: var(--background-color-medium, #262b34);
 		--dashboard-text: var(--text-color-high, #e6e8eb);
-		--dashboard-text-muted: var(--text-color-low, #9aa3ad);
+		--dashboard-text-muted: var(--text-color-high, #9aa3ad);
 		--dashboard-border: var(--border-color-medium, rgba(255, 255, 255, 0.12));
 		--dashboard-series-4: #a98cf0;
 		--dashboard-series-5: #e5652c;
@@ -57,23 +57,29 @@
 }
 
 /* ---- Layout ---- */
-.dashboard-kpi-row {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-	gap: var(--dashboard-gap);
-}
-
+/* Every row fills the width: an item's basis is its row's share, set from
+   --dashboard-per-row, and flex-grow takes up the rest. On narrow screens
+   the min-width wraps the items, which still fill their rows. */
+.dashboard-kpi-row,
 .dashboard-charts {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	display: flex;
+	flex-wrap: wrap;
 	gap: var(--dashboard-gap);
-	align-items: stretch;
 }
 
-/* Grid gaps space the cards, not the theme's section margin. */
+/* The gaps space the cards, not the theme's section margin. */
 .dashboard-kpi-row > .cbi-section,
 .dashboard-charts > .cbi-section {
+	flex: 1 1 calc(100% / var(--dashboard-per-row, 3) - var(--dashboard-gap));
+	box-sizing: border-box;
+	min-width: 190px;
 	margin: 0;
+}
+
+.dashboard-charts > .cbi-section {
+	display: flex;
+	flex-direction: column;
+	min-width: 250px;
 }
 
 /* ---- Icon (mask keeps the SVG files, colour follows the theme) ---- */
@@ -129,17 +135,25 @@
 }
 
 .dashboard-kpi-sub {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 6px;
+	display: block;
+	overflow-wrap: anywhere;
+}
+
+.dashboard-kpi-line {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 /* ---- Donut ---- */
+/* Shorter than the bar charts it shares a row with, so centre it. */
 .dashboard-donut {
 	display: flex;
 	align-items: center;
 	gap: 20px;
+	margin-block: auto;
+	/* Override Footstrap's negative SVG container margins to preserve card padding. */
+	margin-inline: 0;
 }
 
 .dashboard-donut svg {
@@ -150,7 +164,7 @@
 
 .dashboard-donut-track {
 	fill: none;
-	stroke: var(--dashboard-surface-alt);
+	stroke: var(--dashboard-border);
 	stroke-width: 16;
 }
 
@@ -337,7 +351,7 @@
 .dashboard-bars-stack i.dashboard-bar-mid { background: var(--dashboard-warn); }
 .dashboard-bars-stack i.dashboard-bar-up { background: var(--dashboard-series-1); }
 .dashboard-bars-stack i.dashboard-bar-down { background: var(--dashboard-series-2); }
-.dashboard-bars-stack i.dashboard-bar-none { background: var(--dashboard-text-muted); }
+.dashboard-bars-stack i.dashboard-bar-none { background: var(--dashboard-border); }
 
 .dashboard-bars-label {
 	font-size: 10.5px;
@@ -361,6 +375,52 @@
 .dashboard-legend-inline i.dashboard-bar-mid { background: var(--dashboard-warn); }
 .dashboard-legend-inline i.dashboard-bar-up { background: var(--dashboard-series-1); }
 .dashboard-legend-inline i.dashboard-bar-down { background: var(--dashboard-series-2); }
+
+/* ---- Time series (shares the axis and grid of the bar chart) ---- */
+.dashboard-lines-plot {
+	position: relative;
+	height: var(--dashboard-plot-h);
+}
+
+.dashboard-lines-plot svg {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+.Dashboard .dashboard-lines-plot polyline {
+	fill: none;
+	stroke-width: 1.75;
+	stroke-linejoin: round;
+	stroke-linecap: round;
+	vector-effect: non-scaling-stroke;
+}
+
+.Dashboard .dashboard-lines-plot polygon {
+	stroke: none;
+	opacity: 0.14;
+}
+
+.dashboard-lines-plot polygon.dashboard-series-1 { fill: var(--dashboard-series-1); }
+.dashboard-lines-plot polygon.dashboard-series-2 { fill: var(--dashboard-series-2); }
+
+.dashboard-lines-time {
+	grid-column: 2;
+	display: flex;
+	justify-content: space-between;
+	padding-top: 6px;
+	font-size: 10.5px;
+	color: var(--dashboard-text-muted);
+}
+
+.dashboard-legend-inline i.dashboard-series-1 { background: var(--dashboard-series-1); }
+.dashboard-legend-inline i.dashboard-series-2 { background: var(--dashboard-series-2); }
+
+.dashboard-legend-inline b {
+	color: var(--dashboard-text);
+}
 
 /* ---- Wireless network boxes (LuCI .ifacebox) ---- */
 .dashboard-net-grid {
@@ -414,6 +474,10 @@
 .dashboard-net-note {
 	font-size: 12.5px;
 	color: var(--dashboard-text-muted);
+}
+
+.dashboard-client-addresses {
+	overflow-wrap: anywhere;
 }
 
 
