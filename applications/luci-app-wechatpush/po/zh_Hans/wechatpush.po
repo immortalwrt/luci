@@ -100,6 +100,22 @@ msgstr "微信推送的另一个通道，配置较简单，只支持公众号"
 msgid "Another channel for WeChat push, the configuration is relatively simple, and it supports multiple push methods"
 msgstr "微信推送的另一个通道，配置较简单，支持多项推送方式"
 
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js
+msgid "WPUSH"
+msgstr "WPUSH"
+
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js
+msgid "Multi-channel push via WPUSH (WeChat, App, Feishu, DingTalk, and more). Success when response code===0"
+msgstr "通过 WPUSH 多通道推送（微信、App、飞书、钉钉等）。成功判定为响应 code===0"
+
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js
+msgid "WPUSH apikey"
+msgstr "WPUSH apikey"
+
+#: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js
+msgid "<br />API docs: https://docs.wpush.cn/docs/api/message.html — success when code===0"
+msgstr "<br />接口文档：https://docs.wpush.cn/docs/api/message.html — 成功时 code===0"
+
 #: applications/luci-app-wechatpush/htdocs/luci-static/resources/view/wechatpush/config.js:146
 msgid "Telegram Bot Push"
 msgstr "Telegram bot 推送，若无梯子，请勿使用"
@@ -231,11 +247,11 @@ msgstr "SMTP 服务器"
 msgid "SMTP Port"
 msgstr "SMTP 端口"
 
-msgid "Enable TLS"
-msgstr "启用 TLS"
+msgid "Enable/Disable TLS"
+msgstr "启用/禁用 TLS"
 
-msgid "Enable STARTTLS"
-msgstr "启用 STARTTLS"
+msgid "Enable/Disable STARTTLS"
+msgstr "启用/禁用 STARTTLS"
 
 msgid "User"
 msgstr "用户名"
@@ -1252,8 +1268,8 @@ msgstr "/ (首页登录)"
 msgid "%s frequent %s login attempts"
 msgstr "%s 频繁尝试 %s 登录"
 
-msgid "Block Information"
-msgstr "封禁信息"
+msgid "Frequent Login Attempts Information"
+msgstr "频繁尝试登录信息"
 
 msgid "Device %s (%s) frequently attempted %s %s login"
 msgstr "设备 %s (%s) 频繁尝试 %s %s 登录"
@@ -1341,6 +1357,15 @@ msgstr "设备状态变化"
 
 msgid "Traffic in 1 minute:"
 msgstr "一分钟内流量："
+
+msgid "Upload Traffic:"
+msgstr "上传流量："
+
+msgid "Download Traffic:"
+msgstr "下载流量："
+
+msgid "Signal Strength:"
+msgstr "dBm："
 
 msgid "Whitelist add failed, IP format error"
 msgstr "白名单添加失败，IP 格式错误"
