@@ -16,25 +16,34 @@ return view.extend({
 
 	load: function () {
 		return Promise.all([
-			this.callHostHints(),
-			fs.read('/proc/net/arp')
+			this.callHostHints()
 		]);
 	},
 
-	parseArp: function (data) {
-		var lines = data.split('\n'),
-			hosts = [];
+	parseHostHints: function (data) {
+		var hosts = [];
 
-		for (var i = 1; i < lines.length; i++) {
-			var columns = lines[i].replace(/ +/g, ' ').split(' ');
+		Object.keys(data || {}).forEach(function (mac) {
+			var hint = data[mac] || {},
+				ipaddrs = hint.ipaddrs || hint.ipv4 || [];
 
-			if (columns.length >= 6) {
-				hosts.push({
-					ip: columns[0],
-					mac: columns[3]
-				});
-			}
-		}
+			if (!Array.isArray(ipaddrs))
+				ipaddrs = [ ipaddrs ];
+
+			ipaddrs.forEach(function (ip) {
+				var octets = (typeof(ip) === 'string' && /^\d{1,3}(\.\d{1,3}){3}$/.test(ip))
+					? ip.split('.').map(Number) : [];
+
+				if (octets.length === 4 && octets.every(function (octet) {
+					return octet >= 0 && octet <= 255;
+				})) {
+					hosts.push({
+						ip: ip,
+						mac: mac
+					});
+				}
+			});
+		});
 
 		// Sort hosts array by IP address
 		hosts.sort(function (a, b) {
@@ -62,8 +71,7 @@ return view.extend({
 	},
 
 	render: function (data) {
-		var arpData = data[1],
-			hosts = this.parseArp(arpData),
+		var hosts = this.parseHostHints(data[0]),
 			m, s, o,
 			programPath = '/usr/share/wechatpush/wechatpush';
 
@@ -106,6 +114,8 @@ return view.extend({
 		o.rmempty = true
 		o.default = "22"
 		o.description = _('The default SSH port is 22. If you have a custom port, please fill in the custom SSH port.<br/>Please make sure you have set up key-based login, otherwise it may cause script errors.<br/>Install the sensors command on PVE by searching on the internet.<br/>Example for key-based login (modify the address and port number accordingly):<br/>opkg update # Update package list<br/>opkg install openssh-client openssh-keygen # Install openssh client<br/>echo -e \"\\n\" | ssh-keygen -t rsa # Generate key file (no passphrase)<br/>pve_host=`uci get wechatpush.config.server_host` || pve_host=\"10.0.0.3\" # Read the PVE host address from the configuration file, If not saved, please fill in by yourself.<br/>pve_port=`uci get wechatpush.config.server_port` || pve_host=\"22\" # Read the PVE host SSH port number from the configuration file, If not saved, please fill in by yourself.<br/>ssh -o StrictHostKeyChecking=yes root@${pve_host} -p ${pve_port} \"tee -a ~/.ssh/OpenWrt_id_rsa.pub\" < ~/.ssh/id_rsa.pub # Transfer public key to PVE<br/>ssh root@${pve_host} -p ${pve_port} \"cat ~/.ssh/OpenWrt_id_rsa.pub >> ~/.ssh/authorized_keys\" # Write public key to PVE<br/>ssh -i /root/.ssh/id_rsa root@${pve_host} -p ${pve_port} sensors # To avoid script errors during the initial connection, please use a private key to connect to PVE and test the temperature command for its proper functioning.<br/>For users who frequently flash firmware, please add /root/.ssh/ to the backup list to avoid duplicate operations.');
+
+		// cat ~/.ssh/id_rsa.pub | ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${pve_host} -p ${pve_port} "cat >> ~/.ssh/authorized_keys"
 		o.depends('soc_code', 'pve');
 
 		o = s.option(form.Button, '_soc', _('Test temperature command'), _('You may need to save the configuration before sending.'));
