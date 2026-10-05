@@ -73,6 +73,7 @@ function index()
 	entry({"admin", "services", appname, "get_redir_log"}, call("get_redir_log")).leaf = true
 	entry({"admin", "services", appname, "get_socks_log"}, call("get_socks_log")).leaf = true
 	entry({"admin", "services", appname, "get_chinadns_log"}, call("get_chinadns_log")).leaf = true
+	entry({"admin", "services", appname, "get_smartdns_log"}, call("get_smartdns_log")).leaf = true
 	entry({"admin", "services", appname, "get_log"}, call("get_log")).leaf = true
 	entry({"admin", "services", appname, "clear_log"}, call("clear_log")).leaf = true
 	entry({"admin", "services", appname, "index_status"}, call("index_status")).leaf = true
@@ -313,6 +314,16 @@ function get_chinadns_log()
 	end
 end
 
+function get_smartdns_log()
+	local path = api.TMP_PATH .. "/acl/default/smartdns.log"
+	http.prepare_content("text/plain; charset=utf-8")
+	if fs.access(path) then
+		http.write(luci.sys.exec("tail -n 5000 " .. util.shellquote(path)))
+	else
+		http.write(i18n.translate("Not enabled log"))
+	end
+end
+
 function get_log()
 	-- luci.sys.exec("[ -f /tmp/log/passwall.log ] && sed '1!G;h;$!d' /tmp/log/passwall.log > /tmp/log/passwall_show.log")
 	http.write(luci.sys.exec("[ -f '/tmp/log/passwall.log' ] && cat /tmp/log/passwall.log"))
@@ -326,8 +337,8 @@ function index_status()
 	local e = {}
 	local dns_shunt = uci_get("@global[0]", "dns_shunt") or "dnsmasq"
 	if dns_shunt == "smartdns" then
-		local port = api.get_cache_var("SMARTDNS_LOCAL_PORT") or 0
-		e.dns_mode_status = (port ~= 0) and luci.sys.call("netstat -apn | grep ':%s ' >/dev/null" % port) == 0 or false
+		local config_file = api.TMP_PATH .. "/acl/default/smartdns.conf"
+		e.dns_mode_status = luci.sys.call("/bin/busybox top -bn1 | grep -v 'grep' | grep -F %s | grep 'smartdns' >/dev/null" % util.shellquote(config_file)) == 0
 	elseif dns_shunt == "chinadns-ng" then
 		e.dns_mode_status = luci.sys.call("/bin/busybox top -bn1 | grep -v 'grep' | grep '%s/bin/' | grep 'default' | grep 'chinadns_ng' >/dev/null" % api.TMP_PATH) == 0
 	else
@@ -381,35 +392,36 @@ function connect_status()
 	local e = {}
 	e.use_time = ""
 	local url = http.formvalue("url")
+	if not url or url == "" then
+		http_write_json(e)
+		return
+	end
 	local aliyun = string.find(url, "aliyun")
 	local chn_list = uci_get("@global[0]", "chn_list") or "direct"
 	local gfw_list = uci_get("@global[0]", "use_gfw_list") or "1"
 	local proxy_mode = uci_get("@global[0]", "tcp_proxy_mode") or "proxy"
 	local localhost_proxy = uci_get("@global[0]", "localhost_proxy") or "1"
 	local socks_server = (localhost_proxy == "0") and api.get_cache_var("GLOBAL_SOCKS_server") or ""
-	url = "-w %{http_code}:%{time_pretransfer} " .. url
+	local curl_args = "-w '%{http_code}:%{time_pretransfer}:%{time_starttransfer}' " .. util.shellquote(url)
 	if socks_server and socks_server ~= "" then
 		if (chn_list == "proxy" and gfw_list == "0" and proxy_mode ~= "proxy" and aliyun ~= nil) or (chn_list == "0" and gfw_list == "0" and proxy_mode == "proxy") then
 		-- 中国列表+阿里 or 全局
-			url = "-x socks5h://" .. socks_server .. " " .. url
+			curl_args = "-x " .. util.shellquote("socks5h://" .. socks_server) .. " " .. curl_args
 		elseif aliyun == nil then
 		-- 其他代理模式+阿里以外网站
-			url = "-x socks5h://" .. socks_server .. " " .. url
+			curl_args = "-x " .. util.shellquote("socks5h://" .. socks_server) .. " " .. curl_args
 		end
 	end
-	local result = luci.sys.exec('/usr/bin/curl --connect-timeout 3 --max-time 5 -o /dev/null -I -sk ' .. url)
-	local code = tonumber(luci.sys.exec("echo -n '" .. result .. "' | awk -F ':' '{print $1}'") or "0")
-	if code ~= 0 then
-		local use_time_str = luci.sys.exec("echo -n '" .. result .. "' | awk -F ':' '{print $2}'")
-		local use_time = tonumber(use_time_str)
-		if use_time then
-			if use_time_str:find("%.") then
-				e.use_time = string.format("%.2f", use_time * 1000)
-			else
-				e.use_time = string.format("%.2f", use_time / 1000)
-			end
-			e.ping_type = "curl"
-		end
+	local result = luci.sys.exec('curl_result=$(/usr/bin/curl --connect-timeout 3 --max-time 5 -o /dev/null -I -sk ' .. curl_args .. '); [ $? -eq 0 ] && printf "%s" "$curl_result"')
+	local code, pretransfer, starttransfer = result:match("^%s*(%d+):([%d%.]+):([%d%.]+)%s*$")
+	code, pretransfer, starttransfer = tonumber(code), tonumber(pretransfer), tonumber(starttransfer)
+	if code and code > 0 then e.http_code = code end
+	-- A completed HTTP response, including 4xx/5xx, confirms homepage connectivity.
+	if code and code >= 200 and code < 600 and pretransfer and pretransfer >= 0 and starttransfer and starttransfer > 0 and starttransfer >= pretransfer then
+		-- HTTP request latency excludes connection and TLS handshakes.
+		e.use_time = string.format("%.2f", (starttransfer - pretransfer) * 1000)
+		e.handshake_time = string.format("%.2f", pretransfer * 1000)
+		e.ping_type = "curl"
 	end
 	http_write_json(e)
 end
@@ -437,18 +449,14 @@ function urltest_node()
 	local id = http.formvalue("id")
 	local e = {}
 	e.index = index
-	local result = luci.sys.exec(string.format("/usr/share/passwall/test.sh url_test_node %s %s", id, "urltest_node"))
-	local code = tonumber(luci.sys.exec("echo -n '" .. result .. "' | awk -F ':' '{print $1}'") or "0")
-	if code ~= 0 then
-		local use_time_str = luci.sys.exec("echo -n '" .. result .. "' | awk -F ':' '{print $2}'")
-		local use_time = tonumber(use_time_str)
-		if use_time then
-			if use_time_str:find("%.") then
-				e.use_time = string.format("%.2f", use_time * 1000)
-			else
-				e.use_time = string.format("%.2f", use_time / 1000)
-			end
-		end
+	local result = luci.sys.exec("/usr/share/passwall/test.sh url_test_node " .. util.shellquote(id or ""))
+	local code, pretransfer, starttransfer = result:match("^%s*(%d+):([%d%.]+):([%d%.]+)%s*$")
+	code, pretransfer, starttransfer = tonumber(code), tonumber(pretransfer), tonumber(starttransfer)
+	if code and code > 0 then e.http_code = code end
+	if code and code >= 200 and code < 600 and pretransfer and pretransfer >= 0 and starttransfer and starttransfer > 0 and starttransfer >= pretransfer then
+		-- Keep node test parsing independent from the homepage test.
+		e.use_time = string.format("%.2f", (starttransfer - pretransfer) * 1000)
+		e.handshake_time = string.format("%.2f", pretransfer * 1000)
 	end
 	http_write_json(e)
 end

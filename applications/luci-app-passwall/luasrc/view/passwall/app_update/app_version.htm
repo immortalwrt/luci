@@ -79,14 +79,14 @@ local com = self.com
 		}
 	}
 
-	function onRequestError(btn, errorMessage) {
+	function onRequestError(btn, errorMessage, checking) {
 		setButtonDisabled(btn, false);
 		btn.value = retryText;
 
 		var app = btn.getAttribute('data-update-app');
 		var detailId = app === appname ? appname + '-check_btn' : '_' + app + '-check_btn';
 		var ckeckDetailElm = document.getElementById(detailId + '-detail');
-		if (app === appname) errorMessage = errorMessage ? updateFailedText : unknownErrorText;
+		if (app === appname && !checking) errorMessage = errorMessage ? updateFailedText : unknownErrorText;
 		if (errorMessage && ckeckDetailElm) {
 			ckeckDetailElm.textContent = errorMessage
 		}
@@ -117,7 +117,7 @@ local com = self.com
 			removePageNotice();
 			if (!json || json.code) {
 				appInfoList[app] = undefined;
-				onRequestError(btn, json && (json.error || updateFailedText));
+				onRequestError(btn, json && json.error, true);
 			} else {
 				appInfoList[app] = json;
 				if (json.has_update) {

@@ -51,7 +51,7 @@ check_run_environment() {
 		[ -d "/lib/apk/packages" ] && { file_path="/lib/apk/packages"; file_ext=".list"; }
 
 		if [ "$USE_TABLES" = "iptables" ]; then
-			dep_list="iptables-mod-tproxy iptables-mod-socket iptables-mod-iprange iptables-mod-conntrack-extra kmod-ipt-nat"
+			dep_list="iptables-mod-tproxy iptables-mod-socket iptables-mod-iprange iptables-mod-conntrack-extra iptables-mod-extra kmod-ipt-nat"
 		else
 			dep_list="kmod-nft-socket kmod-nft-tproxy kmod-nft-nat kmod-nf-reject kmod-nf-reject6"
 			nftflag=1
@@ -72,16 +72,26 @@ check_run_environment() {
 }
 
 run_ipt2socks() {
-	local flag tcp_tproxy local_port socks_address socks_port socks_username socks_password log_file
-	local _extra_param=""
-	eval_set_val "$@"
+	local flag tcp_tproxy local_port socks_address socks_port socks_username socks_password log_file param
+	for param in "$@"; do
+		case "$param" in
+			flag=*) flag="${param#*=}" ;;
+			tcp_tproxy=*) tcp_tproxy="${param#*=}" ;;
+			local_port=*) local_port="${param#*=}" ;;
+			socks_address=*) socks_address="${param#*=}" ;;
+			socks_port=*) socks_port="${param#*=}" ;;
+			socks_username=*) socks_username="${param#*=}" ;;
+			socks_password=*) socks_password="${param#*=}" ;;
+			log_file=*) log_file="${param#*=}" ;;
+		esac
+	done
 	[ -n "$log_file" ] || log_file="/dev/null"
-	socks_address=$(get_host_ip "ipv4" ${socks_address})
-	[ -n "$socks_username" ] && [ -n "$socks_password" ] && _extra_param="${_extra_param} -a $socks_username -k $socks_password"
-	[ -n "$tcp_tproxy" ] || _extra_param="${_extra_param} -R"
+	socks_address=$(get_host_ip "ipv4" "$socks_address")
+	set -- -o 60 -n 65535 -v
+	[ -n "$socks_username" ] && [ -n "$socks_password" ] && set -- "$@" -a "$socks_username" -k "$socks_password"
+	[ -n "$tcp_tproxy" ] || set -- "$@" -R
 	flag="${flag}_TCP_UDP"
-	_extra_param="${_extra_param} -o 60 -n 65535 -v"
-	ln_run "$(first_type ipt2socks)" "ipt2socks_${flag}" $log_file -l $local_port -b 0.0.0.0 -B :: -s $socks_address -p $socks_port ${_extra_param}
+	ln_run "$(first_type ipt2socks)" "ipt2socks_${flag}" "$log_file" -l "$local_port" -b 0.0.0.0 -B :: -s "$socks_address" -p "$socks_port" "$@"
 }
 
 run_singbox() {
@@ -140,9 +150,8 @@ run_singbox() {
 		direct_dns_port=$(echo ${direct_dns_tcp_server} | awk -F '#' '{print $2}')
 		json_add_string "direct_dns_tcp_server" "$(echo ${direct_dns_tcp_server} | awk -F '#' '{print $1}')"
 	else
-		local local_dns=$(echo -n $(echo "${LOCAL_DNS}" | sed "s/,/\n/g" | head -n1) | tr " " ",")
-		json_add_string "direct_dns_udp_server" "$(echo ${local_dns} | awk -F '#' '{print $1}')"
-		direct_dns_port=$(echo ${local_dns} | awk -F '#' '{print $2}')
+		json_add_string "direct_dns_udp_server" "$(echo ${LOCAL_DNS} | awk -F '#' '{print $1}')"
+		direct_dns_port=$(echo ${LOCAL_DNS} | awk -F '#' '{print $2}')
 	fi
 	json_add_string "direct_dns_port" "${direct_dns_port:-53}"
 	direct_dns_query_strategy=${direct_dns_query_strategy:-UseIP}
@@ -249,9 +258,8 @@ run_xray() {
 		direct_dns_port=$(echo ${direct_dns_tcp_server} | awk -F '#' '{print $2}')
 		json_add_string "direct_dns_tcp_server" "$(echo ${direct_dns_tcp_server} | awk -F '#' '{print $1}')"
 	else
-		local local_dns=$(echo -n $(echo "${LOCAL_DNS}" | sed "s/,/\n/g" | head -n1) | tr " " ",")
-		json_add_string "direct_dns_udp_server" "$(echo ${local_dns} | awk -F '#' '{print $1}')"
-		direct_dns_port=$(echo ${local_dns} | awk -F '#' '{print $2}')
+		json_add_string "direct_dns_udp_server" "$(echo ${LOCAL_DNS} | awk -F '#' '{print $1}')"
+		direct_dns_port=$(echo ${LOCAL_DNS} | awk -F '#' '{print $2}')
 	fi
 	json_add_string "direct_dns_port" "${direct_dns_port:-53}"
 
@@ -504,6 +512,7 @@ run_socks() {
 
 	# http to socks
 	[ -z "$http_flag" ] && [ "$http_port" != "0" ] && [ -n "$http_config_file" ] && [ "$type" != "sing-box" ] && [ "$type" != "xray" ] && [ "$type" != "socks" ] && {
+		local http_type
 		json_init
 		json_add_string "local_http_address" "$bind"
 		json_add_string "local_http_port" "$http_port"
@@ -513,17 +522,17 @@ run_socks() {
 		json_add_string "server_username" "$_username"
 		json_add_string "server_password" "$_password"
 		if [ -n "${SINGBOX_BIN}" ]; then
-			type="sing-box"
+			http_type="sing-box"
 			local bin="${SINGBOX_BIN}"
 			local util="${UTIL_SINGBOX}"
 		elif [ -n "${XRAY_BIN}" ]; then
-			type="xray"
+			http_type="xray"
 			local bin="${XRAY_BIN}"
 			local util="${UTIL_XRAY}"
 		fi
 		[ -n "${bin}" ] && [ -n "${util}" ] && {
 			lua ${util} gen_proto_config "$(json_dump)" > $http_config_file
-			[ -n "$no_run" ] || ln_run "$bin" $type /dev/null run -c "$http_config_file"
+			[ -n "$no_run" ] || ln_run "$bin" "$http_type" /dev/null run -c "$http_config_file"
 		}
 		unset bin util
 	}
@@ -605,7 +614,9 @@ start_global() {
 			local _config_file="global_${NODE}_socks.json"
 			_socks_address="127.0.0.1"
 			_socks_port=$GLOBAL_SOCKS_port
-			run_socks flag="global" node=$NODE bind=${node_socks_bind} socks_port=${_socks_port} config_file=${_config_file}
+			run_socks flag="global" node=$NODE bind=${node_socks_bind} socks_port=${_socks_port} config_file=${_config_file} http_port=${GLOBAL_HTTP_port} http_config_file=${GLOBAL_ACL_PATH}/global_socks_http.json
+			node_socks_flag=1
+			[ "$on_node_http" = "1" ] && node_http_flag=1
 			unset _socks_username
 			unset _socks_password
 		}
@@ -647,10 +658,11 @@ start_global() {
 			local _remote_dns_client_ip=$(config_n_get @global[0] remote_dns_client_ip)
 			[ -n "${_remote_dns_client_ip}" ] && _args="${_args} remote_dns_client_ip=${_remote_dns_client_ip}"
 			[ "${DNS_CACHE}" = "0" ] && _args="${_args} dns_cache=0"
-			resolve_dns_port=${NEXT_DNS_LISTEN_PORT}
+			resolve_dns_port=$(get_new_port "$NEXT_DNS_LISTEN_PORT" tcp,udp)
+			[ -n "$resolve_dns_port" ] || return 1
 			_args="${_args} dns_listen_port=${resolve_dns_port}"
 
-			case "$(config_n_get @global[0] direct_dns_mode "auto")" in
+			case "$(get_direct_dns_mode)" in
 				udp)
 					_args="${_args} direct_dns_udp_server=$(normalize_dns "$(config_n_get @global[0] direct_dns 223.5.5.5:53)")"
 				;;
@@ -683,7 +695,7 @@ start_global() {
 				USE_FAKEDNS=1
 			}
 			_args="${_args} remote_rewrite_ttl=$(config_n_get @global[0] remote_rewrite_ttl)"
-			NEXT_DNS_LISTEN_PORT=$(expr $NEXT_DNS_LISTEN_PORT + 1)
+			NEXT_DNS_LISTEN_PORT=$(expr $resolve_dns_port + 1)
 		}
 		_args="${_args} use_proxy_list=$USE_PROXY_LIST use_gfw_list=$USE_GFW_LIST chn_list=$CHN_LIST"
 		run_singbox flag=$_flag node=$NODE redir_port=$REDIR_PORT tcp_proxy_way=$TCP_PROXY_WAY config_file=$config_file log_file=$log_file ${_args}
@@ -730,10 +742,11 @@ start_global() {
 			local _remote_dns_client_ip=$(config_n_get @global[0] remote_dns_client_ip)
 			[ -n "${_remote_dns_client_ip}" ] && _args="${_args} remote_dns_client_ip=${_remote_dns_client_ip}"
 			[ "${DNS_CACHE}" = "0" ] && _args="${_args} dns_cache=0"
-			resolve_dns_port=${NEXT_DNS_LISTEN_PORT}
+			resolve_dns_port=$(get_new_port "$NEXT_DNS_LISTEN_PORT" tcp,udp)
+			[ -n "$resolve_dns_port" ] || return 1
 			_args="${_args} dns_listen_port=${resolve_dns_port}"
 
-			case "$(config_n_get @global[0] direct_dns_mode "auto")" in
+			case "$(get_direct_dns_mode)" in
 				udp)
 					_args="${_args} direct_dns_udp_server=$(normalize_dns "$(config_n_get @global[0] direct_dns 223.5.5.5:53)")"
 				;;
@@ -762,7 +775,7 @@ start_global() {
 				resolve_dns_log="${resolve_dns_log} + FakeDNS"
 				USE_FAKEDNS=1
 			}
-			NEXT_DNS_LISTEN_PORT=$(expr $NEXT_DNS_LISTEN_PORT + 1)
+			NEXT_DNS_LISTEN_PORT=$(expr $resolve_dns_port + 1)
 		}
 		_args="${_args} use_proxy_list=$USE_PROXY_LIST use_gfw_list=$USE_GFW_LIST chn_list=$CHN_LIST"
 		run_xray flag=$_flag node=$NODE redir_port=$REDIR_PORT tcp_proxy_way=$TCP_PROXY_WAY config_file=$config_file log_file=$log_file ${_args}
@@ -822,7 +835,7 @@ start_global() {
 	if [ -n "${_socks_flag}" ]; then
 		local _socks_tproxy=""
 		[ "${TCP_PROXY_WAY}" = "tproxy" ] && _socks_tproxy="1"
-		run_ipt2socks flag=default tcp_tproxy=${_socks_tproxy} local_port=${REDIR_PORT} socks_address=${_socks_address} socks_port=${_socks_port} socks_username=${_socks_username} socks_password=${_socks_password} log_file=${log_file}
+		run_ipt2socks flag=default tcp_tproxy="${_socks_tproxy}" local_port="${REDIR_PORT}" socks_address="${_socks_address}" socks_port="${_socks_port}" socks_username="${_socks_username}" socks_password="${_socks_password}" log_file="${log_file}"
 	fi
 
 	[ -z "$node_socks_flag" ] && {
@@ -866,7 +879,7 @@ start_socks() {
 				local log=$(config_n_get $id log 1)
 				[ "$log" = "0" ] && log_file=""
 				local http_port=$(config_n_get $id http_port 0)
-				local http_config_file="${flag}_http.json"
+				local http_config_file="${id}_http.json"
 				local enable_autoswitch=$(config_n_get $id enable_autoswitch 0)
 				local no_rec=0
 				[ "$enable_autoswitch" = "1" ] && no_rec=1
@@ -911,9 +924,10 @@ socks_node_switch() {
 		local http_config_file="${flag}_http.json"
 		LOG_FILE="/dev/null"
 		run_socks flag=$flag node=$new_node bind=$bind socks_port=$port config_file=$config_file http_port=$http_port http_config_file=$http_config_file log_file=$log_file
+		sleep 2s
+		[ "$(check_port_exists "$port" tcp)" = "0" ] && return 1
 		set_cache_var "${flag}" "$new_node"
-		local USE_TABLES=$(get_cache_var "USE_TABLES")
-		[ -n "$USE_TABLES" ] && source $APP_PATH/${USE_TABLES}.sh filter_direct_node_list
+		return 0
 	}
 }
 
@@ -946,7 +960,7 @@ start_crontab() {
 	clean_crontab
 
 	if [ "$ENABLED" != "1" ]; then
-		/etc/init.d/cron restart
+		[ -x /etc/init.d/cron ] && /etc/init.d/cron restart >/dev/null 2>&1
 		return
 	fi
 
@@ -961,8 +975,10 @@ start_crontab() {
 			h="$t"
 			m=0
 		fi
-		h=$(printf '%d' "$h")
-		m=$(printf '%d' "$m")
+		h=$(printf '%s' "$h" | sed 's/^0*//')
+		m=$(printf '%s' "$m" | sed 's/^0*//')
+		h=$(printf '%d' "${h:-0}")
+		m=$(printf '%d' "${m:-0}")
 		local expr="$m $h * * $w"
 		[ "$w" = "7" ] && expr="$m $h * * *"
 		echo "$expr"
@@ -1042,38 +1058,31 @@ start_crontab() {
 		echolog "运行于非代理模式，仅允许服务启停的定时任务。"
 	fi
 
-	/etc/init.d/cron restart
+	[ -x /etc/init.d/cron ] && /etc/init.d/cron restart >/dev/null 2>&1
 }
 
 stop_crontab() {
 	[ "$1" = "cron" ] && return
 	clean_crontab
-	/etc/init.d/cron restart
+	[ -x /etc/init.d/cron ] && /etc/init.d/cron restart >/dev/null 2>&1
 	#echolog "清除定时执行命令。"
 }
 
-restart_smartdns() {
-	rm -rf /tmp/smartdns.cache
-	/etc/init.d/smartdns reload >/dev/null 2>&1
-}
-
-del_smartdns_conf() {
-	command -v smartdns >/dev/null 2>&1 || return
-	rm -rf "/tmp/etc/smartdns/${CONFIG}.conf"
-	local custom_conf="/etc/smartdns/custom.conf"
-	if [ -f "$custom_conf" ] && grep -q "${CONFIG}" "$custom_conf"; then
-		sed -i "/${CONFIG}/d" "$custom_conf" >/dev/null 2>&1
-		rm -rf /tmp/smartdns.cache
-		/etc/init.d/smartdns reload >/dev/null 2>&1
+get_direct_dns_mode() {
+	# SmartDNS 使用独立直连列表，其余 DNS 分流模式继续读取原来的设置。
+	if [ "$ENABLED_DEFAULT_ACL" = "1" ] && [ "$DNS_SHUNT" = "smartdns" ]; then
+		echo auto
+	else
+		config_n_get @global[0] direct_dns_mode "auto"
 	fi
 }
 
 start_dns() {
 	echolog "DNS域名解析："
 
-	local china_ng_local_dns=$(IFS=','; set -- $LOCAL_DNS; [ "${1%%[#:]*}" = "127.0.0.1" ] && echo "$1" || ([ -n "$2" ] && echo "$*" || echo "$1"))
+	local china_ng_local_dns="${LOCAL_DNS}"
 	local v2ray_local_dns
-	local direct_dns_mode=$(config_n_get @global[0] direct_dns_mode "auto")
+	local direct_dns_mode=$(get_direct_dns_mode)
 
 	#获取访问控制节点所使用的DNS分流模式
 	local ACL_RULE_DNSMASQ=0
@@ -1088,6 +1097,7 @@ start_dns() {
 	case "$direct_dns_mode" in
 		udp)
 			LOCAL_DNS=$(normalize_dns "$(config_n_get @global[0] direct_dns 223.5.5.5:53)")
+			set_cache_var "LOCAL_DNS" "$LOCAL_DNS"
 			china_ng_local_dns=${LOCAL_DNS}
 			v2ray_local_dns="direct_dns_udp_server=${LOCAL_DNS}"
 		;;
@@ -1096,14 +1106,15 @@ start_dns() {
 			china_ng_local_dns="tcp://${DIRECT_DNS}"
 			v2ray_local_dns="direct_dns_tcp_server=${DIRECT_DNS}"
 
-			#当全局（包括访问控制节点）开启chinadns-ng时，不启动新进程。
-			[ "$DNS_SHUNT" != "chinadns-ng" ] || [ "$ACL_RULE_DNSMASQ" = "1" ] && {
+			# ChinaDNS-NG and SmartDNS can query TCP upstreams directly.
+			if { [ "$DNS_SHUNT" != "chinadns-ng" ] && [ "$DNS_SHUNT" != "smartdns" ]; } || [ "$ACL_RULE_DNSMASQ" = "1" ]; then
 				LOCAL_DNS="127.0.0.1#${NEXT_DNS_LISTEN_PORT}"
+				set_cache_var "LOCAL_DNS" "$LOCAL_DNS"
 				ln_run "$(first_type chinadns-ng)" chinadns-ng "/dev/null" -b :: -l ${NEXT_DNS_LISTEN_PORT} -c ${china_ng_local_dns} -d chn
 				echolog "  - ChinaDNS-NG(${LOCAL_DNS}) -> ${china_ng_local_dns}"
 				echolog "  * 请确保上游直连 DNS 支持 TCP 查询。"
 				NEXT_DNS_LISTEN_PORT=$(expr $NEXT_DNS_LISTEN_PORT + 1)
-			}
+			fi
 		;;
 		auto)
 			#Automatic logic is already done by default
@@ -1116,6 +1127,7 @@ start_dns() {
 		[ -z "$1" ] && echo "" || echo "$1" | awk -F',' '{for(i=1;i<=NF;i++){if($i !~ /#/) $i=$i"#53";} print $0;}' OFS=','
 	}
 	LOCAL_DNS=$(add_default_port "$LOCAL_DNS")
+	set_cache_var "LOCAL_DNS" "$LOCAL_DNS"
 	IPT_APPEND_DNS=$(add_default_port "${IPT_APPEND_DNS:-$LOCAL_DNS}")
 	echo "$IPT_APPEND_DNS" | grep -q -E "(^|,)$LOCAL_DNS(,|$)" || IPT_APPEND_DNS="${IPT_APPEND_DNS:+$IPT_APPEND_DNS,}$LOCAL_DNS"
 	[ -n "$DIRECT_DNS" ] && {
@@ -1249,32 +1261,45 @@ start_dns() {
 
 	local china_ng_listen=0
 	[ "${DNS_SHUNT}" = "smartdns" ] && {
-		if command -v smartdns > /dev/null 2>&1; then
+		local smartdns_bin=$(first_type smartdns)
+		if [ -n "$smartdns_bin" ]; then
 			rm -rf $TMP_PATH2/dnsmasq_default*
-			local group_domestic=$(config_n_get @global[0] group_domestic)
 			local smartdns_remote_dns=$(config_n_get @global[0] smartdns_remote_dns)
 			if [ -n "${smartdns_remote_dns}" ] && [ "${smartdns_remote_dns}" != "nil" ]; then
 				smartdns_remote_dns=$(echo ${smartdns_remote_dns} | tr -s ' ' '|')
 			else
 				smartdns_remote_dns="tcp://1.1.1.1"
 			fi
-
-			echolog "  - 域名解析：使用SmartDNS，请确保配置正常。"
-			china_ng_listen="127.0.0.1#${SMARTDNS_LISTEN_PORT}"
-			echolog "  - SmartDNS(127.0.0.1#${SMARTDNS_LOCAL_PORT}) -> 国内分组(${group_domestic:-null})，SmartDNS(${china_ng_listen}) -> Dnsmasq"
-			china_ng_listen="${china_ng_listen},::1#${SMARTDNS_LISTEN_PORT}"
-
+			local smartdns_default_dns=$(config_n_get @global[0] smartdns_default_dns direct)
+			local smartdns_listen_port=$(get_new_port "$(expr $NEXT_DNS_LISTEN_PORT + 1)")
+			[ -n "$smartdns_listen_port" ] || {
+				echolog "  * SmartDNS 无法获取可用的 DNS 监听端口！"
+				return 1
+			}
+			local smartdns_config="${GLOBAL_ACL_PATH}/smartdns.conf"
 			local subnet_ip=$(config_n_get @global[0] remote_dns_client_ip)
-			lua $APP_PATH/helper_smartdns_add.lua -FLAG "default" -SMARTDNS_CONF "/tmp/etc/smartdns/$CONFIG.conf" \
-				-LISTEN_PORT ${SMARTDNS_LISTEN_PORT} -LOCAL_PORT ${SMARTDNS_LOCAL_PORT} \
-				-LOCAL_GROUP ${group_domestic:-null} -REMOTE_GROUP "passwall_proxy" -REMOTE_PROXY_SERVER ${GLOBAL_SOCKS_server} -USE_DEFAULT_DNS "${USE_DEFAULT_DNS:-direct}" \
-				-REMOTE_DNS ${smartdns_remote_dns} -DNS_MODE ${DNS_MODE:-socks} -TUN_DNS ${TUN_DNS} \
+			echolog "  - SmartDNS(127.0.0.1#${smartdns_listen_port})，直连 DNS：${SMARTDNS_DIRECT_DNS} -> 分组(direct)"
+			[ "${SMARTDNS_LOCAL_PORT:-0}" != "0" ] && echolog "  - SmartDNS 直连入口：${LOCAL_DNS} -> 分组(direct)"
+
+			lua "$APP_PATH/helper_smartdns_add.lua" -FLAG "default" \
+				-LISTEN_PORT "$smartdns_listen_port" -DIRECT_DNS "$SMARTDNS_DIRECT_DNS" -LOCAL_PORT "${SMARTDNS_LOCAL_PORT:-0}" -DNS_REDIRECT "${DNS_REDIRECT}" \
+				-REMOTE_PROXY_SERVER "${GLOBAL_SOCKS_server}" -USE_DEFAULT_DNS "${smartdns_default_dns}" \
+				-REMOTE_DNS "${smartdns_remote_dns}" -DNS_MODE "${DNS_MODE:-socks}" -TUN_DNS "${TUN_DNS}" \
 				-USE_DIRECT_LIST "${USE_DIRECT_LIST}" -USE_PROXY_LIST "${USE_PROXY_LIST}" -USE_BLOCK_LIST "${USE_BLOCK_LIST}" -USE_GFW_LIST "${USE_GFW_LIST}" -CHN_LIST "${CHN_LIST}" \
-				-NODE ${NODE} -DEFAULT_PROXY_MODE "${TCP_PROXY_MODE}" -NO_PROXY_IPV6 ${FILTER_PROXY_IPV6:-0} -NFTFLAG ${nftflag:-0} \
-				-SUBNET ${subnet_ip:-0} -NO_LOGIC_LOG ${NO_LOGIC_LOG:-0}
-
-			restart_smartdns
-
+				-NODE "${NODE}" -DEFAULT_PROXY_MODE "${TCP_PROXY_MODE}" -NO_PROXY_IPV6 "${FILTER_PROXY_IPV6:-0}" -NFTFLAG "${nftflag:-0}" \
+				-SUBNET "${subnet_ip:-0}" -NO_LOGIC_LOG "${NO_LOGIC_LOG:-0}" \
+				-LOG "$(config_n_get @global[0] log_smartdns 0)" \
+				-LOG_LEVEL "$(config_n_get @global[0] smartdns_log_level error)" \
+				-LOG_SIZE "$(config_n_get @global[0] smartdns_log_size 1)" \
+				-UI "$(config_n_get @global[0] smartdns_ui 0)" \
+				-UI_PORT "$(config_n_get @global[0] smartdns_ui_port 9880)" \
+				-UI_DATA_DIR "$(config_n_get @global[0] smartdns_ui_data_dir "$TMP_PATH2/smartdns")" \
+				-UI_LOG_MAX_AGE "$(config_n_get @global[0] smartdns_ui_log_max_age 7)" || {
+				echolog "  * SmartDNS 配置生成失败！"
+				return 1
+			}
+			ln_run "$smartdns_bin" smartdns "/dev/null" -f -c "$smartdns_config" -p "${GLOBAL_ACL_PATH}/smartdns.pid"
+			china_ng_listen="127.0.0.1#${smartdns_listen_port},::1#${smartdns_listen_port}"
 			USE_DEFAULT_DNS="chinadns_ng"
 		else
 			DNS_SHUNT="dnsmasq"
@@ -1353,6 +1378,10 @@ start_dns() {
 		uci -q add_list dhcp.@dnsmasq[0].addnmount=${GLOBAL_DNSMASQ_CONF_PATH}
 		uci -q commit dhcp
 		lua $APP_PATH/helper_dnsmasq.lua logic_restart -LOG 1
+	elif [ "${DNS_SHUNT}" = "smartdns" ]; then
+		# SmartDNS reads DHCP leases itself; no forwarding dnsmasq instance is needed.
+		DNS_REDIRECT_PORT=${smartdns_listen_port}
+		set_cache_var "ACL_default_dns_port" "${DNS_REDIRECT_PORT}"
 	else
 		#Run a copy dnsmasq instance, DNS hijack for that need proxy devices.
 		GLOBAL_DNSMASQ_PORT=$(get_new_port 11400)
@@ -1472,7 +1501,7 @@ acl_app() {
 					if [ -n "${GLOBAL_NODE}" ]; then
 						set_cache_var "ACL_${sid}_node" "${GLOBAL_NODE}"
 						set_cache_var "ACL_${sid}_redir_port" "${GLOBAL_redir_port}"
-						set_cache_var "ACL_${sid}_dns_port" "${GLOBAL_DNSMASQ_PORT}"
+						set_cache_var "ACL_${sid}_dns_port" "${DNS_REDIRECT_PORT:-${GLOBAL_DNSMASQ_PORT}}"
 						set_cache_var "ACL_${sid}_default" "1"
 						[ "$GLOBAL_SHUNT_NODE_FAKEDNS" = "1" ] && use_fakedns=1
 					else
@@ -1506,7 +1535,7 @@ acl_app() {
 							}
 						}
 
-						local dns_cache_str="${dns_mode}_${v2ray_dns_mode}_${remote_dns}_${remote_dns_doh}_${remote_dns_client_ip}_${remote_fakedns}_${remote_rewrite_ttl}"
+						local dns_cache_str="${dns_mode}_${v2ray_dns_mode}_${remote_dns}_${remote_dns_doh}_${remote_dns_client_ip}_${remote_fakedns}_${remote_rewrite_ttl}_${filter_proxy_ipv6}"
 						dns_cache_key="$(echo -n "${dns_cache_str}" | md5sum | cut -d " " -f1)"
 
 						if [ "$remote_fakedns" = "1" ] || ([ "$protocol" = "_shunt" ] && [ "$(config_n_get $node fakedns)" = "1" ]); then
@@ -1533,7 +1562,7 @@ acl_app() {
 									}
 									run_${type} flag=acl_${sid} type=$dns_mode dns_socks_address=127.0.0.1 dns_socks_port=$socks_port dns_listen_port=$dns_fwd_port \
 										remote_dns_protocol=${v2ray_dns_mode} remote_dns_udp_server=${remote_dns} remote_dns_tcp_server=${remote_dns} remote_dns_doh="${remote_dns_doh}" \
-										remote_dns_query_strategy=${remote_dns_query_strategy} remote_dns_client_ip=${remote_dns_client_ip} config_file=$config_file
+										remote_dns_query_strategy=${remote_dns_query_strategy} remote_dns_client_ip=${remote_dns_client_ip} remote_rewrite_ttl=${remote_rewrite_ttl:-30} config_file=$config_file
 								fi
 								set_cache_var "node_${node}_${dns_cache_key}" "$dns_fwd_port"
 							}
@@ -1549,8 +1578,8 @@ acl_app() {
 								chinadns_port=$(expr $chinadns_port + 1)
 								_china_ng_listen="127.0.0.1#${chinadns_port},::1#${chinadns_port}"
 
-								_chinadns_local_dns=$(IFS=','; set -- $LOCAL_DNS; [ "${1%%[#:]*}" = "127.0.0.1" ] && echo "$1" || ([ -n "$2" ] && echo "$1,$2" || echo "$1"))
-								_direct_dns_mode=$(config_n_get @global[0] direct_dns_mode "auto")
+								_chinadns_local_dns="${LOCAL_DNS}"
+								_direct_dns_mode=$(get_direct_dns_mode)
 								case "${_direct_dns_mode}" in
 									udp)
 										_chinadns_local_dns=$(normalize_dns "$(config_n_get @global[0] direct_dns 223.5.5.5:53)")
@@ -1662,7 +1691,7 @@ acl_app() {
 			}
 			unset enabled sid remarks sources interface tcp_no_redir_ports udp_no_redir_ports use_global_config node use_direct_list use_proxy_list use_block_list use_gfw_list chn_list tcp_proxy_mode udp_proxy_mode filter_proxy_ipv6 dns_mode remote_dns v2ray_dns_mode remote_dns_doh remote_dns_client_ip
 			unset _ip _mac _iprange _ipset _ip_or_mac source_list node_port config_file _extra_param dns_cache_key log loglevel log_chinadns_ng
-			unset _china_ng_listen _chinadns_local_dns _direct_dns_mode chinadns_ng_default_tag dnsmasq_filter_proxy_ipv6 remote_fakedns force_https_soa use_fakedns remote_rewrite_ttl
+			unset _china_ng_listen _chinadns_local_dns _direct_dns_mode chinadns_ng_default_tag dnsmasq_filter_proxy_ipv6 remote_fakedns force_https_soa use_fakedns remote_rewrite_ttl dns_shunt use_default_dns
 		done
 		unset socks_port redir_port dns_port dnsmasq_port chinadns_port
 		[ -n "${has_enabled}" ] || {
@@ -1679,6 +1708,7 @@ start() {
 		sleep 2
 	}
 	mkdir -p /tmp/etc /tmp/log $TMP_PATH $TMP_BIN_PATH $TMP_SCRIPT_FUNC_PATH $TMP_ROUTE_PATH $TMP_ACL_PATH $TMP_PATH2
+	set_cache_var "LOCAL_DNS" "$LOCAL_DNS"
 	get_config
 	export V2RAY_LOCATION_ASSET=$(config_n_get @global_rules[0] v2ray_location_asset "/usr/share/v2ray/")
 	export XRAY_LOCATION_ASSET=$V2RAY_LOCATION_ASSET
@@ -1702,8 +1732,16 @@ start() {
 	fi
 	[ "$ENABLED_DEFAULT_ACL" = 1 ] && {
 		mkdir -p ${GLOBAL_ACL_PATH}
-		start_global
-		start_dns
+		start_global || {
+			echolog "全局节点启动失败，停止服务。"
+			stop
+			return 1
+		}
+		start_dns || {
+			echolog "DNS 启动失败，停止服务。"
+			stop
+			return 1
+		}
 	}
 	[ -n "$USE_TABLES" ] && source $APP_PATH/${USE_TABLES}.sh start
 	set_cache_var "USE_TABLES" "$USE_TABLES"
@@ -1756,7 +1794,6 @@ stop() {
 	unset XRAY_LOCATION_ASSET
 	unset SS_SYSTEM_DNS_RESOLVER_FORCE_BUILTIN
 	stop_crontab $1
-	del_smartdns_conf
 	rm -rf $GLOBAL_DNSMASQ_CONF
 	rm -rf $GLOBAL_DNSMASQ_CONF_PATH
 	[ "1" = "1" ] && {
@@ -1780,12 +1817,6 @@ stop() {
 	rm -f ${LOCK_PATH}/${CONFIG}_socks_auto_switch*
 	rm -f ${LOCK_PATH}/${CONFIG}_lease2hosts*
 	rm -f ${LOCK_PATH}/${CONFIG}_monitor*
-	if ! busybox pgrep -af "${CONFIG}/" | grep -q '/subscribe\.lua'; then
-		rm -f "${LOCK_PATH}/${CONFIG}_subscribe.lock"
-	fi
-	if ! busybox pgrep -af "${CONFIG}/" | grep -q '/rule_update\.lua'; then
-		rm -f "${LOCK_PATH}/${CONFIG}_rule_update.lock"
-	fi
 	echolog "清空并关闭相关程序和缓存完成。"
 	exit 0
 }
@@ -1841,7 +1872,7 @@ get_config() {
 	REDIRECT_LIST="socks ss-rust ssr sing-box xray naiveproxy hysteria2"
 	TPROXY_LIST="socks ss-rust ssr sing-box xray hysteria2"
 
-	NEXT_DNS_LISTEN_PORT=15353
+	NEXT_DNS_LISTEN_PORT=$(get_new_port 15353 tcp,udp)
 	TUN_DNS="127.0.0.1#${NEXT_DNS_LISTEN_PORT}"
 	DNS_CACHE=0
 	DIRECT_DNS_QUERY_STRATEGY="UseIP"
@@ -1865,16 +1896,35 @@ get_config() {
 	set_cache_var GLOBAL_DNSMASQ_CONF_PATH ${GLOBAL_ACL_PATH}/dnsmasq.d
 
 	SMARTDNS_LOCAL_PORT=0
-	SMARTDNS_LISTEN_PORT=0
-	[ "$ENABLED_DEFAULT_ACL" = 1 ] && [ "$DNS_SHUNT" = "smartdns" ] && {
-		NEXT_DNS_LISTEN_PORT=$(expr $NEXT_DNS_LISTEN_PORT + 1)
-		SMARTDNS_LOCAL_PORT=${NEXT_DNS_LISTEN_PORT}
-		NEXT_DNS_LISTEN_PORT=$(expr $NEXT_DNS_LISTEN_PORT + 1)
-		SMARTDNS_LISTEN_PORT=${NEXT_DNS_LISTEN_PORT}
-		NEXT_DNS_LISTEN_PORT=$(expr $NEXT_DNS_LISTEN_PORT + 1)
-		LOCAL_DNS="127.0.0.1#${SMARTDNS_LOCAL_PORT}"
-		set_cache_var "SMARTDNS_LOCAL_PORT" "${SMARTDNS_LOCAL_PORT}"
-	}
+	SMARTDNS_DIRECT_DNS=
+	if [ "$ENABLED_DEFAULT_ACL" = "1" ] && [ "$DNS_SHUNT" = "smartdns" ]; then
+		# 显式列出空白字符，兼容未启用字符类支持的 BusyBox tr。
+		SMARTDNS_DIRECT_DNS=$(config_n_get @global[0] smartdns_direct_dns | tr -s ' \t\r\n\v\f' '|' | sed 's/^|//;s/|$//')
+		[ "$SMARTDNS_DIRECT_DNS" = "nil" ] && SMARTDNS_DIRECT_DNS=
+		if [ -z "$SMARTDNS_DIRECT_DNS" ]; then
+			SMARTDNS_DIRECT_DNS="$LOCAL_DNS"
+		else
+			local smartdns_single_dns="${SMARTDNS_DIRECT_DNS%%,*}"
+			local smartdns_protocol=udp
+			case "$smartdns_single_dns" in
+				*://*)
+					smartdns_protocol=$(printf '%s' "${smartdns_single_dns%%://*}" | tr 'A-Z' 'a-z')
+					smartdns_single_dns="${smartdns_single_dns#*://}"
+				;;
+			esac
+			if [ "${SMARTDNS_DIRECT_DNS#*|}" = "$SMARTDNS_DIRECT_DNS" ] && [ "$smartdns_protocol" = "udp" ]; then
+				LOCAL_DNS=$(normalize_dns "$smartdns_single_dns" 53)
+				local smartdns_host_ip="${SMARTDNS_DIRECT_DNS#*,}"
+				[ "$smartdns_host_ip" != "$SMARTDNS_DIRECT_DNS" ] && [ -n "$smartdns_host_ip" ] && \
+					LOCAL_DNS=$(normalize_dns "$smartdns_host_ip" "${LOCAL_DNS##*#}")
+			else
+				SMARTDNS_LOCAL_PORT=${NEXT_DNS_LISTEN_PORT}
+				NEXT_DNS_LISTEN_PORT=$(expr $NEXT_DNS_LISTEN_PORT + 1)
+				LOCAL_DNS="127.0.0.1#${SMARTDNS_LOCAL_PORT}"
+			fi
+		fi
+		set_cache_var "LOCAL_DNS" "$LOCAL_DNS"
+	fi
 }
 
 get_local_dns() {
@@ -1886,7 +1936,8 @@ get_local_dns() {
 
 	DEFAULT_DNS=$(uci show dhcp.@dnsmasq[0] | grep "\.server=" | awk -F '=' '{print $2}' | sed "s/'//g" | tr ' ' '\n' | grep -v "\/" | sed ':label;N;s/\n/,/;b label')
 	[ -z "${DEFAULT_DNS}" ] && [ "$(echo $ISP_DNS | tr ' ' '\n' | wc -l)" -ge 1 ] && DEFAULT_DNS=$(echo -n $ISP_DNS | tr ' ' '\n' | tr '\n' ',' | sed 's/,$//')
-	LOCAL_DNS="${DEFAULT_DNS:-119.29.29.29,223.5.5.5}"
+	LOCAL_DNS="${DEFAULT_DNS:-223.5.5.5}"
+	LOCAL_DNS="${LOCAL_DNS%%,*}"
 }
 
 get_local_dns
