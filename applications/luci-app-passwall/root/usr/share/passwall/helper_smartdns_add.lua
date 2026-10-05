@@ -2,9 +2,8 @@ local api = require "luci.passwall.api"
 
 local var = api.get_args(arg)
 local FLAG = var["-FLAG"]
-local SMARTDNS_CONF = var["-SMARTDNS_CONF"]
-local LOCAL_GROUP = var["-LOCAL_GROUP"]
-local REMOTE_GROUP = var["-REMOTE_GROUP"]
+local DIRECT_DNS = var["-DIRECT_DNS"]
+local LOCAL_PORT = tonumber(var["-LOCAL_PORT"]) or 0
 local REMOTE_PROXY_SERVER = var["-REMOTE_PROXY_SERVER"]
 local USE_DEFAULT_DNS = var["-USE_DEFAULT_DNS"]
 local REMOTE_DNS = var["-REMOTE_DNS"]
@@ -22,7 +21,14 @@ local NO_LOGIC_LOG = var["-NO_LOGIC_LOG"]
 local NFTFLAG = var["-NFTFLAG"]
 local SUBNET = var["-SUBNET"]
 local LISTEN_PORT = var["-LISTEN_PORT"]
-local LOCAL_PORT = var["-LOCAL_PORT"]
+local DNS_REDIRECT = var["-DNS_REDIRECT"] == "1"
+local LOG = var["-LOG"] == "1"
+local LOG_LEVEL = var["-LOG_LEVEL"] or "error"
+local LOG_SIZE = tonumber(var["-LOG_SIZE"]) or 1
+local UI = var["-UI"] == "1"
+local UI_PORT = tonumber(var["-UI_PORT"]) or 9880
+local UI_DATA_DIR = var["-UI_DATA_DIR"]
+local UI_LOG_MAX_AGE = tonumber(var["-UI_LOG_MAX_AGE"]) or 7
 
 local sys = api.sys
 local fs = api.fs
@@ -34,6 +40,7 @@ local USER_RULES_PATH = "/etc/passwall/rules"
 local CACHE_RULES_PATH = api.CACHE_PATH .. "/user_rules"
 local FLAG_PATH = TMP_PATH .. "/acl/" .. FLAG
 local TMP_CONF_FILE = FLAG_PATH .. "/smartdns.conf"
+local SMARTDNS_DATA_PATH = api.CACHE_PATH .. "/smartdns"
 local config_lines = {}
 local tmp_lines = {}
 local USE_GEOVIEW = api.uci_get_c("@global_rules[0]", "enable_geoview")
@@ -110,165 +117,191 @@ end
 
 sys.call("mkdir -p %s" % FLAG_PATH)
 sys.call("mkdir -p %s" % CACHE_RULES_PATH)
+sys.call("mkdir -p " .. api.util.shellquote(SMARTDNS_DATA_PATH))
 
-local LOCAL_EXTEND_ARG = ""
-if LOCAL_GROUP == "null" or LOCAL_GROUP == "" then
-	log("  * 注意：SmartDNS 国内分组名未设置，DNS 将无法正常工作！！！")
+local LOG_LEVELS = {off = true, fatal = true, error = true, warn = true, notice = true, info = true, debug = true}
+if not LOG_LEVELS[LOG_LEVEL] then LOG_LEVEL = "error" end
+if LOG_SIZE < 1 or LOG_SIZE % 1 ~= 0 then LOG_SIZE = 1 end
+if UI_PORT < 1 or UI_PORT > 65535 or UI_PORT % 1 ~= 0 then UI_PORT = 9880 end
+if UI_LOG_MAX_AGE < 1 or UI_LOG_MAX_AGE % 1 ~= 0 then UI_LOG_MAX_AGE = 7 end
+if not UI_DATA_DIR or UI_DATA_DIR == "" then UI_DATA_DIR = SMARTDNS_DATA_PATH end
+local UI_PLUGIN = "/usr/lib/smartdns_ui.so"
+if not fs.access(UI_PLUGIN) then UI_PLUGIN = "/usr/lib/smartdns/smartdns_ui.so" end
+local ENABLE_UI = UI and fs.access(UI_PLUGIN)
+local data_dir = ENABLE_UI and UI_DATA_DIR or SMARTDNS_DATA_PATH
+if data_dir ~= SMARTDNS_DATA_PATH then
+	sys.call("mkdir -p " .. api.util.shellquote(data_dir))
+end
+
+-- 统一生成直连、远程上游，协议和默认端口由 SmartDNS 根据 URL 识别。
+local function make_server_param(endpoint)
+	local dns = api.split(api.trim(endpoint), ",")
+	local address = api.trim(dns[1] or "")
+	if address == "" then return nil end
+	local protocol, host_address = address:match("^(%w+)://(.+)$")
+	protocol = protocol and protocol:lower()
+	address = host_address or address
+	local host, port = address:match("^(.-)#(%d+)$")
+	if host then
+		if host:find(":", 1, true) and not host:find("[", 1, true) then host = "[" .. host .. "]" end
+		address = host .. ":" .. port
+	elseif datatypes.ip6addr(address) and not address:find("[", 1, true) then
+		address = "[" .. address .. "]"
+	end
+	local server_param = "server " .. (protocol and (protocol .. "://") or "") .. address
+	if dns[2] and dns[2] ~= "" then
+		-- 保留 URL 中的域名，固定连接 IP 交给 SmartDNS 处理，避免手动替换影响 SNI 和 HTTP Host。
+		server_param = server_param .. " -host-ip " .. api.trim(dns[2]):gsub("^%[(.*)%]$", "%1")
+	end
+	return server_param
+end
+
+local DIRECT_SERVERS = {}
+for endpoint in string.gmatch(DIRECT_DNS or "", "[^|]+") do
+	local server_param = make_server_param(endpoint)
+	if server_param then
+		-- 复用 PassWall 的直连标记，使所有协议及动态域名上游绕过本机透明代理。
+		table.insert(DIRECT_SERVERS, server_param .. " -set-mark 255")
+	end
+end
+if #DIRECT_SERVERS == 0 then
+	log("  * 注意：SmartDNS 没有可用的直连 DNS 服务器，DNS 将无法正常工作！！！")
 	os.exit(1)
-else
-	--从smartdns配置中读取参数
-	local custom_conf_path = "/etc/smartdns/custom.conf"
-	local options = {
-		{key = "dualstack_ip_selection", config_key = "dualstack-ip-selection", yes_no = true, arg_yes = "-d yes", arg_no = "-d no", default = "yes"},
-		{key = "speed_check_mode", config_key = "speed-check-mode", prefix = "-c ", default = "ping,tcp:80,tcp:443"},
-		{key = "serve_expired", config_key = "serve-expired", yes_no = true, arg_yes = "", arg_no = "-no-serve-expired", default = "yes"},
-		{key = "response_mode", config_key = "response-mode", prefix = "-r ", default = "first-ping"},
-		{key = "rr_ttl", config_key = "rr-ttl", prefix = "-rr-ttl "},
-		{key = "rr_ttl_min", config_key = "rr-ttl-min", prefix = "-rr-ttl-min "},
-		{key = "rr_ttl_max", config_key = "rr-ttl-max", prefix = "-rr-ttl-max "},
-		{key = "rr_ttl_reply_max", config_key = "rr-ttl-reply-max", prefix = "-rr-ttl-reply-max "},
-		{
-			key = "force_aaaa_soa",
-			config_key = "force-qtype-SOA",
-			prefix = "-address ",
-			get_value = function(custom_config)
-				local soa = custom_config["force-qtype-SOA"]
-				return ((soa and soa:match("(^|%s)28(%s|$)"))
-					or custom_config["force-AAAA-SOA"] == "yes"
-					or api.uci_get("smartdns", "@smartdns[0]", "force_aaaa_soa") == "1")
-					and "#6" or "-6"
-			end
-		}
-	}
-	-- 从 custom.conf 中读取值，以最后出现的值为准
-	local custom_config = {}
-	local f_in = io.open(custom_conf_path, "r")
-	if f_in then
-		for line in f_in:lines() do
-			line = api.trim(line)
-			if line ~= "" and not line:match("^#") then
-				local param, value = line:match("^(%S+)%s+(.+)$")
-				if param and value then custom_config[param] = value end
-			end
-		end
-		f_in:close()
-	end
-	-- 从 smartdns 配置中读取值，优先级以 custom.conf 为准
-	for _, opt in ipairs(options) do
-		local val
-		if opt.get_value then
-			val = opt.get_value(custom_config)
-		else
-			val = custom_config[opt.config_key] or api.uci_get("smartdns", "@smartdns[0]", opt.key) or opt.default
-		end
-		if val == "yes" then val = "1" elseif val == "no" then val = "0" end
-		if opt.yes_no then
-			local arg = (val == "1" and opt.arg_yes or opt.arg_no)
-			if arg and arg ~= "" then
-				LOCAL_EXTEND_ARG = LOCAL_EXTEND_ARG .. (LOCAL_EXTEND_ARG ~= "" and " " or "") .. arg
-			end
-		else
-			if val and (not opt.value or (opt.invert and val ~= opt.value) or (not opt.invert and val == opt.value)) then
-				LOCAL_EXTEND_ARG = LOCAL_EXTEND_ARG .. (LOCAL_EXTEND_ARG ~= "" and " " or "") .. (opt.prefix or "") .. (opt.arg or val)
-			end
-		end
-	end
 end
 
-if not REMOTE_GROUP or REMOTE_GROUP == "nil" then
-	REMOTE_GROUP = "passwall_proxy"
-	if REMOTE_DNS then
-		REMOTE_DNS = REMOTE_DNS:gsub("#", ":")
-	end
-	sys.call('sed -i "/passwall/d" /etc/smartdns/custom.conf >/dev/null 2>&1')
+local AUTO_GROUP = "auto"
+local auto_config_lines = {}
+-- 直连规则显式覆盖远程兜底的缓存、IPv6、测速和双栈优选设置。
+local DIRECT_RULE_OPTIONS = " -enable-cache -address -6 -speed-check-mode ping,tcp:80,tcp:443 -response-mode first-ping -d yes"
+--设置默认 DNS 分组(兜底组)，全局代理模式仍使用远程组。
+local DEFAULT_DNS_GROUP = (USE_DEFAULT_DNS == "direct" and "direct") or
+                          (USE_DEFAULT_DNS == "remote" and "proxy") or
+                          (USE_DEFAULT_DNS == "auto" and AUTO_GROUP)
+local only_global = (DEFAULT_PROXY_MODE == "proxy" and CHN_LIST == "0" and USE_GFW_LIST == "0") and 1
+if only_global == 1 then
+	DEFAULT_DNS_GROUP = "proxy"
 end
-
 local force_https_soa = api.uci_get_c("@global[0]", "force_https_soa") or 0
+local force_qtype_soa = tonumber(force_https_soa) == 1 and "force-qtype-SOA 65" or "force-qtype-SOA -,65"
 local proxy_server_name = "psw-proxy-server"
+local listen_address = "[::]:" .. LISTEN_PORT .. (DNS_REDIRECT and "" or "@lo")
+local local_domain = DNS_REDIRECT and api.uci_get("dhcp", "@dnsmasq[0]", "domain")
 config_lines = {
-	tonumber(LISTEN_PORT) ~= 0 and "bind [::]:" .. LISTEN_PORT .. "@lo" or "",
-	(tonumber(LOCAL_PORT) ~= 0 and LOCAL_GROUP) and "bind [::]:" .. LOCAL_PORT .. "@lo -group " ..  LOCAL_GROUP or "",
-	tonumber(force_https_soa) == 1 and "force-qtype-SOA 65" or "force-qtype-SOA -,65",
-	"server 223.5.5.5 -bootstrap-dns",
+	tonumber(LISTEN_PORT) ~= 0 and ("bind " .. listen_address) or "",
+	tonumber(LISTEN_PORT) ~= 0 and ("bind-tcp " .. listen_address) or "",
+	LOCAL_PORT > 0 and ("bind [::]:" .. LOCAL_PORT .. "@lo -group direct -no-rules") or "",
+	LOCAL_PORT > 0 and ("bind-tcp [::]:" .. LOCAL_PORT .. "@lo -group direct -no-rules") or "",
+	"log-level " .. LOG_LEVEL,
+	"log-num " .. (LOG and "1" or "0"),
+	LOG and string.format("log-file %q", FLAG_PATH .. "/smartdns.log") or "",
+	LOG and ("log-size " .. LOG_SIZE .. "M") or "",
+	string.format("cache-file %q", SMARTDNS_DATA_PATH .. "/smartdns.cache"),
+	string.format("data-dir %q", data_dir),
+	"server 223.5.5.5 -bootstrap-dns -set-mark 255",
+	-- Set the suffix before loading hosts/leases so initial records are expanded too.
+	(local_domain and local_domain ~= "") and "local-domain " .. local_domain or "",
+	DNS_REDIRECT and "hosts-file /tmp/hosts/*" or "",
 	is_file_nonzero("/etc/hosts") and "hosts-file /etc/hosts" or "",
 	DNS_MODE == "socks" and string.format("proxy-server socks5://%s -name %s", REMOTE_PROXY_SERVER, proxy_server_name) or ""
 }
+if ENABLE_UI then
+	merge_array(config_lines, {
+		"plugin " .. UI_PLUGIN,
+		"smartdns-ui.www-root /usr/share/smartdns/wwwroot",
+		"smartdns-ui.ip http://[::]:" .. UI_PORT,
+		"smartdns-ui.max-query-log-age " .. (UI_LOG_MAX_AGE * 86400)
+	})
+end
+if DNS_REDIRECT then
+	local hosts = {}
+	api.uci:foreach("dhcp", "host", function(s)
+		if datatypes.hostname(s.name or "") and datatypes.ip4addr(s.ip or "") then
+			hosts[#hosts + 1] = s.ip .. " " .. s.name
+		end
+	end)
+
+	local hosts_file = FLAG_PATH .. "/dhcp-static-hosts"
+	if fs.writefile(hosts_file, table.concat(hosts, "\n") .. "\n") and #hosts > 0 then
+		table.insert(config_lines, string.format("hosts-file %q", hosts_file))
+	end
+
+	-- SmartDNS monitors the lease file and updates local records without a restart.
+	local lease_file = api.uci_get("dhcp", "@dnsmasq[0]", "leasefile")
+	if not lease_file or lease_file == "" then lease_file = "/tmp/dhcp.leases" end
+	table.insert(config_lines, string.format("dnsmasq-lease-file %q", lease_file))
+	local odhcpd_lease = api.uci_get("dhcp", "odhcpd", "leasefile")
+	if odhcpd_lease and odhcpd_lease ~= "" then
+		table.insert(config_lines, string.format("odhcpd-lease-file %q", odhcpd_lease))
+	end
+end
+for _, server_param in ipairs(DIRECT_SERVERS) do
+	table.insert(config_lines, server_param .. " -group direct -exclude-default-group")
+	if DEFAULT_DNS_GROUP == AUTO_GROUP then
+		-- 自动组的直连副本仅接受大陆 IP，普通直连组保持默认行为。
+		table.insert(auto_config_lines, server_param .. " -group " .. AUTO_GROUP .. " -exclude-default-group -whitelist-ip")
+	end
+end
+
+-- 由下方 DNS_MODE 分支调用，服务器参数来自 PassWall 的 REMOTE_DNS 或 TUN_DNS。
+local function add_remote_server(server_param)
+	table.insert(config_lines, server_param .. " -group proxy -exclude-default-group")
+	if DEFAULT_DNS_GROUP == AUTO_GROUP then
+		-- 远程副本作为自动组的后备服务器，保留代理、ECS 和传输协议参数。
+		local auto_param = server_param .. " -group " .. AUTO_GROUP .. " -exclude-default-group -fallback"
+		if NO_PROXY_IPV6 == "1" then auto_param = auto_param .. " -blacklist-ip" end
+		table.insert(auto_config_lines, auto_param)
+	end
+end
+
 if DNS_MODE == "socks" then
 	for w in string.gmatch(REMOTE_DNS, '[^|]+') do
-		local server_dns = api.trim(w)
-		local server_param
-
-		local dnsType = string.match(server_dns, "^(.-)://")
-		dnsType = dnsType and string.lower(dnsType) or nil
-		local dnsServer = string.match(server_dns, "://(.+)") or server_dns
-
-		if dnsType and dnsType ~= "" and dnsType ~= "udp" then
-			if dnsType == "tcp" then
-				server_param = "server-tcp " .. dnsServer
-			elseif dnsType == "tls" then
-				server_param = "server-tls " .. dnsServer
-			elseif dnsType == "quic" then
-				server_param = "server-quic " .. dnsServer
-			elseif dnsType == "https" or dnsType == "h3" then
-				local http_host = nil
-				local url = w
-				local port = 443
-				local s = api.split(w, ",")
-				if s and #s > 1 then
-					url = s[1]
-					local dns_ip = s[2]
-					local host_port = api.get_domain_from_url(s[1])
-					if host_port and #host_port > 0 then
-						http_host = host_port
-						local s2 = api.split(host_port, ":")
-						if s2 and #s2 > 1 then
-							http_host = s2[1]
-							port = s2[2]
-						end
-						url = url:gsub(http_host, dns_ip)
-					end
-				end
-				server_dns = url
-				if http_host then
-					server_dns = server_dns .. " -http-host " .. http_host
-				end
-				server_param = (dnsType == "https" and "server-https " or "server-h3 ") .. server_dns
-			end
-		else
-			server_param = "server " .. dnsServer
-
-		end
+		local server_param = make_server_param(w)
 
 		if not api.is_local_ip(w) then
 			server_param = server_param .. " -proxy " .. proxy_server_name
 		end
 
-		server_param = server_param .. " -group " .. REMOTE_GROUP .. " -exclude-default-group"
 		if SUBNET and SUBNET ~= "" and SUBNET ~= "0" then
 			server_param = server_param .. " -subnet " .. SUBNET
 		end
-		table.insert(config_lines, server_param)
+		add_remote_server(server_param)
 	end
 else
-	local server_param = string.format("server %s -group %s -exclude-default-group", TUN_DNS:gsub("#", ":"), REMOTE_GROUP)
-	table.insert(config_lines, server_param)
-	log("  - " .. DNS_MODE:gsub("^%l",string.upper) .. " " .. TUN_DNS .. " -> " .. REMOTE_GROUP)
+	add_remote_server("server " .. TUN_DNS:gsub("#", ":"))
+	log("  - " .. DNS_MODE:gsub("^%l",string.upper) .. " " .. TUN_DNS .. " -> 分组(proxy)")
 end
 
---设置默认 DNS 分组(托底组)
-local DEFAULT_DNS_GROUP = (USE_DEFAULT_DNS == "direct" and LOCAL_GROUP) or
-                          (USE_DEFAULT_DNS == "remote" and REMOTE_GROUP)
-local only_global = (DEFAULT_PROXY_MODE == "proxy" and CHN_LIST == "0" and USE_GFW_LIST == "0") and 1 --没有启用中国列表和GFW列表时(全局)
-if only_global == 1 then
-	DEFAULT_DNS_GROUP = REMOTE_GROUP
+if DEFAULT_DNS_GROUP == AUTO_GROUP then
+	-- 仅自动组的服务器启用 IP 过滤，普通直连和代理组保持各自行为。
+	if NO_PROXY_IPV6 == "1" then
+		table.insert(auto_config_lines, "ip-rules ::/0 -blacklist-ip")
+	end
+	for _, name in ipairs({"chnroute", "chnroute6"}) do
+		local path = RULES_PATH .. "/" .. name
+		if is_file_nonzero(path) then
+			local set_name = AUTO_GROUP .. "-" .. name
+			table.insert(auto_config_lines, string.format("ip-set -name %s -file %s", set_name, path))
+			local ip_rules = "ip-rules ip-set:" .. set_name .. " -whitelist-ip"
+			if name == "chnroute6" and NO_PROXY_IPV6 == "1" then
+				-- 最长前缀匹配时，大陆 IPv6 网段也需要黑名单标记才能过滤远程结果。
+				ip_rules = ip_rules .. " -blacklist-ip"
+			end
+			table.insert(auto_config_lines, ip_rules)
+		else
+			log("  * 注意：SmartDNS 自动模式大陆 IP 列表不存在或为空：" .. path)
+		end
+	end
+	merge_array(config_lines, auto_config_lines)
 end
+
+table.insert(config_lines, force_qtype_soa)
+
 if DEFAULT_DNS_GROUP then
 	local domain_rules_str = "domain-rules /./ -nameserver " .. DEFAULT_DNS_GROUP
-	if DEFAULT_DNS_GROUP == REMOTE_GROUP then
-		domain_rules_str = domain_rules_str .. " -speed-check-mode none -d no -no-serve-expired"
+	if DEFAULT_DNS_GROUP == "proxy" then
+		-- 代理仍禁止写入缓存，去掉会被直连继承且无法反向覆盖的过期缓存限制。
+		domain_rules_str = domain_rules_str .. " -no-cache -speed-check-mode none -d no"
 		domain_rules_str = domain_rules_str .. " -address " .. ((only_global and IS_SHUNT_NODE) and "-6" or (NO_PROXY_IPV6 == "1" and "#6" or "-6"))
-	elseif DEFAULT_DNS_GROUP == LOCAL_GROUP then
-		domain_rules_str = domain_rules_str .. (LOCAL_EXTEND_ARG ~= "" and " " .. LOCAL_EXTEND_ARG or "")
 	end
 	table.insert(config_lines, domain_rules_str)
 end
@@ -360,12 +393,6 @@ if not is_file_nonzero(file_vpslist) then
 			process_address(dns)
 		end
 	end)
-	api.uci_foreach_c("subscribe_list", function(t)  --订阅链接
-		local url, _ = api.get_domain_port_from_url(t.url or "")
-		if url and url ~= "" then
-			process_address(url)
-		end
-	end)
 	f_out:close()
 end
 if is_file_nonzero(file_vpslist) then
@@ -377,12 +404,11 @@ if is_file_nonzero(file_vpslist) then
 		"#4:" .. setflag .. "psw_vps",
 		"#6:" .. setflag .. "psw_vps6"
 	}
-	local domain_rules_str = string.format('domain-rules /domain-set:%s/ %s', domain_set_name, LOCAL_GROUP and "-nameserver " .. LOCAL_GROUP or "")
+	local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver direct', domain_set_name) .. DIRECT_RULE_OPTIONS
 	domain_rules_str = domain_rules_str .. " " .. set_type .. " " .. table.concat(sets, ",")
-	domain_rules_str = domain_rules_str .. (LOCAL_EXTEND_ARG ~= "" and " " .. LOCAL_EXTEND_ARG or "")
 	table.insert(tmp_lines, domain_rules_str)
 	insert_array_after(config_lines, tmp_lines, "#--9")
-	log(string.format("  - 节点列表中的域名(vpslist)使用分组：%s", LOCAL_GROUP or "默认"))
+	log("  - 节点列表中的域名(vpslist)使用分组：direct")
 end
 
 --直连（白名单）列表
@@ -443,12 +469,11 @@ if USE_DIRECT_LIST == "1" and is_file_nonzero(file_direct_host) then
 		"#4:" .. setflag .. "psw_white",
 		"#6:" .. setflag .. "psw_white6"
 	}
-	local domain_rules_str = string.format('domain-rules /domain-set:%s/ %s', domain_set_name, LOCAL_GROUP and "-nameserver " .. LOCAL_GROUP or "")
+	local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver direct', domain_set_name) .. DIRECT_RULE_OPTIONS
 	domain_rules_str = domain_rules_str .. " " .. set_type .. " " .. table.concat(sets, ",")
-	domain_rules_str = domain_rules_str .. (LOCAL_EXTEND_ARG ~= "" and " " .. LOCAL_EXTEND_ARG or "")
 	table.insert(tmp_lines, domain_rules_str)
 	insert_array_after(config_lines, tmp_lines, "#--7")
-	log(string.format("  - 域名白名单(whitelist)使用分组：%s", LOCAL_GROUP or "默认"))
+	log("  - 域名白名单(whitelist)使用分组：direct")
 end
 
 --代理（黑名单）列表
@@ -505,9 +530,8 @@ if USE_PROXY_LIST == "1" and is_file_nonzero(file_proxy_host) then
 	tmp_lines = {
 		string.format("domain-set -name %s -file %s", domain_set_name, file_proxy_host)
 	}
-	local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver %s', domain_set_name, REMOTE_GROUP)
-	domain_rules_str = domain_rules_str .. " -speed-check-mode none"
-	domain_rules_str = domain_rules_str .. " -no-serve-expired"
+	local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver proxy', domain_set_name)
+	domain_rules_str = domain_rules_str .. " -no-cache -speed-check-mode none -d no"
 	local sets = {
 		"#4:" .. setflag .. "psw_black"
 	}
@@ -515,11 +539,11 @@ if USE_PROXY_LIST == "1" and is_file_nonzero(file_proxy_host) then
 		domain_rules_str = domain_rules_str .. " -address #6 " .. set_type .. " " .. table.concat(sets, ",")
 	else
 		table.insert(sets, "#6:" .. setflag .. "psw_black6")
-		domain_rules_str = domain_rules_str .. " -address -6 -d no " .. set_type .. " " .. table.concat(sets, ",")
+		domain_rules_str = domain_rules_str .. " -address -6 " .. set_type .. " " .. table.concat(sets, ",")
 	end
 	table.insert(tmp_lines, domain_rules_str)
 	insert_array_after(config_lines, tmp_lines, "#--6")
-	log(string.format("  - 代理域名表(blacklist)使用分组：%s", REMOTE_GROUP or "默认"))
+	log("  - 代理域名表(blacklist)使用分组：proxy")
 end
 
 --GFW列表
@@ -528,9 +552,8 @@ if USE_GFW_LIST == "1" and is_file_nonzero(RULES_PATH .. "/gfwlist") then
 	tmp_lines = {
 		string.format("domain-set -name %s -file %s", domain_set_name, RULES_PATH .. "/gfwlist")
 	}
-	local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver %s', domain_set_name, REMOTE_GROUP)
-	domain_rules_str = domain_rules_str .. " -speed-check-mode none"
-	domain_rules_str = domain_rules_str .. " -no-serve-expired"
+	local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver proxy', domain_set_name)
+	domain_rules_str = domain_rules_str .. " -no-cache -speed-check-mode none -d no"
 	local sets = {
 		"#4:" .. setflag .. "psw_gfw"
 	}
@@ -538,11 +561,11 @@ if USE_GFW_LIST == "1" and is_file_nonzero(RULES_PATH .. "/gfwlist") then
 		domain_rules_str = domain_rules_str .. " -address #6 " .. set_type .. " " .. table.concat(sets, ",")
 	else
 		table.insert(sets, "#6:" .. setflag .. "psw_gfw6")
-		domain_rules_str = domain_rules_str .. " -address -6 -d no " .. set_type .. " " .. table.concat(sets, ",")
+		domain_rules_str = domain_rules_str .. " -address -6 " .. set_type .. " " .. table.concat(sets, ",")
 	end
 	table.insert(tmp_lines, domain_rules_str)
 	insert_array_after(config_lines, tmp_lines, "#--5")
-	log(string.format("  - 防火墙域名表(gfwlist)使用分组：%s", REMOTE_GROUP or "默认"))
+	log("  - 防火墙域名表(gfwlist)使用分组：proxy")
 end
 
 --中国列表
@@ -557,19 +580,17 @@ if CHN_LIST ~= "0" and is_file_nonzero(RULES_PATH .. "/chnlist") then
 			"#4:" .. setflag .. "psw_chn",
 			"#6:" .. setflag .. "psw_chn6"
 		}
-		local domain_rules_str = string.format('domain-rules /domain-set:%s/ %s', domain_set_name, LOCAL_GROUP and "-nameserver " .. LOCAL_GROUP or "")
+		local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver direct', domain_set_name) .. DIRECT_RULE_OPTIONS
 		domain_rules_str = domain_rules_str .. " " .. set_type .. " " .. table.concat(sets, ",")
-		domain_rules_str = domain_rules_str .. (LOCAL_EXTEND_ARG ~= "" and " " .. LOCAL_EXTEND_ARG or "")
 		table.insert(tmp_lines, domain_rules_str)
 		insert_array_after(config_lines, tmp_lines, "#--4")
-		log(string.format("  - 中国域名表(chnlist)使用分组：%s", LOCAL_GROUP or "默认"))
+		log("  - 中国域名表(chnlist)使用分组：direct")
 	end
 
 	--回中国模式
 	if CHN_LIST == "proxy" then
-		local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver %s', domain_set_name, REMOTE_GROUP)
-		domain_rules_str = domain_rules_str .. " -speed-check-mode none"
-		domain_rules_str = domain_rules_str .. " -no-serve-expired"
+		local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver proxy', domain_set_name)
+		domain_rules_str = domain_rules_str .. " -no-cache -speed-check-mode none -d no"
 		local sets = {
 			"#4:" .. setflag .. "psw_chn"
 		}
@@ -577,11 +598,11 @@ if CHN_LIST ~= "0" and is_file_nonzero(RULES_PATH .. "/chnlist") then
 			domain_rules_str = domain_rules_str .. " -address #6 " .. set_type .. " " .. table.concat(sets, ",")
 		else
 			table.insert(sets, "#6:" .. setflag .. "psw_chn6")
-			domain_rules_str = domain_rules_str .. " -address -6 -d no " .. set_type .. " " .. table.concat(sets, ",")
+			domain_rules_str = domain_rules_str .. " -address -6 " .. set_type .. " " .. table.concat(sets, ",")
 		end
 		table.insert(tmp_lines, domain_rules_str)
 		insert_array_after(config_lines, tmp_lines, "#--4")
-		log(string.format("  - 中国域名表(chnlist)使用分组：%s", REMOTE_GROUP or "默认"))
+		log("  - 中国域名表(chnlist)使用分组：proxy")
 	end
 end
 
@@ -638,7 +659,9 @@ if IS_SHUNT_NODE and not only_global then
 
 			SHUNT_LIST = SHUNT_LIST .. domain_list .. (_node_id:sub(1, 1) == "_" and "not-node" or "node")
 
-			log(string.format("  - Sing-Box/Xray分流规则(%s)使用分组：%s", s.remarks, REMOTE_GROUP or "默认"))
+			if _node_id ~= "_direct" and _node_id ~= "_blackhole" then
+				log(string.format("  - Sing-Box/Xray分流规则(%s)使用分组：proxy", s.remarks))
+			end
 		end
 	end)
 
@@ -715,13 +738,13 @@ if IS_SHUNT_NODE and not only_global then
 		tmp_lines = {
 			string.format("domain-set -name %s -file %s", domain_set_name, shunt_direct_host)
 		}
-		local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver %s', domain_set_name, REMOTE_GROUP)
-		domain_rules_str = domain_rules_str .. " -speed-check-mode none -no-serve-expired"
+		local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver proxy', domain_set_name)
+		domain_rules_str = domain_rules_str .. " -no-cache -speed-check-mode none -d no"
 		local sets = {
 			"#4:" .. setflag .. "psw_shunt",
 			"#6:" .. setflag .. "psw_shunt6"
 		}
-		domain_rules_str = domain_rules_str .. " -address -6 -d no " .. set_type .. " " .. table.concat(sets, ",")
+		domain_rules_str = domain_rules_str .. " -address -6 " .. set_type .. " " .. table.concat(sets, ",")
 		table.insert(tmp_lines, domain_rules_str)
 		insert_array_after(config_lines, tmp_lines, "#--1")
 	end
@@ -731,13 +754,13 @@ if IS_SHUNT_NODE and not only_global then
 		tmp_lines = {
 			string.format("domain-set -name %s -file %s", domain_set_name, shunt_proxy_host)
 		}
-		local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver %s', domain_set_name, REMOTE_GROUP)
-		domain_rules_str = domain_rules_str .. " -speed-check-mode none -no-serve-expired"
+		local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver proxy', domain_set_name)
+		domain_rules_str = domain_rules_str .. " -no-cache -speed-check-mode none -d no"
 		local sets = {
 			"#4:" .. setflag .. "psw_shunt",
 			"#6:" .. setflag .. "psw_shunt6"
 		}
-		domain_rules_str = domain_rules_str .. " -address -6 -d no " .. set_type .. " " .. table.concat(sets, ",")
+		domain_rules_str = domain_rules_str .. " -address -6 " .. set_type .. " " .. table.concat(sets, ",")
 		table.insert(tmp_lines, domain_rules_str)
 		insert_array_after(config_lines, tmp_lines, "#--2")
 	end
@@ -747,17 +770,18 @@ if IS_SHUNT_NODE and not only_global then
 		tmp_lines = {
 			string.format("domain-set -name %s -file %s", domain_set_name, shunt_black_host)
 		}
-		local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver %s', domain_set_name, REMOTE_GROUP)
-		domain_rules_str = domain_rules_str .. " -speed-check-mode none -no-serve-expired"
+		local domain_rules_str = string.format('domain-rules /domain-set:%s/ -nameserver proxy', domain_set_name)
+		domain_rules_str = domain_rules_str .. " -no-cache -speed-check-mode none -d no"
 		local sets = {
 			"#4:" .. setflag .. "psw_shunt",
 			"#6:" .. setflag .. "psw_shunt6"
 		}
-		domain_rules_str = domain_rules_str .. " -address -6 -d no " .. set_type .. " " .. table.concat(sets, ",")
+		domain_rules_str = domain_rules_str .. " -address -6 " .. set_type .. " " .. table.concat(sets, ",")
 		table.insert(tmp_lines, domain_rules_str)
 		insert_array_after(config_lines, tmp_lines, "#--3")
 	end
 end
+
 
 if #config_lines > 0 then
 	local f_out = io.open(TMP_CONF_FILE, "w")
@@ -771,9 +795,11 @@ if #config_lines > 0 then
 end
 
 if DEFAULT_DNS_GROUP then
-	log(string.format("  - 默认 DNS 分组：%s", DEFAULT_DNS_GROUP))
+	log(string.format("  - 默认 DNS 分组：%s", DEFAULT_DNS_GROUP == AUTO_GROUP and "自动" or DEFAULT_DNS_GROUP))
 end
 
-fs.symlink(TMP_CONF_FILE, SMARTDNS_CONF)
-sys.call(string.format('echo "conf-file %s" >> /etc/smartdns/custom.conf', string.gsub(SMARTDNS_CONF, "passwall", "passwall*")))
-log("  - SmartDNS已作为Dnsmasq上游，如果你自行配置了错误的DNS流程，将会导致域名(直连/代理)分流失效！！！")
+if DNS_REDIRECT then
+	log("  - DNS 重定向直接使用 SmartDNS，DHCP 租约由 SmartDNS 自动加载。")
+else
+	log("  - SmartDNS已作为Dnsmasq上游，如果你自行配置了错误的DNS流程，将会导致域名(直连/代理)分流失效！！！")
+end

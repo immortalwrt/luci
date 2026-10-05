@@ -3,6 +3,7 @@ datatypes = api.datatypes
 local fs = api.fs
 has_singbox = api.finded_com("sing-box")
 has_xray = api.finded_com("xray")
+local has_smartdns = api.is_finded("smartdns")
 local has_gfwlist = fs.access("/usr/share/passwall/rules/gfwlist")
 local has_chnlist = fs.access("/usr/share/passwall/rules/chnlist")
 local has_chnroute = fs.access("/usr/share/passwall/rules/chnroute")
@@ -136,13 +137,7 @@ if (has_singbox or has_xray) and #nodes_table > 0 then
 		tips.cfgvalue = function(t, n)
 			return string.format('<a style="color: red">%s</a>', translate("There are no available nodes, please add or subscribe nodes first."))
 		end
-		tips:depends("_node", "1")
-		for k, v in pairs(shunt_list) do
-			tips:depends("node", v.id)
-		end
-		for k, v in pairs(balancing_list) do
-			tips:depends("node", v.id)
-		end
+		tips:depends({ node = "", ['!reverse'] = true })
 	end
 end
 
@@ -150,7 +145,7 @@ o = s:taboption("Main", Value, "node_socks_port", translate("Node") .. " Socks "
 o.default = 1070
 o.placeholder = 1070
 o.datatype = "range(1,65535)"
-o:depends("_node", "1")
+o:depends({ node = "", ['!reverse'] = true })
 --[[
 if has_singbox or has_xray then
 	o = s:taboption("Main", Value, "node_http_port", translate("Node") .. " HTTP " .. translate("Listen Port") .. " " .. translate("0 is not use"))
@@ -160,21 +155,15 @@ end
 ]]--
 o = s:taboption("Main", Flag, "node_socks_bind_local", translate("Node") .. " Socks " .. translate("Bind Local"), translate("When selected, it can only be accessed localhost."))
 o.default = "1"
-o:depends("_node", "1")
+o:depends({ node = "", ['!reverse'] = true })
 
 o = s:taboption("Main", HideValue, "node_save_before", "")
 o.value = current_node[".name"]
 o.cbid = function(self, section) return "node_save_before" end
 
-o = s:taboption("Main", HideValue, "_node", "")
-o:depends({ node = "",  ['!reverse'] = true })
-
 -- Node → DNS Depends Settings
 o = s:taboption("Main", HideValue, "_node_sel_shunt", "")
 o:depends({ node = "__always__" })
-
-o = s:taboption("Main", HideValue, "_node_sel_other", "")
-o:depends({ _node_sel_shunt = "1",  ['!reverse'] = true })
 
 -- [[ DNS Settings ]]--
 s:tab("DNS", translate("DNS"))
@@ -187,26 +176,10 @@ o.write = function(self, section, value)
 	if old and old ~= value then
 		m:set(section, "flush_set", "1")
 	end
-	if value ~= "smartdns" then
-		m:del(section, "group_domestic")
-	end
 	return ListValue.write(self, section, value)
 end
-if api.is_finded("smartdns") then
+if has_smartdns then
 	o:value("smartdns", "SmartDNS")
-
-	o = s:taboption("DNS", Value, "group_domestic", translate("Domestic group name"))
-	o.placeholder = "local"
-	o.rmempty = false
-	o:depends("dns_shunt", "smartdns")
-	o.description = translate("You only need to configure domestic DNS packets in SmartDNS, and fill in the domestic DNS group name here.")
-	o.validate = function(self, value, section)
-		value = api.trim(value)
-		if value == "" then
-			return nil, translatef("%s cannot be empty.", "SmartDNS " .. translate("Domestic group name"))
-		end
-		return value
-	end
 end
 
 o = s:taboption("DNS", ListValue, "direct_dns_mode", translate("Direct DNS") .. " " .. translate("Request protocol"))
@@ -226,8 +199,25 @@ o:value("180.184.2.2")
 o:value("114.114.114.114")
 o:value("114.114.115.115")
 o:value("119.28.28.28")
-o:depends("direct_dns_mode", "udp")
-o:depends("direct_dns_mode", "tcp")
+o:depends({dns_shunt = "dnsmasq", direct_dns_mode = "udp"})
+o:depends({dns_shunt = "dnsmasq", direct_dns_mode = "tcp"})
+o:depends({dns_shunt = "chinadns-ng", direct_dns_mode = "udp"})
+o:depends({dns_shunt = "chinadns-ng", direct_dns_mode = "tcp"})
+
+if has_smartdns then
+	o = s:taboption("DNS", DynamicList, "smartdns_direct_dns", translate("Direct DNS"))
+	o.placeholder = translate("Auto")
+	o.rmempty = true
+	o:value("223.5.5.5")
+	o:value("119.29.29.29")
+	o:value("tcp://223.5.5.5")
+	o:value("tcp://114.114.114.114")
+	o:value("tls://dot.pub,1.12.12.12")
+	o:value("tls://dns.alidns.com,223.5.5.5")
+	o:value("https://223.5.5.5/dns-query")
+	o:value("https://1.12.12.12/dns-query")
+	o:depends({dns_shunt = "smartdns"})
+end
 
 o = s:taboption("DNS", Flag, "filter_proxy_ipv6", translate("Filter Proxy Host IPv6"))
 o.default = "0"
@@ -279,8 +269,8 @@ end
 if has_xray then
 	o:value("xray", "Xray")
 end
-o:depends({ dns_shunt = "chinadns-ng", _node_sel_other = "1" })
-o:depends({ dns_shunt = "dnsmasq", _node_sel_other = "1" })
+o:depends({ dns_shunt = "chinadns-ng", _node_sel_shunt = "" })
+o:depends({ dns_shunt = "dnsmasq", _node_sel_shunt = "" })
 o.write = function(self, section, value)
 	if value ~= "sing-box" and value ~= "xray" then
 		m:del(section, "v2ray_dns_mode")
@@ -296,7 +286,7 @@ o.remove = function(self, section)
 end
 
 ---- SmartDNS Forward Mode
-if api.is_finded("smartdns") then
+if has_smartdns then
 	o = s:taboption("DNS", ListValue, "smartdns_dns_mode", translate("Filter Mode"))
 	o:value("socks", "Socks")
 	if has_singbox then
@@ -305,7 +295,7 @@ if api.is_finded("smartdns") then
 	if has_xray then
 		o:value("xray", "Xray")
 	end
-	o:depends({ dns_shunt = "smartdns", _node_sel_other = "1" })
+	o:depends({ dns_shunt = "smartdns", _node_sel_shunt = "" })
 	o.write = function(self, section, value)
 		if value == "socks" then
 			m:del(section, "v2ray_dns_mode")
@@ -499,14 +489,23 @@ o:value("remote", translate("Remote DNS"))
 o:value("direct", translate("Direct DNS"))
 o.description = desc .. "</ul>"
 o:depends({dns_shunt = "dnsmasq", tcp_proxy_mode = "proxy", chn_list = "direct"})
-if api.is_finded("smartdns") then
+
+if has_smartdns then
+	o = s:taboption("DNS", ListValue, "smartdns_default_dns", translate("Default DNS"))
+	o.default = "direct"
+	o:value("remote", translate("Remote DNS"))
+	o:value("direct", translate("Direct DNS"))
+	o:value("auto", translate("Auto"))
+	o.description = desc
+		.. "<li>" .. translate("Auto: Prefer mainland China IPs returned by direct DNS and fall back to remote DNS when no usable result is available.") .. "</li>"
+		.. "</ul>"
 	o:depends({dns_shunt = "smartdns", tcp_proxy_mode = "proxy", chn_list = "direct"})
 end
 
 o = s:taboption("DNS", Flag, "force_https_soa", translate("Force HTTPS SOA"), translate("Force queries with qtype 65 to respond with an SOA record."))
 o.default = "0"
 o:depends({dns_shunt = "chinadns-ng"})
-if api.is_finded("smartdns") then
+if has_smartdns then
 	o:depends({dns_shunt = "smartdns"})
 end
 
@@ -656,6 +655,90 @@ o.cfgvalue = function(t, n)
 	return s
 end
 o:depends("log_chinadns_ng", "1")
+
+if has_smartdns then
+	o = s:taboption("log", Flag, "log_smartdns", translate("Enable") .. " SmartDNS " .. translate("Log"))
+	o.default = "0"
+	o.rmempty = false
+	o:depends("dns_shunt", "smartdns")
+
+	o = s:taboption("log", ListValue, "smartdns_log_level", "SmartDNS " .. translate("Log Level"))
+	o.default = "error"
+	o:value("fatal", "Fatal")
+	o:value("error", "Error")
+	o:value("warn", "Warning")
+	o:value("notice", "Notice")
+	o:value("info", "Info")
+	o:value("debug", "Debug")
+	o:depends({dns_shunt = "smartdns", log_smartdns = "1"})
+
+	o = s:taboption("log", Value, "smartdns_log_size", translate("Log Size") .. " (MB)")
+	o.default = "1"
+	o.datatype = "and(uinteger,min(1))"
+	o.rmempty = false
+	o:depends({dns_shunt = "smartdns", log_smartdns = "1"})
+
+	o = s:taboption("log", DummyValue, "_smartdns_log", translate("Log File"))
+	o.rawhtml = true
+	o.cfgvalue = function(t, n)
+		local log_file = api.TMP_PATH .. "/acl/default/smartdns.log"
+		local log_url = api.url("get_smartdns_log")
+		local s = "<code>%s</code>&nbsp;&nbsp;" % log_file
+		if api.fs.access(log_file) then
+			local btn = string.format(
+				'<input class="btn cbi-button cbi-button-apply" type="button" value="%s" onclick="window.open(\'%s\', \'_blank\')" />',
+				translate("View Log"),
+				log_url
+			)
+			s = s .. btn
+		end
+		return s
+	end
+	o:depends({dns_shunt = "smartdns", log_smartdns = "1"})
+
+	if api.fs.access("/usr/lib/smartdns_ui.so") or api.fs.access("/usr/lib/smartdns/smartdns_ui.so") then
+		o = s:taboption("log", Flag, "smartdns_ui", "SmartDNS " .. translate("Enable WebUI"))
+		o.default = "0"
+		o.rmempty = false
+		o:depends("dns_shunt", "smartdns")
+
+		o = s:taboption("log", Value, "smartdns_ui_port", translate("WebUI Port"))
+		o.default = "9880"
+		o.datatype = "range(1,65535)"
+		o.rmempty = false
+		o:depends({dns_shunt = "smartdns", smartdns_ui = "1"})
+
+		o = s:taboption("log", Value, "smartdns_ui_data_dir", translate("WebUI Database Directory"))
+		o.default = api.CACHE_PATH .. "/smartdns"
+		o.rmempty = false
+		o.validate = function(self, value, section)
+			value = api.trim(value)
+			if value:sub(1, 1) ~= "/" or value:find("%s") then
+				return nil, translate("An absolute path without spaces is required.")
+			end
+			return value
+		end
+		o:depends({dns_shunt = "smartdns", smartdns_ui = "1"})
+
+		o = s:taboption("log", Value, "smartdns_ui_log_max_age", translate("WebUI Log Retention Days"))
+		o.default = "7"
+		o.datatype = "and(uinteger,min(1))"
+		o.rmempty = false
+		o:depends({dns_shunt = "smartdns", smartdns_ui = "1"})
+
+		o = s:taboption("log", DummyValue, "_smartdns_ui_link", "WebUI")
+		o.rawhtml = true
+		o.cfgvalue = function(self, section)
+			local port = tonumber(m:get(section, "smartdns_ui_port")) or 9880
+			if port < 1 or port > 65535 or port % 1 ~= 0 then port = 9880 end
+			return string.format(
+				[[<input class="btn cbi-button cbi-button-apply" type="button" value="%s" onclick="var host = window.location.hostname; if (host.indexOf(':') !== -1 &amp;&amp; host.charAt(0) !== '[') host = '[' + host + ']'; window.open('http://' + host + ':%d', '_blank', 'noopener,noreferrer');" />]],
+				translate("Open WebUI"), port
+			)
+		end
+		o:depends({dns_shunt = "smartdns", smartdns_ui = "1"})
+	end
+end
 
 o = s:taboption("log", DummyValue, "_log_tips", "　")
 o.rawhtml = true

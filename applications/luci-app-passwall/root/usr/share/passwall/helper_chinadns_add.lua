@@ -201,12 +201,6 @@ if not is_file_nonzero(file_vpslist) then
 			process_address(dns)
 		end
 	end)
-	api.uci_foreach_c("subscribe_list", function(t)  --订阅链接
-		local url, _ = api.get_domain_port_from_url(t.url or "")
-		if url and url ~= "" then
-			process_address(url)
-		end
-	end)
 	f_out:close()
 end
 if is_file_nonzero(file_vpslist) then
@@ -471,7 +465,9 @@ if IS_SHUNT_NODE and not only_global then
 
 			SHUNT_LIST = SHUNT_LIST .. domain_list .. (_node_id:sub(1, 1) == "_" and "not-node" or "node")
 
-			log(string.format("  - Sing-Box/Xray分流规则(%s)：%s", s.remarks, DNS_TRUST or "默认"))
+			if _node_id ~= "_direct" and _node_id ~= "_blackhole" then
+				log(string.format("  - Sing-Box/Xray分流规则(%s)：%s", s.remarks, DNS_TRUST or "默认"))
+			end
 		end
 	end)
 

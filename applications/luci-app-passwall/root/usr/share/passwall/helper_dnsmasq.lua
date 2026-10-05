@@ -334,7 +334,7 @@ function add_rule(var)
 	end
 
 	local function get_dns_config_key()
-		local address_md5 = api.md5_string(sys.exec([[uci show passwall | grep -E '\.(address|download_address|domain_resolver_dns|domain_resolver_dns_https)=|^passwall\.sub_[^.]+\.url=' | cut -d "'" -f 2 | sort -u]]))
+		local address_md5 = api.md5_string(sys.exec([[uci show passwall | grep -E '\.(address|download_address|domain_resolver_dns|domain_resolver_dns_https)=' | cut -d "'" -f 2 | sort -u]]))
 		local new_rules = sys.exec([[
 		for f in \
 			/usr/share/passwall/rules/chnlist \
@@ -465,12 +465,6 @@ function add_rule(var)
 					local dns, _ = api.get_domain_port_from_url(t.domain_resolver_dns or t.domain_resolver_dns_https or "")
 					if dns and dns ~= "" then
 						process_address(dns)
-					end
-				end)
-				api.uci_foreach_c("subscribe_list", function(t)  --订阅链接
-					local url, _ = api.get_domain_port_from_url(t.url or "")
-					if url and url ~= "" then
-						process_address(url)
 					end
 				end)
 				log(string.format("  - 节点列表中的域名(vpslist)：%s", fwd_dns or "默认"))
@@ -727,7 +721,9 @@ function add_rule(var)
 						end
 					end
 
-					log(string.format("  - Sing-Box/Xray分流规则(%s)：%s", s.remarks, fwd_dns or "默认"))
+					if _node_id ~= "_direct" and _node_id ~= "_blackhole" then
+						log(string.format("  - Sing-Box/Xray分流规则(%s)：%s", s.remarks, fwd_dns or "默认"))
+					end
 				end
 			end)
 		elseif only_global == 1 and NO_PROXY_IPV6 == "1" then
