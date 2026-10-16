@@ -19,7 +19,7 @@ define Package/$(PKG_NAME)
 endef
 
 define Package/$(PKG_NAME)/description
-	A LuCI support for clash
+  A LuCI support for clash
 endef
 
 define Build/Prepare
