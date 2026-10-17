@@ -42,7 +42,7 @@ const MIME = {
 	svg: 'image/svg+xml', webp: 'image/webp', ico: 'image/x-icon', bmp: 'image/bmp'
 };
 
-const NAME_RE = /^[A-Za-z0-9_.\-]+$/;
+const NAME_RE = /^[A-Za-z0-9_.-]+$/;
 
 /*
  * `reject: true` matters more here than anywhere else: without it a ubus level
@@ -257,7 +257,7 @@ function safe_name(original) {
 
 	/* Collapse the runs of dropped characters into a single separator, so the
 	 * remaining words stay apart instead of being glued together. */
-	const kept = stem.replace(/[^A-Za-z0-9.\-]+/g, '-')
+	const kept = stem.replace(/[^A-Za-z0-9.-]+/g, '-')
 		.replace(/-{2,}/g, '-')
 		.replace(/^[-.]+|[-.]+$/g, '');
 
@@ -408,8 +408,6 @@ function rename_file(dir, entry) {
 			}, _('Rename'))
 		])
 	]);
-
-	return null;
 }
 
 function remove_file(dir, entry) {

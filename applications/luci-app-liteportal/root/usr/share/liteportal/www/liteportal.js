@@ -178,7 +178,7 @@ fetch('links.json', { cache: 'no-store' })
          * leading slash the browser would resolve it against the page's own
          * path, which is not what the document root means.
          */
-        var url = d.background.replace(/^([^\/])/, '/$1');
+        var url = d.background.replace(/^([^/])/, '/$1');
 
         /*
          * Replacing the background leaves the name untouched, so the browser
