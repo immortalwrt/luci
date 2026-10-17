@@ -1,0 +1,39 @@
+# Liteportal: switch, title, background and appearance of the dashboard
+# published by /etc/init.d/liteportal. Set enabled to '0' to take the page off
+# the web server.
+#
+# The page is served by the main uhttpd instance under /liteportal/, so it has no
+# port of its own to configure.
+#
+# The three appearance percentages are what the LuCI sliders write. Deleting one
+# falls back to the same value in the backend, so the page keeps its look.
+config liteportal
+	option enabled '1'
+	option title 'My Portal'
+	option background '#0e1116'
+	option bg_veil '78'
+	option bg_blur '0'
+	option card_transparency '45'
+
+# Search box on the portal page. Off by default, and an absent value means off
+# as well - a configuration written before this option existed keeps rendering
+# without a box, the same rule the appearance sliders follow. search_engine is
+# the engine's results URL with %s standing for the keyword; the presets are
+# listed on the settings page. Picking 'custom' there sends the page to the
+# template in search_url instead, which is written only when that happens.
+	option search_enabled '0'
+	option search_engine 'https://www.google.com/search?q=%s'
+
+# Sample bookmarks. "Scan for local services" in LuCI adds the ones that are
+# actually listening on this router as disabled entries - tick and apply.
+config link
+	option name 'LuCI'
+	option url 'http://192.168.1.1/cgi-bin/luci'
+	option icon_url '💡'
+	option enabled '1'
+
+config link
+	option name 'AdGuard Home'
+	option url 'http://192.168.1.1:3000'
+	option icon_url '🛡️'
+	option enabled '1'

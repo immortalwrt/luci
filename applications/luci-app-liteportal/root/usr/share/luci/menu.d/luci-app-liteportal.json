@@ -1,0 +1,48 @@
+{
+	"admin/services/liteportal": {
+		"title": "Portal",
+		"order": 60,
+		"action": {
+			"type": "firstchild"
+		},
+		"depends": {
+			"acl": [ "luci-app-liteportal" ]
+		}
+	},
+
+	"admin/services/liteportal/general": {
+		"title": "General",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "liteportal/general"
+		},
+		"depends": {
+			"acl": [ "luci-app-liteportal" ]
+		}
+	},
+
+	"admin/services/liteportal/bookmarks": {
+		"title": "Bookmarks",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "liteportal/bookmarks"
+		},
+		"depends": {
+			"acl": [ "luci-app-liteportal" ]
+		}
+	},
+
+	"admin/services/liteportal/assets": {
+		"title": "Assets",
+		"order": 3,
+		"action": {
+			"type": "view",
+			"path": "liteportal/assets"
+		},
+		"depends": {
+			"acl": [ "luci-app-liteportal" ]
+		}
+	}
+}
