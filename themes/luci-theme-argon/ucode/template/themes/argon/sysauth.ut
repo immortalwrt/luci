@@ -25,132 +25,34 @@
 {%
 	import * as fs from 'fs';
 	import { cursor } from 'uci';
+	import { get_branding } from 'luci.argon-branding';
 
 	let cfg = cursor();
-	// Per-request pseudo-random state for selecting local backgrounds.
-	let lcgState = (+time()) % 2147483648;
-
-	function randomIndex(limit) {
-		lcgState = (lcgState * 1103515245 + 12345) % 2147483648;
-
-		return lcgState % limit;
-	}
-
-	//Fetch Local Background Media
-
-	const imageTypes = " jpg jpeg png gif webp ";
-	const videoTypes = " mp4 webm ";
-	const allTypes = imageTypes + videoTypes;
-
-	function fetchMedia(path, themeDir) {
-		let backgroundTable = [];
-		for (f in (fs.lsdir(path))) {
-			let ext = lc(split(f, '.')?.[1]);
-			if (ext && index(allTypes, " " + ext + " ") != -1) {
-				let bg = {};
-				bg.type = ext;
-				bg.url = themeDir + f;
-				push(backgroundTable, bg);
-			}
-		}
-		return backgroundTable;
-	}
-
-	function selectBackground(themeDir) {
-		let bgUrl = media + "/img/bg1.jpg";
-		let backgroundType = "Image";
-		let mimeType = "";
-
-		if (fs.access("/etc/config/argon")) {
-			let online_wallpaper = cfg.get_first('argon', 'global', 'online_wallpaper') ?? (cfg.get_first('argon', 'global', 'bing_background') == '1' ? 'bing' : null);
-			if (online_wallpaper && online_wallpaper != "none") {
-				const picurl = ubus.call("luci.argon_wallpaper", "get_url") ?? {};
-				if (picurl?.url) {
-					bgUrl = picurl.url;
-					return {bgUrl, backgroundType, mimeType};
-				}
-			}
-		}
-
-		let background = fetchMedia("/www" + themeDir, themeDir);
-		if ( length(background) > 0 ) {
-			let currentBg = background[randomIndex(length(background))];
-			bgUrl = currentBg.url;
-			if (index(videoTypes, " " + currentBg.type + " ") != -1) {
-				backgroundType = "Video";
-				mimeType = "video/" + currentBg.type;
-			}
-		}
-
-		return {bgUrl, backgroundType, mimeType};
+	// Only known layouts may select login page styles; old configs stay classic.
+	let login_style = 'classic';
+	if (fs.access('/etc/config/argon')) {
+		let configured_style = cfg.get_first('argon', 'global', 'login_style');
+		if (configured_style == 'classic' || configured_style == 'centered')
+			login_style = configured_style;
 	}
 
 	const boardinfo = ubus.call("system", "board");
 	const hostname = striptags(boardinfo?.hostname ?? '?');
-	const themeDir = media + "/background/";
-	const bgArry = selectBackground(themeDir);
+	const branding = get_branding();
+	const logo_url = branding.logo ? media + '/branding/' + branding.logo : media + '/img/argon.svg';
 
 %}
 <!-- Login Page Start -->
-<div class="login-page">
-	{% if ( bgArry.backgroundType == "Video" ): %}
-	<!-- Video Player Start -->
-	<div class="video">
-		<video autoplay loop muted id="video">
-			<source src="{{ bgArry.bgUrl }}" type="{{ bgArry.mimeType }}">
-		</video>
-	</div>
-	<div class="volume-control mute"></div>
-	<script>
-		document.querySelector(".volume-control").addEventListener("click", function(){
-			if(this.classList.contains("mute")){
-				this.classList.remove("mute");
-				document.getElementById("video").muted = false;
-			}else{
-				this.classList.add("mute");
-				document.getElementById("video").muted = true;
-			}
-		});
-	</script>
-	<!-- Video Player End -->
-	{% else %}
-	<!-- Image Background Start -->
-	<div class="main-bg" id="main-bg" style="background-image:url({{ bgArry.bgUrl }})"></div>
-	<!-- Image Background End -->
-	{% endif %}
+<div class="login-page" data-login-style="{{ login_style }}">
+	{% include('themes/' + theme + '/login_background', { cfg: cfg }) %}
 	<!-- Login Container Start -->
 	<div class="login-container">
 		<div class="login-form">
 			<!-- Logo Start -->
-			<a class="brand" href="/"><img src="{{ media }}/img/argon.svg" class="icon">
+			<a class="brand" href="/"><img src="{{ logo_url }}" class="icon" alt="" data-fallback="{{ media }}/img/argon.svg" onerror="this.onerror=null;this.src=this.dataset.fallback">
 				<span class="brand-text">{{ hostname }}</span>
 			</a>
 			<!-- Logo End -->
 			<!-- Login Form Start -->
-			<form class="form-login" method="post" action="{{ http.getenv("REQUEST_URI") }}">
-
-				{%- if (fuser): %}
-				<div class="errorbox">{{ _('Invalid username and/or password! Please try again.') }}</div>
-				{% endif -%}
-
-				<div class="input-container">
-					<div class="input-group user-icon">
-						<input class="cbi-input-user" id="cbi-input-user" type="text" name="luci_username" value="{{ entityencode(duser, true) }}" />
-						<label class="border" for="cbi-input-user"></label>
-					</div>
-					<div class="input-group pass-icon">
-						<input class="cbi-input-password" id="cbi-input-password" type="password" name="luci_password" />
-						<label class="border" for="cbi-input-password"></label>
-					</div>
-				</div>
-				<div>
-					<input type="submit" value="{{ _('Log in') }}" class="cbi-button cbi-button-apply" />
-				</div>
-			</form>
-			<!-- Login Form End -->
-			<script type="text/javascript">//<![CDATA[
-				var input = document.getElementsByName('luci_password')[0];
-				if (input)
-					input.focus();
-			//]]></script>
+			{% include('themes/' + theme + '/login_form') %}
 {% include("themes/" + theme + "/footer_login") %}
