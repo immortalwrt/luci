@@ -178,9 +178,11 @@ function get_cache_var(key)
 	return val
 end
 
-function get_new_port()
-	local cmd_format = ". /usr/share/passwall/utils.sh ; echo -n $(get_new_port %s tcp,udp)"
-	return tonumber(sys.exec(string.format(cmd_format, "auto")))
+function get_new_port(start_port, protocol)
+	start_port = tonumber(start_port) or "auto"
+	if protocol ~= "tcp" and protocol ~= "udp" then protocol = "tcp,udp" end
+	local cmd_format = ". /usr/share/passwall/utils.sh ; echo -n $(get_new_port %s %s)"
+	return tonumber(sys.exec(string.format(cmd_format, util.shellquote(tostring(start_port)), util.shellquote(protocol))))
 end
 
 function exec_call(cmd)
@@ -268,10 +270,21 @@ end
 -- 计算字符串 MD5
 function md5_string(str)
 	if type(str) ~= "string" then return "" end
-	local quoted = "'" .. str:gsub("'", "'\\''") .. "'"
-	local out = sys.exec("printf '%s' " .. quoted .. " | md5sum")
-	if not out then return "" end
-	return out:sub(1, 32)
+	local path = trim(sys.exec("mktemp /tmp/md5.XXXXXX") or "")
+	if path == "" then return "" end
+	local md5 = fs.writefile(path, str) == #str and md5_file(path) or ""
+	fs.unlink(path)
+	return md5
+end
+
+-- 校验文件 SHA256
+function verify_sha256(file, digest)
+	if type(digest) ~= "string" then return false end
+	local expected = digest:match("^sha256:(%x+)$")
+	if not expected or #expected ~= 64 then return false end
+	local code, output = exec_call("sha256sum " .. util.shellquote(file))
+	local actual = output:match("^(%x+)%s")
+	return code == 0 and actual ~= nil and actual:lower() == expected:lower()
 end
 
 --提取URL中的域名和端口(no ip)
@@ -295,9 +308,14 @@ function resolve_domain(domain, dns)
 	address = (address or dns):gsub("^%[(.-)%]$", "%1")
 	port = port or "53"
 	local server = datatypes.ip6addr(address) and ("[" .. address .. "]") or address
+	local dns_servers = {server .. ":" .. port, address .. "#" .. port, "223.5.5.5"}
+	local version = sys.exec("LC_ALL=C busybox nslookup -v 2>&1"):match("BusyBox v(%d+%.%d+%.%d+)")
+	if version and compare_versions(version, "<", "1.35.0") then
+		dns_servers[1], dns_servers[2] = dns_servers[2], dns_servers[1]
+	end
 	local rc, result
-	for _, dns_server in ipairs({server .. ":" .. port, address .. "#" .. port, "223.5.5.5"}) do
-		rc, result = exec_call_as_gid("LC_ALL=C nslookup " .. util.shellquote(domain) .. " " .. util.shellquote(dns_server), DIRECT_GID)
+	for _, dns_server in ipairs(dns_servers) do
+		rc, result = exec_call_as_gid("LC_ALL=C busybox nslookup " .. util.shellquote(domain) .. " " .. util.shellquote(dns_server), DIRECT_GID)
 		local ips, seen, answer = {}, {}, false
 		for line in result:gmatch("[^\r\n]+") do
 			if line:match("^%s*Name:") then answer = true end
@@ -1209,6 +1227,17 @@ local function check_path(app_name)
 	}
 end
 
+local function cache_update_digests(app_name, assets)
+	local digests = {}
+	for _, asset in ipairs(assets) do
+		if asset.browser_download_url and type(asset.digest) == "string" then
+			digests[asset.browser_download_url] = asset.digest
+		end
+	end
+	fs.mkdirr(CACHE_PATH)
+	fs.writefile(CACHE_PATH .. "/update_" .. app_name .. ".json", jsonc.stringify(digests))
+end
+
 function to_check(arch, app_name)
 	local result = check_path(app_name)
 	if result.code ~= 0 then
@@ -1273,6 +1302,7 @@ function to_check(arch, app_name)
 		}
 	end
 
+	cache_update_digests(app_name, {asset})
 	return {
 		code = 0,
 		has_update = has_update,
@@ -1291,6 +1321,12 @@ function to_download(app_name, url, size, task_id, keep_files)
 
 	if not url or url == "" then
 		return {code = 1, error = i18n.translate("Download url is required.")}
+	end
+
+	local digests = jsonc.parse(fs.readfile(CACHE_PATH .. "/update_" .. app_name .. ".json") or "{}")
+	local digest = type(digests) == "table" and digests[url]
+	if type(digest) ~= "string" then
+		return {code = 1, error = i18n.translate("File verification failed.")}
 	end
 
 	if not keep_files then remove("/tmp/" .. app_name .. "_download.*") end
@@ -1329,6 +1365,11 @@ function to_download(app_name, url, size, task_id, keep_files)
 			code = 1,
 			error = i18n.translatef("File download failed or timed out: %s", url)
 		}
+	end
+
+	if not verify_sha256(tmp_file, digest) then
+		exec("/bin/rm", {"-f", tmp_file})
+		return {code = 1, error = i18n.translate("File verification failed.")}
 	end
 
 	return {code = 0, file = tmp_file, zip = com[app_name].zipped }
@@ -1538,6 +1579,7 @@ function to_check_self()
 	if not main or not i18n_package then
 		return {code = 1, error = i18n.translate("Get remote version info failed.")}
 	end
+	cache_update_digests(appname, {main, i18n_package})
 	return {
 		code = 0, has_update = has_update, local_version = local_version,
 		remote_version = remote_version, html_url = release.html_url,
