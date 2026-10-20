@@ -113,6 +113,9 @@ msgstr "第二 DNS 服务器"
 msgid "DNS64 Server Settings"
 msgstr "DNS64 服务器配置"
 
+msgid "DDR"
+msgstr "DDR"
+
 #: smartdns.js:160
 msgid "Download Files Setting"
 msgstr "下载文件设置"
@@ -286,6 +289,9 @@ msgstr "DOH 服务器"
 msgid "Enable DOH DNS Server"
 msgstr "启用 DOH 服务器"
 
+msgid "Enable Discovery of Designated Resolvers for enabled local DNS services."
+msgstr "为当前启用的本地DNS服务启用指定解析器发现。"
+
 #: smartdns.js:301
 msgid "DOH Server Port"
 msgstr "DOH 服务器端口"
@@ -389,8 +395,8 @@ msgid "Resolve Local Hostnames"
 msgstr "解析本地主机名"
 
 #: smartdns.js:372
-msgid "Resolve local hostnames by reading Dnsmasq lease file."
-msgstr "读取 Dnsmasq 的租约文件解析本地主机名。"
+msgid "Resolve local hostnames by reading Dnsmasq or odhcpd lease files."
+msgstr "读取 Dnsmasq 或 odhcpd 的租约文件解析本地主机名。"
 
 #: smartdns.js:377
 msgid "mDNS Lookup"
@@ -818,11 +824,12 @@ msgstr "上游服务器"
 
 #: smartdns.js:882
 msgid ""
-"Upstream Servers, support UDP, TCP, DoT, DoH, DoQ, DoH3 protocol. Please "
-"configure multiple DNS servers, including multiple foreign DNS servers."
+"Upstream Servers, support UDP, TCP, TLS, HTTPS, QUIC and HTTP3 protocol. "
+"Please configure multiple DNS servers, including multiple foreign DNS "
+"servers."
 msgstr ""
-"上游 DNS 服务器，支持 UDP，TCP，DoT，DoH，DoQ，DoH3 协议。请配置多个上游 DNS "
-"服务器，包括多个国内外服务器。"
+"上游 DNS 服务器，支持 UDP、TCP、TLS、HTTPS、QUIC 和 HTTP3 协议。请配置多个上"
+"游 DNS 服务器，包括多个国内外服务器。"
 
 #: smartdns.js:898
 msgid "DNS Server Name"
@@ -869,8 +876,8 @@ msgid "quic"
 msgstr "quic"
 
 #: smartdns.js:923
-msgid "h3"
-msgstr "h3"
+msgid "http3"
+msgstr "http3"
 
 #: smartdns.js:928
 msgid "DNS Server group"
@@ -960,8 +967,8 @@ msgid "Please set proxy server first."
 msgstr "请先设置代理服务器。"
 
 #: smartdns.js:1046
-msgid "Only socks5 proxy support udp server."
-msgstr "仅 SOCKS5 代理支持 UDP 服务器。"
+msgid "Only socks5 proxy support UDP, QUIC and HTTP3 server."
+msgstr "仅SOCKS5代理支持UDP、QUIC和HTTP3服务器。"
 
 #: smartdns.js:1053
 msgid "Fallback"

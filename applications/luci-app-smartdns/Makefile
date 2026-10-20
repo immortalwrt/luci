@@ -1,12 +1,12 @@
 #
-# Copyright 2018-2025 Nick Peng <pymumu@gmail.com>
+# Copyright 2018-2026 Nick Peng <pymumu@gmail.com>
 # Licensed to the public under the GPL V3 License.
 
 include $(TOPDIR)/rules.mk
 
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_MAINTAINER:=Nick Peng <pymumu@gmail.com>
-PKG_VERSION:=1.2025.47.2
+PKG_VERSION:=1.2026.48.2
 
 LUCI_TITLE:=LuCI for smartdns
 LUCI_DESCRIPTION:=Provides Luci for smartdns
