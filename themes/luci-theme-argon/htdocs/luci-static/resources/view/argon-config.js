@@ -7,14 +7,14 @@
 'require ui';
 'require view';
 
-var callAvailSpace = rpc.declare({
+const callAvailSpace = rpc.declare({
 	object: 'luci.argon',
 	method: 'avail',
 	raise: true,
 	expect: { '': { avail: 0 } }
 });
 
-var callRemoveArgon = rpc.declare({
+const callRemoveArgon = rpc.declare({
 	object: 'luci.argon',
 	method: 'remove',
 	params: ['filename'],
@@ -22,7 +22,7 @@ var callRemoveArgon = rpc.declare({
 	expect: { '': {} }
 });
 
-var callRenameArgon = rpc.declare({
+const callRenameArgon = rpc.declare({
 	object: 'luci.argon',
 	method: 'rename',
 	params: ['newname'],
@@ -30,28 +30,28 @@ var callRenameArgon = rpc.declare({
 	expect: { '': {} }
 });
 
-var bg_path = '/www/luci-static/argon/background/';
+const bg_path = '/www/luci-static/argon/background/';
 
-var trans_set = [0, 0.1, 0.2, 0.3, 0.4,
+const trans_set = [0, 0.1, 0.2, 0.3, 0.4,
 	0.5, 0.6, 0.7, 0.8, 0.9, 1 ];
 
 function expandHex(value) {
 	if (/^#[0-9a-f]{3}$/i.test(value))
-		return value.replace(/[0-9a-f]/gi, function(digit) { return digit + digit; }).toLowerCase();
+		return value.replace(/[0-9a-f]/gi, (digit) => { return digit + digit; }).toLowerCase();
 	return /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : null;
 }
 
-var ColorValue = form.Value.extend({
-	validate: function(section_id, value) {
+const ColorValue = form.Value.extend({
+	validate(section_id, value) {
 		return expandHex(value) !== null ||
 			_('Expecting: %s').format(_('valid HEX color value'));
 	},
 
-	renderWidget: function(section_id, option_index, cfgvalue) {
+	renderWidget(section_id, option_index, cfgvalue) {
 		// Keep the native Textfield and its binding as the saved form value.
-		var node = this.super('renderWidget', [section_id, option_index, cfgvalue]);
-		var input = node.querySelector('input');
-		var picker = E('input', {
+		const node = this.super('renderWidget', [section_id, option_index, cfgvalue]);
+		const input = node.querySelector('input');
+		const picker = E('input', {
 			'type': 'color',
 			'id': this.cbid(section_id) + '-picker',
 			'class': 'argon-color-swatch',
@@ -67,12 +67,12 @@ var ColorValue = form.Value.extend({
 		input.setAttribute('autocomplete', 'off');
 		node.appendChild(picker);
 
-		var updatePicker = function() {
-			var color = expandHex(input.value);
+		const updatePicker = () => {
+			const color = expandHex(input.value);
 			if (color !== null)
 				picker.value = color;
 		};
-		var updateText = L.bind(function() {
+		const updateText = L.bind(() => {
 			if (input.disabled || input.readOnly)
 				return;
 			input.value = picker.value;
@@ -88,18 +88,18 @@ var ColorValue = form.Value.extend({
 });
 
 return view.extend({
-	load: function() {
+	load() {
 		return Promise.all([
 			uci.load('argon'),
-			callAvailSpace().catch(function(e) {
+			callAvailSpace().catch((e) => {
 				ui.addNotification(null, E('p', _('Failed to read available space: %s.').format(e.message)));
 				return { avail: 0 };
 			}),
-			fs.list(bg_path).then(function(files) {
-				return files.filter(function(file) {
+			fs.list(bg_path).then((files) => {
+				return files.filter((file) => {
 					return file.type === 'file' && /\.(jpe?g|png|gif|webp|mp4|webm)$/i.test(file.name);
 				});
-			}).catch(function(e) {
+			}).catch((e) => {
 				ui.addNotification(null, E('p', _('Failed to list background files: %s.').format(e.message)));
 				return [];
 			}),
@@ -107,8 +107,8 @@ return view.extend({
 		]);
 	},
 
-	render: function(data) {
-		var m, s, o;
+	render(data) {
+		let m, s, o;
 
 		m = new form.Map('argon', _('Argon theme configuration'),
 			_('Here you can set the blur and transparency of the login page of argon theme, and manage the background pictures and videos. Chrome is recommended.'));
@@ -117,7 +117,7 @@ return view.extend({
 		s.addremove = false;
 		s.anonymous = true;
 
-		var loginStyles = {
+		const loginStyles = {
 			classic: _('Classic sidebar'),
 			centered: _('Centered card')
 		};
@@ -128,7 +128,7 @@ return view.extend({
 		o.default = 'classic';
 		o.rmempty = false;
 		o.renderWidget = function(section_id, option_index, cfgvalue) {
-			var style = cfgvalue === 'centered' ? 'centered' : 'classic';
+			const style = cfgvalue === 'centered' ? 'centered' : 'classic';
 			return E('div', {}, [
 				form.ListValue.prototype.renderWidget.call(this, section_id, option_index, style),
 				E('img', {
@@ -142,8 +142,8 @@ return view.extend({
 			]);
 		};
 		o.onchange = function(ev, section_id, value) {
-			var preview = document.getElementById(this.cbid(section_id) + '-preview');
-			var style = value === 'centered' ? 'centered' : 'classic';
+			const preview = document.getElementById(this.cbid(section_id) + '-preview');
+			const style = value === 'centered' ? 'centered' : 'classic';
 			if (preview) {
 				preview.src = L.resource('argon-config/login-' + style + '.svg');
 				preview.alt = loginStyles[style];
@@ -163,7 +163,7 @@ return view.extend({
 			return (uci.get('argon', section_id, 'online_wallpaper') || 'none').split('_')[0];
 		};
 		o.write = function(section_id, value) {
-			var collection = this.section.formvalue(section_id, 'collection_id');
+			const collection = this.section.formvalue(section_id, 'collection_id');
 			if (collection && (value === 'unsplash' || value === 'wallhaven'))
 				value += '_' + collection;
 			uci.set('argon', section_id, 'online_wallpaper', value);
@@ -175,7 +175,7 @@ return view.extend({
 		o.depends('online_wallpaper', 'unsplash');
 		o.depends('online_wallpaper', 'wallhaven');
 		o.cfgvalue = function(section_id) {
-			var value = uci.get('argon', section_id, 'online_wallpaper');
+			const value = uci.get('argon', section_id, 'online_wallpaper');
 			if (!value || !value.includes('_'))
 				return '';
 
@@ -204,9 +204,9 @@ return view.extend({
 		// A header shortcut saves independently of this form. Keep the widget and
 		// its comparison value current, while leaving other pending fields alone.
 		o.renderWidget = function(section_id, option_index, cfgvalue) {
-			var option = this;
-			var node = form.ListValue.prototype.renderWidget.call(this, section_id, option_index, cfgvalue);
-			var syncMode = function(event) {
+			const option = this;
+			const node = form.ListValue.prototype.renderWidget.call(this, section_id, option_index, cfgvalue);
+			const syncMode = (event) => {
 				if (!node.isConnected) {
 					window.removeEventListener('argon-appearance-saved', syncMode);
 					return;
@@ -224,7 +224,7 @@ return view.extend({
 
 		o = s.option(form.ListValue, 'transparency', _('Login panel opacity'),
 			_('0 transparent - 1 opaque (suggest: transparent: 0 or translucent preset: 0.5).'));
-		for (var i of trans_set)
+		for (const i of trans_set)
 			o.value(i);
 		o.default = '0.5';
 		o.rmempty = false;
@@ -242,7 +242,7 @@ return view.extend({
 		o.default = 'auto';
 		o.rmempty = false;
 		o.cfgvalue = function(section_id) {
-			var mode = uci.get('argon', section_id, 'dark_primary_mode');
+			const mode = uci.get('argon', section_id, 'dark_primary_mode');
 			return mode === 'auto' || mode === 'custom' ? mode :
 				(expandHex(uci.get('argon', section_id, 'dark_primary')) ? 'custom' : 'auto');
 		};
@@ -261,20 +261,20 @@ return view.extend({
 		o.default = 'inherit';
 		o.rmempty = false;
 		o.cfgvalue = function(section_id) {
-			var mode = uci.get('argon', section_id, 'dark_glass_mode');
+			const mode = uci.get('argon', section_id, 'dark_glass_mode');
 			if (mode === 'inherit' || mode === 'custom')
 				return mode;
-			var blur = uci.get('argon', section_id, 'blur') || '10';
-			var opacity = uci.get('argon', section_id, 'transparency') || '0.5';
-			var darkBlur = uci.get('argon', section_id, 'blur_dark');
-			var darkOpacity = uci.get('argon', section_id, 'transparency_dark');
+			const blur = uci.get('argon', section_id, 'blur') || '10';
+			const opacity = uci.get('argon', section_id, 'transparency') || '0.5';
+			const darkBlur = uci.get('argon', section_id, 'blur_dark');
+			const darkOpacity = uci.get('argon', section_id, 'transparency_dark');
 			return (darkBlur != null && +darkBlur !== +blur) ||
 				(darkOpacity != null && +darkOpacity !== +opacity) ? 'custom' : 'inherit';
 		};
 
 		o = s.option(form.ListValue, 'transparency_dark', _('[Dark mode] Transparency'),
 			_('0 transparent - 1 opaque (suggest: black translucent preset: 0.5).'));
-		for (var i of trans_set)
+		for (const i of trans_set)
 			o.value(i);
 		o.default = '0.5';
 		o.rmempty = false;
@@ -295,9 +295,9 @@ return view.extend({
 		o.onclick = function() {
 			if (this.map.readonly)
 				return Promise.resolve();
-			return this.map.save(null, true).then(function() {
+			return this.map.save(null, true).then(() => {
 				return ui.changes.apply(true);
-			}).catch(function(e) {
+			}).catch((e) => {
 				ui.addNotification(null, E('p', e.message));
 			});
 		};
@@ -318,17 +318,17 @@ return view.extend({
 		o.onclick = function(ev, section_id) {
 			if (this.map.readonly)
 				return Promise.resolve();
-			var file = '/tmp/argon_background.tmp';
-			var uploaded = false;
-			return ui.uploadFile(file, ev.target).then(function(res) {
+			const file = '/tmp/argon_background.tmp';
+			let uploaded = false;
+			return ui.uploadFile(file, ev.target).then((res) => {
 				uploaded = true;
-				return callRenameArgon(res.name).then(function(ret) {
+				return callRenameArgon(res.name).then((ret) => {
 					if (ret.result === 0)
 						return location.reload();
 					throw new Error(_('Failed to upload file: %s.').format(res.name));
 				});
 			})
-			.catch(function(e) {
+			.catch((e) => {
 				ui.addNotification(null, E('p', e.message));
 				if (uploaded)
 					return L.resolveDefault(fs.remove(file));
@@ -338,7 +338,7 @@ return view.extend({
 
 		s = m.section(form.TableSection);
 		s.render = function() {
-			var tbl = E('table', { 'class': 'table cbi-section-table' },
+			const tbl = E('table', { 'class': 'table cbi-section-table' },
 				E('tr', { 'class': 'tr table-titles' }, [
 					E('th', { 'class': 'th' }, [ _('Filename') ]),
 					E('th', { 'class': 'th' }, [ _('Modified date') ]),
@@ -347,7 +347,7 @@ return view.extend({
 				])
 			);
 
-			cbi_update_table(tbl, data[2].map(L.bind(function(file) {
+			cbi_update_table(tbl, data[2].map(L.bind((file) => {
 				return [
 					file.name,
 					new Date(file.mtime * 1000).toLocaleString(),
@@ -355,14 +355,14 @@ return view.extend({
 					E('button', {
 						'class': 'btn cbi-button cbi-button-remove',
 						'disabled': this.map.readonly || null,
-						'click': ui.createHandlerFn(this, function() {
+						'click': ui.createHandlerFn(this, () => {
 							if (this.map.readonly)
 								return Promise.resolve();
-							return callRemoveArgon(file.name).then(function(ret) {
+							return callRemoveArgon(file.name).then((ret) => {
 								if (ret.result === 0)
 									return location.reload();
 								throw new Error(_('Failed to delete file: %s.').format(file.name));
-							}).catch(function(e) {
+							}).catch((e) => {
 								ui.addNotification(null, E('p', e.message));
 							});
 						})
