@@ -12,7 +12,7 @@
  * write fails after the bytes have landed.
  *
  * It is a module of its own because of WHERE it is needed: this machinery is reached only from the
- * Appearance page, one out of nearly two hundred, and it was ~4 KB of DOMParser, canvas and rpc
+ * Appearance tab, one page out of nearly two hundred, and it was ~4 KB of DOMParser, canvas and rpc
  * plumbing downloaded to a router's browser on the way to the DHCP page.
  *
  * The token accessors and the two live appliers live in `fs-axes` beside the axes themselves — the
@@ -212,20 +212,8 @@ function _sanitizeSvg(text) {
 	 * (Chromium and WebKit decline to run XSLT on an image/svg+xml document). A tile has no use for
 	 * one, and without the PI the embedded stylesheet is never applied. */
 
-	/* Residual, verified NOT exploitable here (2026-09 security review): a prologue of
-	 * `<!DOCTYPE svg SYSTEM "http://evil.example/x.dtd">` is a document-level construct this walk
-	 * never visits — `doc.doctype` is left as parsed, the same as everything else here that is not an
-	 * element or an attribute — and it survives `XMLSerializer` byte for byte on the same round trip
-	 * that runs below when anything else on the document needs cleaning. It costs nothing today
-	 * because no shipping engine resolves an external DTD for any document at all, `image/svg+xml`
-	 * included (external entity resolution has been off since the XXE era); a browser that ever did
-	 * would only reach that fetch by opening the file directly, which the CGI answers with
-	 * `Content-Security-Policy: default-src 'none'; sandbox` — every other consumer sees this bundle
-	 * only as a `mask-image`/`background-image`/`<img>` source, none of which parses a DOCTYPE at all.
-	 * Not closed: dropping `doc.doctype` would carve out one more node type in a walk that otherwise
-	 * judges only elements and their attributes, for a fetch nothing in this project's support matrix
-	 * performs. Starts mattering the day some consumer of this bundle DOES resolve an external DTD, or
-	 * the file is ever served as a navigable document without that header. */
+	/* An external-DTD DOCTYPE prologue is left unvisited on purpose: no engine resolves an external DTD, and
+	 * the CGI answers a direct open with CSP `default-src 'none'; sandbox`. */
 	for (const n of [ ...doc.childNodes ])
 		if (n.nodeType === Node.PROCESSING_INSTRUCTION_NODE) { n.remove(); elements++; }
 
@@ -265,21 +253,8 @@ function _sanitizeSvg(text) {
 			 * one the spec gives them — a change to how SVG itself is interpreted, not something a
 			 * check here could see coming or catch. */
 			if ((/^on[a-z]+$/).test(n)) { el.removeAttribute(a.name); refs++; continue; }
-			/* Residual, verified NOT exploitable here (2026-09 security review): XML attribute-value
-			 * normalisation does not fold a numeric character reference the way HTML does, so
-			 * `href="javas&#9;cript:alert(1)"` reaches `v` as a DOM string with a LITERAL TAB still in
-			 * it — `/^javascript:/i` does not match a value starting with a control character, and the
-			 * fixture round-trips through `XMLSerializer` byte for byte, so it survives both this
-			 * filter and the serializer. It still resolves to `javascript:` in a real browser, because
-			 * a URL parser strips TAB/LF/CR from the scheme before comparing it (WHATWG URL, "scheme
-			 * start state") — the same class of hole every naive `^scheme:` regex has. Not closed:
-			 * matching every control character a URL parser discards is the grammar-guessing this file
-			 * exists to avoid, for a value that never resolves as a URL here in the first place — this
-			 * bundle only ever leaves the router as `mask-image`/`background-image`/`<img>`, none of
-			 * which reads `href` as navigable, and the CGI serving it back for a direct open sends
-			 * `Content-Security-Policy: default-src 'none'; sandbox` regardless. Starts mattering the
-			 * day the tile is served without that header, or inlined into a page rather than
-			 * referenced as an image. */
+			/* A TAB-obfuscated `javascript:` (`href="javas&#9;cript:alert(1)"`) passes this regex but
+			 * is only ever an image source, never a navigable `href`, and a direct open is CSP-sandboxed. */
 			if ((/^javascript:/i).test(v)) { el.removeAttribute(a.name); refs++; continue; }
 			/* Security review finding (LOW): `xml:base` (XML Base, W3C) is not itself a reference —
 			 * it changes what every RELATIVE one in the subtree UNDER IT resolves against. A perfectly
@@ -296,22 +271,9 @@ function _sanitizeSvg(text) {
 			 * prefix to the XML namespace just to carry it is a narrower attack this does not chase,
 			 * consistent with this file avoiding a second grammar it would have to maintain. */
 			if (n === 'xml:base') { el.removeAttribute(a.name); refs++; continue; }
-			/* Residual, verified NOT exploitable here (2026-09 security review): the branch below is
-			 * the ONLY place a `url(` is ever inspected. A PRESENTATION ATTRIBUTE that takes the same
-			 * function — `fill`, `stroke`, `filter`, `clip-path`, `mask`, `cursor` (SVG 1.1 §11, §15) —
-			 * is a plain attribute value to this walk, not a CSS declaration, so `<rect
-			 * fill="url(//evil.example/x.svg#g)"/>` matches nothing above and passes with its ORIGINAL
-			 * bytes untouched. What it can do is start a second fetch — no script, no navigation,
-			 * exactly the reach `_externalStyleRef` already closes for `style` — and that fetch runs
-			 * only where the SVG is rendered with its own resource-loading context, which this bundle
-			 * never is: it is only ever a `mask-image`/`background-image`/`<img>` source, and a direct
-			 * open is answered by the CGI's `Content-Security-Policy: default-src 'none'; sandbox`
-			 * regardless. Not closed: doing here what `_sanitizeStyleValue` does for `style` means the
-			 * same check against every presentation attribute the SVG spec lets carry a `url()`, a list
-			 * this file would then have to track as the spec grows it — the grammar this file exists to
-			 * avoid guessing at, moved from one attribute to a dozen. Starts mattering the day a
-			 * presentation `url()` gets a fetch path this parser-only pass does not already block by
-			 * other means, or the tile stops being image-only. */
+			/* A presentation attribute's `url(` (`fill`, `stroke`, `filter`, …) is only checked below
+			 * for `style`, not here: the bundle is only an image source, so the
+			 * worst reach is a second fetch with no script and no navigation. */
 			if (n === 'style') {
 				const cleaned = _sanitizeStyleValue(v);
 				if (cleaned.removed) {
@@ -337,22 +299,11 @@ function _sanitizeSvg(text) {
 	return { text: new XMLSerializer().serializeToString(doc), elements, refs };
 }
 
-/* read the picked file as text so it can be inspected before upload, and so what reaches the
- * router is exactly the bytes that were checked */
-function _readText(file) {
-	return new Promise((resolve, reject) => {
-		const fr = new FileReader();
-		fr.onload = () => resolve(String(fr.result || ''));
-		fr.onerror = () => reject(new Error(_('That file could not be read.', 'footstrap')));
-		fr.readAsText(file);
-	});
-}
-
 /* ---- login/page background upload: router-side, and deliberately not an axis ----
  * The other axes are per-browser with a router default; this one has no browser layer. An admin
  * uploads an image once, it becomes the router-wide background for every device and shows
  * pre-login, so it is absent from AXIS_KEYS, snapshotAxes() and matchesSavedDefault() — it must not
- * move the Save button — and needs no factory, so tools/axes.mjs never sees it.
+ * move the Save button — and needs no factory, so axis-contract checks never see it.
  *
  * The image is a served file, uhttpd having no gzip to make inlining it in every <head> viable;
  * only its cache-bust token lives in uci -> window.__fsSD -> the url() head.ut stamps. The path is
@@ -490,7 +441,7 @@ function assetAxis(o) {
 				.catch((e) => _rollbackUpload(o.path, e))
 				.then(() => {
 					/* switch this browser onto it: the ordinary axis path, localStorage only */
-					axes.applyWallpaper(o.wallpaper);
+					axes.wallpaper.apply(o.wallpaper);
 					o.apply(tok);
 					return tok;
 				});
@@ -510,13 +461,16 @@ function assetAxis(o) {
  * back a raster, so the parsed-document check above stands in for it. */
 const PATTERN = assetAxis({
 	path: PAT_PATH, filename: 'pattern.svg', field: 'pattern', wallpaper: 'pattern',
-	apply: (tok) => axes.applyPattern(tok),
+	apply: (tok) => axes.pattern.apply(tok),
 	prepare: (file) => {
 		if (!file) return Promise.reject(new Error(MSG_PICK_SVG));
 		const isSvg = (/(^image\/svg\+xml$)/i).test(file.type || '') || (/\.svg$/i).test(file.name || '');
 		if (!isSvg) return Promise.reject(new Error(MSG_PICK_SVG));
 		if (file.size > PAT_MAX) return Promise.reject(new Error(_('That file is too large.', 'footstrap')));
-		return _readText(file).then((text) => {
+		/* the catch keeps the same message, so what reaches the router is still exactly the bytes
+		 * that were checked */
+		const readErr = () => Promise.reject(new Error(_('That file could not be read.', 'footstrap')));
+		return file.text().catch(readErr).then((text) => {
 			const cleaned = _sanitizeSvg(text);
 			if (cleaned.error) return Promise.reject(new Error(cleaned.error));
 			/* Told once, here, regardless of whether the upload that follows succeeds — what left
@@ -535,7 +489,7 @@ const PATTERN = assetAxis({
  * grant for BG_PATH. */
 const LOGIN_BG = assetAxis({
 	path: BG_PATH, filename: 'login-bg', field: 'login_bg', wallpaper: 'file',
-	apply: (tok) => axes.applyLoginBg(tok),
+	apply: (tok) => axes.loginBg.apply(tok),
 	prepare: (file) => {
 		if (!file || !(/^image\//).test(file.type || ''))
 			return Promise.reject(new Error(_('Please choose an image file.', 'footstrap')));

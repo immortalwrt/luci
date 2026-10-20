@@ -7,6 +7,7 @@
 'require fs-router as router';
 'require fs-prefs as prefs';
 'require fs-sheets as sheets';
+'require fs-widgets as widgets';
 
 /* Page modules: `fs-overview` (Status -> Overview) adds to a stock page rather than owning a
  * route, so it is required only there. A `require` pragma would make it a hard dependency —
@@ -52,25 +53,17 @@ function wirePageModules() {
  * and the warm pass that uses it, so both live here, in the file every page already loads.
  *
  * The palette reads the list back from localStorage when it opens, so the two halves share the key
- * and nothing else. */
+ * and nothing else — fs-search.js owns the "recently visited" feature, so RECENT_KEY and RECENT_MAX
+ * below have to match its constants of the same name exactly. */
 const RECENT_KEY = 'fs-recent';
 const RECENT_MAX = 8;
 const RECENT_WARM = 5;
 
-/* A key is a menu path, or a page path plus the heading of a section inside it
- * (`admin/system/system#Footstrap`) — a section has no dispatcher node to name it, and only the
- * source that produced the row can build that half. Exported for exactly that: the writer stays
- * one function, or the two halves would drift on the cap and the de-duplication. */
+/* A key is a menu path — what the router can navigate to and what warmRecent() prefetches. */
 function remember(key) {
 	if (typeof key !== 'string' || !key) return;
 	const recent = prefs.lsGetArr(RECENT_KEY).filter((x) => typeof x === 'string');
 	prefs.lsSet(RECENT_KEY, JSON.stringify([ key ].concat(recent.filter((p) => p !== key)).slice(0, RECENT_MAX)));
-}
-
-/* the page half of a key: what the router can navigate to and what warmRecent() prefetches */
-function pageOf(key) {
-	const h = key.indexOf('#');
-	return h < 0 ? key : key.slice(0, h);
 }
 
 /* ---- warm the pages this admin actually uses ----
@@ -87,10 +80,9 @@ function pageOf(key) {
 function warmRecent() {
 	try { if (navigator.connection && navigator.connection.saveData) return; } catch (e) {}
 	const here = (L.env.dispatchpath || []).join('/');
-	/* Keys, not paths: a section key names the page it sits on, and two sections of one page must
-	 * warm it once — the module chain is the page's. */
+	/* already de-duplicated: remember() drops the key from its old slot before re-adding it */
 	const keys = prefs.lsGetArr(RECENT_KEY).filter((p) => typeof p === 'string');
-	const paths = [ ...new Set(keys.map(pageOf)) ].filter((p) => p !== here).slice(0, RECENT_WARM);
+	const paths = keys.filter((p) => p !== here).slice(0, RECENT_WARM);
 	if (!paths.length) return;
 	const go = () => paths.forEach((p) => router.prefetchSegs(p.split('/')));
 	if (typeof window.requestIdleCallback === 'function')
@@ -100,8 +92,8 @@ function warmRecent() {
 }
 
 function wireSearch() {
+	/* #fs-search-btn is emitted whenever this module loads (search.ut, !blank_page) */
 	const btn = document.getElementById('fs-search-btn');
-	if (!btn) return;
 	const RT = window.L;
 
 	/* the page this full load landed on; onNavigate covers the SPA path afterwards */
@@ -136,23 +128,6 @@ function wireSearch() {
 		if (ev.key !== '/' || ev.ctrlKey || ev.metaKey || ev.altKey) return;
 		if (ev.target.closest?.('input, textarea, select, [contenteditable], .cbi-dropdown')) return;
 		ev.preventDefault(); open();
-	});
-}
-
-/* ---- optional companion packages ----
- *
- * header.ut prints `window.__fsPlugins` from `footstrap.settings.plugin`, a list a package writes
- * from its own uci-defaults; each entry is a LuCI module name, already whitelisted there. The
- * chrome requires each one after everything below is wired — a plugin registers itself through the
- * seams the theme exports (`fs-router.onNavigate`, `fs-search.addSource`) and the theme names
- * nobody. A plugin that throws costs only itself.
- *
- * No plugin, no cost: an empty list is the shipped state and this loop does nothing. */
-function loadPlugins() {
-	const RT = window.L;
-	const names = Array.isArray(window.__fsPlugins) ? window.__fsPlugins : [];
-	names.forEach((name) => {
-		RT.require(name).catch((e) => console.error('footstrap: plugin ' + name + ' did not load', e));
 	});
 }
 
@@ -191,17 +166,6 @@ const FS_METER_INVERTED_DANGER = 100 - FS_METER_DANGER;
 const FS_METER_INVERTED = new Set([ _('Total Available'), _('Swap free') ]);
 const FS_METER_NEUTRAL = new Set([ _('Buffered'), _('Cached') ]);
 
-/* Write an attribute only when the value actually changes, so a poll tick that reads the same
- * numbers back touches no DOM and fires no attribute-mutation observer. `value === null` removes
- * the attribute instead of writing the string "null". */
-function fsSyncAttr(el, name, value) {
-	if (value === null) {
-		if (el.hasAttribute(name)) el.removeAttribute(name);
-	} else if (el.getAttribute(name) !== value) {
-		el.setAttribute(name, value);
-	}
-}
-
 /* The meter's name, if the markup already states one — never invented. A `.cbi-value` row's own
  * label (the RSSI/RSRP gallery shape) or a key/value table row's first cell (Memory, Storage, CPU
  * load on Overview) each stand for the whole row; a bare meter with neither (Software's disk-space
@@ -237,8 +201,7 @@ function findProgressbarLabel(pg) {
  * cannot pick a wrong number out of a title carrying several. An empty title or one with no
  * percentage in any of the three shapes yields null, on purpose — nothing to annotate. `%d` is the
  * unclamped percentage, so the result can still read past 100 or under 0 and is clamped by the
- * caller, the same way `window.progressbar` clamps its own `level`, below. Exported for
- * tests/meter.test.mjs, which is the only caller that needs the parse on its own. */
+ * caller, the same way `window.progressbar` clamps its own `level`, below. */
 function parseMeterPercent(title) {
 	if (title == null) return null;
 	const m = (/\((-?\d+)%\)\s*$/).exec(title) || (/(-?\d+)%\s*$/).exec(title) || (/^(-?\d+)%/).exec(title);
@@ -256,14 +219,14 @@ function annotateMeter(pg) {
 	const pc = parseMeterPercent(title);
 	if (pc == null) return;
 	const level = pc < 0 ? 0 : (pc > 100 ? 100 : pc);
-	fsSyncAttr(pg, 'role', 'progressbar');
-	fsSyncAttr(pg, 'aria-valuemin', '0');
-	fsSyncAttr(pg, 'aria-valuemax', '100');
-	fsSyncAttr(pg, 'aria-valuenow', String(level));
-	fsSyncAttr(pg, 'aria-valuetext', title);
+	widgets.syncAttr(pg, 'role', 'progressbar');
+	widgets.syncAttr(pg, 'aria-valuemin', '0');
+	widgets.syncAttr(pg, 'aria-valuemax', '100');
+	widgets.syncAttr(pg, 'aria-valuenow', String(level));
+	widgets.syncAttr(pg, 'aria-valuetext', title);
 	const label = findProgressbarLabel(pg);
 	const name = label ? label.textContent.trim() : '';
-	fsSyncAttr(pg, 'aria-label', label ? name : null);
+	widgets.syncAttr(pg, 'aria-label', label ? name : null);
 	/* Polarity: an unrecognised bar (a third-party app's own meter included — see the Sets above)
 	 * keeps the plain fill-based rule, on purpose. A wrong red is worse than a missing colour, but a
 	 * MISSING colour on the common case — a used-based fill, which is what an app most often draws —
@@ -278,12 +241,12 @@ function annotateMeter(pg) {
 	} else {
 		dataLevel = level >= FS_METER_DANGER ? 'danger' : (level >= FS_METER_WARN ? 'warn' : null);
 	}
-	fsSyncAttr(pg, 'data-fs-level', dataLevel);
+	widgets.syncAttr(pg, 'data-fs-level', dataLevel);
 }
 
 /* Every `.cbi-progressbar[title]` under `root` — the markup itself, not who last drew it. Called
  * from fs-overview.js's own poll-tick observer (see there for why this file does not run a second
- * one); `fsSyncAttr` above makes a re-run over an unchanged bar a no-op read. */
+ * one); `widgets.syncAttr` above makes a re-run over an unchanged bar a no-op read. */
 function annotateMeters(root) {
 	(root || document).querySelectorAll('.cbi-progressbar[title]').forEach(annotateMeter);
 }
@@ -366,7 +329,7 @@ ensureOverviewHelpers();
  *
  *   fs-menutree    path <-> menu node, alias/firstchild resolution (a port of dispatcher.uc)
  *   fs-prefs       the Appearance axes and their localStorage
- *   fs-widgets     the inline-SVG wrapper, the disclosure primitives, the colour control
+ *   fs-widgets     the inline-SVG wrapper, an idempotent attribute write, Enter/Space activation
  *   fs-chrome      mode menu, section tabs, the rail toggle, the "does it still fit" measurements
  *   fs-router      the SPA client router (docs/spa-router.md)
  *   fs-sheets      the guard against a view's injected CSS repainting every later page
@@ -382,16 +345,9 @@ ensureOverviewHelpers();
  * halves (fs-menutree, fs-prefs) are separate modules. */
 
 return baseclass.extend({
-	/* the seam a companion package writes its own rows into the recents list through; see
-	 * remember() for what a key is */
-	remember,
-
 	/* the seam fs-overview.js calls, on its own already-coalesced poll-tick observer, to annotate
 	 * the meters a stock Status -> Overview include draws with its own local progressbar() */
 	annotateMeters,
-
-	/* module-private otherwise: tests/meter.test.mjs drives the percent parse and the clamp/threshold
-	 * split directly rather than through a live `.cbi-progressbar[title]` walk */
 
 	init(renderMainMenu) {
 		/* First, and outside the promise: a third-party sheet that outranks the chrome is already
@@ -422,9 +378,6 @@ return baseclass.extend({
 			wirePageModules();
 			router.wire();
 			router.wireVisibility();
-			/* last: a plugin registers against the parts above, and a broken one must not be able
-			 * to take the chrome with it */
-			loadPlugins();
 		/* no sane partial recovery — a throw above loses the menu, the router and the Appearance
 		 * tab together — so this fails loudly rather than silently */
 		}).catch((e) => console.error('footstrap: chrome init failed', e));

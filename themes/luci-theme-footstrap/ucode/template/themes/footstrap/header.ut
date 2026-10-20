@@ -8,7 +8,7 @@
  i18n, and the rule the other templates point at. A msgid is a GLOBAL name: LuCI serves one merged
  catalogue — load_catalog() loads every *.<lang>.lmo and a lookup returns the first archive holding
  the hash — so readdir order decides who owns a string, and the Appearance layout toggle rendered
- "Максимум" on a Russian router because another catalogue translates `Top` as "maximum" (issue #6).
+ "Максимум" on a Russian router because another catalogue translates `Top` as "maximum".
  Anything left bare is a name anyone may take, and contexting cannot be selective.
 
  So every Appearance label carries the `footstrap` msgctxt, while the chrome's own strings — Skip
@@ -35,7 +35,7 @@
 	/* Every option saveAsDefault() writes, listed once and read back in a loop. A hand-written
 	 * literal with one line per axis drops an axis silently: Save to router reports success, the
 	 * file on disk is correct, and "Reset to router" lands on the BUILT-IN look because the value
-	 * the server hands the client was never there. tools/axes.mjs checks this list against
+	 * the server hands the client was never there. This list is checked against
 	 * snapshotAxes().
 	 *
 	 * '' rather than a raw undefined when unset, so head.ut's `!= ''` guards fire: int(undefined)
@@ -69,22 +69,10 @@
 	   it, so the CI gate cannot see the difference. */
 	fs_defaults.layout = fsd.layout || config.main?.footstrap_layout || '';
 
-	/* Optional companion packages announce themselves in the theme's own config —
-	   `uci add_list footstrap.settings.plugin=<module>` from the package's uci-defaults — rather
-	   than being named in this tree. The chrome requires each name and knows nothing else about it,
-	   so the edge points inwards exactly as fs-router.onNavigate does.
-
-	   Whitelisted to the shape of a LuCI module name before it is printed into a <script>: writing
-	   that file needs root, but a value that reaches an inline script is checked anyway. */
-	let fs_plugins = fsd.plugin ?? [];
-	if (type(fs_plugins) != 'array')
-		fs_plugins = [ fs_plugins ];
-	fs_plugins = filter(fs_plugins, (m) => type(m) == 'string' && match(m, /^[a-zA-Z0-9._-]{1,48}$/));
-
 	http.prepare_content('text/html; charset=UTF-8');
 -%}
 
-{% include('themes/footstrap/partials/head', { boardinfo, fs_defaults, fs_plugins }) %}
+{% include('themes/footstrap/partials/head', { boardinfo, fs_defaults }) %}
 
 	{#
 		data-page carries the DISPATCH path (ctx.path), not request_path: on a firstchild route
@@ -97,6 +85,43 @@
 	#}
 	{% const fs_page = entityencode(join('-', length(ctx.path) ? ctx.path : ctx.request_path), true) %}
 	<body class="lang_{{ dispatcher.lang }}" data-page="{{ fs_page }}">
+		<script>
+			/* Records every node a script parks directly on <body>: a page that does so makes the next
+			 * navigation a full load, because the document is spent. fs-router.js's
+			 * strayBodyNode()/bodyLittered() read window.__fsBodyAdds. First byte of <body>, before
+			 * any chrome element or the dispatched page's own <div id="view">. Own property of this
+			 * <body> instance, never Node.prototype. */
+			(() => {
+				const body = document.body;
+				if (!body || body.__fsBodyHooked) return;
+				body.__fsBodyHooked = true;
+				const adds = window.__fsBodyAdds || (window.__fsBodyAdds = []);
+				const names = [ 'appendChild', 'insertBefore', 'replaceChild', 'append', 'prepend',
+					'insertAdjacentElement', 'insertAdjacentHTML' ];
+				names.forEach((name) => {
+					const orig = body[name];
+					if (typeof orig !== 'function') return;
+					try {
+						Object.defineProperty(body, name, {
+							configurable: true,
+							writable: true,
+							value() {
+								const before = Array.prototype.slice.call(this.children);
+								const ret = orig.apply(this, arguments);
+								const after = this.children;
+								for (let i = 0; i < after.length; i++) {
+									if (before.indexOf(after[i]) === -1) adds.push(after[i]);
+								}
+								return ret;
+							}
+						});
+					}
+					/* a host that refuses to redefine this one name leaves it unwrapped; the rest
+					 * still are */
+					catch (e) {}
+				});
+			})();
+		</script>
 		{#
 			The wallpaper pattern's paint surface: 15-wallpaper.css masks this element so an
 			uploaded SVG takes the theme's ink. A mask applies to an element's whole rendering,

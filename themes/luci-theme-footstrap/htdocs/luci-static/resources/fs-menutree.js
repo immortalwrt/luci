@@ -19,7 +19,7 @@ function setTree(tree) {
  * reserved for a path outside LuCI's scriptname. */
 function segsFromPath(pathname) {
 	const base = L.env.scriptname || '';
-	if (base && pathname.indexOf(base) !== 0)
+	if (base && !pathname.startsWith(base))
 		return null;
 	const rest = pathname.slice(base.length).replace(/^\/+|\/+$/g, '');
 	return rest.length ? rest.split('/') : [];
@@ -159,10 +159,6 @@ function currentNode() {
 return baseclass.extend({
 	setTree,
 	tree: () => _tree,
-	/* raw presence, no alias or firstchild resolution: fs-commands gates each command on the menu
-	 * node whose `depends.acl` names the group that command needs, and a node that resolves
-	 * elsewhere would answer for a permission the session may not hold */
-	nodeForSegs,
 	segsFromPath,
 	currentNode,
 	resolveSegs,

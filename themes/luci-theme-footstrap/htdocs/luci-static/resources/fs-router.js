@@ -25,7 +25,7 @@
  * The path->node half lives in fs-menutree.js (the chrome needs it too); the "has a view poisoned
  * this document with its CSS?" half in fs-sheets.js.
  *
- * `docs/…`, `tools/…` and `tests/…` in these comments name the theme's own repository
+ * `docs/…` in these comments names the theme's own repository
  * (https://github.com/VizzleTF/luci-theme-footstrap), not the tree this file is read in: the
  * package ships the runtime and nothing else. */
 
@@ -43,9 +43,9 @@ const _viewIntervals = (window.__fsViewIntervals || (window.__fsViewIntervals = 
 	 * keyed by that first id and the entry carries `live`, the id armed right now (null while
 	 * paused), so a view holding its handle can still stop its own poller after a trip through a
 	 * hidden tab. The arguments are kept because a `setInterval` id carries none of them back. */
-	window.setInterval = function (fn, ms) {
+	window.setInterval = function (fn, ms, ...rest) {
 		const id = _si.apply(window, arguments);
-		_viewIntervals.set(id, { fn, ms, rest: Array.prototype.slice.call(arguments, 2), live: id });
+		_viewIntervals.set(id, { fn, ms, rest, live: id });
 		return id;
 	};
 	window.clearInterval = function (id) {
@@ -102,28 +102,19 @@ const _viewIntervals = (window.__fsViewIntervals || (window.__fsViewIntervals = 
  *
  * `L.Poll.timer` is that id, and it is private state: `add`/`remove`/`start`/`stop`/`active` are the
  * documented surface, and the whole `L.Poll` alias is already deprecated (`'require poll'` replaces
- * it, but no supported release ships poll.js yet). Read blind, a renamed field would make LuCI's
- * tick look like a view's — cleared on the next navigation, every poll on every later page silently
- * dead. So a missing field is a reason to do nothing, once, loudly.
- *
- * Asked through the documented half first: `active()` says whether the tick is running, and `timer`
- * is deleted by `stop()`, so an absent field is the ordinary "nothing to protect" case. The anomaly
- * worth reporting is the pair disagreeing — a tick running while the id it runs on has no name we
- * know.
- *
- * The alias itself is guarded for the same reason: the sweep runs inside the staged render, and a
- * TypeError there would leave every click showing the previous page's content under the new page's
- * title. */
+ * it, but no supported release ships poll.js yet). `active()` below is called unguarded: this
+ * caller runs from the visibilitychange listener at module eval (:69-81), before CONTRACT_FNS ever
+ * checks anything, so what backs it is the floor, not the boot contract — `L.Poll.active` is
+ * unconditional in every 24.10+ luci.js. Read blind, a renamed `timer` field would make LuCI's tick
+ * look like a view's — cleared on the next navigation, every poll on every later page silently
+ * dead. So a missing field is a reason to do nothing, once, loudly: `active()` says whether the
+ * tick is running, and `timer` is deleted by `stop()`, so an absent field is the ordinary "nothing
+ * to protect" case. The anomaly worth reporting is the pair disagreeing — a tick running while the
+ * id it runs on has no name we know. */
 /* -> the tick's id; null when LuCI is not polling; false when the two cannot be told apart, which
  * every caller reads as "leave every interval alone" */
 function pollTickId() {
-	if (!L.Poll) {
-		warnPollUnreadable('footstrap: L.Poll is gone from this luci-base, so LuCI\'s own tick cannot be '
-			+ 'told apart from a view\'s timers — leaving view intervals alone. fs-router.js needs '
-			+ 'updating for this luci-base.');
-		return false;
-	}
-	const running = (typeof L.Poll.active === 'function') ? L.Poll.active() : (L.Poll.timer != null);
+	const running = L.Poll.active();
 	if (running && L.Poll.timer == null) {
 		warnPollUnreadable('footstrap: LuCI is polling but L.Poll.timer is not readable — leaving view '
 			+ 'intervals alone rather than risking its tick. fs-router.js needs updating for this '
@@ -137,6 +128,13 @@ function clearViewIntervals() {
 	if (keep === false) return;
 	/* Map, not Set: the key is the timer id and the value is what it takes to re-arm it */
 	_viewIntervals.forEach((spec, id) => { if (id !== keep) window.clearInterval(id); });
+}
+/* The "Refreshing"/"Paused" pill must not outlive the poll it reports on — see the `poll-stop`
+ * listener below, which is its only caller. */
+function hidePollIndicatorIfEmpty() {
+	if (!(L.Poll && L.Poll.queue && L.Poll.queue.length === 0)) return;
+	try { ui.hideIndicator('poll-status'); }
+	catch (e) { console.error('footstrap: hideIndicator threw on the poll-status teardown', e); }
 }
 /* one line per document: this runs on every navigation, and a router that cannot read L.Poll
  * cannot read it on the next click either */
@@ -198,8 +196,7 @@ function flushUciCache() {
 	 * is `uci.sections('wireless', 'wifi-device')`). So dropping those packages does not make
 	 * network.js refetch them, it makes every consumer read an EMPTY config until the next full
 	 * load: Channel Analysis with no band tabs, Network -> Switch with no VLAN sections, both
-	 * correct again after F5. tools/spa-parity.mjs reproduces it; tools/upstream-contract.mjs
-	 * notices if the list of three moves.
+	 * correct again after F5.
 	 *
 	 * navigate() waits for the refill, because a cached module resolves within a microtask and the
 	 * view would read the cache we just emptied. Only when network.js is really in the document.
@@ -328,15 +325,67 @@ function watchSession() {
  * which also takes it out of the live tree. Public API only; no reaching into `dom.registry`. */
 function discard(el) {
 	try {
-		const dom = window.L ? window.L.dom : null;
-		if (!dom || typeof dom.content !== 'function') { el.remove(); return; }
 		const bin = document.createElement('div');
 		bin.appendChild(el);
-		dom.content(bin, null);
+		window.L.dom.content(bin, null);
 	}
 	catch (e) {
 		el.remove();
 	}
+}
+
+/* ---- a page that parks nodes on <body> makes the next navigation a full load ----
+ *
+ * Some apps' render() appends tooltip/modal nodes to document.body on every visit (one leaves 7)
+ * and nothing here sweeps them, so the document is spent, as with an invasive foreign sheet. The
+ * recorder is header.ut's first <body> <script>, filling window.__fsBodyAdds; this file only reads it. */
+
+/* -> true if `el` is a node the theme must treat as stray body litter: not the theme's own chrome,
+ * not something stock LuCI parks there itself, not a node type that can never paint. Pure: no DOM
+ * writes, no window.__fsBodyAdds read. */
+function strayBodyNode(el) {
+	if (!el || el.nodeType !== 1) return false;
+	/* never rendered on their own, wherever a script parks them */
+	switch (el.nodeName) {
+		case 'SCRIPT': case 'STYLE': case 'LINK': case 'TEMPLATE': case 'NOSCRIPT': case 'META':
+			return false;
+	}
+	/* ours: the chrome mark, or an fs-* id/class. All of these
+	 * parent straight to <body> and must never be read as litter: this file's own #fs-nav-progress,
+	 * fs-search.js's #fs-search-ov (which also carries the mark), and the geometry/colour probes
+	 * fs-chrome.js and fs-appearance.js each park on <body> once and never remove — an fs-* id is
+	 * what tells them from a foreign app's own unmarked nodes below. */
+	/* read through `dataset`, not a literal `hasAttribute()` call: the build counts every
+	 * single-quoted spelling of the chrome mark's name as a JS-built chrome root, a false positive
+	 * for code that only READS the mark on somebody else's node. camelCase avoids that spelling. */
+	if (el.dataset && el.dataset.fsChrome !== undefined) return false;
+	if (el.id && el.id.indexOf('fs-') === 0) return false;
+	for (const c of el.classList) if (c.indexOf('fs-') === 0) return false;
+	/* stock LuCI's own ui.js parents these to <body> at its own __init__ and keeps them for the life
+	 * of the document: #modal_overlay (showModal's host) and the shared .cbi-tooltip */
+	if (el.id === 'modal_overlay') return false;
+	if (el.classList.contains('cbi-tooltip')) return false;
+	/* ui.js's handleDownload() appends a hidden `<a download>`, clicks it once and revokes its object
+	 * URL, but never removes the element itself. Every app that downloads the same way (wireguard,
+	 * filemanager, snmpd, banip/adblock's feed export) calls a.remove() of its own accord and is
+	 * pruned by bodyLittered() below before ever reaching this function. */
+	if (el.nodeName === 'A' && el.hasAttribute('download') && el.style.display === 'none') return false;
+	return true;
+}
+
+/* -> true iff the document holds a stray body node right now. A recording only ever grows — the
+ * recorder cannot know a node was later removed or moved inside #view — so this is also the one
+ * place that prunes it: an entry whose element is no longer a direct child of <body> is dropped for
+ * good, or the list would grow for the life of the document and re-judge nodes nobody can reach. */
+function bodyLittered() {
+	const adds = window.__fsBodyAdds;
+	if (!adds || !adds.length) return false;
+	let littered = false;
+	for (let i = adds.length - 1; i >= 0; i--) {
+		if (!document.body || adds[i].parentNode !== document.body) { adds.splice(i, 1); continue; }
+		if (strayBodyNode(adds[i])) littered = true;
+	}
+	return littered;
 }
 
 let _wired = false;
@@ -438,7 +487,7 @@ function restoreScroll(pos, gen) {
 	 * their own RPCs. The engine then clamps the scroller BACK to whatever height exists NOW, firing
 	 * an ordinary `scroll` event that looks exactly like a reader's, and it lands before this tick has
 	 * ever written anything (`wroteWin`/`wroteMain` still -1), so the "our own write coming back"
-	 * check above cannot catch it either. Measured live (owrt2512b @1440, `/admin/status/overview` <-
+	 * check above cannot catch it either. Measured live (1440px wide, `/admin/status/overview` <-
 	 * package-manager, Back): the UA restores `window.scrollY` to the parked 2684 in the same tick
 	 * `popstate` fires, `commitStage()` leaves the document ~900px tall for one frame, and the next
 	 * native `scroll` event reports `y=0` a whole 5 s before this function's own deadline — cancelling
@@ -469,7 +518,7 @@ function restoreScroll(pos, gen) {
 		stop();
 	};
 	/* the keys that scroll, and only those: typing in a field must not cancel anything */
-	const SCROLL_KEYS = new Set([ 'PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown', ' ', 'Spacebar' ]);
+	const SCROLL_KEYS = new Set([ 'PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown', ' ' ]);
 	const onKey = (ev) => { if (SCROLL_KEYS.has(ev.key)) stop(); };
 	const opts = { passive: true, capture: true };
 	function off() {
@@ -774,11 +823,7 @@ function commitStage(stage, contentHost) {
 		if (contentHost) contentHost.setAttribute('data-page', page);
 	}
 	const nodes = Array.from(stage.view.childNodes);
-	const dom = window.L ? window.L.dom : null;
-	if (live && dom && typeof dom.content === 'function')
-		dom.content(live, nodes);
-	else if (live)
-		live.replaceChildren(...nodes);
+	window.L.dom.content(live, nodes);
 	dropStage(stage);
 }
 
@@ -792,7 +837,7 @@ function commitStage(stage, contentHost) {
  * with the transition and 213 ms without it, and the swap itself landed at 3,728 ms against 206 ms.
  * The reader spends that time looking at the page they navigated away from, under the new URL —
  * which is what a report of "the section is not where I expect it, F5 fixes it" looks like from the
- * outside (issue #42), F5 being a full load and starting no transition.
+ * outside, F5 being a full load and starting no transition.
  *
  * A deadline was tried and does not hold: `skipTransition()` runs the update callback at once
  * (3-5 ms on WebKit, Chromium and Firefox alike), but it has to be called from a timer, and the
@@ -892,6 +937,10 @@ function navigate(pathname, push, kbd) {
 	 * only exit leaving both pages correct is a real navigation (fs-sheets.js) */
 	if (sheets.documentPoisoned()) return false;
 
+	/* …and a page that parked its own nodes on <body> is spent the same way: see
+	 * strayBodyNode()/bodyLittered() above. */
+	if (bodyLittered()) return false;
+
 	/* …and a document whose session has died is spent the same way: the only page it can render
 	 * correctly is the login form, and only a real navigation gets there (watchSession) */
 	if (_expired) return false;
@@ -952,8 +1001,8 @@ function navigate(pathname, push, kbd) {
 	/* the outgoing page's links are about to become a detached tree — do not hold one of them */
 	_lastHovered = null;
 	/* Run every registered navigation callback. The seam is inverted on purpose: a registrant calls
-	 * onNavigate() and the router names nobody, so an optional module that is not installed cannot
-	 * be a DependencyError taking out the whole chrome.
+	 * onNavigate() and the router names nobody, so the router keeps no static dependency
+	 * (a DependencyError would take out the whole chrome).
 	 *
 	 * The RESOLVED segments are passed in, because this runs before L.env is re-pointed below and a
 	 * callback reading L.env.dispatchpath would record the page being left.
@@ -1002,7 +1051,7 @@ function navigate(pathname, push, kbd) {
 	/* A full load starts at the top and the in-place swap must too, or navigating away from a long
 	 * page opens the next one mid-scroll. Both scrollers are reset, since which one scrolls depends
 	 * on the layout — in the sidebar layout the window does not scroll, `.fs-shell` being 100dvh
-	 * with `.fs-main` owning overflow-y (issue #7) — and scrollTo on the other is a no-op.
+	 * with `.fs-main` owning overflow-y — and scrollTo on the other is a no-op.
 	 *
 	 * The WRITE is at commitStage now, not here — see there. `_rest` is forgotten here regardless:
 	 * it is the reference fs-fit tells a reader-caused scroll from an engine's clamp with, and the
@@ -1095,6 +1144,11 @@ function navigate(pathname, push, kbd) {
 		if (L.Poll && L.Poll.queue) {
 			L.Poll.queue.length = 0;
 			L.Poll.stop();
+			/* The "Refreshing"/"Paused" pill's own teardown rides this `stop()`'s `poll-stop` event —
+			 * see the listener below, not a call here. A page can also empty the queue on its own, with
+			 * no navigation at all (`L.Poll.remove()`, e.g. `luci-mod-status`'s graphs.js on unload,
+			 * `luci-app-banip`'s log view), and `stop()` dispatches the same event for that call too;
+			 * a call placed only here would miss it. */
 			L.Poll.start();
 		}
 		/* kill the outgoing view's plain setInterval pollers too, as a full load would; L.Poll's own
@@ -1249,9 +1303,8 @@ function bootDocumentIsOurs() {
  * Every module here is written against parts of somebody else's code that were never an API:
  * `L.Poll` is a deprecated alias, `L.dom.content` and `ui.instantiateView` are what `view.ut`
  * happens to use, `Request.addInterceptor` is how the session probe hears a 403.
- * tools/upstream-contract.mjs asks whether they still BEHAVE as assumed, but only against the two
- * userlands this repo owns. On a router carrying a luci-base that moved, the first anyone learns of
- * it is a click that opens nothing.
+ * Existence is not behaviour: a name can survive and act differently. On a router carrying a
+ * luci-base that moved, the first anyone learns of it is a click that opens nothing.
  *
  * So existence is checked at boot, once, and a missing name turns the router OFF rather than
  * on-and-broken: the page is then the server-dispatched MPA the theme was before the router
@@ -1379,7 +1432,7 @@ function wireRouter() {
 		/* A fragment change is not a navigation. Chrome fires `popstate` for a same-document
 		 * fragment nav, so an `<a href="#">` inside a view — a common idiom for in-page controls —
 		 * arrives here as if Back had been pressed, and re-running navigate() re-instantiates the
-		 * view and wipes the state the click just set (issue #3). The view changed only if the PATH
+		 * view and wipes the state the click just set. The view changed only if the PATH
 		 * changed. */
 		if (window.location.pathname === _curPath)
 			return;
@@ -1401,24 +1454,21 @@ function wireRouter() {
 	});
 }
 
-/* ---- the poll indicator must not outlive the poll ----
+/* ---- the poll-status pill must not outlive the poll it reports on ----
  *
- * LuCI shows the "Refreshing" pill on `poll-start`, flips it to "Paused" on `poll-stop` and never
- * hides it again (core calls ui.hideIndicator() only for `uci-changes`). That is invisible on a full
- * load, since Poll.start() dispatches `poll-start` only for a non-empty queue — but this router
- * flushes the queue and calls stop() on every navigation, so walking from a polled page to an
- * unpolled one leaves a "Paused" pill reporting on a poll that does not exist. The pill exists iff
- * there is something to poll. Registered at module eval, i.e. after luci.js's own listener, so this
- * runs second. */
+ * LuCI shows the pill on `poll-start`, flips it to "Paused" on `poll-stop` and never hides it. The
+ * queue is emptied by this router's navigate() teardown and also by a view calling `L.Poll.remove()`
+ * mid-page; both reach `L.Poll.stop()`, so one `poll-stop` listener covers both. The hide runs one
+ * microtask later: luci.js registers its own `poll-stop` listener (which shows "Paused" with no
+ * click handler) after an async chain while this one registers at eval, so the order is not
+ * deterministic, and hiding inline could remove the span before luci.js re-created it. The queue
+ * length is read at that later moment, so a queue the incoming page has already refilled is left alone. */
 document.addEventListener('poll-stop', () => {
-	if (L.Poll && L.Poll.queue && L.Poll.queue.length === 0) {
-		try { ui.hideIndicator('poll-status'); }
-		catch (e) { console.error('footstrap: hideIndicator threw on poll-stop', e); }
-	}
+	queueMicrotask(hidePollIndicatorIfEmpty);
 });
 
-/* At module eval, like the listener above: the session can die during the first view's own data
- * calls, before anything has called wire(), and an interceptor registered later never sees it. */
+/* At module eval: the session can die during the first view's own data calls, before anything has
+ * called wire(), and an interceptor registered later never sees it. */
 watchSession();
 
 /* Pause LuCI's 1 s poll loop while the tab is hidden: LuCI has no visibilitychange handler, so an
@@ -1452,8 +1502,7 @@ function wireVisibility() {
 
 /* Callbacks to run on every SPA navigation, each handed the resolved segments of the INCOMING page
  * (they run before L.env is re-pointed). The registry is inverted on purpose: a registrant calls in
- * and the router names nobody, so it cannot grow a static dependency on a module that may not be
- * installed. */
+ * and the router names nobody, so it cannot grow a static dependency on one. */
 const _navCbs = [];
 function onNavigate(fn) { if (typeof fn === 'function') _navCbs.push(fn); }
 
@@ -1462,11 +1511,6 @@ return baseclass.extend({
 	wire: wireRouter,
 	wireVisibility,
 	onNavigate,
-	/* exported for tests/router-contract.test.mjs (no tests ship in the package), where it is driven
-	 * against a hand-broken `L`: the one way to see the off branch */
-	/* likewise out-of-package: interval-pause.test.mjs drives the navigation sweep around a
-	 * visibilitychange and session-expiry.test.mjs reads the verdict the interceptors reached.
-	 * navigate() is the real caller of the first and `_expired` gates the second. */
 	/* fs-search warms its recents and the arrow-key-highlighted result, neither of which the
 	 * pointer/focus triggers above can see. The edge points search -> router, because the router
 	 * must keep no dependency on the palette. */
