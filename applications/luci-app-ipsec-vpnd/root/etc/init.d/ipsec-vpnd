@@ -366,6 +366,11 @@ service_triggers() {
 }
 
 start_service() {
+    if /etc/init.d/ipsec enabled 2>/dev/null; then
+        /etc/init.d/ipsec stop
+        /etc/init.d/ipsec disable
+    fi
+
 	config_load ipsec-vpnd
 
 	local vt_enabled
