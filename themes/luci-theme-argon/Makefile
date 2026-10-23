@@ -7,11 +7,11 @@
 include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=Argon Theme
-LUCI_DEPENDS:=+wget-any +jsonfilter +ucode-mod-math
+LUCI_DEPENDS:=+wget-any +jsonfilter +ucode-mod-math +flock +coreutils +coreutils-timeout
 LUCI_BASENAME:=argon-config
 
-PKG_VERSION:=3.0.0
-PKG_RELEASE:=20261019
+PKG_VERSION:=3.1.0
+PKG_RELEASE:=20261022
 PKG_PROVIDES:=luci-app-argon-config
 
 PKG_LICENSE:=Apache-2.0 MIT
@@ -19,6 +19,8 @@ PKG_LICENSE:=Apache-2.0 MIT
 LUCI_MINIFY_CSS:=0
 # Ship template source across stable and snapshot runtimes. Precompiled
 # bytecode would require the SDK's ucode format (see issue #715).
+# Disable this package's build step as well, avoiding LuCI's opt-out warning.
+CONFIG_LUCI_UTMIN:=
 LUCI_MINIFY_UT:=0
 
 define Package/luci-theme-argon/conffiles
