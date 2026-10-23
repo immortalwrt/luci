@@ -190,12 +190,12 @@ function socks_autoswitch_add_node()
 		uci_set(id, "enable_autoswitch", "1")
 		local new_list = uci_get(id, "autoswitch_backup_node") or {}
 		for i = #new_list, 1, -1 do
-			if (uci_get(new_list[i], "remarks") or ""):find(key) then
+			if (uci_get(new_list[i], "remarks") or ""):find(key, 1, true) then
 				table.remove(new_list, i)
 			end
 		end
 		for k, e in ipairs(api.get_valid_nodes()) do
-			if e.node_type == "normal" and e["remark"]:find(key) then
+			if e.node_type == "normal" and e["remark"]:find(key, 1, true) then
 				table.insert(new_list, e.id)
 			end
 		end
@@ -212,7 +212,7 @@ function socks_autoswitch_remove_node()
 		uci_set(id, "enable_autoswitch", "1")
 		local new_list = uci_get(id, "autoswitch_backup_node") or {}
 		for i = #new_list, 1, -1 do
-			if (uci_get(new_list[i], "remarks") or ""):find(key) then
+			if (uci_get(new_list[i], "remarks") or ""):find(key, 1, true) then
 				table.remove(new_list, i)
 			end
 		end
@@ -259,8 +259,9 @@ function get_redir_log()
 	if id and id ~= "default" then
 		local global_node = uci_get("@global[0]", "node") or "nil"
 		local acl_node = uci_get(id, "node") or "nil"
+		local use_global_config = uci_get(id, "use_global_config") == "1"
 		local global_enabled = uci_get("@global[0]", "enabled") == "1"
-		if acl_node == global_node and global_enabled then
+		if (use_global_config or acl_node == global_node) and global_enabled then
 			path = api.TMP_PATH .. "/acl/default"
 			if uci_get("@global[0]", "log_node") ~= "1" then
 				alert("The access control node is the same as the global node. Please enable global logging.")
@@ -271,7 +272,8 @@ function get_redir_log()
 		end
 	end
 
-	if fs.access(path .. "/" .. name .. ".log") then
+	path = path .. "/" .. name .. ".log"
+	if fs.access(path) then
 		http.prepare_content("text/plain; charset=utf-8")
 		http.write(luci.sys.exec("tail -n 5000 " .. util.shellquote(path)))
 	else
@@ -297,9 +299,11 @@ function get_chinadns_log()
 	if flag ~= "default" then
 		local global_node = uci_get("@global[0]", "node") or "nil"
 		local acl_node = uci_get(flag, "node") or "nil"
-		if acl_node == global_node and uci_get("@global[0]", "enabled") == "1" then
+		local use_global_config = uci_get(flag, "use_global_config") == "1"
+		if (use_global_config or acl_node == global_node) and uci_get("@global[0]", "enabled") == "1" then
 			path = api.TMP_PATH .. "/acl/default/chinadns_ng.log"
 			if uci_get("@global[0]", "log_chinadns_ng") ~= "1" then
+				http.prepare_content("text/html; charset=utf-8")
 				http.write(string.format("<script>alert('%s');window.close();</script>", i18n.translate("The access control node is the same as the global node. Please enable global logging.")))
 				return
 			end
