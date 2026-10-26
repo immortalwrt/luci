@@ -19,8 +19,6 @@ PKG_LICENSE:=Apache-2.0 MIT
 LUCI_MINIFY_CSS:=0
 # Ship template source across stable and snapshot runtimes. Precompiled
 # bytecode would require the SDK's ucode format (see issue #715).
-# Disable this package's build step as well, avoiding LuCI's opt-out warning.
-CONFIG_LUCI_UTMIN:=
 LUCI_MINIFY_UT:=0
 
 define Package/luci-theme-argon/conffiles
