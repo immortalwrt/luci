@@ -5,6 +5,10 @@
 			"uci": [ "openvpn" ]
 		},
 		"write": {
+			"cgi-io": [ "upload" ],
+			"file": {
+				"/etc/openvpn/pki/*": [ "write" ]
+			},
 			"uci": [ "openvpn" ]
 		}
 	}
