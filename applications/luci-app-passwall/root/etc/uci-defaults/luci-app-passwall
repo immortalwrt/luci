@@ -2,7 +2,7 @@
 
 if [ -e "/etc/config/ucitrack" ]; then
 	uci -q batch <<-EOF
- 		delete ucitrack.@passwall[-1]
+		delete ucitrack.@passwall[-1]
 		add ucitrack passwall
 		set ucitrack.@passwall[-1].init=passwall
 		commit ucitrack
@@ -105,8 +105,11 @@ uci -q commit passwall
 
 sed -i "s#add_from#group#g" /etc/config/passwall 2>/dev/null
 
+rm -f /usr/share/passwall/rules/*.nft
+rm -rf /tmp/etc/passwall_tmp
+
 rm -f /tmp/luci-indexcache /tmp/luci-indexcache.*
-rm -rf /tmp/luci-modulecache /tmp/etc/passwall_tmp
+rm -rf /tmp/luci-modulecache
 killall -HUP rpcd 2>/dev/null
 
 exit 0
