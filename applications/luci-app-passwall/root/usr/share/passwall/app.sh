@@ -1088,7 +1088,7 @@ start_dns() {
 	local ACL_RULE_DNSMASQ=0
 	for acl_section in $(uci show ${CONFIG} | grep "=acl_rule" | cut -d '.' -sf 2 | cut -d '=' -sf 1); do
 		if [ "$(config_n_get $acl_section enabled)" = "1" ] && \
-		   [ "$(config_n_get $acl_section dns_shunt)" = "dnsmasq" ]; then
+			[ "$(config_n_get $acl_section dns_shunt)" = "dnsmasq" ]; then
 			ACL_RULE_DNSMASQ=1
 			break
 		fi

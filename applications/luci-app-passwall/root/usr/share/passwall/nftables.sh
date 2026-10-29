@@ -197,26 +197,26 @@ insert_nftset() {
 			RS = "[ \t\n\r]+"
 			ORS = ""
 		}
-        $0 != "" {
-            if (!first) {
-                printf "add element %s %s { \n", t, n
+		$0 != "" {
+			if (!first) {
+				printf "add element %s %s { \n", t, n
 				first = 1
-            } else {
-                print ",\n"
-            }
-            printf " %s", $0
-        }
-        END {
-            if (first) {
-                print "\n }\n"
-            }
-        }' | nft -f -
+			} else {
+				print ",\n"
+			}
+			printf " %s", $0
+		}
+		END {
+			if (first) {
+				print "\n }\n"
+			}
+		}' | nft -f -
 }
 
 gen_nftset() {
 	local nftset_name="${1}"; shift
 	local ip_type="${1}"; shift
-	#  0 - don't set defalut timeout
+	#  0 - don't set default timeout
 	local timeout_argument_set="${1}"; shift
 	local gc_interval_time="1h"
 
@@ -1502,7 +1502,7 @@ add_firewall_rule() {
 
 del_firewall_rule() {
 	for nft in "dstnat" "srcnat" "nat_output" "mangle_prerouting" "mangle_output"; do
-        local handles=$(nft -a list chain $NFTABLE_NAME ${nft} 2>/dev/null | grep -E "PSW_" | awk -F '# handle ' '{print$2}')
+		local handles=$(nft -a list chain $NFTABLE_NAME ${nft} 2>/dev/null | grep -E "PSW_" | awk -F '# handle ' '{print$2}')
 		for handle in $handles; do
 			nft delete rule $NFTABLE_NAME ${nft} handle ${handle} 2>/dev/null
 		done
