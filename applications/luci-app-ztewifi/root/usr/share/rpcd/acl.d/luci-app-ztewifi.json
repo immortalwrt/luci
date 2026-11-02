@@ -1,0 +1,29 @@
+{
+	"luci-app-ztewifi": {
+		"description": "ZTE 随身WiFi 状态读取与设置",
+		"read": {
+			"uci": [ "ztewifi" ],
+			"ubus": {
+				"file": [ "exec", "read", "list" ],
+				"uci": [ "get", "configs", "state" ]
+			},
+			"file": {
+				"/usr/bin/ztewifi": [ "exec" ],
+				"/usr/bin/ztewifi *": [ "exec" ],
+				"/usr/bin/ztewifi .*": [ "exec" ],
+				"/etc/config/ztewifi": [ "read" ]
+			}
+		},
+		"write": {
+			"uci": [ "ztewifi" ],
+			"ubus": {
+				"file": [ "exec" ],
+				"uci": [ "set", "commit", "add", "delete", "rename", "reorder" ]
+			},
+			"file": {
+				"/usr/bin/ztewifi *": [ "exec" ],
+				"/usr/bin/ztewifi .*": [ "exec" ]
+			}
+		}
+	}
+}
