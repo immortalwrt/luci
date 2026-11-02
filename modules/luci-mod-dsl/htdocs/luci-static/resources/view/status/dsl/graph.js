@@ -113,9 +113,9 @@ let bitsChart = {
 	},
 	"dataSet" : [
 		{
-			"data" :usBitsData.data,
-			"color":"YellowGreen",
-			"title": ("Upstream bits allocation")
+			"data" : usBitsData.data,
+			"color": "YellowGreen",
+			"title": _("Upstream bits allocation")
 		},
 		{
 			"data" : dsBitsData.data,
@@ -261,7 +261,7 @@ function drawData(config, dataPoints, color) {
 	let minY = config.minY;
 	let maxY = config.maxY;
 	let startX = (dataPoints[0].x  - config.minX) / (config.maxX - config.minX)
-	let startY = (config.minY - config.minY) / (config.maxY - config.minY)
+	let startY = (dataPoints[0].y - config.minY) / (config.maxY - config.minY)
 
 	ctx.fillStyle = color;
 	ctx.beginPath();
@@ -378,9 +378,9 @@ function drawAxisY(config, minValue, maxValue, step, title) {
 	ctx.font = "12px Arial";
 	ctx.textAlign = "center";
 	ctx.translate(marginX/3, marginY + graphHeight / 2);
-	ctx.rotate(-3.14 /2);
+	ctx.rotate(-Math.PI /2);
 	ctx.fillText(title, 0, 0);
-	ctx.rotate(3.14 /2)
+	ctx.rotate(Math.PI /2)
 	ctx.translate(-marginX/3,-(marginY + graphHeight / 2));
 }
 

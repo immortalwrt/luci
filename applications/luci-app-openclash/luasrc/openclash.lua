@@ -29,14 +29,38 @@ local os    = require "os"
 local ltn12 = require "luci.ltn12"
 local fs	= require "nixio.fs"
 local nutil = require "nixio.util"
+-- The section types used to be written with a hyphen, convert the stored package once.
+do
+	local sys = require "luci.sys"
+	if sys.call("grep -q '^config proxy-groups\\|^config proxy-providers' /etc/config/openclash /tmp/.uci/openclash 2>/dev/null") == 0 then
+		sys.call("sed -i 's/^config proxy-groups/config proxy_groups/;s/^config proxy-providers/config proxy_providers/' /etc/config/openclash /tmp/.uci/openclash 2>/dev/null")
+	end
+end
+
 local uci = require "luci.model.uci".cursor()
+local dynamic_uci = require "luci.model.uci".cursor()
 local SYS  = require "luci.sys"
+local HTTP = require "luci.http"
+local json = require "luci.jsonc"
+local UTIL = require "luci.util"
+local i18n = require "luci.i18n"
 
 local type  = type
 local string  = string
+local tostring = tostring
+local table = table
+local math = math
+local pcall = pcall
+local b64chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
 --- LuCI filesystem library.
 module "luci.openclash"
+
+--- Browser-like User-Agent for plugin HTTP requests, some endpoints reject curl's default.
+user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+
+--- sec-ch-ua client hint of user_agent, the Chrome version has to be bumped together.
+user_agent_ch_ua = '"Google Chrome";v="156", "Chromium";v="156", "Not.A/Brand";v="24"'
 
 --- Test for file access permission on given path.
 -- @class		function
@@ -82,14 +106,34 @@ end
 -- @param filename	String containing the path of the file to read
 -- @return			String containing the file contents or nil on error
 -- @return			String containing the error message on error
-readfile = fs.readfile
+-- Wrapped readfile: if file is age-encrypted, try to decrypt with matching UCI secret first
+function readfile(filename)
+	local content, err = fs.readfile(filename)
+	if not content then return nil, err end
+	if content:sub(1, 1024):find("BEGIN AGE ENCRYPTED FILE", 1, true) then
+		local keys = get_age_keys(filename)
+		if keys and keys.secret and keys.secret ~= "" then
+			return age_decrypt(keys.secret, content) or content
+		else
+			return content
+		end
+	end
+	return content
+end
 
 --- Write the contents of given string to given file.
 -- @param filename	String containing the path of the file to read
 -- @param data		String containing the data to write
 -- @return			Boolean containing true on success or nil on error
 -- @return			String containing the error message on error
-writefile = fs.writefile
+-- Wrapped writefile: if public key exists for filename, encrypt before writing
+function writefile(filename, data)
+	local keys = get_age_keys(filename)
+	if keys and keys.public and keys.public ~= "" then
+		return fs.writefile(filename, age_encrypt(keys.public, data) or data)
+	end
+	return fs.writefile(filename, data)
+end
 
 --- Copies a file.
 -- @param source	Source file
@@ -262,8 +306,8 @@ function filesize(e)
 	local t=0
 	local a={' KB',' MB',' GB',' TB',' PB'}
 	if e < 0 then
-        e = -e
-    end
+		e = -e
+	end
 	repeat
 		e=e/1024
 		t=t+1
@@ -271,7 +315,10 @@ function filesize(e)
 	return string.format("%.1f",e)..a[t] or "0.0 KB"
 end
 
-function lanip()
+function lanip(loopback)
+	if loopback then
+		return "127.0.0.1"
+	end
 	local lan_int_name = uci:get("openclash", "@overwrite[0]", "lan_interface_name") or uci:get("openclash", "config", "lan_interface_name") or "0"
 	local lan_ip
 	if lan_int_name == "0" then
@@ -289,50 +336,484 @@ function lanip()
 end
 
 function find_case_insensitive_path(path)
-    local dir = dirname(path)
-    local base = basename(path)
-    local files = dir and fs.dir(dir)
-    if not files then
-        return nil
-    end
+	local dir = dirname(path)
+	local base = basename(path)
+	local files = dir and fs.dir(dir)
+	if not files then
+		return nil
+	end
 
-    for f in files do
-        if f:lower() == base:lower() then
-            return dir .. "/" .. f
-        end
-    end
-    return nil
+	for f in files do
+		if f:lower() == base:lower() then
+			return dir .. "/" .. f
+		end
+	end
+	return nil
 end
 
 function get_resourse_mtime(path)
-    local real_path = path
-    if not fs.access(path) then
-        local found = find_case_insensitive_path(path)
-        if found then
-            real_path = found
-        else
-            return "File Not Exist"
-        end
-    end
-    local file = fs.readlink(real_path) or real_path
-	local resourse_etag_version = SYS.exec(string.format("source /usr/share/openclash/openclash_etag.sh && GET_ETAG_TIMESTAMP_BY_PATH '%s'", real_path))
-    if resourse_etag_version and resourse_etag_version ~= "" then
+	local real_path = path
+	if not fs.access(path) then
+		local found = find_case_insensitive_path(path)
+		if found then
+			real_path = found
+		elseif uci_get_config("config", "small_flash_memory") == "1" then
+			local fallback_path = path:gsub("^/etc/openclash/", "/tmp/etc/openclash/")
+			local fallback_found = find_case_insensitive_path(fallback_path)
+			if fallback_found then
+				real_path = fallback_found
+			else
+				return "File Not Exist"
+			end
+		else
+			return "File Not Exist"
+		end
+	end
+	local file = fs.readlink(real_path) or real_path
+	local resourse_etag_version = SYS.exec(string.format("source /usr/share/openclash/openclash_etag.sh && GET_ETAG_TIMESTAMP_BY_PATH '%s'", file))
+	if resourse_etag_version and resourse_etag_version ~= "" then
 		return resourse_etag_version
 	end
-	local resourse_version = os.date("%Y-%m-%d %H:%M:%S", mtime(real_path))
+	local resourse_version = os.date("%Y-%m-%d %H:%M:%S", mtime(file))
 	if resourse_version and resourse_version ~= "" then
-        return resourse_version
+		return resourse_version
 	end
-    return "Unknown"
+	return "Unknown"
 end
 
 function uci_get_config(section, key)
 	local val
 	if section == "config" then
-    	val = uci:get("openclash", "@overwrite[0]", key)
+		val = uci:get("openclash", "@overwrite[0]", key)
 	end
-    if val == nil then
-    	val = uci:get("openclash", section, key)
-    end
-    return val
+	if val == nil then
+		val = uci:get("openclash", section, key)
+	end
+	return val
+end
+
+function get_file_path_from_request()
+	local file_path = HTTP.formvalue("file")
+
+	if not file_path or file_path == "" then
+		local referer = HTTP.getenv("HTTP_REFERER")
+		if referer then
+			local file_value = referer:match("[?&]file=([^&]*)")
+			if file_value and file_value ~= "" then
+				file_path = HTTP.urldecode(file_value)
+			end
+		end
+	end
+
+	if file_path == "/" or file_path == "" then
+		file_path = nil
+	end
+
+	return file_path
+end
+
+function restore_backup(archive)
+	local quoted = UTIL.shellquote(archive)
+	local listfile = "/tmp/oc_restore.list"
+	-- list the archive before touching /etc/openclash: a broken upload used to report
+	-- success because every tar/mv error was discarded, and members with absolute or
+	-- parent-relative paths must not be extracted
+	local tarok = SYS.call("tar tzf " .. quoted .. " >" .. listfile .. " 2>/dev/null") == 0
+	local has_members = SYS.call("grep -q . " .. listfile) == 0
+	local has_config = SYS.call("grep -Fxq './openclash' " .. listfile) == 0
+	local unsafe = SYS.call("grep -qE '(^|/)\\.\\./|^/' " .. listfile) == 0
+	local restored = false
+	if tarok and has_members and has_config and not unsafe then
+		if SYS.call("tar -C '/etc/openclash/' -xzf " .. quoted .. " >/dev/null 2>&1") == 0 then
+			restored = SYS.call("mv -f /etc/openclash/openclash /etc/config/openclash >/dev/null 2>&1") == 0
+		end
+	end
+	SYS.call("rm -f " .. listfile)
+	return restored
+end
+
+function get_age_keys(file)
+	local name = filename(basename(file))
+	local pub, sec
+	uci:foreach("openclash", "config_age_secret", function(s)
+		if s and s.name then
+			if s.name == name and (not s.hidden or (s.hidden ~= "true")) then
+				if not pub and s.public then pub = s.public end
+				if not sec and s.secret then sec = s.secret end
+			end
+			return false
+		end
+	end)
+	return { public = pub, secret = sec }
+end
+
+function age_encrypt(public, content)
+	if not public or public == "" or not content then return nil end
+
+	local tmp_in = os.tmpname()
+	local tmp_out = os.tmpname()
+	local f = io.open(tmp_in, "w")
+	if not f then return nil end
+	f:write(content)
+	f:close()
+
+	local cmd = string.format(
+		"/etc/openclash/core/clash_meta age encrypt %s %s %s 2>/dev/null",
+		public, tmp_in, tmp_out
+	)
+	os.execute(cmd)
+
+	local out = nil
+	local f_out = io.open(tmp_out, "r")
+	if f_out then
+		out = f_out:read("*a") or ""
+		f_out:close()
+	end
+
+	os.remove(tmp_in)
+	os.remove(tmp_out)
+
+	return out
+end
+
+function age_decrypt(secret, content)
+	if not secret or secret == "" or not content then return nil end
+
+	local tmp_in = os.tmpname()
+	local tmp_out = os.tmpname()
+	local f = io.open(tmp_in, "w")
+	if not f then return nil end
+	f:write(content)
+	f:close()
+
+	local cmd = string.format(
+		"/etc/openclash/core/clash_meta age decrypt %s %s %s 2>/dev/null",
+		secret, tmp_in, tmp_out
+	)
+	os.execute(cmd)
+
+	local out = nil
+	local f_out = io.open(tmp_out, "r")
+	if f_out then
+		out = f_out:read("*a") or ""
+		f_out:close()
+	end
+
+	os.remove(tmp_in)
+	os.remove(tmp_out)
+
+	return out
+end
+
+function decode64(data)
+	if not data then return nil end
+	data = data:gsub('[%s]', '')
+	if #data % 4 ~= 0 then return nil end
+
+	local out = {}
+	for i = 1, #data, 4 do
+		local c1, c2, c3, c4 = data:byte(i, i+3)
+		local i1 = b64chars:find(string.char(c1), 1, true) - 1
+		local i2 = b64chars:find(string.char(c2), 1, true) - 1
+		local i3 = (c3 == 61) and -1 or (b64chars:find(string.char(c3), 1, true) - 1)
+		local i4 = (c4 == 61) and -1 or (b64chars:find(string.char(c4), 1, true) - 1)
+
+		if not i1 or not i2 or (c3 ~= 61 and not i3) or (c4 ~= 61 and not i4) then
+			return nil
+		end
+
+		local x = i1 * 0x40000 + i2 * 0x1000
+		if i3 >= 0 then x = x + i3 * 0x40 end
+		if i4 >= 0 then x = x + i4 end
+
+		table.insert(out, string.char(math.floor(x / 0x10000) % 0x100))
+		if i3 >= 0 then
+			table.insert(out, string.char(math.floor(x / 0x100) % 0x100))
+		end
+		if i4 >= 0 then
+			table.insert(out, string.char(x % 0x100))
+		end
+	end
+
+	return table.concat(out)
+end
+
+function config_refs(old_file_name, new_file_name)
+	if not old_file_name or old_file_name == "" then return end
+	local old_name_no_ext = filename(basename(old_file_name))
+	local old_file_full = basename(old_file_name)
+	local is_rename = new_file_name and new_file_name ~= ""
+	local new_name_no_ext, new_file_full
+
+	if is_rename then
+		new_name_no_ext = filename(basename(new_file_name))
+		new_file_full = basename(new_file_name)
+	end
+
+	uci:foreach("openclash", "config_subscribe",
+		function(s)
+			if s.name == old_name_no_ext then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					uci:set("openclash", s[".name"], "name", new_name_no_ext)
+				else
+					uci:delete("openclash", s[".name"])
+				end
+				return false
+			end
+		end
+	)
+
+	uci:foreach("openclash", "subscribe_info",
+		function(s)
+			if s.name == old_name_no_ext then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					uci:set("openclash", s[".name"], "name", new_name_no_ext)
+				else
+					uci:delete("openclash", s[".name"])
+				end
+				return false
+			end
+		end
+	)
+
+	dynamic_uci:foreach("openclash", "proxy_groups",
+		function(s)
+			if s.config == old_file_full then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					dynamic_uci:set("openclash", s[".name"], "config", new_file_full)
+				else
+					dynamic_uci:delete("openclash", s[".name"])
+				end
+			end
+		end
+	)
+
+	dynamic_uci:foreach("openclash", "proxy_providers",
+		function(s)
+			if s.config == old_file_full then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					dynamic_uci:set("openclash", s[".name"], "config", new_file_full)
+				else
+					dynamic_uci:delete("openclash", s[".name"])
+				end
+			end
+		end
+	)
+
+	dynamic_uci:foreach("openclash", "proxies",
+		function(s)
+			if s.config == old_file_full then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					dynamic_uci:set("openclash", s[".name"], "config", new_file_full)
+				else
+					dynamic_uci:delete("openclash", s[".name"])
+				end
+			end
+		end
+	)
+
+	uci:foreach("openclash", "config_age_secret",
+		function(s)
+			if s.name == old_name_no_ext then
+				if is_rename and new_name_no_ext ~= new_file_name then
+					uci:set("openclash", s[".name"], "name", new_name_no_ext)
+				else
+					uci:delete("openclash", s[".name"])
+				end
+				return false
+			end
+		end
+	)
+
+	uci:commit("openclash")
+	dynamic_uci:commit("openclash")
+end
+
+--- Returns the appropriate ps command string for the system's ps implementation.
+-- Detects procps-ng (ps -efw) vs busybox (ps -w).
+-- @return String containing the ps command prefix
+function ps_cmd()
+	local ps_version = SYS.exec("ps --version 2>&1 |grep -c procps-ng |tr -d '\n'")
+	if ps_version == "1" then
+		return "ps -efw"
+	else
+		return "ps -w"
+	end
+end
+
+--- Returns the package manager type (opkg or apk).
+-- @return String "opkg" or "apk"
+function pkg_type()
+	if fs.access("/usr/bin/apk") then
+		return "apk"
+	else
+		return "opkg"
+	end
+end
+
+--- Reads the CDN proxy address list from /usr/share/openclash/res/cdn.list,
+-- followed by the user-defined addresses stored in uci
+-- (openclash.config.github_addr_custom, list or space-separated string).
+-- Lines starting with "#" are treated as comments and skipped.
+-- @return Table of CDN address strings (deduplicated, file order first)
+function cdn_list()
+	local list = {}
+	local seen = {}
+	local raw = fs.readfile("/usr/share/openclash/res/cdn.list")
+	if raw then
+		for line in raw:gmatch("[^\r\n]+") do
+			line = line:gsub("^%s+", ""):gsub("%s+$", "")
+			if line ~= "" and line:sub(1, 1) ~= "#" and not seen[line] then
+				seen[line] = true
+				list[#list + 1] = line
+			end
+		end
+	end
+	local custom = uci:get("openclash", "config", "github_addr_custom")
+	if type(custom) == "table" then
+		custom = table.concat(custom, " ")
+	end
+	for addr in (custom or ""):gmatch("%S+") do
+		if not seen[addr] then
+			seen[addr] = true
+			list[#list + 1] = addr
+		end
+	end
+	return list
+end
+
+--- Read a field of an installed package directly from the package database
+-- (/usr/lib/opkg/status or /lib/apk/db/installed), avoiding the opkg/apk
+-- binaries and their lock files (/var/lock/opkg.lock, /lib/apk/db/lock).
+-- Safe to call repeatedly/concurrently and never blocks on a lock.
+-- @param pkg   Package name, e.g. "luci-app-openclash" or "libc"
+-- @param field Field name; opkg: "Version"/"Architecture", apk: "V"/"A"
+-- @return String field value, or "" when not found
+function read_pkg_field(pkg, field)
+	local text
+	if pkg_type() == "opkg" then
+		text = fs.readfile("/usr/lib/opkg/status")
+	else
+		text = fs.readfile("/lib/apk/db/installed")
+	end
+	if not text then return "" end
+	text = text:gsub("\r\n", "\n")
+
+	local prefix = (pkg_type() == "opkg") and ("Package: " .. pkg .. "\n") or ("P:" .. pkg .. "\n")
+	local start = text:find(prefix, 1, true)
+	if not start then return "" end
+	local block_end = text:find("\n\n", start + #prefix, true) or #text
+	local block = text:sub(start + #prefix, block_end - 1)
+	local colon = (pkg_type() == "opkg") and ": " or ":"
+	local val = block:match("\n" .. field .. colon .. "([^\r\n]+)")
+	if not val then
+		val = block:match("^" .. field .. colon .. "([^\r\n]+)")
+	end
+	return val or ""
+end
+
+--- Path of the shared version cache (also used by openclash_version.lua)
+local VERSION_CACHE_FILE = "/tmp/openclash_version_history.json"
+
+--- Read the shared version cache, or nil when missing/invalid
+function read_version_cache()
+	local raw = fs.readfile(VERSION_CACHE_FILE)
+	if not raw or raw == "" then return nil end
+	local ok, parsed = pcall(json.parse, raw)
+	if ok and parsed and type(parsed) == "table" then
+		return parsed
+	end
+	return nil
+end
+
+--- Update the shared version cache, keeping the other fields intact
+function update_version_cache(updater)
+	local parsed = read_version_cache() or {}
+	updater(parsed)
+	local tmp = VERSION_CACHE_FILE .. ".tmp"
+	fs.writefile(tmp, json.stringify(parsed))
+	os.rename(tmp, VERSION_CACHE_FILE)
+end
+
+--- Read a keyed value from the shared version cache, computing it on miss
+-- @param field Top-level field name of the shared cache
+-- @param key Invalidation key; an empty string disables caching
+-- @param compute Function returning the value to cache, nil to skip caching
+-- @return Cached or freshly computed value, nil when unavailable
+function cached_value(field, key, compute)
+	if key ~= "" then
+		local cache = read_version_cache()
+		local cached = cache and cache[field]
+		if cached and cached.key == key and cached.version then
+			return cached.version
+		end
+	end
+
+	local v = compute()
+	if v == nil or v == "" then return nil end
+
+	if key ~= "" then
+		update_version_cache(function(cache)
+			cache[field] = { key = key, version = v }
+		end)
+	end
+
+	return v
+end
+
+function oc_version()
+	local db = (pkg_type() == "opkg") and "/usr/lib/opkg/status" or "/lib/apk/db/installed"
+	local st = fs.stat(db)
+	local key = st and (tostring(st.mtime) .. "-" .. tostring(st.size)) or ""
+
+	local v = cached_value("plugin_cv_cache", key, function()
+		local pkgv = read_pkg_field("luci-app-openclash", pkg_type() == "opkg" and "Version" or "V")
+		if pkgv == "" then return "0" end
+		return pkgv
+	end)
+
+	return v or "0"
+end
+
+--- Build/Prepare replaces the token with PKG_VERSION (files deployed without make keep it).
+OC_VERSION = "@OPENCLASH_VERSION@"
+
+--- Loads common.js + oc-common.css for pages whose templates carry no head include of their own.
+function render_page_head()
+	local lang = i18n.context and i18n.context.lang or ""
+	HTTP.write(string.format([[
+<script src="/cgi-bin/luci/admin/services/openclash/translate_js?f=common&v=%s&l=%s"></script>
+<link rel="stylesheet" href="/luci-static/resources/openclash/css/oc-common.css?v=%s">
+]], OC_VERSION, lang, OC_VERSION))
+end
+
+function IsYamlExt(e)
+	e = e or ""
+	local lower = string.lower(e)
+	return lower:sub(-5) == ".yaml" or lower:sub(-4) == ".yml"
+end
+
+-- Rename the up/down buttons and drop stray <br> nodes before descriptions on newer LuCI.
+-- The i18n module is pinned at the top of this file: this function also runs inside
+-- the CBI template context, where looking up globals like require is not possible.
+function optimize_cbi_ui()
+	HTTP.write([[
+		<script type="text/javascript">
+			document.querySelectorAll("input.btn.cbi-button.cbi-button-up").forEach(function(btn) {
+				btn.value = "]] .. i18n.translate("Move up") .. [[";
+			});
+			document.querySelectorAll("input.btn.cbi-button.cbi-button-down").forEach(function(btn) {
+				btn.value = "]] .. i18n.translate("Move down") .. [[";
+			});
+			document.querySelectorAll("div.cbi-value-description").forEach(function(descDiv) {
+				var prev = descDiv.previousSibling;
+				while (prev && prev.nodeType === Node.TEXT_NODE && prev.textContent.trim() === "") {
+					prev = prev.previousSibling;
+				}
+				if (prev && prev.nodeType === Node.ELEMENT_NODE && prev.tagName === "BR") {
+					prev.remove();
+				}
+			});
+		</script>
+	]])
 end

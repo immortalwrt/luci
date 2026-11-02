@@ -1,7 +1,6 @@
 local api = require "luci.passwall.api"
-local appname = api.appname
 local datatypes = api.datatypes
-local net = require "luci.model.network".init()
+api.set_default_cbi()
 
 local nodes_table = {}
 for k, e in ipairs(api.get_valid_nodes()) do
@@ -15,16 +14,14 @@ for k, e in ipairs(api.get_valid_nodes()) do
 	end
 end
 
-m = Map(appname, "HAPROXY " .. translate("Load Balancing"))
-api.set_apply_on_parse(m)
+m = Map(api.c_config, "HAPROXY " .. translate("Load Balancing"))
 
-m:append(Template(appname .. "/cbi/nodes_value_com"))
+m:appendTemplate("/cbi/nodes_value_com")
 
 -- [[ Haproxy Settings ]]--
-s = m:section(TypedSection, "global_haproxy", translate("Basic Settings"))
-s.anonymous = true
+s = m:section(NamedSection, "@global_haproxy[0]", "global_haproxy", translate("Basic Settings"))
 
-s:append(Template(appname .. "/haproxy/status"))
+s:appendTemplate("/haproxy/status")
 
 ---- Balancing Enable
 o = s:option(Flag, "balancing_enable", translate("Enable Load Balancing"))
@@ -49,8 +46,9 @@ o:depends("console_auth", true)
 
 ---- Console Port
 o = s:option(Value, "console_port", translate("Console Port"), translate("In the browser input routing IP plus port access, such as:192.168.1.1:1188"))
-o.datatype = "port"
 o.default = 1188
+o.placeholder = 1188
+o.datatype = "range(1,65535)"
 o:depends("balancing_enable", true)
 
 o = s:option(Flag, "bind_local", translate("Haproxy Port") .. " " .. translate("Bind Local"), translate("When selected, it can only be accessed localhost."))
@@ -67,9 +65,9 @@ o:depends("balancing_enable", true)
 
 ---- Health Check Type
 o = s:option(ListValue, "health_check_type", translate("Health Check Type"))
-o.default = "passwall_logic"
+o.default = "script_logic"
 o:value("tcp", "TCP")
-o:value("passwall_logic", translate("URL Test") .. string.format("(passwall %s)", translate("Inner implement")))
+o:value("script_logic", translate("URL Test") .. string.format("(passwall %s)", translate("Inner implement")))
 o:depends("balancing_enable", true)
 
 ---- Passwall Inner implement Probe URL
@@ -80,9 +78,10 @@ o:value("https://www.google.com/generate_204", "Google")
 o:value("https://www.youtube.com/generate_204", "YouTube")
 o:value("https://connect.rom.miui.com/generate_204", "MIUI (CN)")
 o:value("https://connectivitycheck.platform.hicloud.com/generate_204", "HiCloud (CN)")
+o:value("https://wifi.vivo.com.cn/generate_204", "VIVO (CN)")
 o.default = o.keylist[3]
 o.description = translate("The URL used to detect the connection status.")
-o:depends("health_check_type", "passwall_logic")
+o:depends("health_check_type", "script_logic")
 
 ---- Health Check Inter
 o = s:option(Value, "health_check_inter", translate("Health Check Inter"))
@@ -97,7 +96,7 @@ o.rawhtml = true
 o.cfgvalue = function(t, n)
 	return string.format('<span style="color: red">%s</span>', translate("When the URL test is used, the load balancing node will be converted into a Socks node. when node list set customizing, must be a Socks node, otherwise the health check will be invalid."))
 end
-o:depends("health_check_type", "passwall_logic")
+o:depends("health_check_type", "script_logic")
 
 -- [[ Balancing Settings ]]--
 s = m:section(TypedSection, "haproxy_config", translate("Node List"))
@@ -110,7 +109,8 @@ s.anonymous = true
 s.addremove = true
 
 s.create = function(e, t)
-	TypedSection.create(e, api.gen_short_uuid())
+	local uid = "haproxy_" .. api.gen_random_char(5)
+	TypedSection.create(e, uid)
 end
 
 s.remove = function(self, section)
@@ -128,7 +128,7 @@ o.rmempty = false
 
 ---- Node Address
 o = s:option(Value, "lbss", translate("Node Address"))
-o.template = appname .. "/cbi/nodes_value"
+o.template = m:template_path("/cbi/nodes_value")
 o.group = {}
 for k, v in pairs(nodes_table) do
 	o:value(v.id, v.remarks)
@@ -152,8 +152,8 @@ end
 
 ---- Haproxy Port
 o = s:option(Value, "haproxy_port", translate("Haproxy Port"))
-o.datatype = "port"
 o.default = 1181
+o.datatype = "range(1,65535)"
 o.rmempty = false
 
 ---- Node Weight
@@ -176,6 +176,8 @@ o:value(0, translate("Primary"))
 o:value(1, translate("Standby"))
 o.rmempty = false
 
-m:append(Template(appname .. "/haproxy/js"))
+m:appendTemplate("/cbi/sortable", {sectiontype = s.sectiontype})
 
-return m
+m:appendTemplate("/haproxy/js")
+
+return api.return_map(m)

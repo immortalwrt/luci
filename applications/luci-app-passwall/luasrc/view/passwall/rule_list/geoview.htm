@@ -1,5 +1,6 @@
 <%
-local api = require "luci.passwall.api"
+local map = self.map
+local api = map.api
 -%>
 
 <style>
@@ -74,7 +75,7 @@ local api = require "luci.passwall.api"
 		if (!value) {
 			alert("<%:Please enter query content!%>");
 			return;
-        }
+		}
 		lookup_btn.disabled = true;
 		extract_btn.disabled = true;
 		btn.value = '<%:Querying%>';

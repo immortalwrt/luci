@@ -109,8 +109,6 @@ function handleRpcReply(expect, rc) {
 				let e = new Error(_('Unexpected reply data format')); e.name = 'TypeError';
 				throw e;
 			}
-
-			break;
 		}
 	}
 

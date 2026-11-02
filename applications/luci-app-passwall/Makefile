@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-passwall
-PKG_VERSION:=26.5.3
+PKG_VERSION:=26.10.29
 PKG_RELEASE:=1
 
 PKG_CONFIG_DEPENDS:= \
@@ -19,7 +19,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Shadow_TLS \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Simple_Obfs \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_SingBox \
-	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_tuic_client \
+	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_SmartDNS \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geodata \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geoview \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Plugin \
@@ -28,10 +28,10 @@ PKG_CONFIG_DEPENDS:= \
 
 LUCI_TITLE:=LuCI support for PassWall
 LUCI_PKGARCH:=all
-LUCI_DEPENDS:=+coreutils +coreutils-base64 +coreutils-nohup +curl \
+LUCI_DEPENDS:=+coreutils +coreutils-base64 +coreutils-nohup +coreutils-timeout +curl \
 	+chinadns-ng +dns2socks +ip-full +libuci-lua +lua +luci-compat +luci-lib-jsonc \
-	+microsocks +resolveip +tcping +unzip +ipt2socks \
-	+kmod-nft-socket +kmod-nft-tproxy +kmod-nft-nat \
+	+microsocks +resolveip +tcping +lyaml +unzip +ipt2socks \
+	+kmod-nft-socket +kmod-nft-tproxy +kmod-nft-nat +kmod-nf-reject +kmod-nf-reject6 \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Brook:brook \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Haproxy:haproxy \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Hysteria:hysteria \
@@ -41,7 +41,7 @@ LUCI_DEPENDS:=+coreutils +coreutils-base64 +coreutils-nohup +curl \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Shadow_TLS:shadow-tls \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Simple_Obfs:simple-obfs-client \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_SingBox:sing-box \
-	+PACKAGE_$(PKG_NAME)_INCLUDE_tuic_client:tuic-client \
+	+PACKAGE_$(PKG_NAME)_INCLUDE_SmartDNS:smartdns \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geodata:v2ray-geoip \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geodata:v2ray-geosite \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geoview:geoview \
@@ -89,10 +89,9 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_SingBox
 	bool "Include Sing-Box"
 	default y if aarch64||arm||i386||x86_64
 
-config PACKAGE_$(PKG_NAME)_INCLUDE_tuic_client
-	bool "Include tuic-client"
-	depends on aarch64||arm||i386||x86_64
-	default n
+config PACKAGE_$(PKG_NAME)_INCLUDE_SmartDNS
+	bool "Include SmartDNS"
+	default y if aarch64||arm||i386||x86_64
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_V2ray_Geodata
 	bool "Include V2ray_Geodata"
@@ -120,20 +119,20 @@ endef
 define Package/$(PKG_NAME)/conffiles
 /etc/config/passwall
 /etc/config/passwall_server
-/usr/share/passwall/rules/direct_host
-/usr/share/passwall/rules/direct_ip
-/usr/share/passwall/rules/proxy_host
-/usr/share/passwall/rules/proxy_ip
-/usr/share/passwall/rules/block_host
-/usr/share/passwall/rules/block_ip
-/usr/share/passwall/rules/lanlist_ipv4
-/usr/share/passwall/rules/lanlist_ipv6
-/usr/share/passwall/rules/domains_excluded
+/etc/passwall/
+endef
+
+define Package/$(PKG_NAME)/postinst
+#!/bin/sh
+rm -f $${IPKG_INSTROOT}/usr/share/passwall/rules/*.nft
+rm -rf $${IPKG_INSTROOT}/tmp/etc/passwall_tmp
+exit 0
 endef
 
 define Package/$(PKG_NAME)/postrm
 #!/bin/sh
 rm -f $${IPKG_INSTROOT}/usr/share/passwall/rules/*.nft
+rm -rf $${IPKG_INSTROOT}/tmp/etc/passwall_tmp
 exit 0
 endef
 

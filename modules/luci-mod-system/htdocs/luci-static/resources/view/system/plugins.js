@@ -3,6 +3,7 @@
 'require form';
 'require fs';
 'require uci';
+'require ui';
 'require view';
 
 // const plugins_path = '/usr/share/ucode/luci/plugins';
@@ -72,8 +73,9 @@ return view.extend({
 
 			s.sectiontitle = function(section_id) {
 				const plugin = plugins[section_id];
+				const section = uci.get(luci_plugins, section_id);
 
-				return plugin.title;
+				return plugin ? plugin.title : _('Missing plugin:') + ' ' + section?.name;
 			};
 
 			p_enabled = s.option(form.Flag, 'enabled', _('Enabled'));
@@ -136,11 +138,24 @@ return view.extend({
 
 				const trEl = this.super('renderRowActions', [ section_id, _('Configure…') ]);
 
-				if (!plugin || !plugin.addFormOptions)
+				if (!plugin || !plugin.addFormOptions) {
 					dom.content(trEl, null);
+					return E('td', { 'class': 'td middle cbi-section-actions' }, E('div', [
+						E('button', {
+							'class': 'cbi-button cbi-button-negative remove',
+							'title': _('Delete this config'),
+							'click': ui.createHandlerFn(this, 'handleRemove', section_id)
+						}, _('Remove'))
+					]));
+				}
 
 				return trEl;
 			};
+
+			s.handleRemove = function(section_id, ev) {
+				return form.GridSection.prototype.handleRemove.apply(this, [section_id, ev]);
+			};
+
 		}
 
 		return m.render();

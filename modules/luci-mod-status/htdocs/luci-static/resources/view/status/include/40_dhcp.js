@@ -88,6 +88,9 @@ return baseclass.extend({
 			return E('em', _('No active leases found'));
 		const machints = host_hints.getMACHints(false);
 		const isReadonlyView = !L.hasViewPermission();
+		this.isMACStatic = Object.create(null);
+		this.isDUIDStatic = Object.create(null);
+		this.isDUIDIAIDStatic = Object.create(null);
 
 		for (const host of uci.sections('dhcp', 'host')) {
 
@@ -140,9 +143,9 @@ return baseclass.extend({
 				vendor = macaddr[lease.macaddr.toLowerCase()]?.vendor ?? null;
 
 			const columns = [
-				host || '-',
+				'%h'.format(host || '-'),
 				lease.ipaddr,
-				vendor ? lease.macaddr + ` (${vendor})` : lease.macaddr,
+				'%h'.format(vendor ? lease.macaddr + ` (${vendor})` : lease.macaddr),
 				lease.duid || '-',
 				lease.iaid || '-',
 				exp,
@@ -208,7 +211,7 @@ return baseclass.extend({
 				disabled = true;
 
 			const columns = [
-				host || '-',
+				'%h'.format(host || '-'),
 				lease.ip6addrs ? lease.ip6addrs.join('<br />') : lease.ip6addr,
 				duid || '-',
 				iaid || '-',

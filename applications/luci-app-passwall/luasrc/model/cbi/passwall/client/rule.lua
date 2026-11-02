@@ -1,14 +1,12 @@
 local api = require "luci.passwall.api"
-local appname = "passwall"
 local has_xray = api.finded_com("xray")
 local has_singbox = api.finded_com("sing-box")
+api.set_default_cbi()
 
-m = Map(appname)
-api.set_apply_on_parse(m)
+m = Map()
 
 -- [[ Rule Settings ]]--
-s = m:section(TypedSection, "global_rules", translate("Rule status"))
-s.anonymous = true
+s = m:section(NamedSection, "@global_rules[0]", "global_rules", translate("Rule status"))
 
 --[[
 o = s:option(Flag, "adblock", translate("Enable adblock"))
@@ -22,23 +20,26 @@ o:value("https://cdn.jsdelivr.net/gh/YW5vbnltb3Vz/domain-list-community@release/
 o:value("https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/gfw.txt", translate("Loyalsoldier/v2ray-rules-dat"))
 o:value("https://cdn.jsdelivr.net/gh/Loukky/gfwlist-by-loukky/gfwlist.txt", translate("Loukky/gfwlist-by-loukky"))
 o:value("https://cdn.jsdelivr.net/gh/gfwlist/gfwlist/gfwlist.txt", translate("gfwlist/gfwlist"))
+o:value("https://cdn.jsdelivr.net/gh/pexcn/daily@gh-pages/gfwlist/gfwlist.txt", translate("pexcn/gfwlist"))
 o.default = o.keylist[2]
 
 ----chnroute  URL
 o = s:option(DynamicList, "chnroute_url", translate("China IPs(chnroute) Update URL"))
 o:depends("geo2rule", false)
-o:value("https://cdn.jsdelivr.net/gh/gaoyifan/china-operator-ip@ip-lists/china.txt", translate("gaoyifan/china-operator-ip/china"))
 o:value("https://ispip.clang.cn/all_cn.txt", translate("Clang.CN"))
+o:value("https://cdn.jsdelivr.net/gh/gaoyifan/china-operator-ip@ip-lists/china.txt", translate("gaoyifan/china-operator-ip/china"))
 o:value("https://cdn.jsdelivr.net/gh/soffchen/GeoIP2-CN@release/CN-ip-cidr.txt", translate("soffchen/GeoIP2-CN"))
 o:value("https://cdn.jsdelivr.net/gh/Hackl0us/GeoIP2-CN@release/CN-ip-cidr.txt", translate("Hackl0us/GeoIP2-CN"))
 o:value("https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/ChinaMax/ChinaMax_IP_No_IPv6.txt", translate("ios_rule_script/ChinaMax_IP_No_IPv6"))
+o:value("https://cdn.jsdelivr.net/gh/pexcn/daily@gh-pages/chnroute/chnroute.txt", translate("pexcn/chnroute"))
 
 ----chnroute6 URL
 o = s:option(DynamicList, "chnroute6_url", translate("China IPv6s(chnroute6) Update URL"))
 o:depends("geo2rule", false)
-o:value("https://cdn.jsdelivr.net/gh/gaoyifan/china-operator-ip@ip-lists/china6.txt", translate("gaoyifan/china-operator-ip/china6"))
 o:value("https://ispip.clang.cn/all_cn_ipv6.txt", translate("Clang.CN.IPv6"))
+o:value("https://cdn.jsdelivr.net/gh/gaoyifan/china-operator-ip@ip-lists/china6.txt", translate("gaoyifan/china-operator-ip/china6"))
 o:value("https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/ChinaMax/ChinaMax_IP.txt", translate("ios_rule_script/ChinaMax_IP"))
+o:value("https://cdn.jsdelivr.net/gh/pexcn/daily@gh-pages/chnroute/chnroute6.txt", translate("pexcn/chnroute6"))
 
 ----chnlist URL
 o = s:option(DynamicList, "chnlist_url", translate("China List(Chnlist) Update URL"))
@@ -50,6 +51,7 @@ o:value("https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/china-
 o:value("https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/apple-cn.txt", translate("Loyalsoldier/apple-cn"))
 o:value("https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/google-cn.txt", translate("Loyalsoldier/google-cn"))
 o:value("https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/ChinaMax/ChinaMax_Domain.txt", translate("ios_rule_script/ChinaMax_Domain"))
+o:value("https://cdn.jsdelivr.net/gh/pexcn/daily@gh-pages/chinalist/chinalist.txt", translate("pexcn/chinalist"))
 
 if has_xray or has_singbox then
 	o = s:option(Value, "geoip_url", translate("GeoIP Update URL"))
@@ -76,16 +78,15 @@ if has_xray or has_singbox then
 		o.default = 0
 		o.rmempty = false
 		o.description = translate("Generate rule lists such as GFW, China domains, and China IP ranges based on Geo files.") .. "<br><font color='red'>" ..
-			translate("When manually updating with this option enabled, rules will be regenerated from existing Geo files even if no new version is available.") .. "</font>"
+			translate("GeoSite files without GFW rules cannot generate a GFW list (e.g. the original v2fly/Xray files).") .. "</font>"
 
 		o = s:option(Flag, "enable_geoview", translate("Enable Geo Data Parsing"))
 		o.default = 0
 		o.rmempty = false
 		o.description = "<ul>"
 			.. "<li>" .. translate("Experimental feature.") .. "</li>"
-			.. "<li>" .. "1." .. translate("Analyzes and preloads GeoIP/Geosite data to enhance the shunt performance of Sing-box/Xray.") .. "</li>"
+			.. "<li>" .. "1." .. translate("Parses and preloads GeoIP/Geosite data to improve Sing-box/Xray routing performance.") .. "</li>"
 			.. "<li>" .. "2." .. translate("Once enabled, the rule list can support GeoIP/Geosite rules.") .. "</li>"
-			.. "<li>" .. translate("Note: Increases resource usage; Geosite analysis is only supported in ChinaDNS-NG and SmartDNS modes.") .. "</li>"
 			.. "</ul>"
 		function o.write(self, section, value)
 			local old = m:get(section, self.option) or "0"
@@ -97,13 +98,8 @@ if has_xray or has_singbox then
 	end
 end
 
----- Auto Update
-o = s:option(Flag, "auto_update", translate("Enable auto update rules"))
-o.default = 0
-o.rmempty = false
-
----- Week Update
-o = s:option(ListValue, "week_update", translate("Update Mode"))
+o = s:option(ListValue, "update_week_mode", translate("Auto Update Mode"))
+o:value("", translate("Disable"))
 o:value(8, translate("Loop Mode"))
 o:value(7, translate("Every day"))
 o:value(1, translate("Every Monday"))
@@ -113,29 +109,24 @@ o:value(4, translate("Every Thursday"))
 o:value(5, translate("Every Friday"))
 o:value(6, translate("Every Saturday"))
 o:value(0, translate("Every Sunday"))
-o.default = 7
-o:depends("auto_update", true)
-o.rmempty = true
 
----- Time Update
-o = s:option(ListValue, "time_update", translate("Update Time(every day)"))
-for t = 0, 23 do o:value(t, t .. ":00") end
-o.default = 0
-o:depends("week_update", "0")
-o:depends("week_update", "1")
-o:depends("week_update", "2")
-o:depends("week_update", "3")
-o:depends("week_update", "4")
-o:depends("week_update", "5")
-o:depends("week_update", "6")
-o:depends("week_update", "7")
-o.rmempty = true
+o = s:option(Value, "update_time_mode", translate("Update Time"))
+for t = 0, 23 do o:value(t .. ":00") end
+o.default = "0:00"
+o.datatype = "timehhmm"
+o:depends("update_week_mode", "0")
+o:depends("update_week_mode", "1")
+o:depends("update_week_mode", "2")
+o:depends("update_week_mode", "3")
+o:depends("update_week_mode", "4")
+o:depends("update_week_mode", "5")
+o:depends("update_week_mode", "6")
+o:depends("update_week_mode", "7")
 
----- Interval Update
-o = s:option(ListValue, "interval_update", translate("Update Interval(hour)"))
+o = s:option(ListValue, "update_interval_mode", translate("Update Interval(hour)"))
 for t = 1, 24 do o:value(t, t .. " " .. translate("hour")) end
 o.default = 2
-o:depends("week_update", "8")
+o:depends("update_week_mode", "8")
 o.rmempty = true
 
 ---- 更新选项，始终被js隐藏
@@ -148,29 +139,27 @@ for _, f in ipairs(flags) do
 	o.rmempty = false
 end
 
-s:append(Template(appname .. "/rule/rule_version"))
+s:appendTemplate("/rule/rule_version")
 
 if has_xray or has_singbox then
-	s = m:section(TypedSection, "shunt_rules", "Sing-Box/Xray " .. translate("Shunt Rule"), "<a style='color: red'>" .. translate("Please note attention to the priority, the higher the order, the higher the priority.") .. "</a>")
-	s.template = "cbi/tblsection"
-	s.anonymous = false
-	s.addremove = true
-	s.sortable = true
-	s.extedit = api.url("shunt_rules", "%s")
-	function s.create(e, t)
-		TypedSection.create(e, t)
-		luci.http.redirect(e.extedit:format(t))
-	end
-	function s.remove(e, t)
-		m.uci:foreach(appname, "nodes", function(s)
-			if s["protocol"] and s["protocol"] == "_shunt" then
-				m:del(s[".name"], t)
-			end
-		end)
-		TypedSection.remove(e, t)
-	end
+	m:appendTemplate("/rule/shunt_rule_list")
 
-	o = s:option(DummyValue, "remarks", translate("Remarks"))
+	if luci.http.formvalue("cbi.submit") == "1" then
+		local group_order = luci.http.formvaluetable("group.order")
+		if group_order then
+			for k, v in pairs(group_order) do
+				if v and v~= "" then
+					local new_order = {}
+					string.gsub(v, "[^" .. " " .. "]+", function(w)
+						new_order[#new_order + 1] = w
+					end)
+					for idx, name in ipairs(new_order) do
+						m.uci:reorder(m.config, name, idx - 1)
+					end
+				end
+			end
+		end
+	end
 end
 
-return m
+return api.return_map(m)

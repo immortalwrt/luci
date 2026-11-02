@@ -7,7 +7,6 @@
 'require view';
 
 const RESOLV_FILE = '/tmp/resolv.conf.d/resolv.conf.auto';
-const LOGERR_CMD = "logread -e 'unbound.*error.*ssl library'";
 const HELP_URL = 'https://github.com/openwrt/packages/blob/master/net/unbound/files/README.md';
 
 let section_enabled = false;
@@ -24,7 +23,7 @@ return view.extend({
 	load() {
 		return Promise.all([
 			fs.read(RESOLV_FILE).catch(() => ''),
-			fs.exec(LOGERR_CMD).catch(() => ''),
+			fs.exec('/sbin/logread', ['-e', 'unbound.*error.*ssl library']).catch(() => ''),
 			uci.load('unbound'),
 		]).then(([resolv, logerr]) => ({
 			resolvContent: resolv || '',

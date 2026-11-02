@@ -48,7 +48,7 @@ function validateCert(priv, section_id, value) {
 	for (i = 0; i < lines.length; i++) {
 		if (lines[i].match(/^-{5}BEGIN ((|RSA |DSA )PRIVATE KEY|(|TRUSTED |X509 )CERTIFICATE)-{5}$/))
 			start = true;
-		else if (start && !lines[i].match(/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/))
+		else if (start && !lines[i].match(/^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/))
 			break;
 	}
 
@@ -128,7 +128,7 @@ return network.registerProtocol('openfortivpn', {
 			return callSetCertificateFiles(section_id, null, sanitizeCert(value), null);
 		};
 
-		o = s.taboption('general', form.TextValue, 'ca_file', _('CA certificate (PEM encoded; Use instead of system-wide store to verify the gateway certificate.'));
+		o = s.taboption('general', form.TextValue, 'ca_file', _('CA certificate (PEM encoded. Use instead of system-wide store to verify the gateway certificate.)'));
 		o.optional = true;
 		o.rows = 10;
 		o.monospace = true;
@@ -170,7 +170,10 @@ return network.registerProtocol('openfortivpn', {
 
 		o = s.taboption("advanced", form.Value, 'local_ip', _("Local IP address"));
 		o.placeholder = '192.168.0.5'
-		o.dataype = 'ipaddr'
+		o.datatype = 'ipaddr'
+		o.optional = true;
+
+		o = s.taboption('advanced', form.Value, 'realm', _("Realm"), _("Optional. Specify the realm if your VPN gateway uses custom login portals."));
 		o.optional = true;
 
 	}

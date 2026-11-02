@@ -6,13 +6,6 @@
 'require rpc';
 'require form';
 
-const callInitAction = rpc.declare({
-	object: 'luci',
-	method: 'setInitAction',
-	params: [ 'name', 'action' ],
-	expect: { result: false }
-});
-
 const callUpnpGetStatus = rpc.declare({
 	object: 'luci.upnp',
 	method: 'get_status',
@@ -65,7 +58,7 @@ return view.extend({
 				rule.extport,
 				rule.proto,
 				expires_str,
-				rule.descr,
+				'%h'.format(rule.descr),
 				E('button', {
 					'class': 'btn cbi-button-remove',
 					'click': L.bind(handleDelRule, this, rule.num)

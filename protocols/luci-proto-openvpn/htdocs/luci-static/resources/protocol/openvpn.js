@@ -30,13 +30,6 @@ const openvpnOptions = [
 		placeholder: '1194',
 		label: _('TCP/UDP port # for both local and remote')
 	},
-	{
-		tab: 'general',
-		type: form.Flag,
-		name: 'nobind',
-		label: _('Do not bind to local address and port'),
-		default: 0
-	},
 	// --client Options error: specify only one of --tls-server, --tls-client, or --secret
 	// --client also needs DCO(?)
 	{
@@ -77,6 +70,14 @@ const openvpnOptions = [
 		name: 'key',
 		label: _('Local private key'),
 		placeholder: '/etc/easy-rsa/keys/some-client.key'
+	},
+	{
+		tab: 'general',
+		type: form.FileUpload,
+		root_directory: '/etc/openvpn',
+		name: 'auth_user_pass',
+		label: _('Username and password file (one per line)'),
+		placeholder: '/etc/openvpn/some-client-auth-user-pass'
 	},
 	{
 		tab: 'general',
@@ -554,14 +555,6 @@ const openvpnOptions = [
 	{
 		tab: 'networking',
 		type: form.Value,
-		name: 'port',
-		datatype: 'port',
-		label: _('TCP/UDP port # for both local and remote'),
-		placeholder: 1194
-	},
-	{
-		tab: 'networking',
-		type: form.Value,
 		name: 'lport',
 		datatype: 'port',
 		label: _('TCP/UDP port # for local'),
@@ -953,7 +946,7 @@ const openvpnOptions = [
 		tab: 'cryptography',
 		type: form.FileUpload,
 		root_directory: '/etc',
-		name: 'askpass_file',
+		name: 'askpass',
 		label: _('Get certificate password from file before we daemonize')
 	},
 	{
@@ -1020,13 +1013,6 @@ const openvpnOptions = [
 			'secp256r1',
 			'secp256k1'
 		]
-	},
-	{
-		tab: 'cryptography',
-		type: form.Value,
-		name: 'replay_window',
-		label: _('Replay protection sliding window size'),
-		placeholder: '64 15'
 	},
 	{
 		tab: 'cryptography',
@@ -1179,7 +1165,6 @@ const openvpnOptions = [
 		tab: 'cryptography',
 		type: form.Flag,
 		name: 'single_session',
-		datatype: 'uinteger',
 		label: _('Allow only one session'),
 		default: 0
 	},
@@ -1187,7 +1172,6 @@ const openvpnOptions = [
 		tab: 'cryptography',
 		type: form.Flag,
 		name: 'tls_exit',
-		datatype: 'uinteger',
 		label: _('Exit on TLS negotiation failure'),
 		default: 0
 	},
@@ -1296,7 +1280,7 @@ const openvpnOptions = [
 		tab: 'cryptography',
 		type: form.Value,
 		name: 'tls_cert_profile',
-		label: _('TLS cet profile'),
+		label: _('TLS cert profile'),
 		lvalues: [
 			'insecure',
 			'legacy',
@@ -1495,13 +1479,6 @@ const openvpnOptions = [
 		name: 'pull',
 		label: _('Accept options pushed from server'),
 		default: 0
-	},
-	{
-		tab: 'push_opt',
-		depends: { server: "", "!reverse": true },
-		type: form.Value,
-		name: 'auth_user_pass',
-		label: _('Authenticate using username/password')
 	},
 	{
 		tab: 'push_opt',
@@ -1742,7 +1719,6 @@ return network.registerProtocol('openvpn', {
 		krp.default = '';
 		krp.monospace = true;
 		krp.readonly = true;
-		krp.readonly = true;
 		krp.rows = 2;
 		krp.wrap = 90;
 		krp.write = function(sid, value) { return; };
@@ -1855,6 +1831,7 @@ return network.registerProtocol('openvpn', {
 		ovconf.cfgvalue = function(sid) {
 			attachDragDrop(sid);
 			const config_name = `/etc/openvpn/${sid}/${sid}_config.cfg`;
+			/* call unset if there is no on-disk config.cfg file for this profile */
 			return fs.read(config_name).then(readresult => {
 				attachDragDrop(sid);
 				if (readresult == null || readresult === '') {

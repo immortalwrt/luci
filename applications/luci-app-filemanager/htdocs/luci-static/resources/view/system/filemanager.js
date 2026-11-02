@@ -944,7 +944,7 @@ return view.extend({
 									E('input', {
 										'type': 'text',
 										'id': 'columnWidths-input',
-										'value': Object.values(config.columnWidths).join(''),
+										'value': Object.entries(config.columnWidths).map(([k,v]) => k+':'+v).join(','),
 										'style': 'width:100%; margin-bottom:10px;'
 									})
 								]),
@@ -953,7 +953,7 @@ return view.extend({
 									E('input', {
 										'type': 'text',
 										'id': 'columnMinWidths-input',
-										'value': Object.values(config.columnMinWidths).join(''),
+										'value': Object.entries(config.columnMinWidths).map(([k,v]) => k+':'+v).join(','),
 										'style': 'width:100%; margin-bottom:10px;'
 									})
 								]),
@@ -962,7 +962,7 @@ return view.extend({
 									E('input', {
 										'type': 'text',
 										'id': 'columnMaxWidths-input',
-										'value': Object.values(config.columnMaxWidths).join(''),
+										'value': Object.entries(config.columnMaxWidths).map(([k,v]) => k+':'+v).join(','),
 										'style': 'width:100%; margin-bottom:10px;'
 									})
 								]),

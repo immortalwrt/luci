@@ -111,7 +111,7 @@ return view.extend({
 
 		if (dhcp_c.content) {
 			s.tab('dhcp', _('Show: DHCP'));
-			const dhcp_msg = s.taboption('manual', form.DummyValue, '_dhcp_msg', '');
+			const dhcp_msg = s.taboption('dhcp', form.DummyValue, '_dhcp_msg', '');
 			dhcp_msg.default =  _("This shows '" + FILENAMES['dhcp'] +  "' list of hosts from DHCP hook scripts.");
 			const dhcp = s.taboption('dhcp', form.TextValue, 'dhcp');
 			dhcp.rows = 25;

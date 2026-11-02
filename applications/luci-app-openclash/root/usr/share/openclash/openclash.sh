@@ -29,6 +29,9 @@ CLASH="/etc/openclash/clash"
 CLASH_CONFIG="/etc/openclash"
 restart=0
 only_download=0
+norestart=0
+exit_code=0
+[ "$2" = "norestart" ] && norestart=1
 
 inc_job_counter
 
@@ -49,7 +52,7 @@ config_test()
 {
    if [ -f "$CLASH" ]; then
       LOG_OUT "Config File Download Successful, Test If There is Any Errors..."
-      test_info=$($CLASH -t -d $CLASH_CONFIG -f "$CFG_FILE")
+      test_info=$($CLASH -t -d $CLASH_CONFIG -f "$CFG_FILE" -age-secret-key "$SECRET_KEY")
       local IFS=$'\n'
       for i in $test_info; do
          if [ -n "$(echo "$i" |grep "configuration file")" ]; then
@@ -67,48 +70,57 @@ config_test()
    fi
 }
 
+yaml_sub_validate()
+{
+   rm -f /tmp/yaml_sub_status 2>/dev/null
+   ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
+   begin
+     Value = YAML.load_file('$CFG_FILE')
+     unless Value.key?('proxies') || Value.key?('proxy-providers')
+       File.open('/tmp/yaml_sub_status', 'w') { |f| f.puts 'NO_CONTENT' }
+     end
+   rescue Exception => e
+     YAML.LOG_ERROR('Unable To Parse Config File,【' + e.message + '】')
+     system 'rm -rf ${CFG_FILE} 2>/dev/null'
+   end
+   " 2>/dev/null >> $LOG_FILE
+   YAML_SUB_STATUS=$(cat /tmp/yaml_sub_status 2>/dev/null)
+   rm -f /tmp/yaml_sub_status 2>/dev/null
+}
+
 config_download()
 {
 LOG_TIP "Config File【$name】Downloading User-Agent【$sub_ua】..."
+if [ -n "$sub_headers" ]; then
+   LOG_TIP "Config File【$name】Custom Headers【$(echo "$sub_headers" | tr '\n' ',' | sed 's/,$//')】..."
+fi
 if [ -n "$subscribe_url_param" ] && [ -n "$c_address" ]; then
    LOG_INFO "Config File【$name】Downloading URL【$c_address$subscribe_url_param】..."
-   local DOWNLOAD_URL="${c_address}${subscribe_url_param}"
-   local DOWNLOAD_PARAM="$sub_ua"
+   DOWNLOAD_URL="${c_address}${subscribe_url_param}"
 fi
 if [ -z "$DOWNLOAD_URL" ]; then
    LOG_INFO "Config File【$name】Downloading URL【$subscribe_url】..."
-   local DOWNLOAD_URL="${subscribe_url}"
-   local DOWNLOAD_PARAM="$sub_ua"
+   DOWNLOAD_URL="${subscribe_url}"
 fi
-DOWNLOAD_FILE_CURL "$DOWNLOAD_URL" "$CFG_FILE" "$CONFIG_FILE" "$DOWNLOAD_PARAM"
+DOWNLOAD_PARAM="$sub_ua"
+DOWNLOAD_FILE_CURL "$DOWNLOAD_URL" "$CFG_FILE" "$CONFIG_FILE" "$DOWNLOAD_PARAM" "$SECRET_KEY" "$sub_headers"
 DOWNLOAD_RESULT=$?
 }
 
 config_cus_up()
 {
-	if [ -z "$CONFIG_PATH" ]; then
-      for file_name in /etc/openclash/config/*
-      do
-         if [ -f "$file_name" ]; then
-            CONFIG_PATH=$file_name
-            break
-         fi
-      done
-      uci -q set openclash.config.config_path="$CONFIG_PATH"
-      uci commit openclash
-	fi
-	if [ -z "$subscribe_url_param" ]; then
-	   if [ -n "$key_match_param" ] || [ -n "$key_ex_match_param" ]; then
-	      LOG_OUT "Config File【$name】Start Picking Nodes..."	      
-	      ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
-	      begin
+   if [ -z "$subscribe_url_param" ]; then
+      if [ -n "$key_match_param" ] || [ -n "$key_ex_match_param" ]; then
+         LOG_OUT "Config File【$name】Start Picking Nodes..."
+         ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
+         begin
             threads = [];
-	         Value = YAML.load_file('$CFG_FILE');
-	         if Value.has_key?('proxies') and not Value['proxies'].to_a.empty? then
-	            Value['proxies'].reverse.each{
-	            |x|
+            Value = YAML.load_file('$CFG_FILE');
+            if Value.has_key?('proxies') and not Value['proxies'].to_a.empty? then
+               Value['proxies'].reverse.each{
+               |x|
                   if not '$key_match_param'.empty? then
-                     threads << Thread.new {
+                     threads << YAML::Inline.new {
                         if not /$key_match_param/i =~ x['name'] then
                            Value['proxies'].delete(x)
                            Value['proxy-groups'].each{
@@ -124,7 +136,7 @@ config_cus_up()
                      };
                   end;
                   if not '$key_ex_match_param'.empty? then
-                     threads << Thread.new {
+                     threads << YAML::Inline.new {
                         if /$key_ex_match_param/i =~ x['name'] then
                            if Value['proxies'].include?(x) then
                               Value['proxies'].delete(x)
@@ -141,12 +153,12 @@ config_cus_up()
                         end;
                      };
                   end;
-	            };
-	         end;
+               };
+            end;
             if Value.key?('proxy-providers') and not Value['proxy-providers'].nil? then
                Value['proxy-providers'].values.each do
                   |i|
-                  threads << Thread.new {
+                  threads << YAML::Inline.new {
                      if not '$key_match_param'.empty? then
                         i['filter'] = '(?i)$key_match_param';
                      end;
@@ -157,12 +169,16 @@ config_cus_up()
                end;
             end;
             threads.each(&:join);
-	      rescue Exception => e
-	         YAML.LOG_ERROR('Filter Proxies Failed,【' + e.message + '】');
-	      ensure
-	         File.open('$CFG_FILE','w') {|f| YAML.dump(Value, f)};
-	      end" 2>/dev/null >> $LOG_FILE
-	   fi
+         rescue Exception => e
+            YAML.LOG_ERROR('Filter Proxies Failed,【' + e.message + '】');
+         ensure
+            begin
+               YAML.dump(Value, '$CFG_FILE');
+            rescue Exception => e
+               YAML.LOG_ERROR('Write file failed:【%s】' % [e.message])
+            end
+         end" 2>/dev/null >> $LOG_FILE
+      fi
    fi
 }
 
@@ -192,7 +208,11 @@ config_su_check()
       mv "$CFG_FILE" "$CONFIG_FILE" 2>/dev/null
       LOG_OUT "Config File【$name】Update Successful!"
    fi
-   if [ "$CONFIG_FILE" == "$CONFIG_PATH" ]; then
+   if [ -z "$CONFIG_PATH" ]; then
+      uci -q set openclash.config.config_path="$CONFIG_FILE"
+      uci commit openclash
+   fi
+   if [ "$CONFIG_FILE" == "$CONFIG_PATH" ] && [ "$norestart" -eq 0 ]; then
       restart=1
    fi
 }
@@ -201,13 +221,14 @@ config_error()
 {
    LOG_ERROR "【$name】Update Error, Please Try Again Later..."
    rm -rf "$CFG_FILE" 2>/dev/null
+   exit_code=1
 }
 
 change_dns()
 {
    if pidof clash >/dev/null; then
       /etc/init.d/openclash reload "restore" >/dev/null 2>&1
-      procd_send_signal "openclash" "openclash-watchdog" CONT
+      procd_send_signal "openclash-watchdog" "" CONT
    fi
 }
 
@@ -215,7 +236,7 @@ config_download_direct()
 {
    if pidof clash >/dev/null && [ "$router_self_proxy" = 1 ]; then
       kill_streaming_unlock
-      procd_send_signal "openclash" "openclash-watchdog" STOP
+      procd_send_signal "openclash-watchdog" "" STOP
       /etc/init.d/openclash reload "revert" >/dev/null 2>&1
       sleep 3
 
@@ -223,23 +244,14 @@ config_download_direct()
 
       if [ "$DOWNLOAD_RESULT" -eq 0 ] && [ -s "$CFG_FILE" ]; then
          #prevent ruby unexpected error
-         sed -i -E 's/protocol-param: ([^,'"'"'"''}( *#)\n\r]+)/protocol-param: "\1"/g' "$CFG_FILE" 2>/dev/null
-         sed -i '/^ \{0,\}enhanced-mode:/d' "$CFG_FILE" >/dev/null 2>&1
          config_test
          if [ $? -ne 0 ]; then
-            LOG_ERROR "Config File Tested Faild, Please Check The Log Infos!"
+            LOG_ERROR "Config File Tested Failed, Please Check The Log Infos!"
             change_dns
             config_error
             return
          fi
-         ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
-         begin
-         YAML.load_file('$CFG_FILE');
-         rescue Exception => e
-         YAML.LOG_ERROR('Unable To Parse Config File,【' + e.message + '】');
-         system 'rm -rf ${CFG_FILE} 2>/dev/null'
-         end
-         " 2>/dev/null >> $LOG_FILE
+         yaml_sub_validate
          if [ $? -ne 0 ]; then
             LOG_ERROR "Ruby Works Abnormally, Please Check The Ruby Library Depends!"
             only_download=1
@@ -249,7 +261,7 @@ config_download_direct()
             LOG_OUT "Config File Format Validation Failed..."
             change_dns
             config_error
-         elif ! "$(ruby_read "$CFG_FILE" ".key?('proxies')")" && ! "$(ruby_read "$CFG_FILE" ".key?('proxy-providers')")" ; then
+         elif [ "$YAML_SUB_STATUS" = "NO_CONTENT" ]; then
             LOG_ERROR "Updated Config【$name】Has No Proxy Field, Update Exit..."
             change_dns
             config_error
@@ -271,12 +283,12 @@ config_download_direct()
 
 server_key_match()
 {
-	local key_match key_word
-	 
+   local key_match key_word
+
    if [ -n "$(echo "$1" |grep "^ \{0,\}$")" ] || [ -n "$(echo "$1" |grep "^\t\{0,\}$")" ]; then
-	   return
+      return
    fi
-	 
+
    if [ -n "$(echo "$1" |grep "&")" ]; then
       key_word=$(echo "$1" |sed 's/&/ /g')
       for k in $key_word
@@ -301,7 +313,7 @@ server_key_match()
          key_match_param="$key_match_param|$key_match"
       fi
    elif [ "$2" = "ex_keyword" ]; then
-   	  if [ -z "$key_ex_match_param" ]; then
+        if [ -z "$key_ex_match_param" ]; then
          key_ex_match_param="$key_match"
       else
          key_ex_match_param="$key_ex_match_param|$key_match"
@@ -322,26 +334,41 @@ convert_custom_param()
    fi
 }
 
+build_sub_headers()
+{
+   if [ -z "$sub_headers" ]; then
+      sub_headers="$1"
+   else
+      sub_headers="$sub_headers
+$1"
+   fi
+}
+
 sub_info_get()
 {
-   local section="$1" subscribe_url template_path subscribe_url_param template_path_encode key_match_param key_ex_match_param c_address de_ex_keyword sub_ua append_custom_params
+   local section="$1" subscribe_url template_path subscribe_url_param template_path_encode key_match_param key_ex_match_param c_address de_ex_keyword sub_ua sub_headers append_custom_params SECRET_KEY DOWNLOAD_URL DOWNLOAD_PARAM
    config_get_bool "enabled" "$section" "enabled" "1"
    config_get "name" "$section" "name" "config"
    config_get "sub_convert" "$section" "sub_convert" ""
    config_get "address" "$section" "address" ""
    config_get "keyword" "$section" "keyword" ""
    config_get "ex_keyword" "$section" "ex_keyword" ""
+   config_get_bool "keyword_option" "$section" "keyword_option" "1"
    config_get "emoji" "$section" "emoji" ""
    config_get "udp" "$section" "udp" ""
    config_get "skip_cert_verify" "$section" "skip_cert_verify" ""
    config_get "sort" "$section" "sort" ""
-   config_get "convert_address" "$section" "convert_address" ""
+   config_get "convert_address" "$section" "convert_address" "https://api.asailor.org/sub"
    config_get "template" "$section" "template" ""
    config_get "node_type" "$section" "node_type" ""
    config_get "rule_provider" "$section" "rule_provider" ""
+   config_get "tfo" "$section" "tfo" ""
+   config_get "tls13" "$section" "tls13" ""
    config_get "custom_template_url" "$section" "custom_template_url" ""
    config_get "de_ex_keyword" "$section" "de_ex_keyword" ""
-   config_get "sub_ua" "$section" "sub_ua" "clash.meta"
+   config_get "sub_ua" "$section" "sub_ua" "clash-verge/v2.4.5"
+   config_list_foreach "$section" "sub_headers" build_sub_headers
+   SECRET_KEY=$(uci_get_age_secret_keys "$name")
 
    CONFIG_FILE="/etc/openclash/config/$name.yaml"
    CFG_FILE="/tmp/$name.yaml"
@@ -372,24 +399,38 @@ sub_info_get()
       rule_provider=""
    fi
 
+   if [ "$tfo" == "true" ]; then
+      tfo="&tfo=true"
+   else
+      tfo=""
+   fi
+
+   if [ "$tls13" == "true" ]; then
+      tls13="&tls13=true"
+   else
+      tls13=""
+   fi
+
    if [ -n "$2" ] && [ "$2" != "$CONFIG_FILE" ] && [ "$2" != "$name" ]; then
       return
    fi
 
-   if [ ! -z "$keyword" ] || [ ! -z "$ex_keyword" ]; then
-      config_list_foreach "$section" "keyword" server_key_match "keyword"
-      config_list_foreach "$section" "ex_keyword" server_key_match "ex_keyword"
-   fi
+   if [ "$keyword_option" -eq 1 ]; then
+      if [ ! -z "$keyword" ] || [ ! -z "$ex_keyword" ]; then
+         config_list_foreach "$section" "keyword" server_key_match "keyword"
+         config_list_foreach "$section" "ex_keyword" server_key_match "ex_keyword"
+      fi
 
-   if [ -n "$de_ex_keyword" ]; then
-      for i in $de_ex_keyword;
-      do
-      	if [ -z "$key_ex_match_param" ]; then
-      	   key_ex_match_param="($i)"
-      	else
-      	   key_ex_match_param="$key_ex_match_param|($i)"
-        fi
-      done
+      if [ -n "$de_ex_keyword" ]; then
+         for i in $de_ex_keyword;
+         do
+            if [ -z "$key_ex_match_param" ]; then
+               key_ex_match_param="($i)"
+            else
+               key_ex_match_param="$key_ex_match_param|($i)"
+            fi
+         done
+      fi
    fi
 
    if [ "$sub_convert" -eq 0 ]; then
@@ -409,7 +450,7 @@ sub_info_get()
          template_path_encode=$(urlencode "$template_path")
          [ -n "$key_match_param" ] && key_match_param="$(urlencode "(?i)$key_match_param")"
          [ -n "$key_ex_match_param" ] && key_ex_match_param="$(urlencode "(?i)$key_ex_match_param")"
-         subscribe_url_param="?target=clash&new_name=true&url=$subscribe_url&config=$template_path_encode&include=$key_match_param&exclude=$key_ex_match_param&emoji=$emoji&list=false&sort=$sort$udp&scv=$skip_cert_verify&append_type=$node_type&fdn=true$rule_provider$append_custom_params"
+         subscribe_url_param="?target=clash&new_name=true&url=$subscribe_url&config=$template_path_encode&include=$key_match_param&exclude=$key_ex_match_param&emoji=$emoji&list=false&sort=$sort$udp&scv=$skip_cert_verify&append_type=$node_type&fdn=true$rule_provider$tfo$tls13$append_custom_params"
          c_address="$convert_address"
       else
          subscribe_url=$address
@@ -423,22 +464,14 @@ sub_info_get()
    config_download
    if [ "$DOWNLOAD_RESULT" -eq 0 ] && [ -s "$CFG_FILE" ]; then
       #prevent ruby unexpected error
-      sed -i -E 's/protocol-param: ([^,'"'"'"''}( *#)\n\r]+)/protocol-param: "\1"/g' "$CFG_FILE" 2>/dev/null
       config_test
       if [ $? -ne 0 ]; then
-         LOG_ERROR "Config File Tested Faild, Please Check The Log Infos!"
+         LOG_ERROR "Config File Tested Failed, Please Check The Log Infos!"
          LOG_ERROR "Config File【$name】Subscribed Failed, Trying to Download Without Agent..."
          config_download_direct
          return
       fi
-      ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
-      begin
-      YAML.load_file('$CFG_FILE');
-      rescue Exception => e
-      YAML.LOG_ERROR('Unable To Parse Config File,【' + e.message + '】');
-      system 'rm -rf ${CFG_FILE} 2>/dev/null'
-      end
-      " 2>/dev/null >> $LOG_FILE
+      yaml_sub_validate
       if [ $? -ne 0 ]; then
          LOG_ERROR "Ruby Works Abnormally, Please Check The Ruby Library Depends!"
          only_download=1
@@ -446,7 +479,7 @@ sub_info_get()
       elif [ ! -f "$CFG_FILE" ]; then
          LOG_OUT "Config File Format Validation Failed, Trying To Download Without Agent..."
          config_download_direct
-      elif ! "$(ruby_read "$CFG_FILE" ".key?('proxies')")" && ! "$(ruby_read "$CFG_FILE" ".key?('proxy-providers')")" ; then
+      elif [ "$YAML_SUB_STATUS" = "NO_CONTENT" ]; then
          LOG_ERROR "Updated Config【$name】Has No Proxy Field, Trying To Download Without Agent..."
          config_download_direct
       else
@@ -463,6 +496,8 @@ sub_info_get()
 #分别获取订阅信息进行处理
 config_load "openclash"
 config_foreach sub_info_get "config_subscribe" "$1"
-SLOG_CLEAN
 dec_job_counter_and_restart "$restart"
 del_lock
+
+# the caller (luci) judges the update result by this exit code
+exit "$exit_code"

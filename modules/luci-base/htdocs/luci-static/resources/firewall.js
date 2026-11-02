@@ -319,7 +319,7 @@ Zone = AbstractFirewallItem.extend({
 			this.data = section;
 		}
 		else if (name != null) {
-			var sections = uci.get('firewall', 'zone');
+			var sections = uci.sections('firewall', 'zone');
 
 			for (var i = 0; i < sections.length; i++) {
 				if (sections[i].name != name)

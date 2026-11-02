@@ -1,12 +1,15 @@
 module("luci.passwall.util_shadowsocks", package.seeall)
 local api = require "luci.passwall.api"
-local uci = api.uci
 local jsonc = api.jsonc
 
 function gen_config_server(node)
+	local user = nil
+	if node.user then
+		user = api.uci_get_s(node.user)
+	end
 	local config = {}
 	config.server_port = tonumber(node.port)
-	config.password = node.password
+	config.password = user and user.password or ""
 	config.timeout = tonumber(node.timeout)
 	config.fast_open = (node.tcp_fast_open and node.tcp_fast_open == "1") and true or false
 	config.method = node.method
@@ -36,7 +39,7 @@ function gen_config(var)
 		print("node 不能为空")
 		return
 	end
-	local node = uci:get_all("passwall", node_id)
+	local node = api.uci_get_c(node_id)
 	local server_host = var["server_host"] or (node.address or ""):lower()
 	local server_port = var["server_port"] or node.port
 	local local_addr = var["local_addr"]
@@ -50,10 +53,9 @@ function gen_config(var)
 	local local_http_port = var["local_http_port"]
 	local local_http_username = var["local_http_username"]
 	local local_http_password = var["local_http_password"]
-	local local_tcp_redir_port = var["local_tcp_redir_port"]
-	local local_tcp_redir_address = var["local_tcp_redir_address"] or "0.0.0.0"
-	local local_udp_redir_port = var["local_udp_redir_port"]
-	local local_udp_redir_address = var["local_udp_redir_address"] or "0.0.0.0"
+	local local_redir_port = var["local_redir_port"]
+	local local_redir_address = var["local_redir_address"] or "0.0.0.0"
+	local loglevel = var["loglevel"]
 
 	if api.is_ipv6(server_host) then
 		server_host = api.get_ipv6_only(server_host)
@@ -80,11 +82,7 @@ function gen_config(var)
 		tcp_tproxy = var["tcp_tproxy"] and true or nil
 	}
 
-	if node.type == "SS" then
-		config.plugin = plugin_file or nil
-		config.plugin_opts = (plugin_file) and node.plugin_opts or nil
-		config.mode = mode
-	elseif node.type == "SSR" then
+	if node.type == "SSR" then
 		config.protocol = node.protocol
 		config.protocol_param = node.protocol_param
 		config.obfs = node.obfs
@@ -103,7 +101,10 @@ function gen_config(var)
 				}
 			},
 			locals = {},
-			fast_open = (node.tcp_fast_open and node.tcp_fast_open == "1") and true or false
+			fast_open = (node.tcp_fast_open and node.tcp_fast_open == "1") and true or false,
+			log = {
+				level = (loglevel == "debug") and 1 or 0
+			}
 		}
 		if local_socks_address and local_socks_port then
 			table.insert(config.locals, {
@@ -119,21 +120,13 @@ function gen_config(var)
 				local_port = tonumber(local_http_port)
 			})
 		end
-		if local_tcp_redir_address and local_tcp_redir_port then
+		if local_redir_address and local_redir_port then
 			table.insert(config.locals, {
 				protocol = "redir",
-				mode = "tcp_only",
+				mode = "tcp_and_udp",
 				tcp_redir = var["tcp_tproxy"] and "tproxy" or nil,
-				local_address = local_tcp_redir_address,
-				local_port = tonumber(local_tcp_redir_port)
-			})
-		end
-		if local_udp_redir_address and local_udp_redir_port then
-			table.insert(config.locals, {
-				protocol = "redir",
-				mode = "udp_only",
-				local_address = local_udp_redir_address,
-				local_port = tonumber(local_udp_redir_port)
+				local_address = local_redir_address,
+				local_port = tonumber(local_redir_port)
 			})
 		end
 	end

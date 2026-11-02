@@ -2,9 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LuCI: commands\n"
 "POT-Creation-Date: 2013-10-15 16:48+0300\n"
-"PO-Revision-Date: 2026-04-25 12:14+0000\n"
-"Last-Translator: SnIPeRSnIPeR <snipersniper@users.noreply.hosted.weblate.org>"
-"\n"
+"PO-Revision-Date: 2026-07-03 15:28+0000\n"
+"Last-Translator: chigelo <chigelo@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationscommands/ru/>\n"
 "Language: ru\n"
@@ -13,15 +12,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.17.1-dev\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 "Project-Info: Это технический перевод, не дословный. Главное-удобный русский "
 "интерфейс, все проверялось в графическом режиме, совместим с другими apps\n"
 
-#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:19
-msgid "A short textual description of the configured command"
-msgstr "Короткое текстовое описание команды"
+#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:20
+msgid "A short name for the configured command"
+msgstr "Короткое имя для настроенной команды"
 
-#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:30
+#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:35
 msgid ""
 "Allow executing the command and downloading its output without prior "
 "authentication"
@@ -29,21 +28,26 @@ msgstr ""
 "Разрешить выполнение команды и загрузку её выходных данных без ввода пароля "
 "пользователя"
 
-#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:27
+#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:32
 msgid "Allow the user to provide additional command line arguments"
 msgstr ""
 "Разрешить пользователю предоставлять дополнительные аргументы командной "
 "строки"
 
-#: applications/luci-app-commands/ucode/template/commands.ut:145
+#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:23
+msgid "An optional longer description to display on the execution page"
+msgstr ""
+"Необязательное расширенное описание, отображаемое на странице выполнения"
+
+#: applications/luci-app-commands/ucode/template/commands.ut:148
 msgid "Arguments:"
 msgstr "Аргументы:"
 
-#: applications/luci-app-commands/ucode/template/commands.ut:163
+#: applications/luci-app-commands/ucode/template/commands.ut:166
 msgid "Collecting data..."
 msgstr "Сбор данных..."
 
-#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:21
+#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:26
 msgid "Command"
 msgstr "Команда"
 
@@ -55,7 +59,7 @@ msgstr "Команда выполнена успешно."
 msgid "Command exited with status code %d"
 msgstr "Команда завершилась с кодом состояния %d"
 
-#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:21
+#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:26
 msgid "Command line to execute"
 msgstr "Командная строка для выполнения"
 
@@ -73,7 +77,7 @@ msgstr "Настройка"
 msgid "Custom Commands"
 msgstr "Пользовательские команды"
 
-#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:26
+#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:31
 msgid "Custom arguments"
 msgstr "Пользовательские аргументы"
 
@@ -81,11 +85,11 @@ msgstr "Пользовательские аргументы"
 msgid "Dashboard"
 msgstr "Информационная панель"
 
-#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:18
+#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:22
 msgid "Description"
 msgstr "Описание"
 
-#: applications/luci-app-commands/ucode/template/commands.ut:149
+#: applications/luci-app-commands/ucode/template/commands.ut:152
 msgid "Download"
 msgstr "Скачать"
 
@@ -93,7 +97,7 @@ msgstr "Скачать"
 msgid "Grant UCI access for luci-app-commands"
 msgstr "Предоставить доступ к UCI для luci-app-commands"
 
-#: applications/luci-app-commands/ucode/template/commands.ut:151
+#: applications/luci-app-commands/ucode/template/commands.ut:154
 msgid "Link"
 msgstr "Канал"
 
@@ -101,11 +105,15 @@ msgstr "Канал"
 msgid "Loading"
 msgstr "Загрузка"
 
-#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:29
+#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:19
+msgid "Name"
+msgstr "Имя"
+
+#: applications/luci-app-commands/htdocs/luci-static/resources/view/commands.js:34
 msgid "Public access"
 msgstr "Публичный доступ"
 
-#: applications/luci-app-commands/ucode/template/commands.ut:148
+#: applications/luci-app-commands/ucode/template/commands.ut:151
 msgid "Run"
 msgstr "Запустить"
 
@@ -128,3 +136,6 @@ msgstr ""
 #: applications/luci-app-commands/ucode/template/commands.ut:133
 msgid "This section contains no values yet"
 msgstr "Здесь пока что пусто"
+
+#~ msgid "A short textual description of the configured command"
+#~ msgstr "Короткое текстовое описание команды"

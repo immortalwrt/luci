@@ -58,9 +58,5 @@ MAY:
 ## Checklist
 <!-- Place an x inside each [ ] and remove the empty space to check each item off the list. 
 They should look like this: [x], otherwise leave them as is. -->
-- [ ] This PR is not from my *main* or *master* branch :poop:, but a *separate* branch. :white_check_mark:
-- [ ] Each commit has a valid :black_nib: `Signed-off-by: <my@email.address>` row (via `git commit --signoff`).
-- [ ] Each commit and PR title has a valid :memo: `<package name>: title` first line subject for packages.
-- [ ] Incremented :up: any `PKG_VERSION` in the Makefile.
-- [ ] _(Optional)_ Includes what Issue it closes (e.g. openwrt/luci#issue-number).
-- [ ] _(Optional)_ Includes what it depends on (e.g. openwrt/packages#pr-number in sister repo).
+- [ ] _(Nice to have)_ Includes what Issue it closes (e.g. openwrt/luci#issue-number).
+- [ ] _(Nice to have)_ Includes what it depends on (e.g. openwrt/packages#pr-number in sister repo).

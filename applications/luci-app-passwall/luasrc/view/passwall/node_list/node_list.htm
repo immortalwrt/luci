@@ -1,8 +1,30 @@
 <%
-local api = require "luci.passwall.api"
-local appname = api.appname
+local map = self.map
+local api = map.api
+local appname = map.config
+local is_js_luci = api.is_js_luci()
+local section_tag = is_js_luci and "div" or "fieldset"
+
+local shunt_rule_list = {}
+local node = map:get("@global[0]", "node")
+if node then
+	local node_protocol = map:get(node, "protocol")
+	if node_protocol == "_shunt" then
+		local node_shunt_group = map:get(node, "shunt_group")
+		map:foreach("shunt_rules", function(e)
+			if e[".name"] and e.remarks and e.group == node_shunt_group then
+				shunt_rule_list[#shunt_rule_list + 1] = e
+			end
+		end)
+		shunt_rule_list[#shunt_rule_list + 1] = {
+			[".name"] = "default_node",
+			remarks = translate("Default")
+		}
+	end
+end
 -%>
 <script src="<%=resource%>/view/<%=appname%>/Sortable.min.js?v=1.15.7"></script>
+<script src="<%=resource%>/view/<%=appname%>/node_list_sort.js"></script>
 
 <style>
 table th, .table .th {
@@ -19,12 +41,13 @@ table td, .table .td {
 	display: none;
 	width: 30rem;
 	position: fixed;
-	top:50%;
-	padding-top: 30px;
+	top:45%;
 	z-index: 99;
 	text-align: center;
 	background: white;
 	box-shadow: darkgrey 10px 10px 30px 5px;
+	text-align: center;
+	padding: 0.5em;
 }
 
 ._now_use_bg {
@@ -34,8 +57,8 @@ table td, .table .td {
 .ping a,
 .ping_value a,
 .tcping_value a {
-    text-decoration: none;
-    cursor: pointer;
+	text-decoration: none;
+	cursor: pointer;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -166,8 +189,240 @@ table td, .table .td {
 }
 </style>
 
-<% if api.is_js_luci() then -%>
+<style>
+	.pw-toolbar {
+		width: 100%;
+		text-align: center;
+	}
+
+	.pw-toolbar-field {
+		width: 100%;
+		text-align: center;
+		display: inline-block;
+		padding: 5px 0 5px;
+	}
+
+	#modal-mask {
+		display: none;
+		position: fixed;
+		left: 0;
+		top: 0;
+		width: 100vw;
+		height: 100vh;
+		background: rgba(0,0,0,0.4);
+		z-index: 999;
+	}
+
+	body.modal-open {
+		overflow: hidden;
+		pointer-events: none;
+	}
+
+	body.modal-open #add_link_div,
+	body.modal-open #reassign_group_div {
+		pointer-events: auto;
+	}
+
+	#add_link_div, #reassign_group_div {
+		display: none;
+		position: fixed;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		background: white;
+		padding: 20px;
+		border: 2px solid #ccc;
+		box-shadow: 0 0 10px rgba(0,0,0,0.5);
+		z-index: 1000;
+		width: 90%;
+		max-width: 500px;
+	}
+
+	#add_link_modal_container, #reassign_group_modal_container {
+		width: 100%;
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding-bottom: 20px;
+	}
+
+	#nodes_link {
+		width: 100%;
+		height: 180px;
+		resize: vertical;
+		font-family: monospace;
+		padding: 5px;
+		border: 1px solid #ccc;
+		border-radius: 5px;
+	}
+
+	#add_link_div h3,
+	#reassign_group_div h3 {
+		background: inherit;
+	}
+
+	#nodes_link_text {
+		color: red;
+		font-size: 14px;
+		margin-top: 5px;
+		text-align: center;
+		width: 100%;
+	}
+
+	#add_link_button_container, #reassign_group_button_container {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+		max-width: 300px;
+		margin-top: 10px;
+	}
+
+	.value-custom {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
+		margin: 10px 0;
+		padding: 0px 5px 0px 5px;
+	}
+
+	.value-field-custom {
+		display: inline-flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.value-title-custom {
+		font-size: 13px;
+		line-height: 28px;
+		white-space: nowrap;
+		text-align: right;
+	}
+
+	.pw-group-select {
+		width: 180px;
+		height: 28px;
+		flex: 0 0 180px;
+		text-align: left;
+	}
+
+	.pw-group-select > .cbi-dropdown,
+	.pw-group-select > .cbi-input-text,
+	.pw-group-select > .cbi-input-select {
+		width: 100% !important;
+		min-width: 0 !important;
+		max-width: 100% !important;
+		height: 28px !important;
+		min-height: 28px !important;
+		box-sizing: border-box;
+		margin: 0;
+		padding-top: 0;
+		padding-bottom: 0;
+		font-size: 13px;
+	}
+
+	.pw-group-select > .cbi-dropdown > ul:not(.dropdown) > li,
+	.pw-group-select > .cbi-dropdown > .open {
+		height: 26px;
+		min-height: 0;
+		line-height: 26px;
+		padding-top: 0;
+		padding-bottom: 0;
+		box-sizing: border-box;
+	}
+</style>
+
+<style>
+	/* node list: click-to-sort headers and the per-group filter bar */
+	th[data-pw-sort] {
+		cursor: pointer;
+		user-select: none;
+		white-space: nowrap;
+	}
+
+	th[data-pw-sort]:hover {
+		text-decoration: underline;
+	}
+
+	.pw-sort-arrow {
+		display: inline-block;
+		min-width: 1em;
+		margin-left: 0.25em;
+		font-size: 90%;
+	}
+
+	.pw-sort-sub {
+		font-weight: normal;
+		font-size: 85%;
+		opacity: 0.85;
+		margin-left: 0.6em;
+		cursor: pointer;
+		text-decoration: underline dotted;
+		white-space: nowrap;
+	}
+
+	.pw-sort-sub.pw-sort-active {
+		opacity: 1;
+		font-weight: bold;
+	}
+
+	.pw-sort-note {
+		margin: 0.3em 0;
+		padding: 0.3em 0.6em;
+		border-radius: 3px;
+		background: rgba(251, 154, 5, 0.15);
+		font-size: 90%;
+	}
+
+	tr.pw-row-hidden {
+		display: none !important;
+	}
+
+	.pw-filter {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.3em 0.8em;
+		margin: 0.4em 0;
+		font-size: 90%;
+	}
+
+	.pw-filter label {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3em;
+		white-space: nowrap;
+	}
+
+	.pw-filter select,
+	.pw-filter input[type="search"],
+	.pw-filter .cbi-button {
+		box-sizing: border-box !important;
+		width: auto !important;
+		min-width: 6em;
+		max-width: 22em;
+		height: 1.65rem !important;
+		min-height: 0 !important;
+		max-height: none !important;
+		font: inherit !important;
+		line-height: 1.2 !important;
+		padding: 0.15em 0.3em !important;
+		margin: 0 !important;
+	}
+
+	.pw-filter .pw-filter-count {
+		opacity: 0.8;
+	}
+
+	.pw-filter.pw-filter-on .pw-filter-count {
+		font-weight: bold;
+		opacity: 1;
+	}
+</style>
+
 <script type="text/javascript">
+<% if is_js_luci then -%>
 	var cbi_t = [];
 	function cbi_t_add(section, tab) {
 		var t = document.getElementById('tab.' + section + '.' + tab);
@@ -200,28 +455,26 @@ table td, .table .td {
 		}
 		return false
 	}
-</script>
 <%- else %>
-<script type="text/javascript">
 	(function() {
 		if (typeof(cbi_t_switch) === "function") {
-			var old_switch = cbi_t_switch;
+			const ori_cbi_t_switch = cbi_t_switch;
 			cbi_t_switch = function(section, tab) {
 				dechecked_all_node();
-				return old_switch(section, tab);
+				return ori_cbi_t_switch(section, tab);
 			};
 		}
 	})();
-</script>
 <%- end %>
+</script>
 
 <script type="text/javascript">
 	//<![CDATA[
-	let auto_detection_time = "<%=api.uci_get_type("global_other", "auto_detection_time", "0")%>"
-	let show_node_info = "<%=api.uci_get_type("global_other", "show_node_info", "0")%>"
-	var ajaxList = [];
+	let auto_detection_time = "<%=map:get("@global_other[0]", "auto_detection_time") or "0"%>"
+	let show_node_info = "<%=map:get("@global_other[0]", "show_node_info") or "0"%>"
 
 	var ajax = {
+		list: [],
 		post: function(url, data, fn_success, timeout, fn_timeout) {
 			var xhr = new XMLHttpRequest();
 			var code = ajax.encode(data);
@@ -250,7 +503,7 @@ table td, .table .td {
 					fn_success(xhr, json);
 				}
 			};
-			ajaxList.push(xhr);
+			this.list.push(xhr);
 			xhr.send(code);
 		},
 		encode: function(obj) {
@@ -270,66 +523,64 @@ table td, .table .td {
 			}
 
 			return obj;
+		},
+		abortAll: function() {
+			this.list.forEach(xhr => xhr.abort());
+			this.list = [];
 		}
 	}
 
-	function ajaxAbortAll() {
-		ajaxList.forEach(xhr => xhr.abort());
-		ajaxList = [];
-	}
-
-	function to_add_node() {
-		ajaxAbortAll();
-		const dom = document.getElementsByClassName("cbi-tab")[0];
-		const current_group = dom ? (dom.getAttribute("group_name") || "default") : "default";
-		window.location.href = '<%=api.url("add_node")%>?redirect=1&group=' + current_group;
-	}
-
-	function to_edit_node(cbi_id) {
-		ajaxAbortAll();
-		location.href='<%=api.url("node_config")%>/' + cbi_id;
-	}
-
-	function copy_node(cbi_id) {
-		ajaxAbortAll();
-		window.location.href = '<%=api.url("copy_node")%>' + "?section=" + cbi_id;
-	}
-
-	function del_node(cbi_id) {
-		ajaxAbortAll();
-		window.location.href = '<%=api.url("delete_select_nodes")%>' + "?redirect=1&ids=" + cbi_id;
-	}
-
-	var section = "";
-	function open_set_node_div(cbi_id) {
-		section = cbi_id;
-		document.getElementById("set_node_div").style.display="block";
-		var node_name = document.getElementById("cbid.<%=appname%>." + cbi_id + ".remarks").value;
-		document.getElementById("set_node_name").innerHTML = node_name;
-	}
-
-	function close_set_node_div() {
-		document.getElementById("set_node_div").style.display="none";
-		document.getElementById("set_node_name").innerHTML = "";
-	}
-
-	function row_top(btn, group) {
-		const row = btn.closest("tr");
-		if (!row) return;
-		const parent = row.parentNode;
-		let firstDataRow = parent.querySelector("tr:not(.cbi-section-table-titles)");
-		if (firstDataRow && firstDataRow !== row) {
-			parent.insertBefore(row, firstDataRow);
-			let save_order_btn = document.getElementById("save_order_btn_" + group);
-			if (save_order_btn) {
-				const new_order = get_node_order(group);
-				if (!arraysEqual(new_order, origin_group_node_order[group])) {
-					save_order_btn.style.display = null;
-				} else {
-					save_order_btn.style.display = "none";
+	function node_action(action, cbi_id, a) {
+		ajax.abortAll();
+		switch (action) {
+			case "add":
+				const master = document.getElementById("node_list");
+				const dom = master.getElementsByClassName("cbi-tab")[0];
+				const current_group = dom ? (dom.getAttribute("group_name") || "default") : "default";
+				window.location.href='<%=api.url("add_node")%>?redirect=1&group=' + current_group;
+				break;
+			case "copy":
+				window.location.href = '<%=api.url("copy_node")%>' + "?section=" + cbi_id;
+				break;
+			case "edit":
+				window.location.href='<%=api.url("node_config")%>/' + cbi_id;
+				break;
+			case "del":
+				window.location.href = '<%=api.url("delete_select_nodes")%>' + "?redirect=1&ids=" + cbi_id;
+				break;
+			case "row_top":
+				let btn = a.btn;
+				let group = a.group;
+				const row = btn.closest("tr");
+				if (!row) return;
+				const parent = row.parentNode;
+				let firstDataRow = parent.querySelector("tr:not(.cbi-section-table-titles)");
+				if (firstDataRow && firstDataRow !== row) {
+					parent.insertBefore(row, firstDataRow);
+					set_order(group);
 				}
-			}
+				break;
+			case "del_all":
+				if (confirm('<%:Are you sure to clear all nodes?%>') == true){
+					XHR.get('<%=api.url("clear_all_nodes")%>', null,
+					function(x, data) {
+						if(x && x.status == 200) {
+							window.location.href = '<%=api.url("node_list")%>';
+						} else {
+							alert("<%:Error%>");
+						}
+					});
+				}
+				break;
+			default:
 		}
+	}
+
+	function node_row_visible(el) {
+		if (window.pwNodeSort && typeof pwNodeSort.rowVisible === "function")
+			return pwNodeSort.rowVisible(el);
+		var row = el && el.closest ? el.closest("tr") : null;
+		return !row || !row.classList.contains("pw-row-hidden");
 	}
 
 	function set_select_all_state(sectionChecked) {
@@ -338,9 +589,16 @@ table td, .table .td {
 		var nodes = visibleContainer.getElementsByClassName("nodes_select");
 		var selectAllChk = visibleContainer.querySelector(".nodes_select_all");
 		var selectAllBtn = document.getElementById("select_all_btn");
+		var visibleCount = 0;
 		for (var i = 0; i < nodes.length; i++) {
+			if (!node_row_visible(nodes[i])) {
+				nodes[i].checked = false;
+				continue;
+			}
 			nodes[i].checked = sectionChecked;
+			visibleCount++;
 		}
+		sectionChecked = sectionChecked && visibleCount > 0;
 		if (selectAllChk) {
 			selectAllChk.checked = sectionChecked;
 			selectAllChk.title = sectionChecked ? "<%:DeSelect all%>" : "<%:Select all%>";
@@ -368,10 +626,13 @@ table td, .table .td {
 		var selectAllChk = visibleContainer.querySelector(".nodes_select_all");
 		var selectAllBtn = document.getElementById("select_all_btn");
 		var checkedCount = 0;
+		var visibleCount = 0;
 		for (var i = 0; i < nodes.length; i++) {
+			if (!node_row_visible(nodes[i])) continue;
+			visibleCount++;
 			if (nodes[i].checked) checkedCount++;
 		}
-		var allChecked = checkedCount === nodes.length;
+		var allChecked = visibleCount > 0 && checkedCount === visibleCount;
 		var title = allChecked ? "<%:DeSelect all%>" : "<%:Select all%>";
 		var onclickFunc = allChecked ? "dechecked_all_node(this)" : "checked_all_node(this)";
 
@@ -394,7 +655,7 @@ table td, .table .td {
 		var doms = visibleContainer.getElementsByClassName("nodes_select");
 		if (doms && doms.length > 0) {
 			for (var i = 0 ; i < doms.length; i++) {
-				if (doms[i].checked) {
+				if (doms[i].checked && node_row_visible(doms[i])) {
 					ids.push(doms[i].getAttribute("cbid"))
 				}
 			}
@@ -403,6 +664,7 @@ table td, .table .td {
 				if (confirm('<%:Are you sure to delete select nodes?%>') == true) {
 					dom.style.display = 'block';
 					dom.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;"><%:Processing, please wait…%></div>';
+					ajax.abortAll();
 					XHR.get('<%=api.url("delete_select_nodes")%>', {
 						ids: ids.join()
 					},
@@ -416,7 +678,7 @@ table td, .table .td {
 								box.remove();
 							}
 							*/
-							ajaxAbortAll();
+							ajax.abortAll();
 							window.location.href = '<%=api.url("node_list")%>';
 						} else {
 							alert("<%:Error%>");
@@ -427,13 +689,6 @@ table td, .table .td {
 		}
 		if (ids.length <= 0) {
 			alert("<%:You no select nodes !%>");
-		}
-	}
-
-	function set_node(protocol) {
-		if (confirm('<%:Are you sure set to%> ' + protocol.toUpperCase() + '<%:the server?%>')==true){
-			ajaxAbortAll();
-			window.location.href = '<%=api.url("set_node")%>?protocol=' + protocol + '&section=' + section;
 		}
 	}
 
@@ -463,77 +718,38 @@ table td, .table .td {
 		return ids;
 	}
 
-	function save_current_page_order(group) {
-		var table = document.getElementById("cbi-<%=appname%>-nodes-" + group + "-table");
+	function set_order(group) {
+		let table = document.getElementById("cbi-<%=appname%>-nodes-" + group + "-table");
 		if (!table) {
 			alert("<%:No table!%>");
 			return;
 		}
-		var rows = table.querySelectorAll("tr.cbi-section-table-row");
+		let rows = table.querySelectorAll("tr.cbi-section-table-row");
 		if (!rows || rows.length === 0) {
 			alert("<%:No nodes!%>");
 			return;
 		}
-		var btn = document.getElementById("save_order_btn_" + group);
-		if (btn) {
-			btn.style.display = "none";
-			btn.disabled = true;
-		}
-		var ids = [];
+		let ids = [];
 		rows.forEach(function(row) {
-			var id = row.id.replace("cbi-<%=appname%>-", "");
+			let id = row.id.replace("cbi-<%=appname%>-", "");
 			ids.push(id);
 		});
-		XHR.get('<%=api.url("save_node_order")%>', {
-				group: group,
-				ids: ids.join(",")
-			},
-			function(x, result) {
-				if (btn) {
-					btn.style.display = null;
-					btn.disabled = false;
-				}
-				if (x && x.status === 200) {
-					origin_group_node_order[group] = get_node_order(group);
-					alert("<%:Saved current page order successfully.%>");
-					if (btn) {
-						btn.style.display = "none";
-					}
-				} else {
-					alert("<%:Save failed!%>");
-				}
-			}
-		);
+		const input_order = document.getElementsByName(`group.order.${group}`)[0];
+		input_order.value = ids.join(" ");
 	}
 
 	//获取当前使用的节点
 	function get_now_use_node() {
 		XHR.get('<%=api.url("get_now_use_node")%>', null,
 			function(x, result) {
-				var id = result["TCP"];
+				var id = result["global"];
 				if (id) {
 					var dom = document.getElementById("cbi-<%=appname%>-" + id);
 					if (dom) {
-						dom.title = '<%=api.i18n.translatef("Currently using %s node", "TCP")%>';
+						dom.title = "<%:Currently using node%>";
 						dom.classList.add("_now_use_bg");
-						//var v = "<a style='color: red'>当前TCP节点：</a>" + document.getElementById("cbid.<%=appname%>." + id + ".remarks").value;
+						//var v = "<a style='color: red'><%:Using...%>：</a>" + document.getElementById("cbid.<%=appname%>." + id + ".remarks").value;
 						//document.getElementById("cbi-<%=appname%>-" + id + "-remarks").innerHTML = v;
-						var dom_remarks = dom.querySelector("td.pw-remark");
-						if (dom_remarks) {
-							dom_remarks.style.color = 'red';
-						}
-					}
-				}
-				id = result["UDP"];
-				if (id) {
-					var dom = document.getElementById("cbi-<%=appname%>-" + id);
-					if (dom) {
-						if (result["TCP"] == result["UDP"]) {
-							dom.title = '<%=api.i18n.translatef("Currently using %s node", "TCP/UDP")%>';
-						} else {
-							dom.title = '<%=api.i18n.translatef("Currently using %s node", "UDP")%>';
-						}
-						dom.classList.add("_now_use_bg");
 						var dom_remarks = dom.querySelector("td.pw-remark");
 						if (dom_remarks) {
 							dom_remarks.style.color = 'red';
@@ -547,6 +763,7 @@ table td, .table .td {
 	function urltest_node(cbi_id, dom) {
 		if (dom.dataset.busy == "1" || !cbi_id) return;
 		dom.dataset.busy = "1";
+		dom.title = "<%:HTTP request latency, for reference only%>";
 		dom.style.color = "";
 		dom.innerText = "<%:Check...%>";
 		XHR.get('<%=api.url("urltest_node")%>', {
@@ -557,7 +774,7 @@ table td, .table .td {
 				let text = "<%:Error%>";
 				if (x && x.status == 200) {
 					if (result.use_time == null || result.use_time.trim() == "") {
-						text = "<%:Timeout%>";
+						text = result.http_code >= 400 ? "HTTP " + result.http_code : "<%:Timeout%>";
 					} else {
 						let use_time = parseInt(result.use_time);
 						if (use_time < 1000)
@@ -565,6 +782,7 @@ table td, .table .td {
 						else if (use_time < 2000)
 							color = "#fb9a05";
 						text = use_time + " ms";
+						dom.title += "\n<%:Initial handshake time%>: " + result.handshake_time + " ms";
 					}
 				}
 				dom.innerText = text;
@@ -635,11 +853,15 @@ table td, .table .td {
 					if (cacheData && cacheData.savetime && (now - cacheData.timestamp) < cacheData.savetime) {
 						const a = ping_value[i].firstElementChild;
 						let color = "red";
-						if (cacheData.value < 100)
-							color = "green";
-						else if (cacheData.value < 200)
-							color = "#fb9a05";
-						a.innerText = cacheData.value + " ms";
+						if (cacheData.value >= 0) {
+							a.innerText = cacheData.value + " ms";
+							if (cacheData.value < 100)
+								color = "green";
+							else if (cacheData.value < 200)
+								color = "#fb9a05";
+						} else {
+							a.innerText = "<%:Timeout%>";
+						}
 						a.style.color = color;
 						a.onclick = function () {
 							ping_node(cbi_id, this, auto_detection_time);
@@ -679,15 +901,23 @@ table td, .table .td {
 									const cache_data = {
 										dom_id: strs[i],
 										timestamp: Date.now(),
-										savetime: 60 * 1000,
+										savetime: 150 * 1000,
 										value: ping
 									};
-									text = result.ping + " ms";
 									localStorage.setItem(auto_detection_time + ":" + dom.address + ":" + dom.port, JSON.stringify(cache_data));
+									text = result.ping + " ms";
 									if (ping < 100)
 										color = "green";
 									else if (ping < 200)
 										color = "#fb9a05";
+								} else {
+									const cache_data = {
+										dom_id: strs[i],
+										timestamp: Date.now(),
+										savetime: 60 * 1000,
+										value: -1
+									};
+									localStorage.setItem(auto_detection_time + ":" + dom.address + ":" + dom.port, JSON.stringify(cache_data));
 								}
 								a.innerText = text;
 								a.style.color = color;
@@ -729,16 +959,6 @@ table td, .table .td {
 		}
 	}
 
-	function arraysEqual(a, b) {
-		if (a === b) return true;
-		if (a == null || b == null) return false;
-		if (a.length !== b.length) return false;
-		for (let i = 0; i < a.length; i++) {
-			if (a[i] !== b[i]) return false;
-		}
-		return true;
-	}
-
 	//列表拖动重排
 	function initSortableForTable(table) {
 		if (!table) return null;
@@ -755,16 +975,7 @@ table td, .table .td {
 			forceFallback: false,
 			swapThreshold: 0.65,
 			onEnd: function (evt) {
-				//save_current_page_order(group); // 自动提交保存
-				let save_order_btn = document.getElementById("save_order_btn_" + group);
-				if (save_order_btn) {
-					const new_order = get_node_order(group);
-					if (!arraysEqual(new_order, origin_group_node_order[group])) {
-						save_order_btn.style.display = null;
-					} else {
-						save_order_btn.style.display = "none";
-					}
-				}
+				set_order(group);
 			}
 		};
 		try {
@@ -809,8 +1020,300 @@ table td, .table .td {
 	}
 </script>
 
+<script type="text/javascript">
+	//<![CDATA[
+	//Pop-up logic
+
+	function normalize_group_name(value, groups) {
+		const name = value.trim();
+		return groups.find(group => group.toLowerCase() === name.toLowerCase()) || name;
+	}
+
+	function init_group_dropdown(div_id) {
+		const container = document.getElementById(div_id);
+		if (!container || container._group_ready || container._group_loading) return;
+		const tabs = document.querySelector("#node_list .cbi-tabmenu");
+		if (!tabs) {
+			setTimeout(() => init_group_dropdown(div_id), 50);
+			return;
+		}
+
+		const choices = { "default": "<%:default%>" };
+		const groups = ["default"];
+		tabs.querySelectorAll("li[group_name]").forEach(function(tab) {
+			const group = tab.getAttribute("group_name");
+			if (group !== "default" && !groups.includes(group)) {
+				choices[group] = group;
+				groups.push(group);
+			}
+		});
+		const input = container.querySelector("input");
+		<% if is_js_luci then -%>
+		container._group_loading = true;
+		L.require("ui").then(function(ui) {
+			const widget = new ui.Dropdown("default", choices, {
+				id: input.id,
+				name: input.name,
+				multiple: false,
+				optional: false,
+				create: true,
+				sort: groups,
+				custom_placeholder: "-- <%:custom%> --"
+			});
+			const dropdown = widget.render();
+			// Normalize before LuCI handles Enter and replaces its single custom item.
+			dropdown.addEventListener("keydown", function(e) {
+				if (!e.target.classList.contains("create-item-input") ||
+					(e.key !== "Enter" && e.keyCode !== 13)) return;
+				if (e.isComposing) {
+					e.stopPropagation();
+					return;
+				}
+				const values = Array.from(dropdown.querySelectorAll("ul.dropdown > li[data-value]:not([unselectable])"), li => li.dataset.value);
+				e.target.value = normalize_group_name(e.target.value, values);
+				if (!e.target.value) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			}, true);
+			const customInput = dropdown.querySelector(".create-item-input");
+			// The custom input row must not shadow a group named "-".
+			customInput.parentNode.removeAttribute("data-value");
+			customInput.setAttribute("inputmode", "text");
+			customInput.setAttribute("enterkeyhint", "done");
+			dropdown.addEventListener("cbi-dropdown-change", function() {
+				customInput.value = "";
+			});
+			container.replaceChild(dropdown, input);
+			container._group_widget = widget;
+			container._group_ready = true;
+			container._group_loading = false;
+		}).catch(function(error) {
+			container._group_loading = false;
+			console.error("Group dropdown init failed:", error);
+			alert("<%:Error%>");
+		});
+		<% else -%>
+		input.disabled = false;
+		input.addEventListener("blur", function() {
+			input.value = normalize_group_name(input.value, groups) || "default";
+		});
+		input.addEventListener("keydown", function(e) {
+			if ((e.key === "Enter" || e.keyCode === 13) && !e.isComposing) {
+				e.preventDefault();
+				e.stopPropagation();
+				input.blur();
+			}
+		});
+		cbi_combobox_init(input.id, choices, "<%:default%>", "-- <%:custom%> --");
+		container._group_ready = true;
+		<% end -%>
+	}
+
+	function get_group_value(div_id) {
+		const container = document.getElementById(div_id);
+		return (container._group_widget ? container._group_widget.getValue() : container.querySelector("input").value) || "default";
+	}
+
+	function close_group_dropdown(div_id) {
+		const container = document.getElementById(div_id);
+		const dropdown = container.querySelector(".cbi-dropdown[open]");
+		if (dropdown) dropdown.dispatchEvent(new CustomEvent("cbi-dropdown-close"));
+		const input = container.querySelector(".create-item-input");
+		if (input) input.value = "";
+	}
+
+	function getBg(el) {
+		if (!el) return null;
+		const style = getComputedStyle(el);
+		const bgImage = style.backgroundImage;
+		const bgColor = style.backgroundColor;
+		return (bgImage !== 'none' || !/rgba\([^,]+,[^,]+,[^,]+,\s*0\)/.test(bgColor) && bgColor !== 'transparent')
+			? style.background
+			: null;
+	}
+
+	const add_link_div = {
+		open() {
+			document.body.classList.add('modal-open');
+			document.getElementById('modal-mask').style.display = 'block';
+			const addLinkDiv = document.getElementById("add_link_div");
+			addLinkDiv.style.background = getBg(document.querySelector('.cbi-section')) || getBg(document.body) || '';
+			addLinkDiv.style.display = "block";
+			init_group_dropdown("addlink_group_custom");
+			document.getElementById("nodes_link").focus();
+		},
+		close() {
+			close_group_dropdown("addlink_group_custom");
+			document.getElementById('modal-mask').style.display = 'none';
+			document.getElementById("add_link_div").style.display = "none";
+			document.body.classList.remove('modal-open');
+		},
+		add_node() {
+			let nodes_link = document.getElementById("nodes_link").value;
+			const group = get_group_value("addlink_group_custom");
+			nodes_link = nodes_link.replace(/\t/g, "").replace(/\r\n|\r/g, "\n").replace(/<[^>]*>/g, '').trim();
+			if (nodes_link != "") {
+				nodes_link = decodeIfBase64(nodes_link);
+				let s = nodes_link.split('://');
+				if (s.length > 1) {
+					this.close();
+					this.ajax_add_node(nodes_link, group);
+				} else {
+					alert("<%:Please enter the correct link.%>");
+				}
+			} else {
+				document.getElementById("nodes_link").focus();
+			}
+		},
+		ajax_add_node(link, group) {
+			const dom = document.getElementById('modal-mask');
+			dom.style.display = 'block';
+			dom.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;"><%:Processing, please wait…%></div>';
+
+			const chunkSize = 1000;  // Fragmented sending to overcome uhttpd's limitations, with each fragment containing 1000 characters.
+			const totalChunks = Math.ceil(link.length / chunkSize);
+			let currentChunk = 0;
+
+			function sendNextChunk() {
+				if (currentChunk < totalChunks) {
+					const chunk = link.substring(currentChunk * chunkSize, (currentChunk + 1) * chunkSize);
+					const xhr = new XMLHttpRequest();
+					xhr.open('POST', '<%=api.url("link_add_node")%>', true);
+					xhr.onload = function () {
+						if (xhr.status === 200) {
+							currentChunk++;
+							sendNextChunk();
+						} else {
+							dom.innerHTML = '';
+							dom.style.display = 'none';
+							alert("<%:Error%>");
+							return;
+						}
+					};
+					xhr.onerror = function () {
+						dom.innerHTML = '';
+						dom.style.display = 'none';
+						alert("<%:Network Error%>");
+						return;
+					};
+					const formData = new FormData();
+					formData.append("chunk", chunk);
+					formData.append("chunk_index", currentChunk);
+					formData.append("total_chunks", totalChunks);
+					formData.append("group", group);
+					ajax.abortAll();
+					xhr.send(formData);
+				} else {
+					window.location.href = '<%=api.url("node_list")%>';
+				}
+			}
+			sendNextChunk();
+		}
+	}
+
+	const reassign_group_div = {
+		open() {
+			const ids = [];
+			const visibleContainer = document.querySelector('#cbi-passwall-nodes > .cbi-tabcontainer[style*="display:block"], #cbi-passwall-nodes > .cbi-tabcontainer[style*="display: block"]');
+			if (!visibleContainer) return;
+			const doms = visibleContainer.getElementsByClassName("nodes_select");
+			if (doms && doms.length > 0) {
+				for (let i = 0 ; i < doms.length; i++) {
+					if (doms[i].checked && node_row_visible(doms[i])) {
+						ids.push(doms[i].getAttribute("cbid"))
+					}
+				}
+				if (ids.length > 0) {
+					document.body.classList.add('modal-open');
+					document.getElementById('modal-mask').style.display = 'block';
+					const reassignGroupDiv = document.getElementById("reassign_group_div");
+					reassignGroupDiv.style.background = getBg(document.querySelector('.cbi-section')) || getBg(document.body) || '';
+					reassignGroupDiv.style.display = "block";
+					init_group_dropdown("reassign_group_custom");
+				} else {
+					alert("<%:You no select nodes !%>");
+				}
+			}
+		},
+		close() {
+			close_group_dropdown("reassign_group_custom");
+			document.getElementById('modal-mask').style.display = 'none';
+			document.getElementById("reassign_group_div").style.display = "none";
+			document.body.classList.remove('modal-open');
+		},
+		action() {
+			const ids = [];
+			const group = get_group_value("reassign_group_custom");
+			const visibleContainer = document.querySelector('#cbi-passwall-nodes > .cbi-tabcontainer[style*="display:block"], #cbi-passwall-nodes > .cbi-tabcontainer[style*="display: block"]');
+			if (!visibleContainer) return;
+			const doms = visibleContainer.getElementsByClassName("nodes_select");
+			if (doms && doms.length > 0) {
+				for (let i = 0 ; i < doms.length; i++) {
+					if (doms[i].checked && node_row_visible(doms[i])) {
+						ids.push(doms[i].getAttribute("cbid"))
+					}
+				}
+				if (ids.length > 0) {
+					ajax.abortAll();
+					XHR.get('<%=api.url("reassign_group")%>', {
+						group: group,
+						ids: ids.join(",")
+					},
+					function(x, data) {
+						if (x && x.status == 200) {
+							window.location.href = '<%=api.url("node_list")%>';
+						} else {
+							alert("<%:Error%>");
+						}
+					});
+				}
+			}
+		}
+	}
+
+	const set_node_div = {
+		section: '',
+		open(cbi_id, protocol) {
+			this.section = cbi_id;
+			document.getElementById("set_node_div").style.display="block";
+			const node_name = document.getElementById("cbid.<%=appname%>." + cbi_id + ".remarks").value;
+			document.getElementById("set_node_name").textContent = node_name;
+			const shunt_div = document.getElementById("set_node_shunt_div");
+			if (shunt_div) {
+				shunt_div.style.display = protocol === "_shunt" ? "none" : "";
+			}
+		},
+		close() {
+			document.getElementById("set_node_div").style.display="none";
+			document.getElementById("set_node_name").textContent = "";
+		},
+		set(type, config) {
+			if (confirm('<%:Are you sure set this node?%>') == true){
+				ajax.abortAll();
+				window.location.href = '<%=api.url("set_node")%>?type=' + type + '&config=' + config + '&section=' + this.section;
+			}
+		}
+	}
+	//]]>
+</script>
+
+<div class="pw-toolbar">
+	<div class="pw-toolbar-field">
+		<input class="btn cbi-button cbi-button-add" type="button" onclick="node_action('add')" value="<%:Add%>" />
+		<input class="btn cbi-button cbi-button-add" type="button" onclick="add_link_div.open()" value="<%:Add the node via the link%>" />
+		<input class="btn cbi-button cbi-button-remove" type="button" onclick="node_action('del_all')" value="<%:Clear all nodes%>" />
+		<input class="btn cbi-button cbi-button-remove" type="button" onclick="delete_select_nodes()" value="<%:Delete select nodes%>" />
+		<input class="btn cbi-button cbi-button-edit" type="button" id="select_all_btn" onclick="checked_all_node(this)" value="<%:Select all%>" />
+		<input class="btn cbi-button cbi-button-edit" type="button" onclick="reassign_group_div.open()" value="<%:Reassign Group%>" />
+		<input class="btn cbi-button cbi-button-apply" type="submit" name="cbi.apply" value="<%:Save & Apply%>" />
+		<!--<input class="btn cbi-button cbi-button-save" type="submit" name="cbi.save" value="<%:Save%>" />-->
+		<!--<input class="btn cbi-button cbi-button-reset" type="button" value="<%:Reset%>" onclick="location.href='<%=REQUEST_URI%>'" />-->
+	</div>
+</div>
+
 <script type="text/template" id="nodes-table-template">
-	<fieldset class="cbi-section cbi-tblsection" id="cbi-<%=appname%>-nodes-{{group}}-fieldset">
+	<<%=section_tag%> class="cbi-section cbi-tblsection" id="cbi-<%=appname%>-nodes-{{group}}-fieldset">
 		<table class="table cbi-section-table" id="cbi-<%=appname%>-nodes-{{group}}-table" style="">
 			<tr class="tr cbi-section-table-titles anonymous">
 				<th class="th cbi-section-table-cell" style="width:20px">
@@ -824,11 +1327,11 @@ table td, .table .td {
 			</tr>
 			{{node-tr}}
 		</table>
+		<input type="hidden" name="group.order.{{group}}">
 		<div class="cbi-section-create cbi-tblsection-create">
-			<input class="cbi-button cbi-button-add" type="button" value="<%:Add%>" onclick="to_add_node()">
-			<input class="cbi-button cbi-button-apply" style="display: none" type="button" id="save_order_btn_{{group}}" value="<%:Save Order%>" onclick="save_current_page_order('{{group}}')">
+			<input class="cbi-button cbi-button-add" type="button" value="<%:Add%>" onclick="node_action('add')">
 		</div>
-	</fieldset>
+	</<%=section_tag%>>
 </script>
 
 <script type="text/template" id="node-tr-template">
@@ -845,21 +1348,48 @@ table td, .table .td {
 		<td class="td cbi-value-field pw-urltest">{{url_test}}</td>
 		<td class="td cbi-section-table-cell nowrap cbi-section-actions pw-actions">
 			<div class="node-wrapper">
-				<input class="btn cbi-button cbi-button-edit" type="button" value="<%:To Top%>" onclick="row_top(this, '{{group}}')" title="<%:To Top%>"/>
-				<input class="btn cbi-button cbi-button-apply" type="button" value="<%:Use%>" id="apply_{{id}}" onclick="open_set_node_div('{{id}}')"/>
-				<input class="btn cbi-button cbi-button-add" type="button" value="<%:Copy%>" onclick="copy_node('{{id}}')"/>
-				<input class="btn cbi-button cbi-button-edit" type="button" value="<%:Edit%>" onclick="to_edit_node('{{id}}')" alt="<%:Edit%>" title="<%:Edit%>">
-				<input class="btn cbi-button cbi-button-remove" type="button" value="<%:Delete%>" onclick="del_node('{{id}}')" alt="<%:Delete%>" title="<%:Delete%>">
+				<input class="btn cbi-button cbi-button-edit" type="button" value="<%:To Top%>" onclick="node_action('row_top', null, {btn:this, group:'{{group}}'})" title="<%:To Top%>"/>
+				<input class="btn cbi-button cbi-button-apply" type="button" value="<%:Use%>" id="apply_{{id}}" onclick="set_node_div.open('{{id}}','{{protocol}}')"/>
+				<input class="btn cbi-button cbi-button-add" type="button" value="<%:Copy%>" onclick="node_action('copy', '{{id}}')"/>
+				<input class="btn cbi-button cbi-button-edit" type="button" value="<%:Edit%>" onclick="node_action('edit', '{{id}}')" alt="<%:Edit%>" title="<%:Edit%>">
+				<input class="btn cbi-button cbi-button-remove" type="button" value="<%:Delete%>" onclick="node_action('del', '{{id}}')" alt="<%:Delete%>" title="<%:Delete%>">
 				<span class="drag-handle center" title="<%:Drag to reorder%>">⠿</span>
 			</div>
 		</td>
 	</tr>
 </script>
 
-<fieldset class="cbi-section" id="node_list">
-</fieldset>
+<<%=section_tag%> class="cbi-section" id="node_list">
+</<%=section_tag%>>
+
+<div id="pw-nodesort-i18n" data-app="<%=appname%>" style="display:none">
+	<span data-k="hint"><%:Click to sort; click again to reverse. Press Save & Apply to keep the order.%></span>
+	<span data-k="typeHint"><%:Sort by type or protocol, then by name%></span>
+	<span data-k="addrHint"><%:Sort by server address and port%></span>
+	<span data-k="origHint"><%:Restore the saved order%></span>
+	<span data-k="changed"><%:The order changed on this page only. Press Save & Apply to store it on the router.%></span>
+	<span data-k="restored"><%:Saved order restored.%></span>
+	<span data-k="wait"><%:Automatic ping is still running (%d left). Sorting will run when it finishes.%></span>
+	<span data-k="waitFail"><%:Automatic ping did not finish within 2 minutes. Sorting was cancelled. Reload the page and try again.%></span>
+	<span data-k="filter"><%:Filter:%></span>
+	<span data-k="all"><%:All%></span>
+	<span data-k="empty"><%:(empty)%></span>
+	<span data-k="type"><%:Type%></span>
+	<span data-k="addr"><%:Address%></span>
+	<span data-k="fWord"><%:Word in remarks%></span>
+	<span data-k="search"><%:search...%></span>
+	<span data-k="searchHint"><%:Show only rows that contain this text%></span>
+	<span data-k="shown"><%:Shown %s of %t%></span>
+	<span data-k="reset"><%:Reset%></span>
+	<span data-k="resetHint"><%:Show all rows%></span>
+	<span data-k="filterHint"><%:The filter only hides rows on this page and changes nothing on the router. Select all skips hidden rows.%></span>
+</div>
 
 <script type="text/javascript">
+	//init logic
+	if (window.pwNodeSort)
+		pwNodeSort.init();
+
 	function get_remarks_name(o) {
 		let str = "";
 		let remarks = o["remarks"] || "";
@@ -874,6 +1404,8 @@ table td, .table .td {
 				p = "URLTest";
 			} else if (protocol == "_shunt") {
 				p = "<%:Shunt%>";
+			} else if (protocol == "_iface") {
+				p = "<%:Interface%>";
 			} else if (protocol == "vmess") {
 				p = "VMess";
 			} else if (protocol == "vless") {
@@ -910,7 +1442,11 @@ table td, .table .td {
 		} else {
 			port_s = o["hysteria_hop"] || o["hysteria2_hop"];
 		}
-		str += type + "：" + remarks;
+		if ((o.type === "Hysteria2" || o.protocol === 'hysteria2') && o.hysteria2_realms) {
+			str += type + " Realm：" + remarks;
+		} else {
+			str += type + "：" + remarks;
+		}
 		return str;
 	}
 
@@ -930,9 +1466,8 @@ table td, .table .td {
 				group_nodes[_node.group].push(_node)
 			}
 
-			var tab_ul_html = '<ul class="cbi-tabmenu">'
 			var tab_ul_li_html = ''
-			var tab_content_html = '<fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-<%=appname%>-nodes">'
+			var tab_content_html = ''
 			var nodes_table_template = document.getElementById("nodes-table-template");
 			var node_template = document.getElementById("node-tr-template");
 			var default_group = null
@@ -949,10 +1484,11 @@ table td, .table .td {
 					var node_tr_html = "";
 					for (var i = 0; i < group_nodes[group].length; i++) {
 						let o = group_nodes[group][i]
+						let _port = o["port"] || o["hysteria_hop"] || o["hysteria2_hop"];
 						var newDom = node_template.cloneNode(true);
 						newDom.classList.add("cbi-rowstyle-" + (i % 2 + 1));
 						var innerHTML = newDom.innerHTML;
-						if (auto_detection_time != "icmp" && o["address"] && o["port"]) {
+						if (auto_detection_time != "icmp" && o["address"]) {
 							innerHTML = innerHTML.split("{{ping}}").join('<span class="ping"><a href="javascript:void(0)" onclick="javascript:ping_node(\'{{id}}\', this, \'icmp\')"><%:Test%></a></span>');
 						} else {
 							innerHTML = innerHTML.split("{{ping}}").join('<span class="ping_value" cbiid="{{id}}"><a href="javascript:void(0)" style="color:inherit">---</a></span>');
@@ -962,26 +1498,28 @@ table td, .table .td {
 						} else {
 							innerHTML = innerHTML.split("{{tcping}}").join('<span class="tcping_value" cbiid="{{id}}"><a href="javascript:void(0)" style="color:inherit">---</a></span>');
 						}
-						if (o["protocol"] && o["protocol"] === '_shunt') {
-							innerHTML = innerHTML.split("{{url_test}}").join('<span class="ping" cbiid="{{id}}">---</span>');
+						if (o["address"] && _port) {
+							innerHTML = innerHTML.split("{{url_test}}").join('<span class="ping"><a href="javascript:void(0)" onclick="javascript:urltest_node(\'{{id}}\', this)" title="<%:HTTP request latency, for reference only%>"><%:Test%></a></span>');
 						} else {
-							innerHTML = innerHTML.split("{{url_test}}").join('<span class="ping"><a href="javascript:void(0)" onclick="javascript:urltest_node(\'{{id}}\', this)" title="<%:TLS handshake test, latency for reference only%>"><%:Test%></a></span>');
+							innerHTML = innerHTML.split("{{url_test}}").join('<span class="ping" cbiid="{{id}}">---</span>');
 						}
 						innerHTML = innerHTML.split("{{id}}").join(o[".name"]);
 						innerHTML = innerHTML.split("{{group}}").join(o["group"] || "");
 						let node_remarks = get_remarks_name(o);
 						if (show_node_info == "1") {
-							if (o["address"] && o["port"]) {
+							if (_port) _port = _port.replace(/:/g, '-');
+							if (o["address"] && _port) {
 								let _address = o["address"]
 								if (o["full_address"])
 									_address = o["full_address"]
-								node_remarks += "<br>" + _address + ":" + o["port"]
+								node_remarks += "<br>" + _address + ":" + _port
 							}
 						}
 						innerHTML = innerHTML.split("{{remarks}}").join(node_remarks);
 						innerHTML = innerHTML.split("{{remarks_val}}").join(o["remarks"]);
 						innerHTML = innerHTML.split("{{address_val}}").join(o["address"] || "");
 						innerHTML = innerHTML.split("{{port_val}}").join(o["port"] || "");
+						innerHTML = innerHTML.split("{{protocol}}").join(o["protocol"] || "");
 
 						node_tr_html += innerHTML
 					}
@@ -1004,11 +1542,21 @@ table td, .table .td {
 					'</div>'
 			}
 
-			tab_ul_html += tab_ul_li_html + '</ul>'
-			tab_content_html += '</fieldset>'
-			var tab_html = tab_ul_html + tab_content_html
+			function addTabDOM(li, content) {
+				let tab_ul_html = '<ul class="cbi-tabmenu">';
+				let tab_content_html = '<<%=section_tag%> class="cbi-section-shunt_rule cbi-section-shunt_rule-tabbed" id="cbi-<%=appname%>-nodes">';
+				if (li) {
+					tab_ul_html += li;
+				}
+				if (content) {
+					tab_content_html += content;
+				}
+				tab_ul_html += '</ul>';
+				tab_content_html += '</<%=section_tag%>>';
+				return tab_ul_html + tab_content_html;
+			}
 
-			document.getElementById("node_list").innerHTML = tab_html
+			document.getElementById("node_list").innerHTML = addTabDOM(tab_ul_li_html, tab_content_html);
 
 			for (let group in group_nodes) {
 				cbi_t_add("<%=appname%>.nodes", group)
@@ -1043,6 +1591,8 @@ table td, .table .td {
 			get_now_use_node();
 
 			pingAllNodes();
+			if (window.pwNodeSort)
+				pwNodeSort.enhanceAll();
 		});
 	}
 
@@ -1050,61 +1600,151 @@ table td, .table .td {
 
 	//Node list option saving logic
 	document.addEventListener("DOMContentLoaded", function () {
-		function waitForElement(selector, callback) {
-			const el = document.querySelector(selector);
-			if (el) return callback(el);
-			const observer = new MutationObserver(() => {
-				const el = document.querySelector(selector);
-				if (el) {
-					observer.disconnect();
-					callback(el);
-				}
-			});
-			observer.observe(document.body, { childList: true, subtree: true });
-		}
-
-		function onChange(option, value) {
+		function onChange(option, value, refresh) {
+			ajax.abortAll();
 			XHR.get('<%=api.url("save_node_list_opt")%>', {
 				option: option,
 				value: value
 			}, function(x) {
 				if (x && x.status == 200) {
-					document.getElementById("node_list").innerHTML = "";
-					loadNodeList();
+					if (refresh) {
+						document.getElementById("node_list").innerHTML = "";
+						loadNodeList();
+					}
 				} else {
 					alert("<%:Error%>");
 				}
 			});
 		}
 
-		waitForElement('input[type="checkbox"][name*="<%=appname%>"][name*="show_node_info"]', function(el) {
-			el.addEventListener("change", () => {
-				el.blur();
-				show_node_info = el.checked ? "1" : "0";
-				onChange("show_node_info", show_node_info);
+		function dom_event() {
+			waitForElement('input[type="checkbox"][name*="<%=appname%>"][name*="show_node_info"]', function(el) {
+				el.addEventListener("change", () => {
+					el.blur();
+					show_node_info = el.checked ? "1" : "0";
+					onChange("auto_detection_time", auto_detection_time, true);
+				});
+			});
+
+			<% if api.is_js_luci() then -%>
+				waitForElement('div[id*="cbid.<%=appname%>"][id*="url_test_url"]', function(el) {
+					el.addEventListener("cbi-dropdown-change", () => {
+						if (el.value && (!el.new_val || el.new_val != el.value)) {
+							onChange("url_test_url", el.value, false);
+							el.new_val = el.value;
+						}
+					});
+				});
+			<% else -%>
+				waitForElement('select[id*="<%=appname%>"][id*="url_test_url"]', function(el) {
+					el.addEventListener("change", () => {
+						if (el.value && (!el.new_val || el.new_val != el.value)) {
+							onChange("url_test_url", el.value, false);
+							el.new_val = el.value;
+						}
+					});
+				});
+
+				waitForElement('input[id*="<%=appname%>"][id*="url_test_url"]', function(el) {
+					el.addEventListener("change", () => {
+						if (el.value && (!el.new_val || el.new_val != el.value)) {
+							onChange("url_test_url", el.value, false);
+							el.new_val = el.value;
+						}
+					});
+				});
+			<% end -%>
+		}
+
+		<% if not api.is_js_luci() then -%>
+			const ori_cbi_d_update = cbi_d_update;
+			cbi_d_update = function() {
+				ori_cbi_d_update();
+				dom_event();
+			};
+		<% end -%>
+		dom_event();
+
+		const links = document.querySelectorAll('a');
+		links.forEach(link => {
+			link.addEventListener('click', (e) => {
+				if (link.getAttribute('target') !== '_blank') {
+					ajax.abortAll();
+				}
 			});
 		});
-
-		waitForElement('select[name*="<%=appname%>"][name*="auto_detection_time"]', function(el) {
-			el.addEventListener("change", () => {
-				el.blur();
-				auto_detection_time = el.value;
-				onChange("auto_detection_time", auto_detection_time);
-			});
+		window.addEventListener('beforeunload', (event) => {
+			ajax.abortAll();
 		});
 	});
 	//]]>
 </script>
 
-<div style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center;">
-	<div id="set_node_div" style="text-align: center;">
-		<div class="cbi-value" style="display: flex; justify-content: center; align-items: center; margin: 8px 0;">
-			<font color=#666><%:You choose node is:%></font><a style="color: red" id="set_node_name"></a>
+<div id="modal-mask"></div>
+
+<div id="add_link_div">
+	<div id="add_link_modal_container">
+		<h3><%:Add the node via the link%></h3>
+		<div class="value-custom">
+			<textarea id="nodes_link" rows="10"></textarea>
+			<p id="nodes_link_text"><%:Enter share links, one per line. Subscription links are not supported!%></p>
 		</div>
-		<div class="cbi-value" style="display: flex; justify-content: center; gap: 8px; margin: 8px 0;">
-			<input class="btn cbi-button cbi-button-edit" type="button" onclick="set_node('tcp')" value="TCP" />
-			<input class="btn cbi-button cbi-button-edit" type="button" onclick="set_node('udp')" value="UDP" />
-			<input class="btn cbi-button cbi-button-remove" type="button" onclick="close_set_node_div()" value="<%:Close%>" />
+		<div class="value-custom">
+			<div class="value-field-custom">
+				<label class="value-title-custom" for="addlink_group"><%:Group Name%></label>
+				<div id="addlink_group_custom" class="pw-group-select">
+					<input id="addlink_group" name="addlink_group" class="cbi-input-text" type="text" value="default" disabled>
+				</div>
+			</div>
+		</div>
+		<div id="add_link_button_container">
+			<input class="btn cbi-button cbi-button-add" type="button" onclick="add_link_div.add_node()" value="<%:Add%>" />
+			<input class="btn cbi-button cbi-button-remove" type="button" onclick="add_link_div.close()" value="<%:Close%>" />
+		</div>
+	</div>
+</div>
+
+<div id="reassign_group_div">
+	<div id="reassign_group_modal_container">
+		<h3><%:Reassign Node Group%></h3>
+		<div class="value-custom">
+			<div class="value-field-custom">
+				<label class="value-title-custom" for="to_group"><%:Group Name%></label>
+				<div id="reassign_group_custom" class="pw-group-select">
+					<input id="to_group" name="to_group" class="cbi-input-text" type="text" value="default" disabled>
+				</div>
+			</div>
+		</div>
+		<div id="reassign_group_button_container">
+			<input class="btn cbi-button cbi-button-edit" type="button" onclick="reassign_group_div.action()" value="<%:Save%>" />
+			<input class="btn cbi-button cbi-button-remove" type="button" onclick="reassign_group_div.close()" value="<%:Close%>" />
+		</div>
+	</div>
+</div>
+
+<div style="display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center;">
+	<div id="set_node_div">
+		<div class="cbi-value" style="display: flex; justify-content: center; align-items: center; margin: 0.2em 0; height: 2em;">
+			<font color=#666><%:You choose node is:%></font><a style="color: red" id="set_node_name"></a>
+			<div style="position:absolute; right:0.5em; top: 0.5em;"><input class="btn cbi-button" type="button" onclick="set_node_div.close()" value="X" /></div>
+		</div>
+		<div class="cbi-value" style="justify-content: center; gap: 8px; margin: 0.2em 0;">
+			<div style="margin: 0.5em 0; padding: 0.5em; background: #f7f7f7; border-radius: 4px;">
+				<div class="cbi-section-descr" style="text-align: left;"><a style="color:#FF8C00"><%:Set as the main proxy node:%></a></div>
+				<div>
+					<input class="btn cbi-button" type="button" onclick="set_node_div.set('@global[0]', 'node')" value="<%:OK%>" />
+				</div>
+			</div>
+			<% if #shunt_rule_list > 0 then %>
+			<div id="set_node_shunt_div" style="margin: 0.5em 0; padding: 0.5em; background: #f7f7f7; border-radius: 4px;">
+				<div class="cbi-section-descr" style="text-align: left;"><a style="color:#FF8C00"><%:Set as the routing rule node:%></a></div>
+				<div>
+				<% for i, v in ipairs(shunt_rule_list) do %>
+					<input class="btn cbi-button" type="button" onclick="set_node_div.set('<%=node%>', '<%=v[".name"]%>')" value="<%=v.remarks%>" />
+				<% end %>
+				</div>
+			</div>
+			<% end %>
 		</div>
 	</div>
 </div>

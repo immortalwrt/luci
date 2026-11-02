@@ -19,6 +19,28 @@ const callNetworkDeviceStatus = rpc.declare({
 	expect: { '': {} }
 });
 
+const speedBaseParse = /^(\d+)base(\w+)-(H|F)$/;
+const phyLinkSpeeds = [
+	"10baseT-F", "10baseT-H",
+	"100baseT-F", "100baseT-H",
+	"1000baseT-F",
+	"2500baseT-F",
+	"5000baseT-F",
+	"10000baseT-F",
+	"14000baseT-F",
+	"20000baseT-F",
+	"25000baseT-F",
+	"40000baseT-F",
+	"50000baseT-F",
+	"56000baseT-F",
+	"80000baseT-F",
+	"100000baseT-F",
+	"200000baseT-F",
+	"400000baseT-F",
+	"800000baseT-F",
+	"1600000baseT-F"
+];
+
 var isReadonlyView = !L.hasViewPermission() || null;
 
 function count_changes(section_id) {
@@ -82,7 +104,6 @@ function render_status(node, ifc, with_device) {
 	const cond00 = !changecount && !ifc.isDynamic() && !ifc.isAlias();
 	const cond01 = cond00 && macaddr;
 	const cond02 = cond00 && maindev;
-	const cond03 = cond00 && carrier;
 
 	function addEntries(label, array) {
 		return Array.isArray(array) ? array.flatMap((item) => [label, item]) : [label, null];
@@ -91,7 +112,7 @@ function render_status(node, ifc, with_device) {
 	return L.itemlist(node, [
 		_('Protocol'), with_device ? null : (desc || '?'),
 		_('Device'), with_device ? (maindev ? maindev.getShortName() : E('em', _('Not present'))) : null,
-		_('Carrier'), (cond03) ? _('Present') : _('Absent'),
+		_('Carrier'), (cond02) ? (carrier ? _('Present') : _('Absent')) : null,
 		_('Uptime'), (!changecount && ifc.isUp()) ? '%t'.format(ifc.getUptime()) : null,
 		_('MAC'), (cond01) ? macaddr : null,
 		_('RX'), (cond02) ? '%.2mB (%d %s)'.format(maindev.getRXBytes(), maindev.getRXPackets(), _('Pkts.')) : null,
@@ -115,7 +136,7 @@ function render_modal_status(node, ifc) {
 
 	dom.content(node, [
 		E('img', {
-			'src': L.resource('icons/%s%s.svg').format(dev ? dev.getType() : 'ethernet', ifc.isUp() ? '' : '_disabled'),
+			'src': L.resource('icons/%s%s.svg').format(dev ? dev.getType() : 'ethernet', ifc && ifc.isUp() ? '' : '_disabled'),
 			'title': dev ? dev.getTypeI18n() : _('Not present')
 		}),
 		ifc ? render_status(E('span'), ifc, true) : E('em', _('Interface not present or not connected yet.'))
@@ -359,6 +380,7 @@ return view.extend({
 			network.getDSLModemType(),
 			network.getDevices(),
 			fs.lines('/etc/iproute2/rt_tables'),
+			L.resolveDefault(callNetworkDeviceStatus(), {}),
 			uci.changes()
 		]);
 	},
@@ -457,7 +479,7 @@ return view.extend({
 		]);
 	},
 
-	render([dslModemType, netDevs, rtTables]) {
+	render([dslModemType, netDevs, rtTables, devStatus]) {
 
 		if (this.interfaceBridgeWithIfnameSections().length)
 			return this.renderBridgeMigration();
@@ -747,7 +769,7 @@ return view.extend({
 							so = ss.taboption('ipv4', form.RichListValue, 'dhcpv4', _('DHCPv4 Service'),
 									  _('Enable or disable DHCPv4 services on this interface.'));
 							so.optional = true;
-							so.value('disabled', _('disabled'),
+							so.value('', _('disabled'),
 								 _('Do not provide DHCPv4 services on this interface.'));
 							so.value('server', _('enabled'),
 								 _('Provide DHCPv4 services on this interface.'));
@@ -976,7 +998,7 @@ return view.extend({
 						return;
 					}
 
-					so = ss.taboption('ipv6-ra', form.Value, 'ra_pref64', _('NAT64 prefix'), _('Announce NAT64 prefix in <abbr title="Router Advertisement">RA</abbr> messages.') +  ' ' + 
+					so = ss.taboption('ipv6-ra', form.Value, 'ra_pref64', _('NAT64 prefix'), _('Announce NAT64 prefix in <abbr title="Router Advertisement">RA</abbr> messages.') +  ' ' +
 						_('See %s and %s.').format('<a href="%s" target="_blank">RFC6146</a>', '<a href="%s" target="_blank">RFC8781</a>').format('https://www.rfc-editor.org/rfc/rfc6146', 'https://www.rfc-editor.org/rfc/rfc8781'));
 					so.optional = true;
 					so.datatype = 'cidr6';
@@ -998,7 +1020,7 @@ return view.extend({
 					so.depends('ra', 'server');
 					so.depends({ ra: 'hybrid', master: '0' });
 
-					so = ss.taboption('ipv6-ra', form.Value, 'ra_reachabletime', _('<abbr title="Router Advertisement">RA</abbr> Reachability Timer'), 
+					so = ss.taboption('ipv6-ra', form.Value, 'ra_reachabletime', _('<abbr title="Router Advertisement">RA</abbr> Reachability Timer'),
 						_('Units: milliseconds. 0 means unspecified.') + ' ' +
 						_('Dictates how long a node assumes a neighbor is reachable after a reachability confirmation; published in <abbr title="Router Advertisement">RA</abbr> messages.'));
 					so.optional = true;
@@ -1007,7 +1029,7 @@ return view.extend({
 					so.depends('ra', 'server');
 					so.depends({ ra: 'hybrid', master: '0' });
 
-					so = ss.taboption('ipv6-ra', form.Value, 'ra_retranstime', _('<abbr title="Router Advertisement">RA</abbr> Retransmission Timer'), 
+					so = ss.taboption('ipv6-ra', form.Value, 'ra_retranstime', _('<abbr title="Router Advertisement">RA</abbr> Retransmission Timer'),
 						_('Units: milliseconds. 0 means unspecified.') + ' ' +
 						_('Controls retransmitted Neighbor Solicitation messages; published in <abbr title="Router Advertisement">RA</abbr> messages.'));
 					so.optional = true;
@@ -1221,11 +1243,12 @@ return view.extend({
 					o = nettools.replaceOption(s, 'advanced', form.RichListValue, 'multipath', _('Multi-Path TCP'),
 						_('Multi-Path TCP') + ' %s'.format('<a href="%s" target="_blank">RFC8684</a>').format('https://www.rfc-editor.org/rfc/rfc8684.html') + '<br/>' +
 						_('For packets originating from this device, e.g. VPN.') );
-					o.value('off', _('Off'), _('Disables this interface for MPTCP'));
+					o.value('', _('Off'), _('Disables this interface for MPTCP'));
 					o.value('on', _('On'), _('No special configuration'));
 					o.value('master', _('Master'), _('Sets default route for all traffic'));
 					o.value('backup', _('Backup'), _('Hot standby; use this interface; do not forward traffic until no other interface is available (faster)'));
 					o.value('handover', _('Handover'), _('Cold standby; Establish a connection only when no other interface is available (slower)'));
+					o.optional = true;
 				}
 
 				o = nettools.replaceOption(s, 'advanced', form.Value, 'ip4table', _('Override IPv4 routing table'));
@@ -1587,15 +1610,43 @@ return view.extend({
 			const isNew = (uci.get('network', s.section, 'name') == null);
 			const dev = getDevice(s.section);
 			const devName = dev ? dev.getName() : null;
+			const parseLinks = (data) => data.reduce((a, b) => {
+				const data = speedBaseParse.exec(b);
+				if (data && data.length == 4) {
+					const [_, speed, base, duplex] = data;
+					const newSpeed = {
+						speed: Number(speed),
+						base: base.toUpperCase(),
+						duplex: duplex.toLowerCase() == "h" ? "half" : "full",
+					}
+					if (!a.some(previusSpeed => previusSpeed.speed == newSpeed.speed &&
+						previusSpeed.duplex == newSpeed.duplex &&
+						previusSpeed.base == newSpeed.base))
+						return a.concat(newSpeed)
+				}
+				return a;
+			}, []).sort(({ speed: p }, { speed: n }) => p > n ? 1 : -1);
 
 			/* Query PSE status from netifd to determine if device has PSE capability */
 			if (devName) {
-				return L.resolveDefault(callNetworkDeviceStatus(devName), {}).then((status) => {
-					const hasPSE = (status.pse != null);
-					nettools.addDeviceOptions(s, dev, isNew, rtTables, hasPSE);
+				return L.resolveDefault(callNetworkDeviceStatus(devName), {}).then(({
+					pse,
+					"link-advertising": linkAdvertising,
+					"link-partner-advertising": linkPartnerAdvertising,
+					"link-supported": linkSupported
+				}) => {
+					const hasPSE = (pse != null);
+					let phy_links = ([
+						...(linkAdvertising || []),
+						...(linkPartnerAdvertising || []),
+						...(linkSupported || [])
+					]);
+					if (!phy_links || phy_links.length === 0)
+						phy_links = phyLinkSpeeds;
+					nettools.addDeviceOptions(s, dev, isNew, rtTables, hasPSE, parseLinks(phy_links));
 				});
 			} else {
-				nettools.addDeviceOptions(s, dev, isNew, rtTables, false);
+				nettools.addDeviceOptions(s, dev, isNew, rtTables, false, parseLinks(phyLinkSpeeds));
 				return Promise.resolve();
 			}
 		};
@@ -1738,6 +1789,41 @@ return view.extend({
 		o.textvalue = getDevTypeDesc;
 		o.modalonly = false;
 
+		o = s.option(form.DummyValue, '_speed', _('Link Speed'));
+		o.modalonly = false;
+		o.textvalue = function(section_id) {
+			const dev = getDevice(section_id);
+
+			if (!dev || !dev.getCarrier())
+				return '-';
+
+			const cur = dev.getSpeed();
+
+			/* getSpeed() returns Mbit/s, -1 with carrier but no negotiated rate, or null if unsupported */
+			if (!(cur > 0))
+				return '-';
+
+			/* %1000mBit/s would render 1 Gbit as "1000.00 MBit/s" (strict scale step + forced decimals), so format directly */
+			const fmt = (mbit) => (mbit >= 1000) ? (mbit / 1000) + ' Gbit/s' : mbit + ' Mbit/s';
+
+			/* distinct ethtool-supported link speeds, e.g. 1000baseT-F => 1000, sorted ascending */
+			const st = devStatus ? devStatus[dev.getName()] : null;
+			const supported = (st ? L.toArray(st['link-supported']) : []).reduce(function(speeds, mode) {
+				const n = mode.match(/^(\d+)base/);
+				if (n && speeds.indexOf(+n[1]) < 0)
+					speeds.push(+n[1]);
+				return speeds;
+			}, []).sort((a, b) => a - b);
+
+			/* current speed in the cell; all supported speeds in the tooltip when known */
+			if (supported.length)
+				return E('span', {
+					'data-tooltip': _('Supported link speeds: %s').format(supported.map(fmt).join(', '))
+				}, [ fmt(cur) ]);
+
+			return fmt(cur);
+		};
+
 		o = s.option(form.DummyValue, 'macaddr', _('MAC Address'));
 		o.modalonly = false;
 		o.textvalue = function(section_id) {
@@ -1800,8 +1886,6 @@ return view.extend({
 		o.default = '1';
 		o.optional = true;
 
-		const steer_flow = uci.get('network', 'globals', 'steering_flows');	
-
 		o = s.option(form.Value, 'steering_flows', _('Steering flows (<abbr title="Receive Packet Steering">RPS</abbr>)'),
 			_('Directs packet flows to specific CPUs where the local socket owner listens (the local service).') + ' ' +
 			_('Note: this setting is for local services on the device only (not for forwarding).'));
@@ -1811,7 +1895,6 @@ return view.extend({
 		o.depends('packet_steering', '1');
 		o.depends('packet_steering', '2');
 		o.datatype = 'uinteger';
-		o.default = steer_flow;
 
 		if (dslModemType != null) {
 			s = m.section(form.TypedSection, 'dsl', _('DSL'));

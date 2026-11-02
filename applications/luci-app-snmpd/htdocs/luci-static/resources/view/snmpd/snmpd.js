@@ -9,7 +9,7 @@
 'require view';
 
 var testlibsslv3 = function() {
-	return fs.exec('/usr/bin/ldd', [ '/usr/lib/libnetsnmp.so.40' ]).then(function (res) {
+	return fs.exec('/usr/bin/ldd', [ '/usr/sbin/snmpd' ]).then(function (res) {
 		return res.stdout.includes('libssl');
 	});
 };
@@ -103,6 +103,7 @@ return L.view.extend({
 				return port;
 
 			const s = uci.get_first('snmpd', 'agent');
+			if (!s) return null;
 			const rawAddr = uci.get('snmpd', s['.name'], 'agentaddress');
 			if (!rawAddr)
 				return null;
@@ -162,13 +163,13 @@ return L.view.extend({
 		go.remove = function(section_id) {
 			const s = uci.get_first('snmpd', 'agentx');
 			if (s)
-				s.remove('snmpd', s['.name']);
+				uci.remove('snmpd', s['.name']);
 		};
 
 		go.write = function(section_id, value) {
 			const s = uci.get_first('snmpd', 'agentx');
 			var sid = s ? s['.name'] : uci.add('snmpd', 'agentx');
-			uci.set('snmpd', sid, 'agentxsocket', value);
+			return uci.set('snmpd', sid, 'agentxsocket', value);
 		};
 	},
 
@@ -363,10 +364,10 @@ return L.view.extend({
 		g.nodescriptions = true;
 		g.modaltitle = desc;
 
-		go = g.option(form.ListValue, 'Mode', _('Access Control'),
+		mode = g.option(form.ListValue, 'Mode', _('Access Control'),
 			_('Access restriction to readonly or Read/Write'));
-		go.value('rwcommunity', _('Read/Write'));
-		go.value('rocommunity', _('Readonly'));
+		mode.value('rwcommunity', _('Read/Write'));
+		mode.value('rocommunity', _('Readonly'));
 
 		community = g.option(form.Value, 'CommunityName',
 			_('Community Name'),
@@ -420,7 +421,7 @@ return L.view.extend({
 		this.oid.datatype = 'string';
 		this.oid.depends('RestrictOID', 'yes');
 
-		if (go === 'rocommunity') {
+		if (uci.get('snmpd', subsection, 'Mode') === 'rocommunity') {
 			this.ro_community = community;
 			this.ro_community_src = community_src;
 		} else {
@@ -457,10 +458,14 @@ return L.view.extend({
 		go = g.option(form.ListValue, 'auth_type',
 			_('SNMPv3 authentication type'));
 		go.value('', _('none'));
+		go.value('SHA-512', _('SHA-512'));
+		go.value('SHA-384', _('SHA-384'));
+		go.value('SHA-256', _('SHA-256'));
+		go.value('SHA-224', _('SHA-224'));
 		go.value('SHA', _('SHA'));
 		go.value('MD5', _('MD5'));
-		go.rmempty = true;
-		go.default = 'SHA';
+		go.default = 'SHA-256';
+		go.rmempty = false;
 
 		// SNMPv3 auth pass
 		go = g.option(form.Value, 'auth_pass',
@@ -476,10 +481,12 @@ return L.view.extend({
 		go = g.option(form.ListValue, 'privacy_type',
 			_('SNMPv3 encryption type'));
 		go.value('', _('none'));
+		go.value('AES-256', _('AES-256'));
+		go.value('AES-192', _('AES-192'));
 		go.value('AES', _('AES'));
 		go.value('DES', _('DES'));
-		go.rmempty = true;
 		go.default = 'AES';
+		go.rmempty = false;
 
 		// SNMPv3 privacy/encryption pass
 		go = g.option(form.Value, 'privacy_pass',

@@ -30,7 +30,7 @@ return baseclass.extend({
 			if (obj == this._emptyStringValue) {
 				obj = null;
 			}
-		} else if (Array.isArray()) {
+		} else if (Array.isArray(obj)) {
 			obj = obj.map(L.bind(function (it) {
 				return this._removeEmptyStrings(it);
 			}, this));

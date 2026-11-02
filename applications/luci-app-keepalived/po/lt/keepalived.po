@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-04-24 04:42+0000\n"
+"PO-Revision-Date: 2026-08-27 11:45+0000\n"
 "Last-Translator: Džiugas Januševičius <dziugas1959@hotmail.com>\n"
 "Language-Team: Lithuanian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationskeepalived/lt/>\n"
@@ -10,7 +10,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "(n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.17.1-dev\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:205
 msgid "2"
@@ -94,7 +94,7 @@ msgstr "Derinti skripto vykdymo pirmenybę"
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/servers.js:28
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:300
 msgid "Advanced"
-msgstr "Pažangūs"
+msgstr "Pažangus"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:65
 msgid ""
@@ -260,7 +260,7 @@ msgstr "Įjungti/Įgalinti sinchronizavimą"
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/globals.js:15
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/servers.js:137
 msgid "Enabled"
-msgstr "Įjungta/Įgalinta (-s/-i)"
+msgstr "Įjungtas/Įgalintas"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:246
 msgid "Exclude Virtual IP Address"
@@ -501,7 +501,7 @@ msgstr ""
 
 #: applications/luci-app-keepalived/root/usr/share/luci/menu.d/luci-app-keepalived.json:60
 msgid "Interfaces"
-msgstr "Sąsajos ir sietuvai"
+msgstr "Sąsajos ir/arba Sietuvai"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/script.js:75
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:51
@@ -903,7 +903,7 @@ msgstr "Maršruto šaltinio adresas"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:23
 msgid "State"
-msgstr "Būklė/Būsena"
+msgstr "Būklę/Būseną"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/ipaddress.js:64
 msgid "Static Addresses are not moved by vrrpd, they stay on the machine."
@@ -969,168 +969,183 @@ msgid ""
 "together so that transition of one instance will be reflected to others "
 "group members"
 msgstr ""
+"Pagrindinis tikslas yra apibrėžti „VRRP“ egzemplioriaus rinkinį, kuris būtų "
+"sinchronizuojamas kartu, kad vieno egzemplioriaus perėjimas būtų matomas "
+"kitiems grupės nariams"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/overview.js:77
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/status/include/35_keepalived.js:75
 msgid "There are no active instances"
-msgstr ""
+msgstr "Nėra aktyvių egzempliorių"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/notification.js:27
 msgid ""
 "This is the /etc/keepalived.user file in which custom commands can be "
 "defined."
 msgstr ""
+"Tai yra „/etc/keepalived.user“ failas, kuriame galima apibrėžti "
+"pasirinktines komandas."
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/overview.js:84
 msgid ""
 "This overview shows the current status of the VRRP instances on this device."
 msgstr ""
+"Šioje apžvalgoje rodoma dabartinė „VRRP“ egzempliorių būklė/būseną šiame "
+"įrenginyje."
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:216
 msgid "Time in seconds to delay preempting compared"
 msgstr ""
+"Laikas sekundėmis, per kurį reikia atidėti išankstinio įkėlimo laiką, "
+"palyginti su"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/globals.js:49
 msgid "Timeout in seconds for SMTP stream processing"
-msgstr ""
+msgstr "Laikas sekundėmis, skirtas „SMTP“ srauto apdorojimui"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/servers.js:88
 msgid "Timeout value for persistent connections"
-msgstr ""
+msgstr "Pasibaigusios užklausos laiko reikšmė, skirta pastovioms jungtims"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:249
 msgid ""
 "To decrease the number of packets sent in adverts, you can exclude most IPs "
 "from adverts."
 msgstr ""
+"Norėdami sumažinti reklamose/skelbimuose siunčiamų paketų skaičių, Jūs "
+"galite neįtraukti daugybę reklamų/skelbimų IP (dgs.)."
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/track_interface.js:13
 msgid "Track Interface"
-msgstr ""
+msgstr "Sekti sąsają ir/arba sietuvą"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:266
 msgid "Track Interfaces"
-msgstr ""
+msgstr "Sekti sąsajas ir/arba sietuvus"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/script.js:23
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:275
 msgid "Track Script"
-msgstr ""
+msgstr "Sekti skriptą"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_sync_group.js:48
 msgid "Track interfaces, scripts and files"
-msgstr ""
+msgstr "Sekti sąsajas ir/arba sietuvus, skriptus ir failus"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:298
 msgid "Tracking"
-msgstr ""
+msgstr "Sekamas/-a/-i/-os"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/script.js:24
 msgid "Tracking scripts would be referenced from VRRP instances"
-msgstr ""
+msgstr "Sekami skriptai bus susieti iš „VRRP“ egzempliorių"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/url.js:20
 msgid "URL Path"
-msgstr ""
+msgstr "„URL“ – Saito kelias"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/url.js:21
 msgid "URL path, i.e path /, or path /mrtg2/"
-msgstr ""
+msgstr "„URL“ – Saito kelias pvz., / arba /mrtg2/"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/servers.js:180
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/url.js:11
 #: applications/luci-app-keepalived/root/usr/share/luci/menu.d/luci-app-keepalived.json:42
 msgid "URLs"
-msgstr ""
+msgstr "„URL“ – Saitai"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/url.js:12
 msgid "URLs can be referenced into Real Servers to test"
 msgstr ""
+"„URL“ – Saitai gali būti iškviesti į tikruosius serverius, kad būtų galima "
+"juos ištestuoti"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/notification.js:20
 msgid "Unable to save contents: %s"
-msgstr ""
+msgstr "Nepavyko išsaugoti turinių: %s"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:86
 msgid "Unicast Source IP"
-msgstr ""
+msgstr "Vienadresinio transliavimo šaltinio IP"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:190
 msgid "Use IPV6"
-msgstr ""
+msgstr "Naudoti IPv6"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/peers.js:76
 msgid ""
 "Use SSH key for password less authentication, SSH Key would be used on "
 "current system"
 msgstr ""
+"Naudoti „SSH“ raktą autentifikavimui be slaptažodžio, „SSH“ raktas būtų "
+"naudojamas dabartinėje sistemoje"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:178
 msgid "Use VMAC"
-msgstr ""
+msgstr "Naudoti „VMAC“"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:184
 msgid "Use VMAC Base"
-msgstr ""
+msgstr "Naudoti bazinį „VMAC“"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:179
 msgid "Use VRRP Virtual MAC"
-msgstr ""
+msgstr "Naudoti „VRRP“ virtualią „MAC“"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/servers.js:175
 msgid "User Check Script"
-msgstr ""
+msgstr "Naudotojo/Vartotojo patikrinimo skriptas"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/overview.js:83
 #: applications/luci-app-keepalived/root/usr/share/luci/menu.d/luci-app-keepalived.json:3
 #: applications/luci-app-keepalived/root/usr/share/luci/menu.d/luci-app-keepalived.json:114
 msgid "VRRP"
-msgstr ""
+msgstr "„VRRP“"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:52
 msgid "VRRP Advert interval in seconds"
-msgstr ""
+msgstr "„VRRP“ skelbimo/reklamos intervalas sekundėmis"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:247
 msgid "VRRP IP excluded from VRRP."
-msgstr ""
+msgstr "„VRRP“ IP neįtrauktas į – „VRRP“."
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:290
 msgid "VRRP Instance"
-msgstr ""
+msgstr "„VRRP“ sąsaja ir/arba sietuvas"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/globals.js:54
 msgid "VRRP Multicast Group 4"
-msgstr ""
+msgstr "„VRRP“ daugiaadresinė transliavimo IPv4 grupė"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/globals.js:60
 msgid "VRRP Multicast Group 6"
-msgstr ""
+msgstr "„VRRP“ daugiaadresinė transliavimo IPv6 grupė"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/script.js:33
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/script.js:56
 msgid "VRRP Script"
-msgstr ""
+msgstr "„VRRP“ skriptas"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/script.js:20
 msgid "VRRP Scripts must be configured for Track Scripts"
-msgstr ""
+msgstr "„VRRP“ skriptai turi būti sukonfigūruoti, skirti sekimo skriptams"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/globals.js:66
 msgid "VRRP Startup Delay"
-msgstr ""
+msgstr "„VRRP“ paleidimo atidėjimas"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_sync_group.js:24
 msgid "VRRP Sync Group is an extension to VRRP protocol."
-msgstr ""
+msgstr "„VRRP“ sinchronizavimo grupė yra „VRRP“ protokolo plėtinys."
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_sync_group.js:23
 msgid "VRRP synchronization group"
-msgstr ""
+msgstr "„VRRP“ sinchronizavimo grupė"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:203
 msgid "VRRP version to run on interface"
-msgstr ""
+msgstr "„VRRP“ versija, skirta paleisti sąsajoje ir/arba sietuve"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:202
 msgid "Version"
@@ -1138,42 +1153,42 @@ msgstr "Versija"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/ipaddress.js:41
 msgid "Virtual Device Label"
-msgstr ""
+msgstr "Virtualaus įrenginio etiketė"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/servers.js:63
 msgid "Virtual Host"
-msgstr ""
+msgstr "Virtualus skleidėjas/vedėjas"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:71
 msgid "Virtual IP Address"
-msgstr ""
+msgstr "Virtualus IP adresas"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:39
 msgid "Virtual Router Id"
-msgstr ""
+msgstr "Virtualaus maršrutizatoriaus ID"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:257
 msgid "Virtual Routes"
-msgstr ""
+msgstr "Virtualūs maršrutai"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/servers.js:17
 msgid "Virtual Server"
-msgstr ""
+msgstr "Virtualus serveris"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/script.js:42
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/script.js:81
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/servers.js:152
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/track_interface.js:28
 msgid "Weight"
-msgstr ""
+msgstr "Svoris"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/servers.js:84
 msgid "Weighted Least-Connection"
-msgstr ""
+msgstr "Svertinis minimalus jungčių skaičius"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/servers.js:82
 msgid "Weighted Round-Robin"
-msgstr ""
+msgstr "Svertinis ratelis"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/track_interface.js:29
 msgid ""
@@ -1181,12 +1196,17 @@ msgid ""
 "state in case of failure, its priority will be increased or decreased by the "
 "weight when the interface is up or down"
 msgstr ""
+"Kai svoris yra nurodomas, gedimo atveju „thevrrp_instance“ nebūna nustatoma "
+"į – „FAULT“ būseną/būklę, o jos pirmenybė padidinama arba sumažinama pagal "
+"svorį, kai sąsaja ir/arba sietuvas veikia arba neveikia"
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/vrrp_instance.js:73
 msgid ""
 "With the same entries on other machines, the opposite transition will be "
 "occurring."
 msgstr ""
+"Esančiomis tomis pačiomis įvestimis kituose kompiuteriuose, įvyks priešingas "
+"perėjimas."
 
 #: applications/luci-app-keepalived/htdocs/luci-static/resources/view/keepalived/route.js:53
 msgid "default"

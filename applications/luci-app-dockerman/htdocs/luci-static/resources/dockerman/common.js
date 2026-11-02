@@ -488,7 +488,7 @@ const dv = view.extend({
 
 	parseMemory(value) {
 		if (!value) return 0;
-		const rex = /^([0-9.]+) *([bkmgt])?i? *[Bb]?/i;
+		const rex = /^([0-9.]+) *([bkmgtp])?i? *[Bb]?/i;
 		let [, amount, unit] = rex.exec(value.toLowerCase());
 		amount = amount ? Number.parseFloat(amount) : 0;
 		switch (unit) {

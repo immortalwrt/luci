@@ -242,7 +242,7 @@ return view.extend({
 		o = s.option(form.Value, 'location', _('Location'));
 		o.default = 'Unknown';
 
-		o = s.option(form.Value, 'state', _('State'));
+		o = s.option(form.Value, 'state', _('State', 'Certificate state, region or province'));
 		o.default = 'Unknown';
 
 		o = s.option(form.Value, 'country', _('Country'));

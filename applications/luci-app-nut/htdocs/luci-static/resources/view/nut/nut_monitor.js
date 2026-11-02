@@ -1,9 +1,6 @@
 'use strict';
 'require form';
-'require fs';
 'require view';
-
-const upsmon_tool = '/usr/sbin/upsmon';
 
 function ESIFlags(o) {
 	o.value('EXEC', _('Execute notify command'));
@@ -14,7 +11,6 @@ function ESIFlags(o) {
 	o.optional = true;
 	return o;
 }
-
 
 function MonitorUserOptions(s) {
 		let o
@@ -51,19 +47,8 @@ function MonitorUserOptions(s) {
 }
 
 return view.extend({
-	load: function() {
-		return Promise.all([
-			L.resolveDefault(fs.exec_direct('/usr/bin/ldd', [upsmon_tool]), []).catch(function(err) {
-				throw new Error(_('Unable to run ldd: %s').format(err.message));
-			}).then(function(stdout) {
-				return stdout.includes('libssl.so');
-			}),
-		])
-	},
-
-	render: function(loaded_promises) {
+	render: function() {
 		let m, s, o;
-		const have_ssl_support = loaded_promises[0];
 
 		m = new form.Map('nut_monitor', _('NUT Monitor'),
 			_('Network UPS Tools Monitoring Configuration'));
@@ -72,19 +57,9 @@ return view.extend({
 		s.addremove = true;
 		s.optional = true;
 
-		o = s.option(form.Value, 'runas', _('RunAs User'), _('upsmon drops privileges to this user'));
-		o.placeholder = 'nutmon'
-
 		o = s.option(form.Value, 'minsupplies', _('Minimum required number or power supplies'));
 		o.datatype = 'uinteger'
 		o.placeholder = 1;
-		o.optional = true;
-
-		o = s.option(form.Value, 'shutdowncmd', _('Shutdown command'));
-		o.optional = true;
-		o.placeholder = '/sbin/halt'
-
-		o = s.option(form.Value, 'notifycmd', _('Notify command'));
 		o.optional = true;
 
 		o = s.option(form.Value, 'pollfreq', _('Poll frequency'));
@@ -106,16 +81,6 @@ return view.extend({
 		o.optional = true;
 		o.placeholder = 15;
 
-		if (have_ssl_support) {
-			o = s.option(form.Value, 'certpath', _('CA Certificate path'), _('Path containing ca certificates to match against host certificate'));
-			o.optional = true;
-			o.placeholder = '/etc/ssl/certs'
-
-			o = s.option(form.Flag, 'certverify', _('Verify all connection with SSL'), _('Require SSL and make sure server CN matches hostname'));
-			o.optional = true;
-			o.default = false;
-		}
-
 		s = m.section(form.TypedSection, 'notifications', _('Notifications settings'));
 		s.optional = true;
 		s.addremove = true;
@@ -127,7 +92,7 @@ return view.extend({
 		o = s.option(form.ListValue, 'flag', _('Notification flags'));
 		ESIFlags(o)
 
-		s = m.section(form.TypedSection, 'monitor', _('UPS Monitor User Settings)'));
+		s = m.section(form.TypedSection, 'monitor', _('UPS Monitor User Settings'));
 		MonitorUserOptions(s);
 
 		o = s.option(form.ListValue, 'type', _('User type (Primary/Auxiliary)'));

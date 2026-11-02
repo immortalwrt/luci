@@ -1,0 +1,62 @@
+<script src="/cgi-bin/luci/admin/services/openclash/translate_js?f=common&v=@OPENCLASH_VERSION@&l=<%=luci.i18n.context.lang%>"></script>
+<link rel="stylesheet" href="/luci-static/resources/openclash/css/oc-common.css?v=@OPENCLASH_VERSION@">
+<link rel="stylesheet" href="/luci-static/resources/openclash/css/oc-config.css?v=@OPENCLASH_VERSION@">
+
+<div id="my_editor_div" class="oc-flex-center">
+	<div id="config-mode-tabs" class="oc-flex-center" style="width:100%;">
+		<div class="mode-tabs">
+			<button type="button" class="mode-tab active" id="tab-original-config">
+			<svg width="16" height="16"><use href="#oc-icon-list"/></svg>
+			<span><%:Original Config%></span>
+		</button>
+		<button type="button" class="mode-tab" id="tab-runtime-config">
+			<svg width="16" height="16"><use href="#oc-icon-zap"/></svg>
+			<span><%:Runtime Config%></span>
+			</button>
+		</div>
+	</div>
+</div>
+
+<button type="button" class="oc-usage-help-float" id="oc-merge-toggle-btn" title="<%:Compare%>">
+	<svg width="24" height="24"><use href="#oc-icon-compare"/></svg>
+</button>
+
+<div id="oc-merge-help" class="oc-hidden">
+	<span id="oc-merge-help-normal"></span>
+	<span id="oc-merge-help-merge" class="oc-hidden"></span>
+</div>
+
+<script src="/luci-static/resources/openclash/js/oc-icons.js?v=@OPENCLASH_VERSION@"></script>
+<script src="/cgi-bin/luci/admin/services/openclash/translate_js?f=merge_editor&v=@OPENCLASH_VERSION@&l=<%=luci.i18n.context.lang%>"></script>
+<script type="text/javascript">//<![CDATA[
+
+(function() {
+
+var myEditor_use = document.getElementById("cbid.table.1.user");
+var myEditor_def = document.getElementById("cbid.table.1.default");
+
+if (myEditor_use && myEditor_def) {
+	var myEditor_div_use = document.getElementById("cbi-table-1-user");
+	var myEditor_div_def = document.getElementById("cbi-table-1-default");
+
+	// clear the inline styles LuCI leaves on the cells; the def cell must not carry
+	// .oc-merge-value: its display:revert !important would beat the inline display:none
+	myEditor_div_def.parentNode.parentNode.style.cssText = "";
+	myEditor_div_def.parentNode.parentNode.classList.add('oc-merge-td');
+	myEditor_div_def.parentNode.className = 'cbi-value';
+
+	myEditor_div_use.parentNode.className = 'cbi-value oc-merge-value';
+
+	myEditor_use.style.display = 'none';
+	myEditor_def.style.display = 'none';
+	ocShowLoading(myEditor_div_use, '<%:Loading...%>');
+
+	ocQueueEditor(myEditor_div_use, function() {
+		config_merge_editor(myEditor_use, myEditor_def, myEditor_div_use, myEditor_div_def, true, false, 'auto', '700px');
+	});
+	ocStreamEditorOnSubmit(myEditor_use);
+}
+})();
+
+//]]>
+</script>

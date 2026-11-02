@@ -12,7 +12,7 @@ const callSystemValidateFirmwareImage = rpc.declare({
 	object: 'system',
 	method: 'validate_firmware_image',
 	params: [ 'path' ],
-	expect: { '': { valid: false, forcable: true } }
+	expect: { '': { valid: false, forceable: true } }
 });
 
 function findStorageSize(procmtd, procpart) {
@@ -337,7 +337,7 @@ return view.extend({
 		if (opts['keep'][0].checked)
 			ui.awaitReconnect(window.location.host);
 		else
-			ui.awaitReconnect('192.168.1.1', 'immortalwrt.lan');
+			ui.awaitReconnect(window.location.host, '192.168.1.1', 'immortalwrt.lan');
 	},
 
 	handleBackupList(ev) {

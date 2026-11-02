@@ -1,12 +1,10 @@
 local api = require "luci.passwall.api"
-local appname = "passwall"
-local sys = api.sys
 
-m = Map(appname)
-api.set_apply_on_parse(m)
+api.set_default_cbi()
 
-s = m:section(TypedSection, "global", translate("ACLs"), "<font color='red'>" .. translate("ACLs is a tools which used to designate specific IP proxy mode.") .. "</font>")
-s.anonymous = true
+m = Map()
+
+s = m:section(NamedSection, "@global[0]", "global", translate("ACLs"), "<font color='red'>" .. translate("ACLs is a tools which used to designate specific IP proxy mode.") .. "</font>")
 
 o = s:option(Flag, "acl_enable", translate("Main switch"))
 o.rmempty = false
@@ -20,11 +18,12 @@ s.anonymous = true
 s.addremove = true
 s.extedit = api.url("acl_config", "%s")
 function s.create(e, t)
-	t = TypedSection.create(e, t)
-	luci.http.redirect(e.extedit:format(t))
+	local uid = "acl_" .. api.gen_random_char(5)
+	TypedSection.create(e, uid)
+	luci.http.redirect(e.extedit:format(uid))
 end
 function s.remove(e, t)
-	sys.call("rm -rf /tmp/etc/passwall_tmp/dns_" .. t .. "*")
+	api.remove(api.CACHE_PATH .. "/dnsmasq_" .. t .. "*")
 	TypedSection.remove(e, t)
 end
 
@@ -38,12 +37,21 @@ o = s:option(Value, "remarks", translate("Remarks"))
 o.rmempty = true
 
 local mac_t = {}
-sys.net.mac_hints(function(e, t)
+api.sys.net.mac_hints(function(e, t)
 	mac_t[e] = {
 		ip = t,
 		mac = e
 	}
 end)
+
+i = s:option(DummyValue, "interface", translate("Source Interface"))
+i.cfgvalue = function(t, n)
+	local v = Value.cfgvalue(t, n) or ''
+	if v == "" then
+		return translate("All")
+	end
+	return v
+end
 
 o = s:option(DummyValue, "sources", translate("Source"))
 o.rawhtml = true
@@ -63,42 +71,15 @@ o.cfgvalue = function(t, n)
 	return e
 end
 
-o = s:option(DummyValue, "interface", translate("Source Interface"))
-o.cfgvalue = function(t, n)
-	local v = Value.cfgvalue(t, n) or '-'
-	return v
+i = s:option(DummyValue, "mode", translate("Mode"))
+i.cfgvalue = function(t, n)
+	local v = Value.cfgvalue(t, n) or '0'
+	if v == "1" then
+		return translate("Proxy")
+	end
+	return translate("No Proxy")
 end
 
---[[
----- TCP No Redir Ports
-o = s:option(Value, "tcp_no_redir_ports", translate("TCP No Redir Ports"))
-o.default = "default"
-o:value("disable", translate("No patterns are used"))
-o:value("default", translate("Default"))
-o:value("1:65535", translate("All"))
+m:appendTemplate("/cbi/sortable", {sectiontype = s.sectiontype})
 
----- UDP No Redir Ports
-o = s:option(Value, "udp_no_redir_ports", translate("UDP No Redir Ports"))
-o.default = "default"
-o:value("disable", translate("No patterns are used"))
-o:value("default", translate("Default"))
-o:value("1:65535", translate("All"))
-
----- TCP Redir Ports
-o = s:option(Value, "tcp_redir_ports", translate("TCP Redir Ports"))
-o.default = "default"
-o:value("default", translate("Default"))
-o:value("1:65535", translate("All"))
-o:value("80,443", "80,443")
-o:value("80:65535", "80 " .. translate("or more"))
-o:value("1:443", "443 " .. translate("or less"))
-
----- UDP Redir Ports
-o = s:option(Value, "udp_redir_ports", translate("UDP Redir Ports"))
-o.default = "default"
-o:value("default", translate("Default"))
-o:value("1:65535", translate("All"))
-o:value("53", "53")
-]]--
-
-return m
+return api.return_map(m)

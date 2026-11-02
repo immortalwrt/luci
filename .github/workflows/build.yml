@@ -15,7 +15,7 @@ jobs:
             target: x86-64
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -57,7 +57,7 @@ jobs:
           sudo rm -rf /usr/share/swift
 
       - name: Build
-        uses: immortalwrt/gh-action-sdk@v7
+        uses: immortalwrt/gh-action-sdk@v8
         env:
           ARCH: ${{ matrix.arch }}-${{ env.BRANCH }}
           FEEDNAME: packages_ci
@@ -75,7 +75,7 @@ jobs:
             *.apk
 
       - name: Store logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.arch }}-logs
           path: logs/

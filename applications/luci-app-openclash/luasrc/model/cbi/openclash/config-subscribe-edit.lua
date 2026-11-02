@@ -5,9 +5,22 @@ local uci = luci.model.uci.cursor()
 local fs = require "luci.openclash"
 local sys = require "luci.sys"
 local json = require "luci.jsonc"
+local HTTP = require "luci.http"
+local DISP = require "luci.dispatcher"
 local sid = arg[1]
+local age_section
 
-font_red = [[<b style=color:red>]]
+local backend_version_status = [[
+<div class="oc">
+	<div id="subconverter-version-status-cbi" class="subconverter-version-status" data-state="idle" hidden>
+		<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M5 14h14a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2Z"/><path d="M7 7h.01M7 17h.01"/></svg>
+		<span class="subconverter-version-label"></span>
+		<span class="subconverter-version-text"></span>
+	</div>
+</div>
+]]
+
+font_red = [[<b class="oc-txt-bad">]]
 font_off = [[</b>]]
 bold_on = [[<strong>]]
 bold_off = [[</strong>]]
@@ -22,9 +35,9 @@ m.description=translate("Convert Subscribe function of Online is Supported By su
 "<br/>"..translate("If you need to customize the external configuration file (subscription conversion template), please write it according to the instructions, upload it to the accessible location of the external network, and fill in the address correctly when using it")..
 "<br/>"..
 "<br/>"..translate("If you have a recommended external configuration file (subscription conversion template), you can modify by following The file format of /usr/share/openclash/res/sub_ini.list and pr")
-m.redirect = luci.dispatcher.build_url("admin/services/openclash/config-subscribe")
+m.redirect = DISP.build_url("admin/services/openclash/config-subscribe")
 if m.uci:get(openclash, sid) ~= "config_subscribe" then
-	luci.http.redirect(m.redirect)
+	HTTP.redirect(m.redirect)
 	return
 end
 
@@ -57,11 +70,11 @@ end
 
 ---- UA
 o = s:option(Value, "sub_ua", "User-Agent")
-o.description = font_red..bold_on..translate("Used for Downloading Subscriptions, Defaults to Clash")..bold_off..font_off
-o:value("clash.meta")
-o:value("clash-verge/v1.5.1")
+o.default = "clash-verge/v2.4.5"
+o.description = font_red..bold_on..translate("Used for Downloading Subscriptions, Defaults to").." "..o.default..bold_off..font_off
+o:value("clash-verge/v2.4.5")
+o:value("clash.meta/1.19.20")
 o:value("Clash")
-o.default = "clash.meta"
 o.rmempty = true
 
 ---- subconverter
@@ -72,12 +85,12 @@ o.default = 0
 ---- Convert Address
 o = s:option(Value, "convert_address", translate("Convert Address"))
 o.rmempty = true
-o.description = font_red..bold_on..translate("Note: There is A Risk of Privacy Leakage in Online Convert")..bold_off..font_off
+o.description = backend_version_status..'<div class="oc-warn-strip"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 3 2 20h20ZM12 10v4m0 3h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>'..translate("Note: There is A Risk of Privacy Leakage in Online Convert")..'</span></div>'
 o:depends("sub_convert", "1")
-o:value("https://api.wcc.best/sub", translate("api.wcc.best"))
 o:value("https://api.asailor.org/sub", translate("api.asailor.org"))
-o.default = "https://api.wcc.best/sub"
-o.placeholder = "https://api.wcc.best/sub"
+o:value("https://api.wcc.best/sub", translate("api.wcc.best"))
+o.default = "https://api.asailor.org/sub"
+o.placeholder = "https://api.asailor.org/sub"
 
 ---- Template
 o = s:option(ListValue, "template", translate("Template Name"))
@@ -85,8 +98,8 @@ o.rmempty = true
 o:depends("sub_convert", "1")
 file = io.open("/usr/share/openclash/res/sub_ini.list", "r");
 for l in file:lines() do
-	if l ~= "" and l ~= nil then
-		o:value(string.sub(luci.sys.exec(string.format("echo '%s' |awk -F ',' '{print $1}' 2>/dev/null",l)),1,-2))
+	if l ~= "" then
+		o:value(l:match("^([^,]*)"))
 	end
 end
 file:close()
@@ -120,7 +133,7 @@ o = s:option(ListValue, "skip_cert_verify", translate("skip-cert-verify"))
 o.rmempty = false
 o:value("false", translate("Disable"))
 o:value("true", translate("Enable"))
-o.default = "false"
+o.default = "true"
 o:depends("sub_convert", "1")
 
 ---- sort
@@ -154,23 +167,170 @@ o.description = font_red..bold_on..translate("eg: \"rename=match@replace\" , \"r
 o.rmempty = false
 o:depends("sub_convert", "1")
 
+---- Node Filtering
+o = s:option(Flag, "keyword_option", translate("Node Filtering"))
+o.description = translate("Show node filter options")
+o.default = 0
+
 ---- key
 o = s:option(DynamicList, "keyword", font_red..bold_on..translate("Keyword Match")..bold_off..font_off)
 o.description = font_red..bold_on..translate("eg: hk or tw&bgp")..bold_off..font_off
 o.rmempty = true
+o:depends("keyword_option", "1")
 
 ---- exkey
 o = s:option(DynamicList, "ex_keyword", font_red..bold_on..translate("Exclude Keyword Match")..bold_off..font_off)
 o.description = font_red..bold_on..translate("eg: hk or tw&bgp")..bold_off..font_off
 o.rmempty = true
+o:depends("keyword_option", "1")
 
 ---- de_exkey
 o = s:option(MultiValue, "de_ex_keyword", font_red..bold_on..translate("Exclude Keyword Match Default")..bold_off..font_off)
 o.rmempty = true
+o:depends("keyword_option", "1")
 o:value(translate("Expire"))
 o:value(translate("Traffic"))
 o:value(translate("Plan"))
 o:value(translate("Official"))
+
+
+---- Advanced Options
+o = s:option(Flag, "ad_option", translate("Advanced Options"))
+o.description = translate("Show more subscription options")
+o.default = 0
+
+---- Custom Headers
+o = s:option(DynamicList, "sub_headers", translate("Custom Headers"))
+o.description = font_red..bold_on..translate("Custom HTTP request headers, one per line, format: Header-Name: value")..bold_off..font_off
+o.rmempty = true
+o.placeholder = "x-hwid: my-device-id"
+o:depends("ad_option", "1")
+
+o = s:option(ListValue, "config_age_algo", translate("Age Key Type"))
+o:depends("ad_option", "1")
+o.description = font_red..bold_on..translate("Age Encryption For Config, Click For More:")..bold_off..font_off.." ".."<a href='javascript:void(0)' onclick='javascript:return winOpen(\"https://wiki.metacubex.one/config/proxy-providers/?age-secret-key#age-secret-key\")'>"..translate("Age Encryption Introduce").."</a>"
+o:value("keygen", "x25519")
+o:value("pq", "PQ (mlkem768-x25519)")
+o.rmempty = true
+function o.cfgvalue(self, section)
+	local name = m.uci:get(openclash, section, "name") or section
+	local v = ""
+	m.uci:foreach(openclash, "config_age_secret", function(s)
+		if s.name == name then
+			v = s.algo or ""
+			age_section = s['.name']
+			return false
+		end
+	end)
+	return v
+end
+function o.write(self, section, value)
+	local name = m.uci:get(openclash, section, "name") or section
+	m.uci:foreach(openclash, "config_age_secret", function(s)
+		if s.name == name then
+			age_section = s['.name']
+			return false
+		end
+	end)
+	if not age_section and value and value ~= "" then
+		age_section = m.uci:add(openclash, "config_age_secret")
+		if age_section then m.uci:set(openclash, age_section, "name", name) end
+	end
+	if age_section then
+		if value and value ~= "" then
+			m.uci:set(openclash, age_section, "algo", value)
+		else
+			m.uci:delete(openclash, age_section, "algo")
+		end
+	end
+end
+function o.remove(self, section)
+	self:write(section, "")
+end
+
+o = s:option(Value, "config_age_secret", translate("Secret Key"))
+o.rmempty = true
+o:depends("ad_option", "1")
+o.placeholder = "AGE-SECRET-KEY-..."
+function o.cfgvalue(self, section)
+	local name = m.uci:get(openclash, section, "name") or section
+	local v = ""
+	m.uci:foreach(openclash, "config_age_secret", function(s)
+		if s.name == name then
+			v = s.secret or ""
+			age_section = s['.name']
+			return false
+		end
+	end)
+	return v
+end
+function o.write(self, section, value)
+	local name = m.uci:get(openclash, section, "name") or section
+	m.uci:foreach(openclash, "config_age_secret", function(s)
+		if s.name == name then
+			age_section = s['.name']
+			return false
+		end
+	end)
+	if not age_section and value and value ~= "" then
+		age_section = m.uci:add(openclash, "config_age_secret")
+		if age_section then m.uci:set(openclash, age_section, "name", name) end
+	end
+	if age_section then
+		if value and value ~= "" then
+			m.uci:set(openclash, age_section, "secret", value)
+		else
+			m.uci:delete(openclash, age_section, "secret")
+		end
+	end
+end
+function o.remove(self, section)
+	self:write(section, "")
+end
+
+o = s:option(Value, "config_age_public", translate("Public Key"))
+o.rmempty = true
+o:depends("ad_option", "1")
+o.placeholder = "age..."
+function o.cfgvalue(self, section)
+	local name = m.uci:get(openclash, section, "name") or section
+	local v = ""
+	m.uci:foreach(openclash, "config_age_secret", function(s)
+		if s.name == name then
+			v = s.public or ""
+			age_section = s['.name']
+			return false
+		end
+	end)
+	return v
+end
+function o.write(self, section, value)
+	local name = m.uci:get(openclash, section, "name") or section
+	m.uci:foreach(openclash, "config_age_secret", function(s)
+		if s.name == name then
+			age_section = s['.name']
+			return false
+		end
+	end)
+	if not age_section and value and value ~= "" then
+		age_section = m.uci:add(openclash, "config_age_secret")
+		if age_section then m.uci:set(openclash, age_section, "name", name) end
+	end
+	if age_section then
+		if value and value ~= "" then
+			m.uci:set(openclash, age_section, "public", value)
+		else
+			m.uci:delete(openclash, age_section, "public")
+		end
+	end
+end
+function o.remove(self, section)
+	self:write(section, "")
+end
+
+o = s:option(DummyValue, "_generate_age_btn", "")
+o:depends("ad_option", "1")
+o.template = "openclash/generate_age"
 
 local t = {
 	{Commit, Back}
@@ -181,8 +341,54 @@ o = a:option(Button,"Commit", " ")
 o.inputtitle = translate("Commit Settings")
 o.inputstyle = "apply"
 o.write = function()
+	local to_delete = {}
+	m.uci:foreach(openclash, "config_age_secret", function(s)
+		local sec = m.uci:get(openclash, s['.name'], "secret") or ""
+		if sec == "" or sec == nil then
+			table.insert(to_delete, { sid = s['.name'], name = s.name or "" })
+		end
+	end)
+	-- Before removing the age keys, decrypt each affected config file so it
+	-- stays readable after the keys are gone. The field writes above have
+	-- already dropped the secret in the working cursor, so read the previous
+	-- value from a fresh cursor (the change is not committed to disk yet).
+	local old_uci = luci.model.uci.cursor()
+	for _, d in ipairs(to_delete) do
+		local old_secret = old_uci:get(openclash, d.sid, "secret") or ""
+		local can_delete = true
+		if old_secret ~= "" and d.name and d.name ~= "" then
+			local config_paths = {
+				"/etc/openclash/config/" .. d.name .. ".yaml",
+				"/etc/openclash/" .. d.name .. ".yaml",
+			}
+			for _, config_path in ipairs(config_paths) do
+				if fs.access(config_path) then
+					local fp = io.open(config_path, "rb")
+					if fp then
+						local content = fp:read("*a")
+						fp:close()
+						if content and content:find("BEGIN AGE ENCRYPTED FILE", 1, true) then
+							local plain = fs.age_decrypt(old_secret, content)
+							if plain and plain ~= "" then
+								local fo = io.open(config_path, "wb")
+								if fo then
+									fo:write(plain)
+									fo:close()
+								end
+							else
+								can_delete = false
+							end
+						end
+					end
+				end
+			end
+		end
+		if can_delete then
+			m.uci:delete(openclash, d.sid)
+		end
+	end
 	m.uci:commit(openclash)
-	luci.http.redirect(m.redirect)
+	HTTP.redirect(m.redirect)
 end
 
 o = a:option(Button,"Back", " ")
@@ -190,8 +396,17 @@ o.inputtitle = translate("Back Settings")
 o.inputstyle = "reset"
 o.write = function()
 	m.uci:revert(openclash, sid)
-	luci.http.redirect(m.redirect)
+	if age_section then
+		m.uci:revert(openclash, age_section)
+	end
+	HTTP.redirect(m.redirect)
 end
 
-m:append(Template("openclash/toolbar_show"))
+local render_children = m.render_children
+m.render_children = function(self, ...)
+	fs.render_page_head()
+	render_children(self, ...)
+end
+
+m:append(Template("openclash/subconverter_version"))
 return m

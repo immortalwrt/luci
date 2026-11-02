@@ -205,7 +205,7 @@ return baseclass.extend({
 
 			for (let i = 0; i < radios_networks_hints.length; i++) {
 				tasks.push(L.resolveDefault(radios_networks_hints[i].getAssocList(), []).then(L.bind((net, list) => {
-					net.assoclist = list.sort((a, b) => { return a.mac > b.mac });
+					net.assoclist = list.sort((a, b) => a.mac.localeCompare(b.mac));
 				}, this, radios_networks_hints[i])));
 
 				if (hasWPS && uci.get('wireless', radios_networks_hints[i].sid, 'wps_pushbutton') == '1') {
@@ -233,7 +233,7 @@ return baseclass.extend({
 
 		const table = E('div', { 'class': 'network-status-table' });
 
-		for (let i = 0; i < radios.sort((a, b) => { a.getName() > b.getName() }).length; i++)
+		for (let i = 0; i < radios.sort((a, b) => a.getName().localeCompare(b.getName())).length; i++)
 			table.appendChild(this.renderbox(radios[i],
 				networks.filter(net => { return net.getWifiDeviceName() == radios[i].getName() })));
 

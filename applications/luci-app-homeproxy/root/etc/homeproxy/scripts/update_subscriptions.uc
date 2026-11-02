@@ -13,7 +13,6 @@ import { connect } from 'ubus';
 import { cursor } from 'uci';
 
 import { urldecode, urlencode } from 'luci.http';
-import { init_action } from 'luci.sys';
 
 import {
 	wGET, decodeBase64Str, getTime, isEmpty, parseURL,
@@ -78,6 +77,10 @@ function log(...args) {
 	const logfile = open(`${RUN_DIR}/homeproxy.log`, 'a');
 	logfile.write(`${getTime()} [SUBSCRIBE] ${join(' ', args)}\n`);
 	logfile.close();
+}
+
+function service_action(action) {
+	return system([ '/etc/init.d/homeproxy', action ]);
 }
 
 function parse_uri(uri) {
@@ -195,7 +198,7 @@ function parse_uri(uri) {
 		case 'socks':
 		case 'socks4':
 		case 'socks4a':
-		case 'socsk5':
+		case 'socks5':
 		case 'socks5h':
 			url = parseURL('http://' + uri[1]) || {};
 
@@ -216,7 +219,7 @@ function parse_uri(uri) {
 			let ss_slabel = '';
 			if (length(ss_suri) <= 2) {
 				if (length(ss_suri) === 2)
-					ss_slabel = '#' + urlencode(ss_suri[1]);
+					ss_slabel = '#' + ss_suri[1];
 				if (decodeBase64Str(ss_suri[0]))
 					uri[1] = decodeBase64Str(ss_suri[0]) + ss_slabel;
 			}
@@ -476,7 +479,7 @@ function parse_uri(uri) {
 function main() {
 	if (via_proxy !== '1') {
 		log('Stopping service...');
-		init_action('homeproxy', 'stop');
+		service_action('stop');
 	}
 
 	for (let url in subscription_urls) {
@@ -547,7 +550,7 @@ function main() {
 
 		if (via_proxy !== '1') {
 			log('Starting service...');
-			init_action('homeproxy', 'start');
+			service_action('start');
 		}
 
 		return false;
@@ -647,8 +650,8 @@ function main() {
 
 	if (need_restart) {
 		log('Restarting service...');
-		init_action('homeproxy', 'stop');
-		init_action('homeproxy', 'start');
+		service_action('stop');
+		service_action('start');
 	}
 
 	log(sprintf('%s nodes added, %s removed.', added, removed));
@@ -664,6 +667,6 @@ if (!isEmpty(subscription_urls))
 		log(e.stacktrace[0].context);
 
 		log('Restarting service...');
-		init_action('homeproxy', 'stop');
-		init_action('homeproxy', 'start');
+		service_action('stop');
+		service_action('start');
 	}

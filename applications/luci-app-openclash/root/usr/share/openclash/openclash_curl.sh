@@ -2,34 +2,92 @@
 . /usr/share/openclash/log.sh
 . /usr/share/openclash/openclash_etag.sh
 
+DEFAULT_UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+
+DOWNLOAD_FAILURE_OUTPUT() {
+    failure_exit_code="$1"
+    failure_http_code="$2"
+    failure_output="$3"
+
+    if [ -n "$failure_output" ]; then
+        printf '%s' "$failure_output"
+    elif [ -n "$failure_http_code" ] && [ "$failure_http_code" != "000" ]; then
+        printf 'HTTP status %s' "$failure_http_code"
+    elif [ -n "$failure_exit_code" ]; then
+        printf 'curl exit code %s' "$failure_exit_code"
+    else
+        printf 'unknown error'
+    fi
+}
+
 DOWNLOAD_FILE_CURL() {
     [ -z "$1" ] || [ -z "$2" ] && return 1
     DOWNLOAD_URL=$1
     DOWNLOAD_PATH=$2
     FILE_PATH=$3
     DOWNLOAD_UA=$4
-    [ -z "$DOWNLOAD_UA" ] && DOWNLOAD_UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
-
-    CURL_OUTPUT=$(curl -sLI --connect-timeout 5 -m 10 --speed-time 5 --speed-limit 1 --retry 2 \
-        -H "User-Agent: ${DOWNLOAD_UA}" "$DOWNLOAD_URL" 2>&1)
-
-    NEW_ETAG=$(echo "$CURL_OUTPUT" | grep -i "^etag:" | cut -d' ' -f2- | tr -d '\r\n' | sed 's/^"//;s/"$//')
-    HTTP_CODE=$(echo "$CURL_OUTPUT" | grep -i "^HTTP" | tail -1 | cut -d' ' -f2)
+    SECRET_KEY=$5
+    CUSTOM_HEADERS=$6
+    [ -z "$DOWNLOAD_UA" ] && DOWNLOAD_UA="$DEFAULT_UA"
+    HEADER_TMP="/tmp/openclash_curl_header_$$"
+    DOWNLOAD_TMP="${DOWNLOAD_PATH}.download.$$"
     CACHED_ETAG=$(GET_ETAG_BY_PATH "$FILE_PATH")
+    ETAG_HEADER=""
 
-    if [ "$HTTP_CODE" = "200" ] && [ -n "$NEW_ETAG" ] && [ "$NEW_ETAG" = "$CACHED_ETAG" ] && [ -e "$FILE_PATH" ]; then
-        return 2
+    if [ -n "$CACHED_ETAG" ] && [ -e "$FILE_PATH" ]; then
+        FILE_MTIME=$(date -r "$FILE_PATH" '+%Y-%m-%d %H:%M:%S' 2>/dev/null)
+        LAST_UPDATE=$(GET_ETAG_TIMESTAMP_BY_PATH "$FILE_PATH")
+        if [ -n "$LAST_UPDATE" ] && [ -n "$FILE_MTIME" ] && [ "$LAST_UPDATE" = "$FILE_MTIME" ]; then
+            ETAG_HEADER="If-None-Match: \"${CACHED_ETAG}\""
+        fi
+    fi
+
+    rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
+
+    set --
+    if [ -n "$CUSTOM_HEADERS" ]; then
+        while IFS= read -r hdr; do
+            [ -n "$hdr" ] && set -- "$@" -H "$hdr"
+        done <<EOF
+$CUSTOM_HEADERS
+EOF
     fi
 
     if [ "$SHOW_DOWNLOAD_PROGRESS" = "1" ] || [ "$SHOW_DOWNLOAD_PROGRESS" = "true" ]; then
         TEMP_LOG="/tmp/curl_log_$$"
 
-        LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - 0%】"
+        LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - 0%】..."
 
         (
-            curl -# -L --connect-timeout 10 -m 60 --speed-time 20 --speed-limit 1 --retry 2 \
-                -H "User-Agent: ${DOWNLOAD_UA}" \
-                "$DOWNLOAD_URL" -o "$DOWNLOAD_PATH" 2>"$TEMP_LOG"
+            if [ -n "$SECRET_KEY" ] && [ -n "$ETAG_HEADER" ]; then
+                curl -# -L --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
+                    -D "$HEADER_TMP" \
+                    -H "User-Agent: ${DOWNLOAD_UA}" \
+                    -H "X-Age-Public-Key: ${SECRET_KEY}" \
+                    -H "$ETAG_HEADER" \
+                    "$@" \
+                    "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>"$TEMP_LOG"
+            elif [ -n "$SECRET_KEY" ]; then
+                curl -# -L --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
+                    -D "$HEADER_TMP" \
+                    -H "User-Agent: ${DOWNLOAD_UA}" \
+                    -H "X-Age-Public-Key: ${SECRET_KEY}" \
+                    "$@" \
+                    "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>"$TEMP_LOG"
+            elif [ -n "$ETAG_HEADER" ]; then
+                curl -# -L --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
+                    -D "$HEADER_TMP" \
+                    -H "User-Agent: ${DOWNLOAD_UA}" \
+                    -H "$ETAG_HEADER" \
+                    "$@" \
+                    "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>"$TEMP_LOG"
+            else
+                curl -# -L --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
+                    -D "$HEADER_TMP" \
+                    -H "User-Agent: ${DOWNLOAD_UA}" \
+                    "$@" \
+                    "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>"$TEMP_LOG"
+            fi
             echo $? > "${TEMP_LOG}.exit"
         ) &
 
@@ -45,7 +103,7 @@ DOWNLOAD_FILE_CURL() {
 
                 if [ -n "$PROGRESS" ] && [ "$PROGRESS" -ne "$LAST_PROGRESS" ]; then
                     if [ "$PROGRESS" -gt "$LAST_PROGRESS" ]; then
-                        LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - ${PROGRESS}%】"
+                        LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - ${PROGRESS}%】..."
                         LAST_PROGRESS="$PROGRESS"
                     fi
                 fi
@@ -55,9 +113,10 @@ DOWNLOAD_FILE_CURL() {
 
         wait $CURL_PID
         EXIR_CODE=$(cat "${TEMP_LOG}.exit" 2>/dev/null || echo "1")
+        HTTP_CODE=$(grep -i "^HTTP" "$HEADER_TMP" 2>/dev/null | tail -1 | cut -d' ' -f2)
 
         if [ "$EXIR_CODE" -eq 0 ] && [ "$LAST_PROGRESS" -ne 100 ]; then
-            LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - 100%】"
+            LOG_OUT "Downloading:【$(basename "$DOWNLOAD_PATH") - 100%】..."
         fi
 
         if [ "$EXIR_CODE" -ne 0 ]; then
@@ -66,29 +125,174 @@ DOWNLOAD_FILE_CURL() {
 
         rm -f "$TEMP_LOG" "${TEMP_LOG}.exit"
 
-        if [ "$EXIR_CODE" -ne 0 ]; then
-            LOG_OUT "【$DOWNLOAD_PATH】Download Failed:【$OUTPUT】"
-            rm -rf $DOWNLOAD_PATH
-            SLOG_CLEAN
+        if [ "$EXIR_CODE" -eq 0 ] && [ "$HTTP_CODE" = "304" ] && [ -e "$FILE_PATH" ]; then
+            rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
+            return 2
+        fi
+
+        if [ "$EXIR_CODE" -ne 0 ] || [ "$HTTP_CODE" != "200" ]; then
+            OUTPUT=$(DOWNLOAD_FAILURE_OUTPUT "$EXIR_CODE" "$HTTP_CODE" "${OUTPUT:-}")
+            LOG_OUT "【${DOWNLOAD_PATH}】Download Failed:【${OUTPUT}】"
+            rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
             return 1
         fi
     else
-        CURL_OUTPUT=$(curl -w "\n%{http_code}" -SsL --connect-timeout 30 -m 60 --speed-time 30 --speed-limit 1 --retry 2 -H "User-Agent: ${DOWNLOAD_UA}" "$DOWNLOAD_URL" -o "$DOWNLOAD_PATH" 2>&1)
-        EXIR_CODE=${PIPESTATUS[0]}
-        HTTP_CODE=$(echo "$CURL_OUTPUT" | tail -n1)
+        DOWNLOAD_TRY=0
+        MAX_DOWNLOAD_RETRIES=3
+        while [ "$DOWNLOAD_TRY" -lt "$MAX_DOWNLOAD_RETRIES" ]; do
+            DOWNLOAD_TRY=$((DOWNLOAD_TRY + 1))
+            rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
+            if [ -n "$SECRET_KEY" ] && [ -n "$ETAG_HEADER" ]; then
+                CURL_OUTPUT=$(curl -w "\n%{http_code}" -SsL --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
+                    -D "$HEADER_TMP" \
+                    -H "User-Agent: ${DOWNLOAD_UA}" \
+                    -H "X-Age-Public-Key: ${SECRET_KEY}" \
+                    -H "$ETAG_HEADER" \
+                    "$@" \
+                    "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>&1)
+            elif [ -n "$SECRET_KEY" ]; then
+                CURL_OUTPUT=$(curl -w "\n%{http_code}" -SsL --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
+                    -D "$HEADER_TMP" \
+                    -H "User-Agent: ${DOWNLOAD_UA}" \
+                    -H "X-Age-Public-Key: ${SECRET_KEY}" \
+                    "$@" \
+                    "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>&1)
+            elif [ -n "$ETAG_HEADER" ]; then
+                CURL_OUTPUT=$(curl -w "\n%{http_code}" -SsL --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
+                    -D "$HEADER_TMP" \
+                    -H "User-Agent: ${DOWNLOAD_UA}" \
+                    -H "$ETAG_HEADER" \
+                    "$@" \
+                    "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>&1)
+            else
+                CURL_OUTPUT=$(curl -w "\n%{http_code}" -SsL --connect-timeout 30 -m 180 --speed-time 30 --speed-limit 1 --retry 2 \
+                    -D "$HEADER_TMP" \
+                    -H "User-Agent: ${DOWNLOAD_UA}" \
+                    "$@" \
+                    "$DOWNLOAD_URL" -o "$DOWNLOAD_TMP" 2>&1)
+            fi
+            EXIR_CODE=$?
+            HTTP_CODE=$(echo "$CURL_OUTPUT" | tail -n1)
+            if { [ "$EXIR_CODE" -eq 0 ] && [ "$HTTP_CODE" = "200" ]; } || { [ "$EXIR_CODE" -eq 0 ] && [ "$HTTP_CODE" = "304" ] && [ -e "$FILE_PATH" ]; }; then
+                break
+            fi
+            [ "$DOWNLOAD_TRY" -lt "$MAX_DOWNLOAD_RETRIES" ] && sleep 1
+        done
 
-        if [ "$EXIR_CODE" -ne 0 ] || [ "$HTTP_CODE" -ne 200 ]; then
+        if [ "$EXIR_CODE" -eq 0 ] && [ "$HTTP_CODE" = "304" ] && [ -e "$FILE_PATH" ]; then
+            rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
+            return 2
+        fi
+
+        if [ "$EXIR_CODE" -ne 0 ] || [ "$HTTP_CODE" != "200" ]; then
             OUTPUT=$(echo "$CURL_OUTPUT" | sed '$d' | grep -a 'curl:' | tail -n 1)
-            LOG_OUT "【$DOWNLOAD_PATH】Download Failed:【$OUTPUT】"
-            rm -rf $DOWNLOAD_PATH
-            SLOG_CLEAN
+            OUTPUT=$(DOWNLOAD_FAILURE_OUTPUT "$EXIR_CODE" "$HTTP_CODE" "$OUTPUT")
+            LOG_OUT "【${DOWNLOAD_PATH}】Download Failed:【${OUTPUT}】"
+            rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
             return 1
         fi
     fi
+
+    resolve_checksum_from_url "$DOWNLOAD_URL"
+
+    if ! verify_sha256_checksum "$DOWNLOAD_TMP" "$CHECKSUM_FILENAME" "$CHECKSUM_URL" "$DOWNLOAD_UA"; then
+        LOG_OUT "【${DOWNLOAD_PATH}】Checksum Verification Failed"
+        rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
+        return 1
+    fi
+
+    if ! mv -f "$DOWNLOAD_TMP" "$DOWNLOAD_PATH"; then
+        LOG_OUT "【${DOWNLOAD_PATH}】Download Failed:【Unable to save download file】"
+        rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
+        return 1
+    fi
+    NEW_ETAG=$(grep -i "^etag:" "$HEADER_TMP" 2>/dev/null | tail -1 | cut -d' ' -f2- | tr -d '\r\n' | sed 's/^"//;s/"$//')
 
     if [ -n "$NEW_ETAG" ] && [ "$HTTP_CODE" = "200" ]; then
         SAVE_ETAG_TO_CACHE "$DOWNLOAD_URL" "$NEW_ETAG" "$FILE_PATH"
     fi
 
+    rm -f "$HEADER_TMP" "$DOWNLOAD_TMP"
+
     return 0
+}
+
+CHECKSUM_RAW_PREFIX="https://raw.githubusercontent.com/vernesong/OpenClash"
+CHECKSUM_OIX_URL="https://github.com/vernesong/mihomo-oix/releases/download/Pre-Alpha/checksums.txt"
+
+resolve_checksum_from_url() {
+    local url="$1"
+    local base name path
+
+    CHECKSUM_URL=""
+    CHECKSUM_FILENAME=""
+
+    [ -z "$url" ] && return 1
+
+    base="${url%%\?*}"
+    base="${base%%#*}"
+    name="${base##*/}"
+    [ -n "$name" ] || return 1
+
+    case "$name" in
+        clash-*.tar.gz|luci-app-openclash_*.ipk|luci-app-openclash-*.apk|mihomo-*.gz) ;;
+        *)
+            return 1
+            ;;
+    esac
+
+    case "$base" in
+        *"jsdelivr.net/gh/vernesong/OpenClash@"*)
+            path="${base#*OpenClash@}"
+            [ "${path%/*}" = "$path" ] && return 1
+            CHECKSUM_URL="${CHECKSUM_RAW_PREFIX}/${path%/*}/checksums.txt"
+            ;;
+        *"raw.githubusercontent.com/vernesong/OpenClash/"*)
+            path="${base#*OpenClash/}"
+            [ "${path%/*}" = "$path" ] && return 1
+            CHECKSUM_URL="${CHECKSUM_RAW_PREFIX}/${path%/*}/checksums.txt"
+            ;;
+        *"mihomo-oix/"*)
+            CHECKSUM_URL="$CHECKSUM_OIX_URL"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+
+    CHECKSUM_FILENAME="$name"
+    return 0
+}
+
+verify_sha256_checksum() {
+    local file="$1"
+    local expected_name="$2"
+    local checksum_url="$3"
+    local ua="${4:-$DEFAULT_UA}"
+
+    [ -z "$file" ] || [ -z "$checksum_url" ] && return 0
+    [ -s "$file" ] || return 0
+
+    local expected_hash
+    expected_hash=$(curl -sL -m 15 --connect-timeout 5 -H "User-Agent: $ua" "$checksum_url" 2>/dev/null \
+        | awk -v n="$expected_name" '$2 ~ n {print $1; exit} $0 ~ n {print $1; exit}')
+
+    if [ -z "$expected_hash" ]; then
+        LOG_WARN "Checksum file unavailable or entry not found, skip verification for【$expected_name】"
+        return 0
+    fi
+
+    local actual_hash
+    actual_hash=$(sha256sum "$file" 2>/dev/null | awk '{print $1}')
+    if [ -z "$actual_hash" ]; then
+        LOG_WARN "Unable to compute checksum, skip verification for【$expected_name】"
+        return 0
+    fi
+    if [ "$actual_hash" = "$expected_hash" ]; then
+        LOG_OUT "Checksum Verification Successful for【$expected_name】"
+        return 0
+    fi
+
+    LOG_ERROR "Checksum mismatch for【$expected_name】(expected【$expected_hash】,got【$actual_hash】)"
+    return 1
 }

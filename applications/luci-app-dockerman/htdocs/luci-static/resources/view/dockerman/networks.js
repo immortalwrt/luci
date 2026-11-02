@@ -208,7 +208,7 @@ return dm2.dv.extend({
 			const n = net.Name;
 			const _shortId = (net.Id || '').substring(0, 12);
 			const shortLink = E('a', {
-				'href': `${view.dockerman_url}/network/${net.Id}`,
+				'href': `${this.dockerman_url}/network/${net.Id}`,
 				'style': 'font-family: monospace;',
 				'title': _('Click to view this network'),
 			}, [_shortId]);

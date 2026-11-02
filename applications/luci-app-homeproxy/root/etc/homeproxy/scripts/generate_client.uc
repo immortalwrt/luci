@@ -55,10 +55,9 @@ const ntp_server = uci.get(uciconfig, uciinfra, 'ntp_server') || 'time.apple.com
 const ipv6_support = uci.get(uciconfig, ucimain, 'ipv6_support') || '0';
 
 let main_node, main_udp_node, dedicated_udp_node, default_outbound, default_outbound_dns,
-    domain_strategy, sniff_override, dns_server, china_dns_server, dns_default_strategy,
-    dns_default_server, dns_disable_cache, dns_disable_cache_expire, dns_independent_cache,
-    dns_client_subnet, cache_file_store_rdrc, cache_file_rdrc_timeout, direct_domain_list,
-    proxy_domain_list;
+    domain_strategy, dns_server, china_dns_server, dns_default_strategy, dns_default_server,
+    dns_disable_cache, dns_disable_cache_expire, dns_client_subnet,
+    cache_file_store_rdrc, cache_file_rdrc_timeout, direct_domain_list, proxy_domain_list;
 
 if (routing_mode !== 'custom') {
 	main_node = uci.get(uciconfig, ucimain, 'main_node') || 'nil';
@@ -83,15 +82,12 @@ if (routing_mode !== 'custom') {
 	proxy_domain_list = trim(readfile(HP_DIR + '/resources/proxy_list.txt'));
 	if (proxy_domain_list)
 		proxy_domain_list = split(proxy_domain_list, /[\r\n]/);
-
-	sniff_override = uci.get(uciconfig, uciinfra, 'sniff_override') || '1';
 } else {
 	/* DNS settings */
 	dns_default_strategy = uci.get(uciconfig, ucidnssetting, 'default_strategy');
 	dns_default_server = uci.get(uciconfig, ucidnssetting, 'default_server');
 	dns_disable_cache = uci.get(uciconfig, ucidnssetting, 'disable_cache');
 	dns_disable_cache_expire = uci.get(uciconfig, ucidnssetting, 'disable_cache_expire');
-	dns_independent_cache = uci.get(uciconfig, ucidnssetting, 'independent_cache');
 	dns_client_subnet = uci.get(uciconfig, ucidnssetting, 'client_subnet');
 	cache_file_store_rdrc = uci.get(uciconfig, ucidnssetting, 'cache_file_store_rdrc'),
 	cache_file_rdrc_timeout = uci.get(uciconfig, ucidnssetting, 'cache_file_rdrc_timeout');
@@ -100,7 +96,6 @@ if (routing_mode !== 'custom') {
 	default_outbound = uci.get(uciconfig, uciroutingsetting, 'default_outbound') || 'nil';
 	default_outbound_dns = uci.get(uciconfig, uciroutingsetting, 'default_outbound_dns') || 'default-dns';
 	domain_strategy = uci.get(uciconfig, uciroutingsetting, 'domain_strategy');
-	sniff_override = uci.get(uciconfig, uciroutingsetting, 'sniff_override');
 }
 
 const proxy_mode = uci.get(uciconfig, ucimain, 'proxy_mode') || 'redirect_tproxy',
@@ -121,10 +116,10 @@ if (match(proxy_mode, /redirect/)) {
 	self_mark = uci.get(uciconfig, 'infra', 'self_mark') || '100';
 	redirect_port = uci.get(uciconfig, 'infra', 'redirect_port') || '5331';
 }
-if (match(proxy_mode), /tproxy/)
+if (match(proxy_mode, /tproxy/))
 	if (main_udp_node !== 'nil' || routing_mode === 'custom')
 		tproxy_port = uci.get(uciconfig, 'infra', 'tproxy_port') || '5332';
-if (match(proxy_mode), /tun/) {
+if (match(proxy_mode, /tun/)) {
 	tun_name = uci.get(uciconfig, uciinfra, 'tun_name') || 'singtun0';
 	tun_addr4 = uci.get(uciconfig, uciinfra, 'tun_addr4') || '172.19.0.1/30';
 	tun_addr6 = uci.get(uciconfig, uciinfra, 'tun_addr6') || 'fdfe:dcba:9876::1/126';
@@ -327,8 +322,8 @@ function generate_outbound(node) {
 			max_early_data: strToInt(node.websocket_early_data),
 			early_data_header_name: node.websocket_early_data_header,
 			service_name: node.grpc_servicename,
-			idle_timeout: (node.http_idle_timeout),
-			ping_timeout: (node.http_ping_timeout),
+			idle_timeout: strToTime(node.http_idle_timeout),
+			ping_timeout: strToTime(node.http_ping_timeout),
 			permit_without_stream: strToBool(node.grpc_permit_without_stream)
 		} : null,
 		udp_over_tcp: (node.udp_over_tcp === '1') ? {
@@ -435,7 +430,6 @@ config.dns = {
 	strategy: dns_default_strategy,
 	disable_cache: strToBool(dns_disable_cache),
 	disable_expire: strToBool(dns_disable_cache_expire),
-	independent_cache: strToBool(dns_independent_cache),
 	client_subnet: dns_client_subnet
 };
 
@@ -565,6 +559,7 @@ if (!isEmpty(main_node)) {
 			user: cfg.user,
 			rule_set: get_ruleset(cfg.rule_set),
 			rule_set_ip_cidr_match_source: strToBool(cfg.rule_set_ip_cidr_match_source),
+			rule_set_ip_cidr_accept_empty: strToBool(cfg.rule_set_ip_cidr_accept_empty),
 			invert: strToBool(cfg.invert),
 			outbound: get_outbound(cfg.outbound),
 			action: cfg.action,
@@ -605,8 +600,6 @@ push(config.inbounds, {
 	listen: '::',
 	listen_port: int(mixed_port),
 	udp_timeout: strToTime(udp_timeout),
-	sniff: true,
-	sniff_override_destination: strToBool(sniff_override),
 	set_system_proxy: false
 });
 
@@ -616,9 +609,7 @@ if (match(proxy_mode, /redirect/))
 		tag: 'redirect-in',
 
 		listen: '::',
-		listen_port: int(redirect_port),
-		sniff: true,
-		sniff_override_destination: strToBool(sniff_override)
+		listen_port: int(redirect_port)
 	});
 if (match(proxy_mode, /tproxy/))
 	push(config.inbounds, {
@@ -628,9 +619,7 @@ if (match(proxy_mode, /tproxy/))
 		listen: '::',
 		listen_port: int(tproxy_port),
 		network: 'udp',
-		udp_timeout: strToTime(udp_timeout),
-		sniff: true,
-		sniff_override_destination: strToBool(sniff_override)
+		udp_timeout: strToTime(udp_timeout)
 	});
 if (match(proxy_mode, /tun/))
 	push(config.inbounds, {
@@ -643,9 +632,7 @@ if (match(proxy_mode, /tun/))
 		auto_route: false,
 		endpoint_independent_nat: strToBool(endpoint_independent_nat),
 		udp_timeout: strToTime(udp_timeout),
-		stack: tcpip_stack,
-		sniff: true,
-		sniff_override_destination: strToBool(sniff_override)
+		stack: tcpip_stack
 	});
 /* Inbound end */
 
@@ -794,13 +781,10 @@ config.route = {
 		{
 			inbound: 'dns-in',
 			action: 'hijack-dns'
+		},
+		{
+			action: 'sniff'
 		}
-		/*
-		 * leave for sing-box 1.13.0
-		 * {
-		 * 	action: 'sniff'
-		 * }
-		 */
 	],
 	rule_set: [],
 	auto_detect_interface: isEmpty(default_interface) ? true : null,
@@ -923,7 +907,6 @@ if (!isEmpty(main_node)) {
 			user: cfg.user,
 			rule_set: get_ruleset(cfg.rule_set),
 			rule_set_ip_cidr_match_source: strToBool(cfg.rule_set_ip_cidr_match_source),
-			rule_set_ip_cidr_accept_empty: strToBool(cfg.rule_set_ip_cidr_accept_empty),
 			invert: strToBool(cfg.invert),
 			action: cfg.action,
 			outbound: get_outbound(cfg.outbound),

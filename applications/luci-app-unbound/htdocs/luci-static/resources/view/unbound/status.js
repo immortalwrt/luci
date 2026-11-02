@@ -13,7 +13,11 @@ return view.extend({
 			if (!stat) {
 				return Promise.all([
 					L.resolveDefault(fs.stat('/sbin/logread'), {path: ''}),
-					L.resolveDefault('', {path: ''}),
+					Promise.resolve({ path: '' }),
+					Promise.resolve(null),
+					Promise.resolve(null),
+					Promise.resolve(null),
+					Promise.resolve(null),
 				]);
 			} else {
 				return Promise.all([
@@ -58,7 +62,7 @@ return view.extend({
 			L.Poll.add(() => {
 				return L.resolveDefault(fs.exec_direct('/usr/sbin/unbound-control', ['-c', '/var/lib/unbound/unbound.conf', 'list_local_zones'])).then(function(res) {
 					const zd = document.getElementById("zones_data");
-					zd.value = res ? rest.trim() :_('No zones data yet!');
+					zd.value = res ? res.trim() :_('No zones data yet!');
 					zd.scrollTop = zd.scrollHeight;
 				});
 			});

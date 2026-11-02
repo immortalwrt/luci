@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"PO-Revision-Date: 2026-04-18 17:09+0000\n"
-"Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
+"PO-Revision-Date: 2026-10-13 13:19+0000\n"
+"Last-Translator: Pavel Borecki <pavelbo@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationsolsr/tr/>\n"
 "Language: tr\n"
@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17.1-dev\n"
+"X-Generator: Weblate 2026.11.dev0\n"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/mid.js:79
 msgid "Active MID announcements"
@@ -94,9 +94,9 @@ msgid "ETX:"
 msgstr "ETX:"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:58
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:504
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:505
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:58
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:486
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:487
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface.js:39
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface6.js:39
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdplugins.js:50
@@ -206,8 +206,8 @@ msgstr "Okuma erişimi ver"
 msgid "Green"
 msgstr "Yeşil"
 
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:540
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:523
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:541
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:524
 #: applications/luci-app-olsr/root/usr/share/luci/menu.d/luci-app-olsr-frontend.json:38
 msgid "HNA"
 msgstr "HNA"
@@ -231,8 +231,8 @@ msgstr "HNA aralığı"
 msgid "HNA validity time"
 msgstr "HNA geçerlilik süresi"
 
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:519
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:502
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:520
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:503
 msgid "Hello"
 msgstr "Merhaba"
 
@@ -407,9 +407,9 @@ msgid ""
 msgstr ""
 "Mevcut ağ geçidine giden yol değiştirilecekse, bu ağ geçidinin ETX değeri "
 "yenisiyle karşılaştırılmadan önce bu değerle çarpılır. Parametre 0,1 ile 1,0 "
-"arasında bir değer olabilir, ancak değiştirilirse 1,0'a yakın olmalıdır. "
-"<br /> <b> UYARI: </b> Bu parametre etx_ffeth metriğiyle birlikte "
-"kullanılmamalıdır! <br /> Varsayılanlar \"1.0\"."
+"arasında bir değer olabilir, ancak değiştirilirse 1,0'a yakın "
+"olmalıdır.<br /><b>UYARI:</b> Bu parametre etx_ffeth metriğiyle birlikte "
+"kullanılmamalıdır!<br />Varsayılanlar \"1.0\"."
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:91
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:91
@@ -473,6 +473,9 @@ msgid ""
 "It runs on any wifi card that supports ad-hoc mode and of course on any "
 "ethernet device. Visit %s for help and documentation."
 msgstr ""
+"Ad-hoc modunu destekleyen tüm Wi-Fi kartlarında ve tabii ki herhangi bir "
+"ethernet cihazında çalışır. Yardım ve dokümantasyon için %s adresini ziyaret "
+"edin."
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/routes.js:194
 msgid "Known OLSR routes"
@@ -551,13 +554,12 @@ msgid ""
 "calculation<br /><b>etx_ffeth</b>: incompatible variant of etx_ff that "
 "allows ethernet links with ETX 0.1.<br />Defaults to \"etx_ff\""
 msgstr ""
-"Bağlantı kalitesi algoritması (yalnızca lq seviye 2 için). <br /> "
-"<b>etx_float</b>: üstel yaşlanmalı kayan nokta ETX <br /> <b> etx_fpm </b>: "
-"etx_float ile aynı, ancak tamsayı ile aritmetik <br /> <b>etx_ff</b>: ETX "
+"Bağlantı kalitesi algoritması (yalnızca lq seviye 2 için).<br /><b>"
+"etx_float</b>: üstel yaşlanmalı kayan nokta ETX<br /><b>etx_fpm</b> : "
+"etx_float ile aynı, ancak tamsayı ile aritmetik<br /><b>etx_ff</b> : ETX "
 "hesaplaması için tüm OLSR trafiğini (sadece merhaba yerine) kullanan bir etx "
-"çeşidi olan ETX freifunk <br /> <b>etx_ffeth</b>: uyumsuz varyantı ETX 0.1 "
-"ile ethernet bağlantılarına izin veren etx_ff. <br /> \"etx_ff\" "
-"varsayılanıdır"
+"çeşidi olan ETX freifunk<br /><b>etx_ffeth</b>: uyumsuz varyantı ETX 0.1 ile "
+"ethernet bağlantılarına izin veren etx_ff.<br />\"etx_ff\" varsayılanıdır"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:170
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:164
@@ -567,9 +569,9 @@ msgid ""
 "quality for MPR selection and routing<br />Default is \"2\""
 msgstr ""
 "Hopcount ve maliyet tabanlı (çoğunlukla ETX) yönlendirme arasında bağlantı "
-"kalitesi seviyesi geçişi. <br /> <b> 0 </b> = bağlantı kalitesini kullanma "
-"<br /> <b> 2 </b> = bağlantı kalitesini kullan MPR seçimi ve yönlendirme "
-"için <br /> Varsayılan \"2\" dir"
+"kalitesi seviyesi geçişi.<br /><b>0</b> = bağlantı kalitesini kullanma<br />"
+"<b>2</b> = bağlantı kalitesini kullan MPR seçimi ve yönlendirme için<br />"
+"Varsayılan \"2\" dir"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:313
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:307
@@ -582,8 +584,8 @@ msgstr "LinkQuality Çarpanı"
 msgid "Local interface IP"
 msgstr "Yerel arayüz IP'si"
 
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:533
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:516
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:534
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:517
 #: applications/luci-app-olsr/root/usr/share/luci/menu.d/luci-app-olsr-frontend.json:47
 msgid "MID"
 msgstr "MID"
@@ -625,9 +627,9 @@ msgid "Metric"
 msgstr "Metrik"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:286
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:514
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:515
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:280
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:497
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:498
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface.js:51
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface6.js:51
 msgid "Mode"
@@ -643,8 +645,8 @@ msgid ""
 msgstr ""
 "Rotaları burada verilen faktörle çarpın. İzin verilen değerler 0,01 ile 1,0 "
 "arasındadır. Yalnızca LQ Seviyesi 0'dan büyük olduğunda kullanılır. "
-"Örnekler: <br /> LQ'yu yarı yarıya 192.168.0.1'e düşür: 192.168.0.1 0.5 <br /"
-"> LQ'yu bu arayüzdeki tüm düğümlere %20 azalt: varsayılan 0.8"
+"Örnekler:<br />LQ'yu yarı yarıya 192.168.0.1'e düşür: 192.168.0.1 0.5<br />"
+"LQ'yu bu arayüzdeki tüm düğümlere %20 azalt: varsayılan 0.8"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:309
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface6.js:80
@@ -656,8 +658,8 @@ msgid ""
 msgstr ""
 "Rotaları burada verilen faktörle çarpın. İzin verilen değerler 0,01 ile 1,0 "
 "arasındadır. Yalnızca LQ Seviyesi 0'dan büyük olduğunda kullanılır. "
-"Örnekler: <br /> LQ'yu fd91:662e:3c58::1'e yarı yarıya düşür: "
-"ffd91:662e:3c58::1 0,5 <br /> LQ'yu hepsine azalt bu arayüzdeki düğümler %20 "
+"Örnekler:<br />LQ'yu fd91:662e:3c58::1'e yarı yarıya düşür: "
+"ffd91:662e:3c58::1 0,5<br />LQ'yu hepsine azalt bu arayüzdeki düğümler %20 "
 "oranında: varsayılan 0,8"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:253
@@ -688,8 +690,8 @@ msgstr "Komşular"
 msgid "Netmask"
 msgstr "Netmask"
 
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:512
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:494
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:513
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:495
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface.js:48
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrdiface6.js:48
 msgid "Network"
@@ -961,8 +963,8 @@ msgstr "Komşudan alınan paketlerin başarı oranı"
 msgid "Success rate of packages sent to the neighbour"
 msgstr "Komşuya gönderilen paketlerin başarı oranı"
 
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:526
-#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:509
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:527
+#: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:510
 msgid "TC"
 msgstr "TC"
 
@@ -993,6 +995,9 @@ msgid ""
 "The OLSR daemon is an implementation of the Optimized Link State Routing "
 "protocol. As such it allows mesh routing for any network equipment."
 msgstr ""
+"OLSR servisi , Eniyilenmiş Bağlantı Durumu Yönlendirme (Optimized Link State "
+"Routing) protokolünün bir uygulamasıdır. Bu sayede, tüm ağ ekipmanları için "
+"örgüsel yönlendirmeye (mesh routing) olanak tanır."
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd.js:242
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/frontend/olsrd6.js:236
@@ -1167,7 +1172,7 @@ msgstr "deaktif"
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/smartgw.js:92
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/smartgw.js:176
 msgid "infinite"
-msgstr ""
+msgstr "sonsuz"
 
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/interfaces.js:76
 #: applications/luci-app-olsr/htdocs/luci-static/resources/view/olsr/status-olsr/smartgw.js:91

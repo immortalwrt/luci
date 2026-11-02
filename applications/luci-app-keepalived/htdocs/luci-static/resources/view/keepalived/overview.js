@@ -20,7 +20,7 @@ return view.extend({
 
 	render() {
 		const table =
-			E('table', { 'class': 'table lases' }, [
+			E('table', { 'class': 'table leases' }, [
 				E('tr', { 'class': 'tr table-titles' }, [
 					E('th', { 'class': 'th' }, _('Name')),
 					E('th', { 'class': 'th' }, _('Interface')),

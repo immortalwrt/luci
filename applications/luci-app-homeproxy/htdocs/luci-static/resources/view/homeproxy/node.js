@@ -116,7 +116,7 @@ function parseShareLink(uri, features) {
 		case 'socks':
 		case 'socks4':
 		case 'socks4a':
-		case 'socsk5':
+		case 'socks5':
 		case 'socks5h':
 			url = new URL('http://' + uri[1]);
 
@@ -908,7 +908,7 @@ function renderNodeSettings(section, data, features, main_node, routing_mode) {
 	o.rmempty = false;
 	o.modalonly = true;
 
-	o = s.option(form.Value, 'wireguard_peer_public_key', _('Peer pubkic key'),
+	o = s.option(form.Value, 'wireguard_peer_public_key', _('Peer public key'),
 		_('WireGuard peer public key.'));
 	o.depends('type', 'wireguard');
 	o.validate = L.bind(hp.validateBase64Key, this, 44);

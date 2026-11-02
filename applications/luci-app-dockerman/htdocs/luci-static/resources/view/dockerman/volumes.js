@@ -22,7 +22,7 @@ return dm2.dv.extend({
 
 	render([volumes, containers]) {
 		if (volumes?.code !== 200) {
-			return E('div', {}, [ volumes.body.message ]);
+			return E('div', {}, [ volumes?.body?.message ?? _('Failed to load volumes') ]);
 		}
 
 		// this.volumes = volumes || {};

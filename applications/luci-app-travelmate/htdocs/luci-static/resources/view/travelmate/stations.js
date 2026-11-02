@@ -2,6 +2,7 @@
 'require view';
 'require poll';
 'require fs';
+'require dom';
 'require ui';
 'require uci';
 'require form';
@@ -13,20 +14,144 @@
 */
 function resolveCipher(cipherRaw) {
 	const cipherMap = {
-		'2': 'TKIP',
-		'4': 'CCMP-128',
-		'6': 'BIP',
-		'8': 'GCMP-128',
-		'9': 'GCMP-256',
-		'10': 'CCMP-256',
-		'11': 'BIP-GMAC-128',
-		'12': 'BIP-GMAC-256',
-		'13': 'BIP-CMAC-256'
+		'2': { name: 'TKIP', aes: false },
+		'4': { name: 'CCMP', aes: true },
+		'6': { name: 'BIP', aes: false },
+		'8': { name: 'GCMP', aes: true },
+		'9': { name: 'GCMP-256', aes: true },
+		'10': { name: 'CCMP-256', aes: true },
+		'11': { name: 'BIP-GMAC-128', aes: false },
+		'12': { name: 'BIP-GMAC-256', aes: false },
+		'13': { name: 'BIP-CMAC-256', aes: false }
 	};
-	if (!cipherRaw) return "unknown";
-	if (!cipherRaw.includes(':')) return cipherRaw;
-	let id = cipherRaw.split(':').pop();
-	return cipherMap[id] || `unknown (${cipherRaw})`;
+	if (!cipherRaw) return { name: 'unknown', aes: false };
+
+	// lookup by OUI suite id (e.g. "00-0f-ac:4")
+	if (cipherRaw.includes(':')) {
+		const id = cipherRaw.split(':').pop();
+		if (cipherMap[id]) return cipherMap[id];
+		return { name: `unknown (${cipherRaw})`, aes: false };
+	}
+
+	// fallback: lookup by name (e.g. raw "CCMP" from iwinfo)
+	for (const k in cipherMap) {
+		if (cipherMap[k].name === cipherRaw) return cipherMap[k];
+	}
+	return { name: cipherRaw, aes: false };
+}
+
+/*
+	normalize a bssid to upper case for case-insensitive comparison
+*/
+function normBssid(bssid) {
+	return (bssid || '').toUpperCase();
+}
+
+/*
+	identity of all networks already configured as travelmate uplink
+*/
+function configuredUplinks(iface) {
+	const sections = uci.sections('wireless', 'wifi-iface');
+	const list = [];
+
+	for (let i = 0; i < sections.length; i++) {
+		if (sections[i].network === iface && sections[i].mode === 'sta') {
+			list.push({
+				device: sections[i].device || '',
+				ssid: sections[i].ssid || '',
+				bssid: normBssid(sections[i].bssid)
+			});
+		}
+	}
+	return list;
+}
+
+/*
+	check whether a scanned network is already configured, an uplink
+	without bssid matches every bssid of the same ssid
+*/
+function isConfigured(list, radio, ssid, bssid) {
+	for (let i = 0; i < list.length; i++) {
+		if (list[i].device !== radio || list[i].ssid !== ssid) {
+			continue;
+		}
+		if (!list[i].bssid || list[i].bssid === normBssid(bssid)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/*
+	scan dialog styles, aligned with the overview page
+*/
+function scanStyle() {
+	return E('style', { 'type': 'text/css' }, [
+		'#trm-scan {' +
+		'--trm-card-bg: rgba(128,128,128,.07);' +
+		'--trm-card-border: rgba(128,128,128,.28);' +
+		'--trm-muted: GrayText;' +
+		'--trm-ok: #1f8a5f;' +
+		'--trm-err: #c0392b;' +
+		'--trm-warn: #b7791f;' +
+		'}' +
+		'@media (prefers-color-scheme: dark) {' +
+		'#trm-scan {' +
+		'--trm-ok: #63c79b;' +
+		'--trm-err: #e8897e;' +
+		'--trm-warn: #e0b35c;' +
+		'}}' +
+		'#trm-scan .trm-list { display: grid; gap: .5em; margin-bottom: .75em; }' +
+		'#trm-scan .trm-card { display: grid; gap: .4em; background: var(--trm-card-bg); border: 1px solid var(--trm-card-border); border-radius: 8px; padding: .6em .8em; min-width: 0; }' +
+		'#trm-scan .trm-head { display: flex; align-items: baseline; gap: .6em; }' +
+		'#trm-scan .trm-ssid { flex: 1 1 auto; min-width: 0; font-size: 1.1em; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' +
+		'#trm-scan .trm-qual { flex: 0 0 auto; font-variant-numeric: tabular-nums; }' +
+		'#trm-scan .trm-bar { height: .35em; border-radius: 3px; background: var(--trm-card-border); overflow: hidden; }' +
+		'#trm-scan .trm-bar-fill { height: 100%; background: var(--trm-muted); }' +
+		'#trm-scan .trm-card[data-signal="good"] .trm-qual { color: var(--trm-ok); }' +
+		'#trm-scan .trm-card[data-signal="good"] .trm-bar-fill { background: var(--trm-ok); }' +
+		'#trm-scan .trm-card[data-signal="weak"] .trm-qual { color: var(--trm-warn); }' +
+		'#trm-scan .trm-card[data-signal="weak"] .trm-bar-fill { background: var(--trm-warn); }' +
+		'#trm-scan .trm-card[data-signal="low"] .trm-qual { color: var(--trm-err); }' +
+		'#trm-scan .trm-card[data-signal="low"] .trm-bar-fill { background: var(--trm-err); }' +
+		'#trm-scan .trm-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .35em .6em; font-size: .85em; color: var(--trm-muted); }' +
+		'#trm-scan .trm-mono { font-family: monospace; }' +
+		'#trm-scan .trm-chip { padding: .1em .5em; border-radius: 6px; border: 1px solid var(--trm-card-border); }' +
+		'#trm-scan .trm-chip-open { color: var(--trm-warn); border-color: var(--trm-warn); }' +
+		'#trm-scan .trm-act { margin-left: auto; }' +
+		'#trm-scan .trm-known { color: var(--trm-ok); }' +
+		'#trm-scan .trm-empty { color: var(--trm-muted); padding: .5em 0; }'
+	]);
+}
+
+/*
+	render a single scan result card
+*/
+function scanCard(quality, minQuality, ssidNode, channel, bssid, encLabel, encOpen, action) {
+	const value = isNaN(quality) ? 0 : Math.max(0, Math.min(100, quality));
+	let signal = 'low';
+
+	if (value >= Math.min(100, minQuality + 25)) {
+		signal = 'good';
+	} else if (value >= minQuality) {
+		signal = 'weak';
+	}
+
+	return E('div', { 'class': 'trm-card', 'data-signal': signal }, [
+		E('div', { 'class': 'trm-head' }, [
+			E('div', { 'class': 'trm-ssid' }, [ssidNode]),
+			E('span', { 'class': 'trm-qual' }, [value + ' %'])
+		]),
+		E('div', { 'class': 'trm-bar' }, [
+			E('div', { 'class': 'trm-bar-fill', 'style': 'width:' + value + '%' })
+		]),
+		E('div', { 'class': 'trm-foot' }, [
+			E('span', { 'class': 'trm-chip' + (encOpen ? ' trm-chip-open' : '') }, [encLabel]),
+			E('span', {}, [_('Channel') + ' ' + channel]),
+			E('span', { 'class': 'trm-mono' }, [bssid]),
+			E('div', { 'class': 'trm-act' }, [action])
+		])
+	]);
 }
 
 /*
@@ -41,16 +166,20 @@ function handleToggle(sid) {
 	t_sections = uci.sections('travelmate', 'uplink');
 
 	for (let i = 0; i < t_sections.length; i++) {
-		if (t_sections[i].device === w_device && t_sections[i].ssid === w_ssid && t_sections[i].bssid === w_bssid) {
+		if (t_sections[i].device === w_device && t_sections[i].ssid === w_ssid && normBssid(t_sections[i].bssid) === normBssid(w_bssid)) {
 			value = t_sections[i]['enabled'];
 			value = (value == 0 ? 1 : 0);
-			enabled = (value == 0 ? 'No' : 'Yes');
+			enabled = (value == 0 ? _('No') : _('Yes'));
 			uci.set('travelmate', t_sections[i]['.name'], 'enabled', value);
-			uci.save().then(function () {
+			return uci.save().then(function () {
 				row = document.querySelector('.cbi-section-table-row[data-sid="%s"]'.format(sid));
-				element = row.querySelector('.cbi-value-field');
-				element.textContent = enabled;
-				row.setAttribute('style', 'opacity: 0.5; color: #37c !important;');
+				if (row) {
+					element = row.querySelector('.cbi-value-field');
+					if (element) {
+						element.textContent = enabled;
+					}
+					row.setAttribute('style', 'opacity: 0.5; color: #37c !important;');
+				}
 			});
 		}
 	}
@@ -69,7 +198,7 @@ function handleRemove(sid) {
 	for (let i = 0; i < t_sections.length; i++) {
 		match = false;
 		for (let j = 0; j < w_sections.length; j++) {
-			if (t_sections[i].device === w_sections[j].device && t_sections[i].ssid === w_sections[j].ssid && t_sections[i].bssid === w_sections[j].bssid) {
+			if (t_sections[i].device === w_sections[j].device && t_sections[i].ssid === w_sections[j].ssid && normBssid(t_sections[i].bssid) === normBssid(w_sections[j].bssid)) {
 				match = true;
 				break;
 			}
@@ -77,7 +206,7 @@ function handleRemove(sid) {
 		if (match === false) {
 			open = +t_sections[i].opensta || 0;
 			if (open === 1) {
-				count = uci.get('travelmate', 'global', 'trm_autoaddcnt', 0);
+				count = +uci.get('travelmate', 'global', 'trm_autoaddcnt') || 0;
 				if (count > 0) {
 					count--;
 					uci.set('travelmate', 'global', 'trm_autoaddcnt', count);
@@ -88,7 +217,9 @@ function handleRemove(sid) {
 	}
 	return uci.save().then(function () {
 		row = document.querySelector('.cbi-section-table-row[data-sid="%s"]'.format(sid));
-		row.setAttribute('style', 'opacity: 0.5; color: #a22 !important;');
+		if (row) {
+			row.setAttribute('style', 'opacity: 0.5; color: #a22 !important;');
+		}
 	});
 }
 
@@ -107,7 +238,7 @@ function handleSectionsAdd(iface) {
 		}
 		match = false;
 		for (let j = 0; j < t_sections.length; j++) {
-			if (w_sections[i].device === t_sections[j].device && w_sections[i].ssid === t_sections[j].ssid && w_sections[i].bssid === t_sections[j].bssid) {
+			if (w_sections[i].device === t_sections[j].device && w_sections[i].ssid === t_sections[j].ssid && normBssid(w_sections[i].bssid) === normBssid(t_sections[j].bssid)) {
 				match = true;
 				break;
 			}
@@ -121,8 +252,6 @@ function handleSectionsAdd(iface) {
 			uci.set('travelmate', sid, 'device', w_sections[i].device);
 			uci.set('travelmate', sid, 'ssid', w_sections[i].ssid);
 			uci.set('travelmate', sid, 'bssid', w_sections[i].bssid);
-			uci.set('travelmate', sid, 'con_start_expiry', '0');
-			uci.set('travelmate', sid, 'con_end_expiry', '0');
 			if (vpn_stdservice && vpn_stdiface) {
 				uci.set('travelmate', sid, 'vpn', '1');
 				uci.set('travelmate', sid, 'vpnservice', vpn_stdservice);
@@ -136,7 +265,7 @@ function handleSectionsAdd(iface) {
 	update travelmate sections
 */
 function handleSectionsVal(action, section_id, option, value) {
-	let date, oldValue, w_device, w_ssid, w_bssid, t_sections;
+	let w_device, w_ssid, w_bssid, t_sections;
 
 	w_device = uci.get('wireless', section_id, 'device');
 	w_ssid = uci.get('wireless', section_id, 'ssid');
@@ -144,19 +273,10 @@ function handleSectionsVal(action, section_id, option, value) {
 	t_sections = uci.sections('travelmate', 'uplink');
 
 	for (let i = 0; i < t_sections.length; i++) {
-		if (t_sections[i].device === w_device && t_sections[i].ssid === w_ssid && t_sections[i].bssid === w_bssid) {
+		if (t_sections[i].device === w_device && t_sections[i].ssid === w_ssid && normBssid(t_sections[i].bssid) === normBssid(w_bssid)) {
 			if (action === 'get') {
 				return t_sections[i][option];
 			} else if (action === 'set') {
-				if (option === 'enabled') {
-					oldValue = t_sections[i][option];
-					if (oldValue !== value && value === '0') {
-						date = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000).toISOString().substring(0, 19).replace(/-/g, '.').replace('T', '-');
-						uci.set('travelmate', t_sections[i]['.name'], 'con_end', date);
-					} else if (oldValue !== value && value === '1') {
-						uci.unset('travelmate', t_sections[i]['.name'], 'con_end');
-					}
-				}
 				return uci.set('travelmate', t_sections[i]['.name'], option, value);
 			} else if (action === 'del') {
 				return uci.unset('travelmate', t_sections[i]['.name'], option);
@@ -169,14 +289,16 @@ function handleSectionsVal(action, section_id, option, value) {
 	update travelmate status
 */
 function handleStatus() {
+	let parseErrCount = 0;
 	poll.add(function () {
-		L.resolveDefault(fs.stat('/var/state/travelmate.refresh'), null).then(function (res) {
-			if (res) {
-				return L.resolveDefault(fs.read_direct('/var/state/travelmate.refresh'), null).then(async function (res) {
-					fs.remove('/var/state/travelmate.refresh');
-					if (res && res === 'ui_reload') {
+		return Promise.all([
+			L.resolveDefault(fs.stat('/var/run/travelmate/travelmate.refresh'), null).then(function (stat) {
+				if (!stat) return;
+				return L.resolveDefault(fs.read_direct('/var/run/travelmate/travelmate.refresh'), null).then(async function (content) {
+					await fs.remove('/var/run/travelmate/travelmate.refresh');
+					if (content === 'ui_reload') {
 						location.reload();
-					} else if (res && res === 'cfg_reload') {
+					} else if (content === 'cfg_reload') {
 						if (document.readyState === 'complete') {
 							uci.unload('wireless');
 							uci.unload('travelmate');
@@ -185,66 +307,78 @@ function handleStatus() {
 							uci.load('wireless'),
 							uci.load('travelmate')
 						]);
-						let rows, item, value;
-						rows = document.querySelectorAll('.cbi-section-table-row[data-sid]');
+						const rows = document.querySelectorAll('.cbi-section-table-row[data-sid]');
 						for (let i = 0; i < rows.length; i++) {
-							item = rows[i].querySelector('.cbi-value-field[data-title="Enabled"]');
-							value = handleSectionsVal('get', rows[i].getAttribute('data-sid'), 'enabled');
-							item.textContent = (value == 0 ? 'No' : 'Yes');
+							const item = rows[i].querySelector('.cbi-value-field[data-title="Enabled"]');
+							const value = handleSectionsVal('get', rows[i].getAttribute('data-sid'), 'enabled');
+							if (item) {
+								item.textContent = (value === '1' ? _('Yes') : _('No'));
+							}
 						}
 					}
 				});
-			}
-		});
-		return L.resolveDefault(fs.stat('/tmp/trm_runtime.json'), null).then(function (res) {
-			if (res) {
-				return L.resolveDefault(fs.read_direct('/tmp/trm_runtime.json'), null).then(function (res) {
-					if (res) {
-						let info = JSON.parse(res);
-						if (info) {
-							let t_device, t_ssid, t_bssid, newUplinkView, uplinkColor,
-								uplinkId = info.data.station_id.trim().split('/'),
-								oldUplinkView = document.getElementsByName('uplinkStation'),
-								w_sections = uci.sections('wireless', 'wifi-iface'),
-								vpnStatus = info.data.ext_hooks.substr(13, 1);
-							t_device = uplinkId[0];
-							t_bssid = uplinkId[uplinkId.length - 1];
-							for (let i = 1; i < uplinkId.length - 1; i++) {
-								if (!t_ssid) {
-									t_ssid = uplinkId[i];
-								} else {
-									t_ssid = t_ssid + '/' + uplinkId[i];
-								}
-							}
-							if (t_ssid === '-') {
-								if (oldUplinkView.length > 0) {
+			}),
+			L.resolveDefault(fs.stat('/var/run/travelmate/travelmate.runtime.json'), null).then(function (stat) {
+				if (!stat) return;
+				return L.resolveDefault(fs.read_direct('/var/run/travelmate/travelmate.runtime.json'), null).then(function (content) {
+					if (!content) return;
+					let info = null;
+					try {
+						info = JSON.parse(content);
+						parseErrCount = 0;
+					} catch (e) {
+						parseErrCount++;
+						if (parseErrCount >= 5) {
+							ui.addNotification(null, E('p', _('Unable to parse the travelmate runtime information!')), 'error');
+							poll.stop();
+						}
+						return;
+					}
+					if (!info || !info.data) return;
+
+					const vpnMatch = (info.data.run_flags || '').match(/vpn:\s*(.)/);
+					const uplinkId = (info.data.station_id || '').trim().split('/');
+					const oldUplinkView = document.getElementsByName('uplinkStation');
+					const w_sections = uci.sections('wireless', 'wifi-iface');
+					const vpnStatus = vpnMatch ? vpnMatch[1] : '✘';
+
+					let t_device, t_ssid, t_bssid, newUplinkView, uplinkColor;
+					t_device = uplinkId[0];
+					t_bssid = uplinkId[uplinkId.length - 1];
+					for (let i = 1; i < uplinkId.length - 1; i++) {
+						if (!t_ssid) {
+							t_ssid = uplinkId[i];
+						} else {
+							t_ssid = t_ssid + '/' + uplinkId[i];
+						}
+					}
+					if (t_ssid === '-') {
+						if (oldUplinkView.length > 0) {
+							oldUplinkView[0].removeAttribute('style');
+							oldUplinkView[0].removeAttribute('name');
+						}
+					} else {
+						uplinkColor = (vpnStatus === '✔' ? 'rgb(68, 170, 68)' : 'rgb(51, 119, 204)');
+						for (let i = 0; i < w_sections.length; i++) {
+							newUplinkView = document.getElementById('cbi-wireless-' + w_sections[i]['.name']);
+							if (t_device === w_sections[i].device && t_ssid === w_sections[i].ssid && normBssid(t_bssid) === normBssid(w_sections[i].bssid || '-')) {
+								if (oldUplinkView.length === 0 && newUplinkView) {
+									newUplinkView.setAttribute('name', 'uplinkStation');
+									newUplinkView.setAttribute('style', 'text-align: left !important; color: ' + uplinkColor + ' !important;font-weight: bold !important;');
+								} else if (oldUplinkView.length > 0 && newUplinkView && oldUplinkView[0].getAttribute('id') !== newUplinkView.getAttribute('id')) {
 									oldUplinkView[0].removeAttribute('style');
-									oldUplinkView[0].removeAttribute('name', 'uplinkStation');
-								}
-							} else {
-								uplinkColor = (vpnStatus === "✔" ? 'rgb(68, 170, 68)' : 'rgb(51, 119, 204)');
-								for (let i = 0; i < w_sections.length; i++) {
-									newUplinkView = document.getElementById('cbi-wireless-' + w_sections[i]['.name']);
-									if (t_device === w_sections[i].device && t_ssid === w_sections[i].ssid && t_bssid === (w_sections[i].bssid || '-')) {
-										if (oldUplinkView.length === 0 && newUplinkView) {
-											newUplinkView.setAttribute('name', 'uplinkStation');
-											newUplinkView.setAttribute('style', 'text-align: left !important; color: ' + uplinkColor + ' !important;font-weight: bold !important;');
-										} else if (oldUplinkView.length > 0 && newUplinkView && oldUplinkView[0].getAttribute('id') !== newUplinkView.getAttribute('id')) {
-											oldUplinkView[0].removeAttribute('style');
-											oldUplinkView[0].removeAttribute('name', 'uplinkStation');
-											newUplinkView.setAttribute('name', 'uplinkStation');
-											newUplinkView.setAttribute('style', 'text-align: left !important; color: ' + uplinkColor + ' !important;font-weight: bold !important;');
-										} else if (newUplinkView && newUplinkView.style.color != uplinkColor) {
-											newUplinkView.setAttribute('style', 'text-align: left !important; color: ' + uplinkColor + ' !important;font-weight: bold !important;');
-										}
-									}
+									oldUplinkView[0].removeAttribute('name');
+									newUplinkView.setAttribute('name', 'uplinkStation');
+									newUplinkView.setAttribute('style', 'text-align: left !important; color: ' + uplinkColor + ' !important;font-weight: bold !important;');
+								} else if (newUplinkView && newUplinkView.style.color !== uplinkColor) {
+									newUplinkView.setAttribute('style', 'text-align: left !important; color: ' + uplinkColor + ' !important;font-weight: bold !important;');
 								}
 							}
 						}
 					}
 				});
-			}
-		});
+			})
+		]);
 	}, 2);
 }
 
@@ -256,14 +390,14 @@ return view.extend({
 		]);
 	},
 
-	render: function (result) {
+	render: function () {
 		/*
-			basic result check
+			basic config check
 		*/
-		if (!result[0] || result[0].length === 0) {
+		if (!uci.sections('wireless', 'wifi-device').length) {
 			ui.addNotification(null, E('p', _('No wireless config / radio found!')), 'error');
 			return;
-		} else if (!result[1] || result[1].length === 0) {
+		} else if (!uci.get('travelmate', 'global')) {
 			ui.addNotification(null, E('p', _('No travelmate config found!')), 'error');
 			return;
 		}
@@ -352,6 +486,10 @@ return view.extend({
 		o = s.taboption('wireless', form.Value, 'bssid', _('BSSID'));
 		o.datatype = 'macaddr';
 		o.readonly = true;
+		o.textvalue = function (section_id) {
+			const bssid = uci.get('wireless', section_id, 'bssid');
+			return bssid ? normBssid(bssid) : null;
+		};
 
 		o = s.taboption('wireless', form.ListValue, 'encryption', _('Encryption'));
 		o.value('sae', _('WPA3 PSK (SAE)'));
@@ -377,58 +515,58 @@ return view.extend({
 			let cfgvalue = this.map.data.get('wireless', section_id, 'encryption');
 			switch (cfgvalue) {
 				case 'sae':
-					cfgvalue = 'WPA3 PSK (SAE)';
+					cfgvalue = _('WPA3 PSK (SAE)');
 					break;
 				case 'sae-mixed':
-					cfgvalue = 'Mixed WPA2/WPA3 PSK (CCMP)';
+					cfgvalue = _('Mixed WPA2/WPA3 PSK (CCMP)');
 					break;
 				case 'psk2+ccmp':
-					cfgvalue = 'WPA2 PSK (CCMP)';
+					cfgvalue = _('WPA2 PSK (CCMP)');
 					break;
 				case 'psk2+tkip':
-					cfgvalue = 'WPA2 PSK (TKIP)';
+					cfgvalue = _('WPA2 PSK (TKIP)');
 					break;
 				case 'psk+ccmp':
-					cfgvalue = 'WPA PSK (CCMP)';
+					cfgvalue = _('WPA PSK (CCMP)');
 					break;
 				case 'psk+tkip':
-					cfgvalue = 'WPA PSK (TKIP)';
+					cfgvalue = _('WPA PSK (TKIP)');
 					break;
 				case 'psk-mixed+ccmp':
-					cfgvalue = 'Mixed WPA/WPA2 PSK (CCMP)';
+					cfgvalue = _('Mixed WPA/WPA2 PSK (CCMP)');
 					break;
 				case 'psk-mixed+tkip':
-					cfgvalue = 'Mixed WPA/WPA2 PSK (TKIP)';
+					cfgvalue = _('Mixed WPA/WPA2 PSK (TKIP)');
 					break;
 				case 'wpa3':
-					cfgvalue = 'WPA3 802.1X';
+					cfgvalue = _('WPA3 802.1X');
 					break;
 				case 'wpa3-mixed':
-					cfgvalue = 'Mixed WPA2/WPA3 802.1X';
+					cfgvalue = _('Mixed WPA2/WPA3 802.1X');
 					break;
 				case 'wpa2+ccmp':
-					cfgvalue = 'WPA2 802.1X (CCMP)';
+					cfgvalue = _('WPA2 802.1X (CCMP)');
 					break;
 				case 'wpa2+tkip':
-					cfgvalue = 'WPA2 802.1X (TKIP)';
+					cfgvalue = _('WPA2 802.1X (TKIP)');
 					break;
 				case 'wpa+ccmp':
-					cfgvalue = 'WPA 802.1X (CCMP)';
+					cfgvalue = _('WPA 802.1X (CCMP)');
 					break;
 				case 'wpa+tkip':
-					cfgvalue = 'WPA 802.1X (TKIP)';
+					cfgvalue = _('WPA 802.1X (TKIP)');
 					break;
 				case 'wpa-mixed+ccmp':
-					cfgvalue = 'Mixed WPA/WPA2 802.1X (CCMP)';
+					cfgvalue = _('Mixed WPA/WPA2 802.1X (CCMP)');
 					break;
 				case 'wpa-mixed+tkip':
-					cfgvalue = 'Mixed WPA/WPA2 802.1X (TKIP)';
+					cfgvalue = _('Mixed WPA/WPA2 802.1X (TKIP)');
 					break;
 				case 'owe':
-					cfgvalue = 'WPA3 OWE (CCMP)';
+					cfgvalue = _('WPA3 OWE');
 					break;
 				case 'none':
-					cfgvalue = 'none';
+					cfgvalue = _('Open');
 					break;
 			}
 			return cfgvalue;
@@ -552,28 +690,6 @@ return view.extend({
 			return handleSectionsVal('get', section_id, 'bssid');
 		}
 
-		o = s.taboption('travelmate', form.Value, '_con_start', _('Connection Start'));
-		o.modalonly = true;
-		o.uciconfig = 'travelmate';
-		o.ucisection = 'uplink';
-		o.ucioption = 'con_start';
-		o.rmempty = true;
-		o.readonly = true;
-		o.cfgvalue = function (section_id) {
-			return handleSectionsVal('get', section_id, 'con_start');
-		}
-
-		o = s.taboption('travelmate', form.Value, '_con_end', _('Connection End'));
-		o.modalonly = true;
-		o.uciconfig = 'travelmate';
-		o.ucisection = 'uplink';
-		o.ucioption = 'con_end';
-		o.rmempty = true;
-		o.readonly = true;
-		o.cfgvalue = function (section_id) {
-			return handleSectionsVal('get', section_id, 'con_end');
-		}
-
 		o = s.taboption('travelmate', form.Flag, '_opensta', _('Auto Added Open Uplink'),
 			_('This option is selected by default if this uplink was added automatically and counts as \'Open Uplink\'.'));
 		o.rmempty = true;
@@ -585,13 +701,13 @@ return view.extend({
 			return handleSectionsVal('get', section_id, 'opensta');
 		}
 		o.write = function (section_id, value) {
-			count = uci.get('travelmate', 'global', 'trm_autoaddcnt', 0);
+			count = +uci.get('travelmate', 'global', 'trm_autoaddcnt') || 0;
 			count++;
 			uci.set('travelmate', 'global', 'trm_autoaddcnt', count);
 			return handleSectionsVal('set', section_id, 'opensta', value);
 		}
 		o.remove = function (section_id, value) {
-			count = uci.get('travelmate', 'global', 'trm_autoaddcnt', 0);
+			count = +uci.get('travelmate', 'global', 'trm_autoaddcnt') || 0;
 			if (count > 0) {
 				count--;
 				uci.set('travelmate', 'global', 'trm_autoaddcnt', count);
@@ -618,40 +734,27 @@ return view.extend({
 			return handleSectionsVal('set', section_id, 'macaddr', value);
 		}
 
-		o = s.taboption('travelmate', form.Value, '_con_start_expiry', _('Connection Start Expiry'),
-			_('Automatically disable the uplink after <em>n</em> minutes, e.g. for timed connections.<br /> \
-			The default of \'0\' disables this feature.'));
+		o = s.taboption('travelmate', form.ListValue, '_revive', _('Revive Uplink'),
+			_('Re-enable this uplink after the selected number of run cycles if it has been disabled by the retry limit. The number of revivals is limited by the global retry limit.'));
 		o.modalonly = true;
 		o.uciconfig = 'travelmate';
 		o.ucisection = 'uplink';
-		o.ucioption = 'con_start_expiry';
-		o.rmempty = false;
-		o.placeholder = '0';
+		o.ucioption = 'revive';
+		o.nocreate = false;
+		o.rmempty = true;
 		o.default = '0';
-		o.datatype = 'range(0,720)';
+		o.value('0', _('disabled'));
+		o.value('10', _('10 run cycles'));
+		o.value('30', _('30 run cycles'));
+		o.value('60', _('60 run cycles'));
 		o.cfgvalue = function (section_id) {
-			return handleSectionsVal('get', section_id, 'con_start_expiry');
+			return handleSectionsVal('get', section_id, 'revive');
 		}
 		o.write = function (section_id, value) {
-			return handleSectionsVal('set', section_id, 'con_start_expiry', value);
+			return handleSectionsVal('set', section_id, 'revive', value);
 		}
-
-		o = s.taboption('travelmate', form.Value, '_con_end_expiry', _('Connection End Expiry'),
-			_('Automatically (re-)enable the uplink after <em>n</em> minutes, e.g. after failed login attempts.<br /> \
-			The default of \'0\' disables this feature.'));
-		o.modalonly = true;
-		o.uciconfig = 'travelmate';
-		o.ucisection = 'uplink';
-		o.ucioption = 'con_end_expiry';
-		o.rmempty = false;
-		o.placeholder = '0';
-		o.default = '0';
-		o.datatype = 'range(0,720)';
-		o.cfgvalue = function (section_id) {
-			return handleSectionsVal('get', section_id, 'con_end_expiry');
-		}
-		o.write = function (section_id, value) {
-			return handleSectionsVal('set', section_id, 'con_end_expiry', value);
+		o.remove = function (section_id, value) {
+			return handleSectionsVal('set', section_id, 'revive', value);
 		}
 
 		o = s.taboption('travelmate', form.FileUpload, '_script', _('Auto Login Script'),
@@ -777,7 +880,7 @@ return view.extend({
 							'style': 'float:none;margin-right:.4em;',
 							'id': radio,
 							'click': ui.createHandlerFn(this, 'handleScan', radio)
-						}, [_('Scan on ' + radio + '...')]))
+						}, [_('Scan on %s...').format(radio)]))
 					}
 				}
 				return E('div', { 'class': 'left', 'style': 'display:flex; flex-direction:column' }, E('div', { 'class': 'left', 'style': 'padding-top:5px; padding-bottom:5px' }, btns));
@@ -789,20 +892,14 @@ return view.extend({
 		*/
 		s.handleScan = function (radio) {
 			poll.stop();
-			let table = E('table', { 'class': 'table' }, [
-				E('tr', { 'class': 'tr table-titles' }, [
-					E('th', { 'class': 'th col-1 middle left' }, _('Strength')),
-					E('th', { 'class': 'th col-1 middle left hide-xs' }, _('Channel')),
-					E('th', { 'class': 'th col-2 middle left' }, _('SSID')),
-					E('th', { 'class': 'th col-2 middle left' }, _('BSSID')),
-					E('th', { 'class': 'th col-3 middle left' }, _('Encryption')),
-					E('th', { 'class': 'th cbi-section-actions right' }, '\xa0')
-				])
+			const minQuality = parseInt(uci.get('travelmate', 'global', 'trm_minquality') || '35', 10);
+			const uplinks = configuredUplinks(iface);
+			let list = E('div', { 'class': 'trm-list' }, [
+				E('em', { 'class': 'spinning' }, _('Starting wireless scan on \'%s\'...').format(radio))
 			]);
-			cbi_update_table(table, [], E('em', { class: 'spinning' }, _('Starting wireless scan on \'' + radio + '\'...')));
 
 			let md = ui.showModal(_('Wireless Scan'), [
-				table,
+				E('div', { 'id': 'trm-scan' }, [scanStyle(), list]),
 				E('div', { 'class': 'right' }, [
 					E('button', {
 						'class': 'btn',
@@ -823,7 +920,7 @@ return view.extend({
 
 			return L.resolveDefault(fs.exec_direct('/etc/init.d/travelmate', ['scan', radio]))
 				.then(L.bind(function () {
-					return L.resolveDefault(fs.read_direct('/var/run/travelmate.scan'), '')
+					return L.resolveDefault(fs.read_direct('/var/run/travelmate/travelmate.scan'), '')
 						.then(L.bind(function (res) {
 							let lines, strength, channel, bssid, wpa, cipher, auth, tbl_ssid, ssid, rows = [];
 
@@ -848,7 +945,7 @@ return view.extend({
 											SSID preparation
 										*/
 										if (ssid === 'hidden') {
-											tbl_ssid = "<em>hidden</em>";
+											tbl_ssid = E('em', {}, [_('hidden')]);
 										} else {
 											ssid = ssid.replace(/^"(.*)"$/, '$1');
 											tbl_ssid = ssid;
@@ -878,72 +975,67 @@ return view.extend({
 										let encryption = 'none';
 
 										if (cipher === '-' && wpa === '-') {
-											tbl_encryption = 'Open';
+											tbl_encryption = _('Open');
 											encryption = 'none';
 										} else if (hasOWE) {
-											tbl_encryption = `WPA3 OWE (${resCipher})`;
+											tbl_encryption = `WPA3 OWE (${resCipher.name})`;
 											encryption = 'owe';
 										} else if (hasSuiteB) {
-											tbl_encryption = `WPA3 Enterprise (${resCipher})`;
+											tbl_encryption = `WPA3 Enterprise (${resCipher.name})`;
 											encryption = 'wpa3';
 										} else if (hasWPA2 && hasWPA3 && hasPSK && !has8021x) {
-											tbl_encryption = `Mixed WPA2/WPA3 PSK (${resCipher})`;
+											tbl_encryption = `Mixed WPA2/WPA3 PSK (${resCipher.name})`;
 											encryption = 'sae-mixed';
 										} else if (hasWPA2 && hasWPA3 && has8021x) {
-											tbl_encryption = `Mixed WPA2/WPA3 802.1X (${resCipher})`;
+											tbl_encryption = `Mixed WPA2/WPA3 802.1X (${resCipher.name})`;
 											encryption = 'wpa3-mixed';
 										} else if (hasWPA3 && hasSAE && !has8021x) {
 											tbl_encryption = `WPA3 PSK (SAE)`;
 											encryption = 'sae';
 										} else if (hasWPA3 && has8021x) {
-											tbl_encryption = `WPA3 802.1X (${resCipher})`;
+											tbl_encryption = `WPA3 802.1X (${resCipher.name})`;
 											encryption = 'wpa3';
 										} else if (hasWPA1 && hasWPA2 && has8021x) {
-											tbl_encryption = `Mixed WPA/WPA2 802.1X (${resCipher})`;
-											encryption = (resCipher === 'CCMP') ? 'wpa-mixed+ccmp' : 'wpa-mixed+tkip';
+											tbl_encryption = `Mixed WPA/WPA2 802.1X (${resCipher.name})`;
+											encryption = resCipher.aes ? 'wpa-mixed+ccmp' : 'wpa-mixed+tkip';
 										} else if (hasWPA2 && has8021x) {
-											tbl_encryption = `WPA2 802.1X (${resCipher})`;
-											encryption = (resCipher === 'CCMP' || resCipher === 'GCMP-256') ? 'wpa2+ccmp' : 'wpa2+tkip';
+											tbl_encryption = `WPA2 802.1X (${resCipher.name})`;
+											encryption = resCipher.aes ? 'wpa2+ccmp' : 'wpa2+tkip';
 										} else if (hasWPA1 && has8021x) {
-											tbl_encryption = `WPA 802.1X (${resCipher})`;
-											encryption = (resCipher === 'CCMP') ? 'wpa+ccmp' : 'wpa+tkip';
+											tbl_encryption = `WPA 802.1X (${resCipher.name})`;
+											encryption = resCipher.aes ? 'wpa+ccmp' : 'wpa+tkip';
 										} else if (hasWPA1 && hasWPA2 && hasPSK) {
-											tbl_encryption = `Mixed WPA/WPA2 PSK (${resCipher})`;
-											encryption = (resCipher === 'CCMP') ? 'psk-mixed+ccmp' : 'psk-mixed+tkip';
+											tbl_encryption = `Mixed WPA/WPA2 PSK (${resCipher.name})`;
+											encryption = resCipher.aes ? 'psk-mixed+ccmp' : 'psk-mixed+tkip';
 										} else if (hasWPA2 && hasPSK) {
-											tbl_encryption = `WPA2 PSK (${resCipher})`;
-											encryption = (resCipher === 'CCMP' || resCipher === 'GCMP-256') ? 'psk2+ccmp' : 'psk2+tkip';
+											tbl_encryption = `WPA2 PSK (${resCipher.name})`;
+											encryption = resCipher.aes ? 'psk2+ccmp' : 'psk2+tkip';
 										} else if (hasWPA1 && hasPSK) {
-											tbl_encryption = `WPA PSK (${resCipher})`;
-											encryption = (resCipher === 'CCMP') ? 'psk+ccmp' : 'psk+tkip';
+											tbl_encryption = `WPA PSK (${resCipher.name})`;
+											encryption = resCipher.aes ? 'psk+ccmp' : 'psk+tkip';
 										} else {
-											tbl_encryption = 'unknown';
+											tbl_encryption = _('unknown');
 											encryption = 'none';
 										}
 
 										/*
-											push result row into table
+											push result card into the list
 										*/
-										rows.push([
-											strength,
-											channel,
-											tbl_ssid,
-											bssid,
-											tbl_encryption,
-											E('div', { 'class': 'right' },
-												E('button', {
-													'class': 'cbi-button cbi-button-action',
-													'click': ui.createHandlerFn(this, 'handleAdd', radio, iface, ssid, bssid, encryption)
-												}, _('Add Uplink...'))
-											)
-										]);
+										const known = isConfigured(uplinks, radio, ssid, bssid);
+										const action = known
+											? E('span', { 'class': 'trm-known' }, [_('Configured')])
+											: E('button', {
+												'class': 'cbi-button cbi-button-action',
+												'click': ui.createHandlerFn(this, 'handleAdd', radio, iface, ssid, bssid, encryption)
+											}, _('Add Uplink...'));
+										rows.push(scanCard(parseInt(strength, 10), minQuality, tbl_ssid, channel, bssid, tbl_encryption, encryption === 'none', action));
 									}
 								}
 							} else {
-								rows.push(['Empty resultset']);
+								rows.push(E('div', { 'class': 'trm-empty' }, [_('Empty resultset')]));
 							}
 
-							cbi_update_table(table, rows);
+							dom.content(list, rows);
 							document.getElementById('scan-btn').disabled = false;
 							poll.start();
 						}, this));
@@ -1057,7 +1149,6 @@ return view.extend({
 
 			o2 = s2.option(form.Value, 'anonymous_identity', _('Anonymous Identity'));
 			o2.depends({ encryption: 'wpa', '!contains': true });
-			o2.rmempty = true;
 
 			o2 = s2.option(form.ListValue, 'ieee80211w', _('Mgmt. Frame Protection'));
 			o2.depends({ encryption: 'sae', '!contains': true });
@@ -1077,7 +1168,7 @@ return view.extend({
 			o2.depends({ encryption: 'wpa', '!contains': true });
 			o2.enabled = '1';
 			o2.disabled = '0';
-			o2.default = o.disabled;
+			o2.default = o2.disabled;
 
 			o2 = s2.option(form.Value, 'ca_cert', _('Path to CA-Certificate'));
 			o2.depends({ encryption: 'wpa', '!contains': true });
@@ -1098,7 +1189,7 @@ return view.extend({
 			o2.rmempty = true;
 
 			return m2.render().then(L.bind(function (elements) {
-				ui.showModal(_('Add Uplink %q').replace(/%q/, '"%h"'.format(ssid)), [
+				ui.showModal(_('Add Uplink "%h"').format(ssid), [
 					elements,
 					E('div', { 'class': 'right' }, [
 						E('button', {
@@ -1150,19 +1241,18 @@ return view.extend({
 			else {
 				password = L.toArray(map.lookupOption('key', '_add_trm'))[0].formvalue('_add_trm');
 			}
-
 			if (!ssid || ((encryption.includes('psk') || encryption.includes('wpa') || encryption.includes('sae')) && !password)) {
 				if (!ssid) {
-					ui.addNotification(null, E('p', 'Empty SSID, the uplink station could not be saved.'), 'error');
+					ui.addNotification(null, E('p', _('Empty SSID, the uplink station could not be saved.')), 'error');
 				} else {
-					ui.addNotification(null, E('p', 'Empty Password, the uplink station could not be saved.'), 'error');
+					ui.addNotification(null, E('p', _('Empty Password, the uplink station could not be saved.')), 'error');
 				}
 				return ui.hideModal();
 			}
 			for (let i = 0; i < w_sections.length; i++) {
 				if (w_sections[i].device === device && w_sections[i].ssid === ssid) {
-					if (ignore_bssid === '1' || (ignore_bssid === '0' && w_sections[i].bssid === bssid)) {
-						ui.addNotification(null, E('p', 'Duplicate wireless entry, the uplink station could not be saved.'), 'error');
+					if (ignore_bssid === '1' || (ignore_bssid === '0' && normBssid(w_sections[i].bssid) === normBssid(bssid))) {
+						ui.addNotification(null, E('p', _('Duplicate wireless entry, the uplink station could not be saved.')), 'error');
 						return ui.hideModal();
 					}
 				}
@@ -1206,9 +1296,15 @@ return view.extend({
 				.then(L.bind(this.map.reset, this.map))
 				.then(function () {
 					let row = document.querySelector('.cbi-section-table-row[data-sid="%s"]'.format(new_sid));
-					row.setAttribute('style', 'opacity: 0.5; color: #4a4 !important;');
+					if (row) {
+						row.setAttribute('style', 'opacity: 0.5; color: #4a4 !important;');
+					}
 				})
 				.then(ui.hideModal)
+				.catch(function (err) {
+					ui.hideModal();
+					ui.addNotification(null, E('p', _('Saving the new uplink failed: %s').format(err)), 'error');
+				});
 		};
 		return m.render();
 	},

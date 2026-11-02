@@ -39,6 +39,7 @@ return view.extend({
 		return fs.exec_direct('/bin/dmesg', [ '-r' ]).then(logdata => {
 			let loglines = [];
 			let lastSeverity = null;
+			let lastTime = null;
 
 			logdata.trim().split(/\n/).forEach(line => {
 				const priorityMatch = line.match(/^<(\w+)>/);
@@ -49,6 +50,8 @@ return view.extend({
 				const cleanLine = line.replace(/^<\w+>/, '');
 				const timeMatch = cleanLine.match(/^\[\s*(\d+(?:\.\d+)?)\]/);
 				const time = timeMatch ? parseFloat(timeMatch[1]) : null;
+				if (time != null)
+					lastTime = time;
 
 				if (!isCont) {
 					lastSeverity = parseInt(tag, 10); // update severity
@@ -57,7 +60,7 @@ return view.extend({
 				loglines.push({
 					severity: isCont ? lastSeverity : parseInt(tag, 10),
 					isCont,
-					time,
+					time: time != null ? time : lastTime,
 					text: cleanLine
 				});
 			});
@@ -84,12 +87,10 @@ return view.extend({
 
 			// Filter by severity
 			loglines = loglines.filter(entry => {
-				if (!entry.isCont) {
-					if (!this.invertMinSeverity)
-						return (entry.severity >= this.minSeverity);
-					else
-						return (entry.severity < this.minSeverity);
-				}
+				if (this.invertMinSeverity)
+					return entry.severity < this.minSeverity;
+				else
+					return entry.severity >= this.minSeverity;
 			});
 
 			// Filter by text
@@ -118,7 +119,7 @@ return view.extend({
 		if (element) {
 			const log = await this.retrieveLog();
 			element.value = log.value;
-			element.rows = log.rows;
+			element.rows = log.rows + 1;
 		}
 	},
 
@@ -251,7 +252,7 @@ return view.extend({
 
 		return E([], [
 			E('h2', {}, [ _('Kernel Log') ]),
-			E('div', { 'id': 'content_syslog' }, [
+			E('div', { 'id': 'content_syslog', 'class': 'cbi-section' }, [
 				E('div', { 'style': 'margin-bottom:10px' }, [
 					E('label', { 'for': 'invertLogFacilitySearch', 'style': 'margin-right:5px' }, _('Not')),
 					rangeTimeInvert,
@@ -283,7 +284,7 @@ return view.extend({
 					'style': 'font-size:12px',
 					'readonly': 'readonly',
 					'wrap': 'off',
-					'rows': loglines.rows
+					'rows': loglines.rows + 1
 				}, [ loglines.value ]),
 				E('div', {'style': 'padding-bottom: 20px'}, [scrollUpButton])
 			])

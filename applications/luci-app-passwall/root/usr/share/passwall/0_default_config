@@ -2,7 +2,7 @@
 config global
 	option enabled '0'
 	option socks_enabled '0'
-	option tcp_node_socks_port '1070'
+	option node_socks_port '1070'
 	option filter_proxy_ipv6 '1'
 	option dns_shunt 'chinadns-ng'
 	option dns_mode 'tcp'
@@ -21,10 +21,8 @@ config global
 	option localhost_proxy '1'
 	option client_proxy '1'
 	option acl_enable '0'
-	option log_tcp '0'
-	option log_udp '0'
+	option log_node '0'
 	option loglevel 'error'
-	option trojan_loglevel '4'
 	option log_chinadns_ng '0'
 
 config global_haproxy
@@ -56,7 +54,6 @@ config global_other
 	option show_node_info '0'
 
 config global_rules
-	option auto_update '0'
 	option chnlist_update '1'
 	option chnroute_update '1'
 	option chnroute6_update '1'
@@ -105,30 +102,7 @@ config nodes 'myshunt'
 config shunt_rules 'DirectGame'
 	option remarks 'DirectGame'
 	option network 'tcp,udp'
-	option domain_list '# steam直连域名获取国内CDN走国内线路下载
-cm.steampowered.com
-steamserver.net
-
-# steam国内CDN华为云
-steampipe.steamcontent.tnkjmec.com
-# steam国内CDN白山云
-st.dl.eccdnx.com
-st.dl.bscstorage.net
-st.dl.pinyuncloud.com
-# steam国内CDN新流云(原金山云)(支持ipv6)
-dl.steam.clngaa.com
-# steam国内CDN网宿
-cdn.mileweb.cs.steampowered.com.8686c.com
-cdn-ws.content.steamchina.com
-# steam国内CDN腾讯云 (蒸汽中国独占)
-cdn-qc.content.steamchina.com
-# steam国内CDN阿里云(支持ipv6)
-cdn-ali.content.steamchina.com
-xz.pphimalayanrt.com
-lv.queniujq.cn
-alibaba.cdn.steampipe.steamcontent.com
-
-# 国内游戏geosite域名
+	option domain_list '# 国内游戏geosite域名
 geosite:category-games@cn'
 	option ip_list '# steam直连IP
 45.121.184.0/24
@@ -198,6 +172,9 @@ steamcloud-sydney.storage.googleapis.com
 steamcloud-taiwan.storage.googleapis.com
 steamcloud-eu.storage.googleapis.com
 domain:blizzard.com
+#Steam支付
+domain:checkout.steampowered.com
+domain:globalapi.smart2pay.com
 geosite:category-games'
 
 config shunt_rules 'AIGC'

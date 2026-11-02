@@ -19,6 +19,13 @@ _M.order = {
 	"hysteria"
 }
 
+-- PassWall uses the same cached GitHub Release API, but is not listed as a
+-- downloadable component because its LuCI package update flow is handled separately.
+_M.passwall = {
+	name = "PassWall",
+	get_url = gh_release_url
+}
+
 _M.hysteria = {
 	name = "Hysteria",
 	repo = "HyNetwork/hysteria",
@@ -39,7 +46,7 @@ _M["sing-box"] = {
 	name = "Sing-Box",
 	repo = "SagerNet/sing-box",
 	get_url = gh_release_url,
-	cmd_version = "version | awk '{print $3}' | sed -n 1P",
+	cmd_version = "version",
 	zipped = true,
 	zipped_suffix = "tar.gz",
 	default_path = "/usr/bin/sing-box",

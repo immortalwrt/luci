@@ -19,8 +19,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" media="screen" href="{{ media }}/cascade.css" />
-{% if (node?.css): %}
-<link rel="stylesheet" media="screen" href="{{ resource }}/{{ node.css }}" />
+{% if (dispatched?.css): %}
+<link rel="stylesheet" media="screen" href="{{ resource }}/{{ dispatched.css }}" />
 {% endif %}
 {% if (css): %}
 <style>{{ css }}</style>
@@ -30,7 +30,7 @@
 
 <title>{{ striptags(`${boardinfo.hostname ?? '?'}${dispatched?.title ? ` | ${_(dispatched.title)}` : ''}`) }}</title>
 </head>
-<body class="lang_{{ dispatcher.lang }}" data-page="{{ entityencode(join('-', ctx.request_path), true) }}">
+<body class="lang_{{ dispatcher.lang }}" data-page="{{ entityencode(join('-', length(ctx.request_path) ? ctx.request_path : ctx.path), true) }}">
 
 <p class="skiplink">
 <span id="skiplink1"><a href="#navigation">{{ _('Skip to navigation') }}</a></span>

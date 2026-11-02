@@ -96,7 +96,7 @@ function shouldUpgrade(installed, available)
 
 async function checkDeviceAvailable(boardinfo, new_version)
 {
-	const profile_url = `https://downloads.openwrt.org/releases/${new_version}/targets/${boardinfo?.release?.target}/profiles.json`;
+	const profile_url = `https://downloads.immortalwrt.org/releases/${new_version}/targets/${boardinfo?.release?.target}/profiles.json`;
 	return fetch(profile_url)
 		.then(response => response.json())
 		.then(data => {
@@ -139,7 +139,7 @@ return baseclass.extend({
 		const check_upgrades = uci.get_bool(...check_setting);
 
 		if (check_upgrades) {
-			fetch('https://downloads.openwrt.org/.versions.json')
+			fetch('https://downloads.immortalwrt.org/.versions.json')
 			.then(response => response.json())
 			.then(async (versions) => {
 				var label = null;

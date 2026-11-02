@@ -1,723 +1,27 @@
-<style>
-.oc .config-upload-model-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 10000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(2px);
-}
-
-.oc .config-upload-model-overlay.show {
-    display: flex;
-}
-
-.oc .config-upload-model {
-    background: var(--bg-white);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    width: 90vw;
-    max-width: 550px;
-    min-width: 400px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border: 1px solid var(--border-light);
-    max-height: 85vh;
-    transition: all var(--transition-fast);
-}
-
-.oc .config-upload-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px;
-    border-bottom: 1px solid var(--border-light);
-    background: var(--bg-gray);
-    flex-shrink: 0;
-}
-
-.oc .config-upload-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.oc .config-upload-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px;
-    border-top: 1px solid var(--border-light);
-    background: var(--bg-gray);
-    flex-shrink: 0;
-}
-
-.oc .config-upload-status {
-    font-size: 12px;
-    color: var(--text-secondary);
-}
-
-.oc .config-upload-buttons {
-    display: flex;
-    gap: 12px;
-}
-
-.oc .config-upload-content {
-    padding: 24px;
-    flex: 1;
-    overflow-y: auto;
-}
-
-.oc .upload-mode-selector {
-    margin-bottom: 24px;
-    border-radius: var(--radius-md);
-}
-
-.oc .mode-tabs {
-    display: flex;
-    background: var(--bg-gray);
-    border-radius: var(--radius-md);
-    padding: 4px;
-    gap: 4px;
-}
-
-.oc .mode-tab {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 16px;
-    border: none;
-    border-radius: calc(var(--radius-md) - 2px);
-    background: transparent;
-    color: var(--text-secondary);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.oc .mode-tab:hover {
-    color: var(--text-primary);
-    background: rgba(59, 130, 246, 0.1);
-}
-
-.oc .mode-tab.active {
-    background: var(--primary-color);
-    color: white;
-    box-shadow: var(--shadow-sm);
-}
-
-.oc .mode-tab svg {
-    flex-shrink: 0;
-}
-
-.oc .upload-mode-content {
-    transition: all var(--transition-fast);
-}
-
-.oc .upload-zone {
-    border: 2px dashed var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 40px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    background: var(--bg-light);
-}
-
-.oc .upload-zone:hover {
-    border-color: var(--primary-color);
-    background: rgba(59, 130, 246, 0.05);
-}
-
-.oc .upload-zone.dragover {
-    border-color: var(--primary-color);
-    background: rgba(59, 130, 246, 0.1);
-}
-
-.oc .upload-zone.has-file {
-    border-color: var(--success-color);
-    background: rgba(5, 150, 105, 0.05);
-}
-
-.oc .upload-icon {
-    margin-bottom: 16px;
-    color: var(--text-secondary);
-}
-
-.oc .upload-zone.has-file .upload-icon {
-    color: var(--success-color);
-}
-
-.oc .upload-primary {
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin: 0 0 8px 0;
-}
-
-.oc .upload-secondary {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin: 0;
-}
-
-.oc .subscribe-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.oc .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    position: relative;
-}
-
-.oc .form-group label {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-.oc .form-select-wrapper {
-    position: relative;
-}
-
-.oc .form-select-wrapper::after {
-    content: '';
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 4px solid var(--text-secondary);
-    pointer-events: none;
-}
-
-.oc .form-input,
-.oc .form-select {
-    width: 100%;
-    height: 40px;
-    padding: 10px 12px;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-sm);
-    background: var(--bg-white);
-    color: var(--text-primary);
-    font-size: 14px;
-    transition: all var(--transition-fast);
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-}
-
-.oc .form-input:focus,
-.oc .form-select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-.oc .form-input::placeholder {
-    color: var(--text-secondary);
-}
-
-.oc .form-select {
-    cursor: pointer;
-}
-
-.oc .form-textarea {
-    width: 100%;
-    min-height: 80px;
-    padding: 10px 12px;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-sm);
-    background: var(--bg-white);
-    color: var(--text-primary);
-    font-size: 14px;
-    font-family: inherit;
-    resize: vertical;
-    transition: all var(--transition-fast);
-}
-
-.oc .form-textarea:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-.oc .form-row {
-    display: flex;
-    gap: 16px;
-    padding-top: 5px;
-}
-
-.oc .form-half {
-    flex: 1;
-}
-
-.oc .form-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--text-primary);
-    margin-bottom: 5px;
-}
-
-.oc .form-checkbox input[type="checkbox"] {
-    display: none;
-}
-
-.oc .checkmark {
-    width: 16px;
-    height: 16px;
-    border: 2px solid var(--border-light);
-    border-radius: 3px;
-    background: var(--bg-white);
-    position: relative;
-    transition: all var(--transition-fast);
-    flex-shrink: 0;
-}
-
-.oc .form-checkbox input[type="checkbox"]:checked + .checkmark {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.oc .form-checkbox input[type="checkbox"]:checked + .checkmark::after {
-    content: '';
-    position: absolute;
-    left: 3px;
-    top: 0px;
-    width: 4px;
-    height: 8px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
-
-.oc .form-checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.oc .form-help {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-top: 0%;
-    margin-bottom: 10px;
-    line-height: 1.4;
-    display: flex;
-    align-items: flex-start;
-    gap: 6px;
-}
-
-.oc .form-help::before {
-    content: '';
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    flex-shrink: 0;
-    margin-top: 2px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpath d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'%3E%3C/path%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'%3E%3C/line%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    opacity: 0.7;
-}
-
-.oc .filename-input-container {
-    margin-top: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.oc .filename-input-container label {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-primary);
-    white-space: nowrap;
-}
-
-.oc .filename-input-container input {
-    flex: 1;
-    height: 36px;
-    padding: 8px 12px;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-sm);
-    background: var(--bg-white);
-    color: var(--text-primary);
-    font-size: 14px;
-    transition: all var(--transition-fast);
-}
-
-.oc .filename-input-container input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-.oc .filename-extension {
-    font-size: 14px;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-.oc .upload-progress {
-    margin-top: 20px;
-}
-
-.oc .progress-bar {
-    height: 8px;
-    background: var(--bg-gray);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 8px;
-}
-
-.oc .progress-fill {
-    height: 100%;
-    background: var(--primary-color);
-    border-radius: 4px;
-    transition: width 0.3s ease;
-    width: 0%;
-}
-
-.oc .progress-text {
-    font-size: 12px;
-    color: var(--text-secondary);
-    text-align: center;
-}
-
-.oc .config-upload-buttons .btn {
-    padding: 8px 16px;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.oc .cancel-btn {
-    background: var(--bg-white);
-    color: var(--text-secondary);
-}
-
-.oc .cancel-btn:hover {
-    background: var(--hover-bg);
-    color: var(--text-primary);
-}
-
-.oc .upload-btn {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-}
-
-.oc .upload-btn:hover:not(:disabled) {
-    background: var(--primary-color);
-    opacity: 0.9;
-}
-
-.oc .upload-btn:disabled {
-    background: var(--bg-gray);
-    color: var(--text-secondary);
-    border-color: var(--border-light);
-    cursor: not-allowed;
-}
-
-.oc .advanced-options-container {
-    padding: 16px;
-    background: var(--bg-light);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-light);
-    transition: all var(--transition-fast);
-}
-
-.oc .advanced-options-container .form-group:last-child {
-    margin-bottom: 0;
-}
-
-.oc .advanced-options-container .sub-convert-options {
-    margin: 12px auto;
-    margin-left: 0;
-    background: rgba(59, 130, 246, 0.03);
-    border-color: rgba(59, 130, 246, 0.2);
-    max-width: 100%;
-}
-
-.oc .sub-convert-options {
-    margin: 16px auto;
-    padding: 16px;
-    background: var(--bg-light);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-light);
-    max-width: 95%;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.oc[data-darkmode="true"] .config-upload-model {
-    background: var(--bg-white);
-    border-color: var(--border-light);
-}
-
-.oc[data-darkmode="true"] .config-upload-header,
-.oc[data-darkmode="true"] .config-upload-footer {
-    background: var(--bg-gray);
-    border-color: var(--border-light);
-}
-
-.oc[data-darkmode="true"] .mode-tab {
-    color: var(--text-secondary);
-}
-
-.oc[data-darkmode="true"] .mode-tab:hover {
-    color: var(--text-primary);
-    background: rgba(96, 165, 250, 0.1);
-}
-
-.oc[data-darkmode="true"] .mode-tab.active {
-    background: var(--primary-color);
-    color: white;
-}
-
-.oc[data-darkmode="true"] .upload-zone {
-    border-color: var(--border-color);
-    background: var(--bg-light);
-}
-
-.oc[data-darkmode="true"] .upload-zone:hover {
-    border-color: var(--primary-color);
-    background: rgba(96, 165, 250, 0.05);
-}
-
-.oc[data-darkmode="true"] .upload-zone.dragover {
-    border-color: var(--primary-color);
-    background: rgba(96, 165, 250, 0.1);
-}
-
-.oc[data-darkmode="true"] .upload-zone.has-file {
-    border-color: var(--success-color);
-    background: rgba(52, 211, 153, 0.05);
-}
-
-.oc[data-darkmode="true"] .upload-zone.has-file .upload-icon {
-    color: var(--success-color);
-}
-
-.oc[data-darkmode="true"] .form-input,
-.oc[data-darkmode="true"] .form-select,
-.oc[data-darkmode="true"] .filename-input-container input {
-    background: var(--bg-white);
-    border-color: var(--border-light);
-    color: var(--text-primary);
-    background-color: var(--bg-gray) !important;
-}
-
-.oc[data-darkmode="true"] .form-input:focus,
-.oc[data-darkmode="true"] .form-select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
-}
-
-.oc[data-darkmode="true"] .form-input::placeholder {
-    color: var(--text-secondary);
-}
-
-.oc[data-darkmode="true"] .form-textarea {
-    background: var(--bg-gray);
-    border-color: var(--border-light);
-    color: var(--text-primary);
-}
-
-.oc[data-darkmode="true"] .form-textarea:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
-}
-
-.oc[data-darkmode="true"] .checkmark {
-    border-color: var(--border-light);
-    background: var(--bg-gray);
-}
-
-.oc[data-darkmode="true"] .progress-bar {
-    background: var(--bg-gray);
-}
-
-.oc[data-darkmode="true"] .progress-fill {
-    background: var(--primary-color);
-}
-
-.oc[data-darkmode="true"] .cancel-btn {
-    background: var(--bg-white);
-    color: var(--text-secondary);
-    border-color: var(--border-light);
-}
-
-.oc[data-darkmode="true"] .cancel-btn:hover {
-    background: var(--hover-bg);
-    color: var(--text-primary);
-}
-
-.oc[data-darkmode="true"] .upload-btn {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.oc[data-darkmode="true"] .upload-btn:disabled {
-    background: var(--bg-gray);
-    color: var(--text-secondary);
-    border-color: var(--border-light);
-}
-
-.oc[data-darkmode="true"] .sub-convert-options {
-    background: rgba(96, 165, 250, 0.05);
-    border-color: var(--border-light);
-}
-
-.oc[data-darkmode="true"] .advanced-options-container {
-    background: rgba(96, 165, 250, 0.05);
-    border-color: var(--border-light);
-}
-
-.oc[data-darkmode="true"] .advanced-options-container .sub-convert-options {
-    background: rgba(96, 165, 250, 0.08);
-    border-color: var(--border-light);
-}
-
-.oc[data-darkmode="true"] .form-help::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d0cfcf' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpath d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'%3E%3C/path%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'%3E%3C/line%3E%3C/svg%3E");
-    opacity: 0.6;
-}
-
-@media screen and (max-width: 768px) {
-    .oc .form-help {
-        font-size: 11px;
-        margin-bottom: 10px;
-        gap: 5px;
-    }
-
-    .oc .form-help::before {
-        width: 11px;
-        height: 11px;
-        margin-top: 1px;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpath d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'%3E%3C/path%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'%3E%3C/line%3E%3C/svg%3E");
-    }
-
-    .oc[data-darkmode="true"] .form-help::before {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23d0cfcf' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpath d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'%3E%3C/path%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'%3E%3C/line%3E%3C/svg%3E");
-    }
-
-    .oc .sub-convert-options {
-        margin: 12px auto;
-        padding: 12px;
-        max-width: 98%;
-    }
-}
-
-@media screen and (max-width: 575px) {
-    .oc .form-help {
-        font-size: 10px;
-        margin-bottom: 8px;
-        gap: 4px;
-    }
-
-    .oc .form-help::before {
-        width: 10px;
-        height: 10px;
-        margin-top: 1px;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpath d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'%3E%3C/path%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'%3E%3C/line%3E%3C/svg%3E");
-    }
-
-    .oc[data-darkmode="true"] .form-help::before {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23d0cfcf' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpath d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'%3E%3C/path%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'%3E%3C/line%3E%3C/svg%3E");
-    }
-
-    .oc .sub-convert-options {
-        margin: 10px auto;
-        padding: 10px;
-        max-width: 100%;
-    }
-}
-
-@media screen and (max-width: 500px) {
-    .oc .config-upload-model {
-        width: 95vw;
-        min-width: 320px;
-    }
-
-    .oc .config-upload-content {
-        padding: 20px;
-    }
-
-    .oc .upload-zone {
-        padding: 30px 15px;
-    }
-
-    .oc .mode-tab {
-        padding: 10px 12px;
-        font-size: 13px;
-    }
-
-    .oc .mode-tab svg {
-        width: 14px;
-        height: 14px;
-    }
-}
-</style>
-
 <div class="oc">
+    <link rel="stylesheet" href="/luci-static/resources/openclash/css/oc-common.css?v=@OPENCLASH_VERSION@">
+    <link rel="stylesheet" href="/luci-static/resources/openclash/css/oc-upload.css?v=@OPENCLASH_VERSION@">
     <div class="config-upload-model-overlay" id="config-upload-overlay">
-        <div class="config-upload-model" id="config-upload-model">
+        <div class="config-upload-model" id="config-upload-model" role="dialog" aria-modal="true" aria-labelledby="config-upload-title">
             <div class="config-upload-header">
                 <div class="config-upload-title" id="config-upload-title">
                     <span><%:Add Config File%></span>
                 </div>
                 <div class="config-upload-actions">
                     <button type="button" class="icon-btn" id="config-upload-close" title="<%:Close%>">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
+                        <svg width="14" height="14"><use href="#oc-icon-close"/></svg>
                     </button>
                 </div>
             </div>
-            <div class="config-upload-content">
+            <div class="config-upload-content" id="sub-form-content">
                 <div class="upload-mode-selector">
                     <div class="mode-tabs">
                         <button type="button" class="mode-tab active" id="upload-mode-file" data-mode="file">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17,11 12,6 7,11"></polyline>
-                                <line x1="12" y1="18" x2="12" y2="6"></line>
-                            </svg>
+                            <svg width="16" height="16"><use href="#oc-icon-upload"/></svg>
                             <%:Upload File%>
                         </button>
                         <button type="button" class="mode-tab" id="upload-mode-subscribe" data-mode="subscribe">
-                            <svg width="15" height="15" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M26.2401 16.373L17.1001 7.23303C14.4388 4.57168 10.0653 4.6303 7.33158 7.36397C4.59791 10.0976 4.53929 14.4712 7.20064 17.1325L15.1359 25.0678" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
-                                <path d="M32.9027 23.0031L40.838 30.9384C43.4994 33.5998 43.4407 37.9733 40.7071 40.707C37.9734 43.4407 33.5999 43.4993 30.9385 40.8379L21.7985 31.6979" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
-                                <path d="M26.1093 26.1416C28.843 23.4079 28.9016 19.0344 26.2403 16.373" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
-                                <path d="M21.7989 21.7984C19.0652 24.5321 19.0066 28.9056 21.6679 31.5669" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
+                            <svg width="15" height="15"><use href="#oc-icon-link"/></svg>
                             <%:Subscribe Link%>
                         </button>
                     </div>
@@ -726,84 +30,93 @@
                 <div class="upload-mode-content" id="mode-file-content">
                     <div class="upload-zone" id="upload-zone">
                         <div class="upload-icon">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17,11 12,6 7,11"></polyline>
-                                <line x1="12" y1="18" x2="12" y2="6"></line>
-                            </svg>
+                            <svg width="48" height="48"><use href="#oc-icon-upload"/></svg>
                         </div>
                         <div class="upload-text">
                             <div class="upload-primary"><%:Click to select file or drag and drop%></div>
-                            <div class="upload-secondary"><%:Support YAML file, max size 10MB%></div>
+                            <div class="upload-secondary"><%:Support YAML file%></div>
                         </div>
-                        <input type="file" id="config-file-input" accept=".yaml,.yml" style="display: none;">
+                        <input type="file" id="config-file-input" accept=".yaml,.yml" class="oc-hidden">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="advanced-options-enable-file" class="advanced-options-enable">
+                            <span class="checkmark"></span>
+                            <%:Advanced Options%>
+                        </label>
+                        <div class="form-help"><%:Show more upload options%></div>
+                    </div>
+
+                    <div class="advanced-options-container oc-hidden" id="advanced-options-container-file">
                     </div>
                 </div>
 
-                <div class="upload-mode-content" id="mode-subscribe-content" style="display: none;">
+                <div class="upload-mode-content oc-hidden" id="mode-subscribe-content">
                     <div class="subscribe-form">
                         <div class="form-group">
-                            <label for="subscribe-url-input"><%:Subscription URL%>:</label>
+                            <label for="subscribe-url-input"><%:Subscription URL%>:<span class="guide-tag req"><%:Required%></span></label>
                             <textarea id="subscribe-url-input" placeholder="<%:Enter subscription URL or multiple links (one per line)%>" class="form-textarea" rows="4"></textarea>
+                            <div class="form-error oc-hidden" id="subscribe-url-error"></div>
                             <div class="form-help"><%:URI and subscription address is supported when online subscription conversion enabled, multiple links should be one per line or separated by%> |</div>
                         </div>
 
                         <div class="form-group">
-                            <label for="subscribe-ua-input"><%:User-Agent%> (<%:Optional%>):</label>
+                            <label for="subscribe-ua-input"><%:User-Agent%>:<span class="guide-tag opt"><%:Optional%></span></label>
                             <div class="form-select-wrapper">
                                 <select id="subscribe-ua-input" class="form-select">
-                                    <option value="clash.meta">clash.meta</option>
-                                    <option value="clash-verge/v1.5.1">clash-verge/v1.5.1</option>
+                                    <option value="clash-verge/v2.4.5">clash-verge/v2.4.5</option>
+                                    <option value="clash.meta/1.19.20">clash.meta/1.19.20</option>
                                     <option value="Clash">clash</option>
                                     <option value="custom"><%:Custom%></option>
                                 </select>
                             </div>
-                            <input type="text" id="subscribe-ua-custom" placeholder="<%:Enter custom User-Agent%>" class="form-input" style="display: none; margin-top: 8px;" />
+                            <input type="text" id="subscribe-ua-custom" placeholder="<%:Enter custom User-Agent%>" class="form-input oc-hidden" style="margin-top: 8px;" />
                         </div>
 
                         <div class="form-group">
                             <label class="form-checkbox">
-                                <input type="checkbox" id="advanced-options-enable">
+                                <input type="checkbox" id="sub-convert-enable">
                                 <span class="checkmark"></span>
-                                <%:Advanced Options%>
+                                <%:Subscribe Convert Online%>
                             </label>
-                            <div class="form-help"><%:Show more subscription options%></div>
+                            <div class="oc-fold-sum" id="sum-convert"></div>
                         </div>
 
-                        <div class="advanced-options-container" id="advanced-options-container" style="display: none;">
-                            <div class="form-group">
-                                <label class="form-checkbox">
-                                    <input type="checkbox" id="sub-convert-enable">
-                                    <span class="checkmark"></span>
-                                    <%:Subscribe Convert Online%>
-                                </label>
-                                <div class="form-help"><%:Convert Subscribe Online With Template%></div>
-                            </div>
-
-                            <div class="sub-convert-options" id="sub-convert-options" style="display: none;">
+                        <div class="sub-convert-options oc-hidden" id="sub-convert-options">
+                            <div class="sub-convert-options">
                                 <div class="form-group">
                                     <label for="convert-address-input"><%:Convert Address%>:</label>
                                     <div class="form-select-wrapper">
                                         <select id="convert-address-input" class="form-select">
-                                            <option value="https://api.wcc.best/sub">api.wcc.best</option>
                                             <option value="https://api.asailor.org/sub">api.asailor.org</option>
+                                            <option value="https://api.wcc.best/sub">api.wcc.best</option>
                                             <option value="custom"><%:Custom%></option>
                                         </select>
                                     </div>
-                                    <input type="text" id="convert-address-custom" placeholder="<%:Enter custom convert address%>" class="form-input" style="display: none; margin-top: 8px;" />
-                                    <div class="form-help"><%:Note: There is A Risk of Privacy Leakage in Online Convert%></div>
+                                    <input type="text" id="convert-address-custom" placeholder="<%:Enter custom convert address%>" class="form-input oc-hidden" style="margin-top: 8px;" />
+                                    <div id="subconverter-version-status-upload" class="subconverter-version-status" data-state="idle" hidden>
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M5 14h14a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2Z"/><path d="M7 7h.01M7 17h.01"/></svg>
+                                        <span class="subconverter-version-label"></span>
+                                        <span class="subconverter-version-text"></span>
+                                    </div>
+                                    <div class="oc-warn-strip">
+                                        <svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 3 2 20h20ZM12 10v4m0 3h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        <span><%:Note: There is A Risk of Privacy Leakage in Online Convert%></span>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="template-select"><%:Template Name%>:</label>
-                                    <div class="form-select-wrapper">
-                                        <select id="template-select" class="form-select">
+                                    <div class="oc-tpl-select-row">
+                                        <div class="form-select-wrapper">
+                                            <select id="template-select" class="form-select">
                                             <%
                                             local file = io.open("/usr/share/openclash/res/sub_ini.list", "r")
                                             if file then
                                                 for line in file:lines() do
-                                                    if line ~= "" and line ~= nil then
-                                                        local template_name = string.sub(luci.sys.exec(string.format("echo '%s' |awk -F ',' '{print $1}' 2>/dev/null", line)), 1, -2)
+                                                    if line ~= "" then
+                                                        local template_name = line:match("^([^,]*)")
                                                         if template_name and template_name ~= "" then
                                             %>
                                             <option value="<%=template_name%>"><%=template_name%></option>
@@ -819,13 +132,17 @@
                                             %>
                                         </select>
                                     </div>
+                                    <button type="button" class="oc-tpl-open" id="template-preview-btn" title="<%:Preview%>"><svg width="13" height="13"><use href="#oc-icon-eye"/></svg><span><%:Preview%></span></button>
+                                    </div>
                                 </div>
 
-                                <div class="form-group" id="custom-template-group" style="display: none;">
+                                <div class="form-group oc-hidden" id="custom-template-group">
                                     <label for="custom-template-input"><%:Custom Template URL%>:</label>
                                     <input type="text" id="custom-template-input" placeholder="<%:Enter custom template URL%>" class="form-input" />
                                 </div>
+                            </div>
 
+                            <div class="sub-convert-options">
                                 <div class="form-row">
                                     <div class="form-group form-half">
                                         <label class="form-checkbox">
@@ -846,7 +163,7 @@
                                 <div class="form-row">
                                     <div class="form-group form-half">
                                         <label class="form-checkbox">
-                                            <input type="checkbox" id="skip-cert-verify">
+                                            <input type="checkbox" id="skip-cert-verify" checked>
                                             <span class="checkmark"></span>
                                             <%:skip-cert-verify%>
                                         </label>
@@ -877,94 +194,290 @@
                                     </div>
                                 </div>
 
+                                <div class="form-row">
+                                    <div class="form-group form-half">
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" id="tfo-enable">
+                                            <span class="checkmark"></span>
+                                            <%:TFO Enable%>
+                                        </label>
+                                    </div>
+                                    <div class="form-group form-half">
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" id="tls13-enable">
+                                            <span class="checkmark"></span>
+                                            <%:TLS 1.3%>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sub-convert-options">
                                 <div class="form-group">
                                     <label for="custom-params-input"><%:Custom Params%>:</label>
                                     <textarea id="custom-params-input" placeholder="<%:eg: rename=match@replace, one param per line%>" class="form-textarea" rows="3"></textarea>
-                                    <div class="form-help"><%:eg: "rename=match@replace" , "rename=\\s+([2-9])[xX]@ (HIGH:$1)"%></div>
+                                    <div class="form-help"><%:eg: "rename=match@replace" , "rename=\s+([2-9])[xX]@ (HIGH:$1)"%></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-checkbox">
+                                <input type="checkbox" id="keyword-options-enable">
+                                <span class="checkmark"></span>
+                                <%:Node Filtering%>
+                            </label>
+                            <div class="oc-fold-sum" id="sum-filter"></div>
+                        </div>
+
+                        <div class="advanced-options-container oc-hidden" id="keyword-options-container">
+                            <div class="sub-convert-options">
+                                <div class="form-group">
+                                    <label for="keyword-input"><%:Keyword Match%>:<span class="guide-tag opt"><%:Optional%></span></label>
+                                    <textarea id="keyword-input" placeholder="<%:Enter keywords to include nodes (one per line)%>" class="form-textarea" rows="2"></textarea>
+                                    <div class="form-help"><%:eg: hk or tw&bgp%></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="exclude-keyword-input"><%:Exclude Keyword Match%>:<span class="guide-tag opt"><%:Optional%></span></label>
+                                    <textarea id="exclude-keyword-input" placeholder="<%:Enter keywords to exclude nodes (one per line)%>" class="form-textarea" rows="2"></textarea>
+                                    <div class="form-help"><%:eg: hk or tw&bgp%></div>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="keyword-input"><%:Keyword Match%> (<%:Optional%>):</label>
-                                <textarea id="keyword-input" placeholder="<%:Enter keywords to include nodes (one per line)%>" class="form-textarea" rows="2"></textarea>
-                                <div class="form-help"><%:eg: hk or tw&bgp%></div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="exclude-keyword-input"><%:Exclude Keyword Match%> (<%:Optional%>):</label>
-                                <textarea id="exclude-keyword-input" placeholder="<%:Enter keywords to exclude nodes (one per line)%>" class="form-textarea" rows="2"></textarea>
-                                <div class="form-help"><%:eg: hk or tw&bgp%></div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="exclude-default-select"><%:Exclude Keyword Match Default%>:</label>
-                                <div class="form-checkbox-group">
-                                    <label class="form-checkbox">
-                                        <input type="checkbox" id="exclude-expire" value="<%:Expire%>">
-                                        <span class="checkmark"></span>
-                                        <%:Expire%>
-                                    </label>
-                                    <label class="form-checkbox">
-                                        <input type="checkbox" id="exclude-traffic" value="<%:Traffic%>">
-                                        <span class="checkmark"></span>
-                                        <%:Traffic%>
-                                    </label>
-                                    <label class="form-checkbox">
-                                        <input type="checkbox" id="exclude-plan" value="<%:Plan%>">
-                                        <span class="checkmark"></span>
-                                        <%:Plan%>
-                                    </label>
-                                    <label class="form-checkbox">
-                                        <input type="checkbox" id="exclude-website" value="<%:Official%>">
-                                        <span class="checkmark"></span>
-                                        <%:Official%>
-                                    </label>
+                            <div class="sub-convert-options">
+                                <div class="form-group">
+                                    <label for="exclude-default-select"><%:Exclude Keyword Match Default%>:</label>
+                                    <div class="form-checkbox-group">
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" id="exclude-expire" value="<%:Expire%>">
+                                            <span class="checkmark"></span>
+                                            <%:Expire%>
+                                        </label>
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" id="exclude-traffic" value="<%:Traffic%>">
+                                            <span class="checkmark"></span>
+                                            <%:Traffic%>
+                                        </label>
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" id="exclude-plan" value="<%:Plan%>">
+                                            <span class="checkmark"></span>
+                                            <%:Plan%>
+                                        </label>
+                                        <label class="form-checkbox">
+                                            <input type="checkbox" id="exclude-website" value="<%:Official%>">
+                                            <span class="checkmark"></span>
+                                            <%:Official%>
+                                        </label>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-checkbox">
+                                <input type="checkbox" id="advanced-options-enable">
+                                <span class="checkmark"></span>
+                                <%:Advanced Subscription Options%>
+                            </label>
+                            <div class="oc-fold-sum" id="sum-advanced"></div>
+                        </div>
+
+                        <div class="advanced-options-container oc-hidden" id="advanced-options-container">
+                            <div class="sub-convert-options">
+                                <div class="form-group">
+                                    <label><%:Custom Headers%>:<span class="guide-tag opt"><%:Optional%></span></label>
+                                    <div class="form-help" style="margin-bottom:0;"><%:Add custom HTTP headers to the subscription request%></div>
+                                    <div id="subscribe-headers-container" class="oc-hidden"></div>
+                                    <button type="button" id="subscribe-headers-add" class="add-row-btn"><svg><use href="#oc-icon-add"/></svg><span><%:Add Header%></span></button>
+                                </div>
+                            </div>
+
+                            <div class="form-group sub-convert-options" id="age-encryption-group">
+                                <div class="form-group">
+                                    <label style="display:block;margin-bottom:6px;"><%:Age Key Type%></label>
+                                    <div class="oc-flex-center">
+                                        <div class="oc-flex-1">
+                                            <div class="form-select-wrapper">
+                                                <select id="age-algo-select" class="form-select">
+                                                    <option value="keygen">x25519</option>
+                                                    <option value="pq">PQ (mlkem768-x25519)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button type="button" id="age-generate-btn" class="icon-btn oc-ml-2" title="<%:Generate Age Key%>">
+                                            <svg width="16" height="16"><use href="#oc-icon-key"/></svg>
+                                        </button>
+                                    </div>
+                                    <div class="form-help"><%:Age Encryption For Config, Click For More:%> <a href="javascript:void(0);" onclick="window.open('https://wiki.metacubex.one/config/proxy-providers/?age-secret-key#age-secret-key', '_blank');" class="help-link"> <%:Age Encryption Introduce%></a></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="age-secret-input"><%:Secret Key%>:</label>
+                                    <div class="oc-flex-center">
+                                        <input type="text" id="age-secret-input" class="form-input oc-flex-1" />
+                                        <button type="button" id="age-copy-secret" class="icon-btn oc-ml-2" title="<%:Copy%>">
+                                            <svg width="24" height="24"><use href="#oc-icon-copy-bold"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="age-public-input"><%:Public Key%>:</label>
+                                    <div class="oc-flex-center">
+                                        <input type="text" id="age-public-input" class="form-input oc-flex-1" />
+                                        <button type="button" id="age-copy-public" class="icon-btn oc-ml-2" title="<%:Copy%>">
+                                            <svg width="24" height="24"><use href="#oc-icon-copy-bold"/></svg>
+                                        </button>
+                                        <button type="button" id="age-calculate-public" class="icon-btn" style="margin-left:8px;" title="<%:Calculate Public Key%>">
+                                            <svg width="16" height="16"><use href="#oc-icon-calculator"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-error oc-hidden" id="age-key-error"></div>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <div class="filename-input-container">
-                    <label for="config-filename-input"><%:Config Name%>:</label>
+                    <label for="config-filename-input"><%:Config Name%>:<span class="guide-tag req"><%:Required%></span></label>
                     <input type="text" id="config-filename-input" placeholder="<%:Enter config name (without extension)%>" class="form-input"/>
                     <div class="filename-extension">.yaml</div>
                 </div>
+                <div class="form-error oc-hidden" id="config-filename-error"></div>
 
-                <div class="upload-progress" id="upload-progress" style="display: none;">
+                <div class="upload-progress oc-hidden" id="upload-progress">
                     <div class="progress-bar">
                         <div class="progress-fill" id="upload-progress-fill"></div>
                     </div>
                     <div class="progress-text" id="upload-progress-text"><%:Processing...%> 0%</div>
                 </div>
             </div>
-            <div class="config-upload-footer">
+            <div class="config-upload-footer" id="sub-form-footer">
                 <div class="config-upload-status">
-                    <span id="config-upload-status-text"><%:Ready to add config%></span>
+                    <span id="config-upload-status-text" aria-live="polite"><%:Ready to add config%></span>
                 </div>
                 <div class="config-upload-buttons">
                     <button type="button" class="btn cancel-btn" id="config-upload-cancel"><%:Cancel%></button>
                     <button type="button" class="btn upload-btn" id="config-upload-submit" disabled><%:Add Config%></button>
                 </div>
             </div>
+            <div class="config-upload-content oc-hidden" id="sub-view-progress">
+                <div class="oc-sub-stepper" id="sub-stepper">
+                    <div class="oc-sub-step active"><i><span class="loading-spinner"></span></i><span><%:Subscribe%></span></div>
+                    <div class="oc-sub-step"><i>2</i><span><%:File download%></span></div>
+                    <div class="oc-sub-step"><i>3</i><span><%:File verification%></span></div>
+                    <div class="oc-sub-step"><i>4</i><span><%:Apply config%></span></div>
+                </div>
+                <div class="oc-sub-console">
+                    <div class="oc-sub-console-h"><span><%:Log%></span><span class="oc-sub-live"><i></i>LIVE</span></div>
+                    <div class="oc-sub-console-b" id="sub-log-host"></div>
+                </div>
+                <div class="oc-sub-note oc-sub-note-error oc-hidden" id="sub-error-note">
+                    <span id="sub-error-text"></span>
+                    <span class="oc-sub-note-actions">
+                        <button type="button" class="btn" id="sub-retry-btn"><%:Retry%></button>
+                        <button type="button" class="btn" id="sub-retry-plain-btn"><%:Retry without convert%></button>
+                    </span>
+                </div>
+                <div class="oc-sub-elapsed">
+                    <span><%:Elapsed%> <b id="sub-elapsed">00:00</b></span>
+                    <button type="button" class="oc-sub-help-btn" id="sub-help-btn"><%:Problem?%></button>
+                </div>
+            </div>
+            <div class="config-upload-footer oc-hidden" id="sub-progress-footer">
+                <div class="config-upload-status"><span id="sub-progress-status"><%:Running, cannot cancel%></span></div>
+                <div class="config-upload-buttons">
+                    <button type="button" class="btn cancel-btn" id="sub-progress-cancel" disabled><%:Cancel%></button>
+                    <button type="button" class="btn upload-btn" id="sub-progress-primary" disabled><span class="loading-spinner"></span><%:Processing...%></button>
+                </div>
+            </div>
+            <div class="config-upload-content oc-hidden" id="sub-view-result">
+                <div class="oc-sub-bar-top">
+                    <b id="sub-result-name"></b>
+                    <span class="oc-tpl-cache" id="sub-result-updated"></span>
+                </div>
+                <div class="oc-sub-chips" id="sub-result-chips"></div>
+                <div class="oc-sub-stats" id="sub-result-stats"></div>
+                <div class="oc-sub-note oc-sub-note-info oc-hidden" id="sub-provider-note"></div>
+                <div class="oc-sub-note oc-sub-note-warn oc-hidden" id="sub-age-note"></div>
+                <div class="oc-sub-box oc-hidden" id="sub-info-box">
+                    <div class="oc-sub-sec" id="sub-info-title"><%:Subscription Info%></div>
+                    <div class="oc-sub-subinfo-list" id="sub-subinfo"></div>
+                </div>
+                <div class="oc-charts-grid oc-hidden" id="sub-charts-slot"></div>
+                <div class="oc-sub-box" id="sub-groups-box">
+                    <div class="oc-sub-sec" id="sub-groups-title"><%:Strategy Groups%></div>
+                    <div class="oc-tpl-tabs" id="sub-struct-tabs">
+                        <button type="button" class="oc-tpl-tab active" data-tab="groups"><%:Group Structure%></button>
+                        <button type="button" class="oc-tpl-tab" data-tab="rules"><%:Rule Flow%></button>
+                    </div>
+                    <div class="oc-tpl-pane" id="sub-pane-groups"></div>
+                    <div class="oc-tpl-pane oc-hidden" id="sub-pane-rules"></div>
+                </div>
+                <div class="oc-sub-note oc-sub-note-ok oc-hidden" id="sub-check-note"><span>✓</span><span><%:Config check passed%></span></div>
+            </div>
+            <div class="config-upload-footer oc-hidden" id="sub-result-footer">
+                <div class="config-upload-status"><span id="sub-result-status"><%:Config saved%></span></div>
+                <div class="config-upload-buttons">
+                    <button type="button" class="btn cancel-btn" id="sub-refresh-btn"><%:Refresh%></button>
+                    <button type="button" class="btn upload-btn" id="sub-switch-btn"><%:Switch and enable%></button>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="config-upload-model-overlay" id="subscription-url-overlay" style="display: none;">
-        <div class="config-upload-model" id="subscription-url-model">
+    <div class="config-upload-model-overlay" id="core-start-overlay">
+        <div class="config-upload-model" id="core-start-model" role="dialog" aria-modal="true">
+            <div class="config-upload-header">
+                <div class="config-upload-title" id="core-start-title"><%:Program starting...%></div>
+                <button type="button" class="icon-btn" id="core-start-close">
+                    <svg width="14" height="14"><use href="#oc-icon-close"/></svg>
+                </button>
+            </div>
+            <div class="config-upload-content" id="core-start-content">
+                <div class="oc-sub-stepper" id="sw-stepper">
+                    <div class="oc-sub-step active"><i><span class="loading-spinner"></span></i><span><%:Executing%></span></div>
+                    <div class="oc-sub-step"><i>2</i><span><%:Core startup%></span></div>
+                    <div class="oc-sub-step"><i>3</i><span><%:Remaining setup%></span></div>
+                    <div class="oc-sub-step"><i>4</i><span><%:Start complete%></span></div>
+                </div>
+                <div class="oc-sub-console">
+                    <div class="oc-sub-console-h"><span><%:Log%></span><span class="oc-sub-live"><i></i>LIVE</span></div>
+                    <div class="oc-sub-console-b" id="sw-log-host"></div>
+                </div>
+                <div class="oc-sub-note oc-sub-note-error oc-hidden" id="sw-error-note">
+                    <span id="sw-error-text"></span>
+                </div>
+                <div class="oc-sub-elapsed">
+                    <span><%:Elapsed%> <b id="sw-elapsed">00:00</b></span>
+                    <button type="button" class="oc-sub-help-btn" id="sw-help-btn"><%:Problem?%></button>
+                </div>
+            </div>
+            <div class="config-upload-footer" id="core-start-footer">
+                <div class="config-upload-status"><span id="sw-status"></span></div>
+                <div class="config-upload-buttons">
+                    <button type="button" class="btn upload-btn oc-hidden" id="sw-retry-btn"><%:Retry%></button>
+                    <button type="button" class="btn cancel-btn" id="sw-close-btn"><%:Close%></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="config-upload-model-overlay" id="subscription-url-overlay">
+        <div class="config-upload-model" id="subscription-url-model" role="dialog" aria-modal="true">
             <div class="config-upload-header">
                 <div class="config-upload-title"><%:Set Subscription Info URL%></div>
                 <button type="button" class="icon-btn" onclick="SubscriptionUrlSetter.hide()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    <svg width="14" height="14"><use href="#oc-icon-close"/></svg>
                 </button>
             </div>
             <div class="config-upload-content">
                 <div class="form-group">
-                    <label><%:Paste the new url of subscribe infos sources here:%></label>
+                    <label class="highlight-label"><%:Paste the new url of subscribe infos sources here:%></label>
                     <textarea id="subscription-url-textarea" class="form-textarea" placeholder="<%:Enter URLs, one per line, use #name=example end for specifing display name%> (https://example.com#name=example)" rows="5"></textarea>
                 </div>
             </div>
             <div class="config-upload-footer">
-                <div class="config-upload-status"></div>
+                <div class="config-upload-status" id="subscription-url-status" aria-live="polite"></div>
                 <div class="config-upload-buttons">
                     <button type="button" class="btn cancel-btn" onclick="SubscriptionUrlSetter.hide()"><%:Cancel%></button>
                     <button type="button" class="btn upload-btn" onclick="SubscriptionUrlSetter.submit()"><%:Submit%></button>
@@ -972,765 +485,46 @@
             </div>
         </div>
     </div>
+    <div class="config-upload-model-overlay" id="template-preview-overlay">
+        <div class="config-upload-model summary-wide" id="template-preview-model" role="dialog" aria-modal="true">
+            <div class="config-upload-header">
+                <div class="config-upload-title"><%:Convert Template Preview%></div>
+                <button type="button" class="icon-btn" id="template-preview-close">
+                    <svg width="14" height="14"><use href="#oc-icon-close"/></svg>
+                </button>
+            </div>
+            <div class="config-upload-content">
+                <div class="oc-sub-bar-top">
+                    <b id="tpl-name"></b>
+                    <span class="oc-tpl-cache" id="tpl-cache"></span>
+                </div>
+                <div class="oc-sub-chips">
+                    <a id="tpl-source" href="javascript:void(0)" target="_blank" rel="noopener" class="oc-sub-chip oc-tpl-source-chip"></a>
+                </div>
+                <div class="oc-sub-stats" id="tpl-stats"></div>
+                <div class="oc-charts-grid oc-hidden" id="tpl-charts"></div>
+                <div class="oc-sub-box">
+                    <div class="oc-sub-sec"><%:Template structure%></div>
+                    <div class="oc-tpl-tabs" id="tpl-tabs">
+                        <button type="button" class="oc-tpl-tab active" data-tab="groups"><%:Group Structure%></button>
+                        <button type="button" class="oc-tpl-tab" data-tab="rules"><%:Rule Flow%></button>
+                        <button type="button" class="oc-tpl-tab" data-tab="extra"><%:Extra Settings%></button>
+                    </div>
+                    <div class="oc-tpl-pane" id="tpl-pane-groups"></div>
+                    <div class="oc-tpl-pane oc-hidden" id="tpl-pane-rules"></div>
+                    <div class="oc-tpl-pane oc-hidden" id="tpl-pane-extra"></div>
+                </div>
+                <div class="oc-sub-note oc-sub-note-error oc-hidden" id="tpl-error"><span id="tpl-error-text"></span></div>
+            </div>
+            <div class="config-upload-footer">
+                <div class="config-upload-status"><span id="tpl-status"><%:Template parsed%></span></div>
+                <div class="config-upload-buttons">
+                    <button type="button" class="btn cancel-btn" id="tpl-refresh-btn"><%:Refresh%></button>
+                    <button type="button" class="btn upload-btn" id="tpl-close-btn"><%:Close%></button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<script type="text/javascript">
-var ConfigUploader = {
-    overlay: null,
-    model: null,
-    selectedFile: null,
-    isProcessing: false,
-    currentMode: 'file',
-
-    init: function() {
-        this.overlay = document.getElementById('config-upload-overlay');
-        this.model = document.getElementById('config-upload-model');
-
-        if (!this.overlay || !this.model) {
-            return;
-        }
-
-        this.bindEvents();
-    },
-
-    bindEvents: function() {
-        var self = this;
-        var uploadZone = document.getElementById('upload-zone');
-        var fileInput = document.getElementById('config-file-input');
-
-        document.getElementById('upload-mode-file').addEventListener('click', function() {
-            self.switchMode('file');
-        });
-
-        document.getElementById('upload-mode-subscribe').addEventListener('click', function() {
-            self.switchMode('subscribe');
-        });
-
-        uploadZone.addEventListener('click', function() {
-            if (!self.isProcessing && self.currentMode === 'file') {
-                fileInput.click();
-            }
-        });
-
-        fileInput.addEventListener('change', function(e) {
-            if (e.target.files.length > 0) {
-                self.handleFileSelect(e.target.files[0]);
-            }
-        });
-
-        uploadZone.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            if (!self.isProcessing && self.currentMode === 'file') {
-                uploadZone.classList.add('dragover');
-            }
-        });
-
-        uploadZone.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-        });
-
-        uploadZone.addEventListener('drop', function(e) {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-
-            if (!self.isProcessing && self.currentMode === 'file' && e.dataTransfer.files.length > 0) {
-                self.handleFileSelect(e.dataTransfer.files[0]);
-            }
-        });
-
-        var subscribeUrlInput = document.getElementById('subscribe-url-input');
-        var filenameInput = document.getElementById('config-filename-input');
-        var subscribeUaSelect = document.getElementById('subscribe-ua-input');
-        var subscribeUaCustom = document.getElementById('subscribe-ua-custom');
-        var subConvertEnable = document.getElementById('sub-convert-enable');
-        var subConvertOptions = document.getElementById('sub-convert-options');
-        var convertAddressSelect = document.getElementById('convert-address-input');
-        var convertAddressCustom = document.getElementById('convert-address-custom');
-        var templateSelect = document.getElementById('template-select');
-        var customTemplateGroup = document.getElementById('custom-template-group');
-        var advancedOptionsEnable = document.getElementById('advanced-options-enable');
-        var advancedOptionsContainer = document.getElementById('advanced-options-container');
-
-        subscribeUrlInput.addEventListener('input', function() {
-            self.autoFillConfigName();
-            self.updateSubmitButton();
-        });
-
-        filenameInput.addEventListener('input', this.updateSubmitButton.bind(this));
-
-        subscribeUaSelect.addEventListener('change', function() {
-            if (this.value === 'custom') {
-                subscribeUaCustom.style.display = 'block';
-            } else {
-                subscribeUaCustom.style.display = 'none';
-            }
-        });
-
-        advancedOptionsEnable.addEventListener('change', function() {
-            if (this.checked) {
-                advancedOptionsContainer.style.display = 'block';
-            } else {
-                advancedOptionsContainer.style.display = 'none';
-                self.resetAdvancedOptions();
-            }
-        });
-
-        subConvertEnable.addEventListener('change', function() {
-            if (this.checked) {
-                subConvertOptions.style.display = 'block';
-            } else {
-                subConvertOptions.style.display = 'none';
-            }
-        });
-
-        convertAddressSelect.addEventListener('change', function() {
-            if (this.value === 'custom') {
-                convertAddressCustom.style.display = 'block';
-            } else {
-                convertAddressCustom.style.display = 'none';
-            }
-        });
-
-        templateSelect.addEventListener('change', function() {
-            if (this.value === '0') {
-                customTemplateGroup.style.display = 'block';
-            } else {
-                customTemplateGroup.style.display = 'none';
-            }
-        });
-
-        document.getElementById('config-upload-submit').addEventListener('click', function() {
-            if (self.currentMode === 'file') {
-                self.uploadFile();
-            } else {
-                self.processSubscription();
-            }
-        });
-
-        document.getElementById('config-upload-cancel').addEventListener('click', function() {
-            if (!self.isProcessing) {
-                self.hide();
-            }
-        });
-
-        document.getElementById('config-upload-close').addEventListener('click', function() {
-            if (!self.isProcessing) {
-                self.hide();
-            }
-        });
-
-        this.overlay.addEventListener('click', function(e) {
-            if (e.target === self.overlay && !self.isProcessing) {
-                self.hide();
-            }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && !self.isProcessing && self.overlay.classList.contains('show')) {
-                self.hide();
-            }
-        });
-    },
-
-    show: function() {
-        this.overlay.classList.add('show');
-        document.getElementById('config-upload-title').textContent = '<%:Add Config%>';
-        this.reset();
-    },
-
-    showEditSubscribe: function(subscribeData, filename) {
-        this.overlay.classList.add('show');
-        this.reset();
-        this.isEditMode = true;
-        this.editFilename = filename;
-        this.switchMode('subscribe');
-        document.getElementById('config-upload-title').textContent = '<%:Edit Subscription%>';
-        document.getElementById('config-upload-submit').textContent = '<%:Edit Config%>';
-        this.fillSubscribeForm(subscribeData);
-        this.updateSubmitButton();
-    },
-
-    hide: function() {
-        this.overlay.classList.remove('show');
-        this.reset();
-    },
-
-    resetAdvancedOptions: function() {
-        document.getElementById('sub-convert-enable').checked = false;
-        document.getElementById('sub-convert-options').style.display = 'none';
-        document.getElementById('convert-address-input').selectedIndex = 0;
-        document.getElementById('convert-address-custom').style.display = 'none';
-        document.getElementById('convert-address-custom').value = '';
-
-        var templateSelect = document.getElementById('template-select');
-        if (templateSelect && templateSelect.options.length > 1) {
-            templateSelect.selectedIndex = 0;
-        }
-
-        document.getElementById('custom-template-group').style.display = 'none';
-        document.getElementById('custom-template-input').value = '';
-
-        document.getElementById('emoji-enable').checked = false;
-        document.getElementById('udp-enable').checked = false;
-        document.getElementById('skip-cert-verify').checked = false;
-        document.getElementById('sort-enable').checked = false;
-        document.getElementById('node-type-enable').checked = false;
-        document.getElementById('rule-provider-enable').checked = false;
-        document.getElementById('custom-params-input').value = '';
-
-        document.getElementById('keyword-input').value = '';
-        document.getElementById('exclude-keyword-input').value = '';
-        document.getElementById('exclude-expire').checked = false;
-        document.getElementById('exclude-traffic').checked = false;
-        document.getElementById('exclude-plan').checked = false;
-        document.getElementById('exclude-website').checked = false;
-    },
-
-    reset: function() {
-        this.selectedFile = null;
-        this.isProcessing = false;
-        this.currentMode = 'file';
-        this.isEditMode = false;
-        this.editFilename = null;
-
-        this.switchMode('file');
-        document.getElementById('config-filename-input').value = '';
-        document.getElementById('subscribe-url-input').value = '';
-        document.getElementById('subscribe-ua-input').value = 'clash.meta';
-        document.getElementById('subscribe-ua-custom').style.display = 'none';
-
-        document.getElementById('advanced-options-enable').checked = false;
-        document.getElementById('advanced-options-container').style.display = 'none';
-        this.resetAdvancedOptions();
-
-        var templateSelect = document.getElementById('template-select');
-        if (templateSelect && templateSelect.options.length > 1) {
-            templateSelect.selectedIndex = 0;
-        }
-
-        document.getElementById('upload-progress').style.display = 'none';
-        document.getElementById('config-upload-status-text').textContent = '<%:Ready to add config%>';
-        document.getElementById('config-upload-submit').textContent = '<%:Add Config%>';
-        this.updateSubmitButton();
-    },
-
-    fillSubscribeForm: function(data) {
-        if (!data) return;
-
-        if (this.editFilename) {
-            document.getElementById('config-filename-input').value = this.editFilename;
-        }
-
-        if (data.address) {
-            document.getElementById('subscribe-url-input').value = data.address;
-        }
-        if (data.sub_ua) {
-            if (data.sub_ua === 'clash.meta' || data.sub_ua === 'clash-verge/v1.5.1' || data.sub_ua === 'Clash' || data.sub_ua === 'custom') {
-                document.getElementById('subscribe-ua-input').value = data.sub_ua;
-                if (data.sub_ua === 'custom') {
-                    document.getElementById('subscribe-ua-custom').style.display = 'block';
-                    document.getElementById('subscribe-ua-custom').value = data.sub_ua_custom || '';
-                }
-            } else {
-                document.getElementById('subscribe-ua-input').value = 'custom';
-                document.getElementById('subscribe-ua-custom').style.display = 'block';
-                document.getElementById('subscribe-ua-custom').value = data.sub_ua;
-            }
-        }
-
-        if (data.sub_convert === '1' || data.convert_address || data.template || data.emoji === 'true' || data.udp === 'true' || data.skip_cert_verify === 'true' || data.sort === 'true' || data.node_type === 'true' || data.rule_provider === 'true' || data.custom_params || data.keyword || data.ex_keyword || data.de_ex_keyword) {
-            document.getElementById('advanced-options-enable').checked = true;
-            document.getElementById('advanced-options-container').style.display = 'block';
-
-            if (data.sub_convert === '1') {
-                document.getElementById('sub-convert-enable').checked = true;
-                document.getElementById('sub-convert-options').style.display = 'block';
-
-                if (data.convert_address) {
-                    if (data.convert_address === 'https://api.wcc.best/sub' || data.convert_address === 'https://api.asailor.org/sub') {
-                        document.getElementById('convert-address-input').value = data.convert_address;
-                        if (data.convert_address === 'custom') {
-                            document.getElementById('convert-address-custom').style.display = 'block';
-                            document.getElementById('convert-address-custom').value = data.convert_address_custom || '';
-                        }
-                    } else {
-                        document.getElementById('convert-address-input').value = 'custom';
-                        document.getElementById('convert-address-custom').style.display = 'block';
-                        document.getElementById('convert-address-custom').value = data.convert_address;
-                    }
-                }
-
-                if (data.template) {
-                    var templateSelect = document.getElementById('template-select');
-                    var found = false;
-                    for (var i = 0; i < templateSelect.options.length; i++) {
-                        if (templateSelect.options[i].value === data.template) {
-                            templateSelect.selectedIndex = i;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found && data.template !== '0') {
-                        templateSelect.value = '0';
-                        document.getElementById('custom-template-group').style.display = 'block';
-                        document.getElementById('custom-template-input').value = data.template;
-                    } else if (data.template === '0') {
-                        templateSelect.value = '0';
-                        document.getElementById('custom-template-group').style.display = 'block';
-                        document.getElementById('custom-template-input').value = data.custom_template || '';
-                    }
-                }
-
-                document.getElementById('emoji-enable').checked = data.emoji === 'true';
-                document.getElementById('udp-enable').checked = data.udp === 'true';
-                document.getElementById('skip-cert-verify').checked = data.skip_cert_verify === 'true';
-                document.getElementById('sort-enable').checked = data.sort === 'true';
-                document.getElementById('node-type-enable').checked = data.node_type === 'true';
-                document.getElementById('rule-provider-enable').checked = data.rule_provider === 'true';
-
-                if (data.custom_params) {
-                    document.getElementById('custom-params-input').value = data.custom_params;
-                }
-            }
-
-            if (data.keyword) {
-                document.getElementById('keyword-input').value = data.keyword;
-            }
-            if (data.ex_keyword) {
-                document.getElementById('exclude-keyword-input').value = data.ex_keyword;
-            }
-            if (data.de_ex_keyword) {
-                var defaults = data.de_ex_keyword.split(' ');
-                document.getElementById('exclude-expire').checked = defaults.indexOf(document.getElementById('exclude-expire').value) !== -1;
-                document.getElementById('exclude-traffic').checked = defaults.indexOf(document.getElementById('exclude-traffic').value) !== -1;
-                document.getElementById('exclude-plan').checked = defaults.indexOf(document.getElementById('exclude-plan').value) !== -1;
-                document.getElementById('exclude-website').checked = defaults.indexOf(document.getElementById('exclude-website').value) !== -1;
-            }
-        }
-    },
-
-    switchMode: function(mode) {
-        this.currentMode = mode;
-
-        var modeFileTab = document.getElementById('upload-mode-file');
-        var modeSubscribeTab = document.getElementById('upload-mode-subscribe');
-        var modeFileContent = document.getElementById('mode-file-content');
-        var modeSubscribeContent = document.getElementById('mode-subscribe-content');
-        var statusText = document.getElementById('config-upload-status-text');
-        var uploadZone = document.getElementById('upload-zone');
-
-        modeFileTab.style.display = this.isEditMode ? 'none' : '';
-        modeSubscribeTab.style.display = '';
-
-        if (mode === 'file') {
-            modeFileTab.classList.add('active');
-            modeSubscribeTab.classList.remove('active');
-            modeFileContent.style.display = 'block';
-            modeSubscribeContent.style.display = 'none';
-            statusText.textContent = '<%:Ready to upload file%>';
-        } else {
-            modeFileTab.classList.remove('active');
-            modeSubscribeTab.classList.add('active');
-            modeFileContent.style.display = 'none';
-            modeSubscribeContent.style.display = 'block';
-            statusText.textContent = this.isEditMode ? '<%:Ready to edit subscription%>' : '<%:Ready to add subscription%>';
-        }
-
-        this.selectedFile = null;
-        uploadZone.classList.remove('has-file');
-        uploadZone.querySelector('.upload-primary').textContent = '<%:Click to select file or drag and drop%>';
-        uploadZone.querySelector('.upload-secondary').textContent = '<%:Support YAML file, max size 10MB%>';
-
-        this.updateSubmitButton();
-    },
-
-    handleFileSelect: function(file) {
-        this.selectedFile = file;
-        var uploadZone = document.getElementById('upload-zone');
-        var filenameInput = document.getElementById('config-filename-input');
-        var statusText = document.getElementById('config-upload-status-text');
-
-        if (!file) {
-            uploadZone.classList.remove('has-file');
-            this.updateSubmitButton();
-            statusText.textContent = '<%:Ready to upload file%>';
-            return;
-        }
-
-        if (!file.name.match(/\.(yaml|yml)$/i)) {
-            alert('<%:Please select a YAML file%>');
-            return;
-        }
-
-        if (file.size > 10 * 1024 * 1024) {
-            alert('<%:File size exceeds 10MB limit%>');
-            return;
-        }
-
-        uploadZone.classList.add('has-file');
-        uploadZone.querySelector('.upload-primary').textContent = '<%:File selected:%> ' + file.name;
-        uploadZone.querySelector('.upload-secondary').textContent = '<%:Size:%> ' + this.formatFileSize(file.size);
-
-        var defaultName = file.name.replace(/\.(yaml|yml)$/i, '');
-        filenameInput.value = defaultName;
-
-        this.updateSubmitButton();
-        statusText.textContent = '<%:File ready to upload%>';
-    },
-
-    formatFileSize: function(bytes) {
-        if (bytes === 0) return '0 B';
-        var k = 1024;
-        var sizes = ['B', 'KB', 'MB', 'GB'];
-        var i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-    },
-
-    updateSubmitButton: function() {
-        var filename = document.getElementById('config-filename-input').value.trim();
-        var submitBtn = document.getElementById('config-upload-submit');
-        var isValid = false;
-
-        if (this.currentMode === 'file') {
-            isValid = this.selectedFile && filename;
-        } else if (this.currentMode === 'subscribe') {
-            var url = document.getElementById('subscribe-url-input').value.trim();
-            var advancedEnabled = document.getElementById('advanced-options-enable').checked;
-            var subConvert = advancedEnabled && document.getElementById('sub-convert-enable').checked;
-
-            if (url && filename) {
-                if (subConvert) {
-                    if (url.indexOf('\n') !== -1 || url.indexOf('|') !== -1) {
-                        var links = url.indexOf('\n') !== -1 ? url.split('\n') : url.split('|');
-                        for (var i = 0; i < links.length; i++) {
-                            var link = links[i].trim();
-                            if (link && (/^https?:\/\//.test(link) || /^[a-zA-Z]+:\/\//.test(link))) {
-                                isValid = true;
-                                break;
-                            }
-                        }
-                    } else {
-                        isValid = /^https?:\/\//.test(url) || /^[a-zA-Z]+:\/\//.test(url);
-                    }
-                } else {
-                    isValid = /^https?:\/\//.test(url) && url.indexOf('\n') === -1 && url.indexOf('|') === -1;
-                }
-            }
-        }
-
-        submitBtn.disabled = !isValid || this.isProcessing;
-    },
-
-    uploadFile: function() {
-        if (!this.selectedFile || this.isProcessing) return;
-
-        var filename = document.getElementById('config-filename-input').value.trim();
-        if (!filename) {
-            alert('<%:Please enter a filename%>');
-            return;
-        }
-
-        if (!/^[a-zA-Z0-9_\-\s\u4e00-\u9fa5\.]+$/.test(filename)) {
-            alert('<%:Filename contains invalid characters%>');
-            return;
-        }
-
-        var self = this;
-        this.isProcessing = true;
-
-        var submitBtn = document.getElementById('config-upload-submit');
-        var cancelBtn = document.getElementById('config-upload-cancel');
-        var statusText = document.getElementById('config-upload-status-text');
-        var progressContainer = document.getElementById('upload-progress');
-        var progressFill = document.getElementById('upload-progress-fill');
-        var progressText = document.getElementById('upload-progress-text');
-
-        submitBtn.disabled = true;
-        cancelBtn.disabled = true;
-        statusText.textContent = '<%:Uploading...%>';
-        progressContainer.style.display = 'block';
-
-        var progress = 0;
-        var progressInterval = setInterval(function() {
-            if (progress < 90) {
-                progress += Math.random() * 15;
-                progressFill.style.width = Math.min(progress, 90) + '%';
-                progressText.textContent = '<%:Uploading...%> ' + Math.floor(Math.min(progress, 90)) + '%';
-            }
-        }, 100);
-
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var fileContent = e.target.result;
-
-            var formData = new FormData();
-            formData.append('config_file', fileContent);
-            formData.append('filename', filename);
-
-            fetch('<%=luci.dispatcher.build_url("admin", "services", "openclash", "upload_config")%>', {
-                method: 'POST',
-                body: formData
-            })
-            .then(function(response) {
-                clearInterval(progressInterval);
-
-                if (!response.ok) {
-                    throw new Error('HTTP error! status: ' + response.status);
-                }
-                return response.json();
-            })
-            .then(function(data) {
-                progressFill.style.width = '100%';
-                progressText.textContent = '<%:Upload completed%> 100%';
-
-                if (data.status === 'success') {
-                    statusText.textContent = '<%:Upload successful%>';
-
-                    setTimeout(function() {
-                        self.hide();
-                        if (typeof ConfigFileManager !== 'undefined' && ConfigFileManager.refreshConfigList) {
-                            ConfigFileManager.refreshConfigList();
-                        }
-                    }, 2000);
-                } else {
-                    throw new Error(data.message || '<%:Upload failed%>');
-                }
-            })
-            .catch(function(error) {
-                self.handleError('<%:Upload failed:%> ' + error.message);
-            });
-        };
-
-        reader.onerror = function() {
-            clearInterval(progressInterval);
-            self.handleError('<%:Failed to read file%>');
-        };
-
-        reader.readAsText(this.selectedFile, 'UTF-8');
-    },
-
-    processSubscription: function() {
-        var url = document.getElementById('subscribe-url-input').value.trim();
-        var filename = document.getElementById('config-filename-input').value.trim();
-        var userAgent = document.getElementById('subscribe-ua-input').value;
-        var subscribeUaCustom = document.getElementById('subscribe-ua-custom');
-
-        var advancedEnabled = document.getElementById('advanced-options-enable').checked;
-        var subConvert = advancedEnabled && document.getElementById('sub-convert-enable').checked;
-
-        var convertAddress = '';
-        var template = '';
-        var emoji = false;
-        var udp = false;
-        var skipCert = false;
-        var sort = false;
-        var nodeType = false;
-        var ruleProvider = false;
-        var customParams = '';
-        var keywords = '';
-        var excludeKeywords = '';
-        var excludeDefaults = [];
-
-        if (advancedEnabled) {
-            convertAddress = document.getElementById('convert-address-input').value;
-            var convertAddressCustom = document.getElementById('convert-address-custom').value;
-            template = document.getElementById('template-select').value;
-            var customTemplate = document.getElementById('custom-template-input').value;
-            emoji = document.getElementById('emoji-enable').checked;
-            udp = document.getElementById('udp-enable').checked;
-            skipCert = document.getElementById('skip-cert-verify').checked;
-            sort = document.getElementById('sort-enable').checked;
-            nodeType = document.getElementById('node-type-enable').checked;
-            ruleProvider = document.getElementById('rule-provider-enable').checked;
-            customParams = document.getElementById('custom-params-input').value;
-            keywords = document.getElementById('keyword-input').value;
-            excludeKeywords = document.getElementById('exclude-keyword-input').value;
-
-            if (document.getElementById('exclude-expire').checked) excludeDefaults.push(document.getElementById('exclude-expire').value);
-            if (document.getElementById('exclude-traffic').checked) excludeDefaults.push(document.getElementById('exclude-traffic').value);
-            if (document.getElementById('exclude-plan').checked) excludeDefaults.push(document.getElementById('exclude-plan').value);
-            if (document.getElementById('exclude-website').checked) excludeDefaults.push(document.getElementById('exclude-website').value);
-
-            if (convertAddress === 'custom') {
-                convertAddress = convertAddressCustom.trim();
-            }
-
-            if (template === '0') {
-                template = customTemplate.trim();
-            }
-        }
-
-        if (userAgent === 'custom') {
-            userAgent = subscribeUaCustom.value.trim() || 'clash.meta';
-        }
-
-        if (!url || !filename) {
-            alert('<%:Please enter subscription URL and config name%>');
-            return;
-        }
-
-        var isValidFormat = false;
-
-        if (subConvert) {
-            if (url.indexOf('\n') !== -1 || url.indexOf('|') !== -1) {
-                var links = [];
-                if (url.indexOf('\n') !== -1) {
-                    links = url.split('\n');
-                } else {
-                    links = url.split('|');
-                }
-
-                for (var i = 0; i < links.length; i++) {
-                    var link = links[i].trim();
-                    if (link && (/^https?:\/\//.test(link) || /^[a-zA-Z]+:\/\//.test(link))) {
-                        isValidFormat = true;
-                        break;
-                    }
-                }
-            } else {
-                if (/^https?:\/\//.test(url) || /^[a-zA-Z]+:\/\//.test(url)) {
-                    isValidFormat = true;
-                }
-            }
-        } else {
-            if (/^https?:\/\//.test(url) && url.indexOf('\n') === -1 && url.indexOf('|') === -1) {
-                isValidFormat = true;
-            }
-        }
-
-        if (!isValidFormat) {
-            var errorMsg = subConvert ? 
-                '<%:Invalid subscription URL format. Support HTTP/HTTPS subscription URLs or protocol links, can be separated by newlines or |%>' :
-                '<%:Invalid subscription URL format. Only single HTTP/HTTPS subscription URL is supported when subscription conversion is disabled%>';
-            alert(errorMsg);
-            return;
-        }
-
-        var self = this;
-        this.isProcessing = true;
-
-        var submitBtn = document.getElementById('config-upload-submit');
-        var cancelBtn = document.getElementById('config-upload-cancel');
-        var statusText = document.getElementById('config-upload-status-text');
-        var progressContainer = document.getElementById('upload-progress');
-        var progressFill = document.getElementById('upload-progress-fill');
-        var progressText = document.getElementById('upload-progress-text');
-
-        submitBtn.disabled = true;
-        cancelBtn.disabled = true;
-        statusText.textContent = this.isEditMode ? '<%:Updating subscription...%>' : '<%:Adding subscription...%>';
-        progressContainer.style.display = 'block';
-
-        var progress = 0;
-        var progressInterval = setInterval(function() {
-            if (progress < 90) {
-                progress += Math.random() * 15;
-                progressFill.style.width = Math.min(progress, 90) + '%';
-                progressText.textContent = '<%:Processing...%> ' + Math.floor(Math.min(progress, 90)) + '%';
-            }
-        }, 100);
-
-        XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "add_subscription")%>', {
-            name: filename,
-            address: url,
-            sub_ua: userAgent,
-            sub_convert: subConvert ? '1' : '0',
-            convert_address: convertAddress,
-            template: template,
-            emoji: emoji ? 'true' : 'false',
-            udp: udp ? 'true' : 'false',
-            skip_cert_verify: skipCert ? 'true' : 'false',
-            sort: sort ? 'true' : 'false',
-            node_type: nodeType ? 'true' : 'false',
-            rule_provider: ruleProvider ? 'true' : 'false',
-            custom_params: customParams,
-            keyword: keywords,
-            ex_keyword: excludeKeywords,
-            de_ex_keyword: excludeDefaults.join(' ')
-        }, function(x, data) {
-            if (x && x.status == 200 && data.status === 'success') {
-                XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "update_config")%>', {
-                    filename: filename
-                }, function(x2, data2) {
-                    clearInterval(progressInterval);
-                    if (x2 && x2.status == 200) {
-                        progressFill.style.width = '100%';
-                        if (data2.status === 'success') {
-                            progressText.textContent = (this.isEditMode ? '<%:Subscription updated successfully%>' : '<%:Subscription added successfully%>') + ' 100%';
-                            statusText.textContent = this.isEditMode ? '<%:Subscription updated successfully%>' : '<%:Subscription added successfully%>';
-                            setTimeout(function() {
-                                self.hide();
-                                if (typeof ConfigFileManager !== 'undefined' && ConfigFileManager.refreshConfigList) {
-                                    ConfigFileManager.refreshConfigList();
-                                }
-                            }, 2000);
-                        } else {
-                            self.handleError(this.isEditMode ? '<%:Failed to update subscription config%>' : '<%:Failed to download subscription config%>');
-                        }
-                    } else {
-                        self.handleError(this.isEditMode ? '<%:Failed to update subscription config%>' : '<%:Failed to download subscription config%>');
-                    }
-                });
-            } else {
-                clearInterval(progressInterval);
-                self.handleError(this.isEditMode ? '<%:Failed to update subscription%>' : '<%:Failed to add subscription%>');
-            }
-        });
-    },
-
-    autoFillConfigName: function() {
-        var url = document.getElementById('subscribe-url-input').value.trim();
-        var filenameInput = document.getElementById('config-filename-input');
-
-        if (!filenameInput.value.trim() && url) {
-            try {
-                var urlObj = new URL(url);
-                var hostname = urlObj.hostname;
-
-                var configName = hostname
-                    .replace(/^(www\.|api\.|sub\.|subscribe\.)/, '')
-                    .replace(/\.(com|net|org|cn|io|me|cc|xyz|top)$/, '')
-                    .replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_')
-                    .replace(/_{2,}/g, '_')
-                    .replace(/^_|_$/g, '');
-
-                if (!configName || configName.length < 2) {
-                    configName = 'subscription_' + Date.now().toString().slice(-6);
-                }
-
-                if (configName.length > 30) {
-                    configName = configName.substring(0, 30);
-                }
-
-                filenameInput.value = configName;
-            } catch (e) {
-            }
-        }
-    },
-
-    handleError: function(message) {
-        var statusText = document.getElementById('config-upload-status-text');
-        var progressText = document.getElementById('upload-progress-text');
-        var progressFill = document.getElementById('upload-progress-fill');
-        var submitBtn = document.getElementById('config-upload-submit');
-        var cancelBtn = document.getElementById('config-upload-cancel');
-        var progressContainer = document.getElementById('upload-progress');
-
-        statusText.textContent = '<%:Process failed%>';
-        progressText.textContent = '<%:Process failed%>';
-        progressFill.style.width = '0%';
-
-        alert(message);
-
-        this.isProcessing = false;
-        submitBtn.disabled = false;
-        cancelBtn.disabled = false;
-        progressContainer.style.display = 'none';
-    }
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-    ConfigUploader.init();
-});
-</script>
+<script src="/luci-static/resources/openclash/js/oc-icons.js?v=@OPENCLASH_VERSION@"></script>

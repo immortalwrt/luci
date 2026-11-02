@@ -3,33 +3,35 @@
 'require fs';
 'require view';
 
-const driver_path = '/lib/nut/';
-const ups_daemon = '/usr/sbin/upsd';
+const driver_path = '/usr/libexec/nut/';
+const old_driver_path = '/lib/nut/';
+
+function resolveDriverList(path) {
+	return Promise.resolve(L.resolveDefault(fs.list(path), []).then(function(entries) {
+		var files = [];
+		if (entries && entries.length > 0) {
+			entries.forEach(object => {
+				if (object.type == 'file') {
+					files.push(object.name);
+				}
+			});
+		}
+		return files;
+	}));
+}
 
 return view.extend({
 	load: function() {
 		return Promise.all([
-			L.resolveDefault(fs.exec_direct('/usr/bin/ldd', [ups_daemon]), []).catch(function(err) {
-				throw new Error(_('Unable to run ldd: %s').format(err.message));
-			}).then(function(stdout) {
-				return stdout.includes('libssl.so');
-			}),
-			L.resolveDefault(fs.list(driver_path), []).then(function(entries) {
-				var files = [];
-				entries.forEach(object => {
-					if (object.type == 'file') {
-						files.push(object.name);
-					}
-				});
-				return files;
-			}),
+			resolveDriverList(driver_path),
+			resolveDriverList(old_driver_path),
 		])
 	},
 
 	render: function(loaded_promises) {
 		let m, s, o;
-		const have_ssl_support = loaded_promises[0];
-		const driver_list = loaded_promises[1];
+
+		const driver_list = (loaded_promises[0].length > 0) ? loaded_promises[0] : loaded_promises[1];
 
 		m = new form.Map('nut_server', _('NUT Server'),
 			_('Network UPS Tools Server Configuration'));
@@ -86,23 +88,10 @@ return view.extend({
 		o.optional = true;
 		o.placeholder = 15;
 
-		o = s.option(form.Value, 'runas', _('RunAs User'), _('Drop privileges to this user'));
-		o.optional = true;
-		o.placeholder = 'nut'
-
-		o = s.option(form.Value, 'statepath', _('Path to state file'));
-		o.optional = true;
-		o.placeholder = '/var/run/nut'
-
 		o = s.option(form.Value, 'maxconn', _('Maximum connections'));
 		o.optional = true;
 		o.datatype = 'uinteger'
 		o.placeholder = 24;
-
-		if (have_ssl_support) {
-			o = s.option(form.Value, 'certfile', _('Certificate file (SSL)'));
-			o.optional = true;
-		}
 
 		// Drivers global settings
 		s = m.section(form.NamedSection, 'driver_global', 'driver_global', _('Driver Global Settings'));
@@ -110,10 +99,6 @@ return view.extend({
 
 		o = s.option(form.Value, 'chroot', _('chroot'), _('Run drivers in a chroot(2) environment'));
 		o.optional = true;
-
-		o = s.option(form.Value, 'driverpath', _('Driver Path'), _('Path to drivers (instead of default)'));
-		o.optional = true;
-		o.placeholder = '/lib/lnut';
 
 		o = s.option(form.Value, 'maxstartdelay', _('Maximum Start Delay'), _('Default for UPSes without this field.'));
 		o.optional = true;
@@ -138,15 +123,32 @@ return view.extend({
 		o.optional = true;
 		o.default = false;
 
-		o = s.option(form.Value, 'user', _('RunAs User'), _('User as which to execute driver; requires device file accessed by driver to be read-write for that user.'));
-		o.optional = true;
-		o.placeholder = 'nut';
-
 		// Drivers
 		s = m.section(form.TypedSection, 'driver', _('Driver Configuration'),
 			_('The name of this section will be used as UPS name elsewhere'));
 		s.addremove = true;
 		s.anonymous = false;
+
+		o = s.option(form.ListValue, 'driver', _('Driver'),
+			_('If this list is empty you need to %s'.format('<a href="/cgi-bin/luci/admin/system/package-manager?query=nut-driver-">%s</a>'.format(_('install drivers')))));
+		driver_list.forEach(driver => {
+			o.value(driver);
+		});
+		o.optional = false;
+
+		o = s.option(form.Value, 'productid', _('USB Product Id'), _('For USB HID based UPSes, USB Product Id is required for NUT to set permissions so the driver can access the UPS'));
+		o.optional = true;
+
+		o = s.option(form.Value, 'vendorid', _('USB Vendor Id'), _('For USB HID based UPSes, USB Vendor Id is required for NUT to set permissions so the driver can access the UPS'));
+		o.optional = true;
+
+		o = s.option(form.Value, 'serial', _('Serial Number'), _('For USB HID based UPSes, allows use of multiple USB devices of the same type (USB product and USB vendor are identical). Other UPSes may also use this value.'));
+		o.optional = true;
+
+		o = s.option(form.Flag, 'enable_usb_serial', _('Set USB serial port permissions'),
+			_('Enables a hotplug script that makes all ttyUSB devices (e.g. serial USB) group read-write as user %s'.format('<code>nut</code>')));
+		o.optional = true;
+		o.default = false;
 
 		o = s.option(form.Value, 'bus', _('USB Bus(es) (regex)'));
 		o.optional = true;
@@ -158,18 +160,6 @@ return view.extend({
 
 		o = s.option(form.Value, 'desc', _('Description (Display)'), _('This is passed through to the driver, so make sure your driver supports this option'));
 		o.optional = true;
-
-		o = s.option(form.ListValue, 'driver', _('Driver'),
-			_('If this list is empty you need to %s'.format('<a href="/cgi-bin/luci/admin/system/package-manager?query=nut-driver-">%s</a>'.format(_('install drivers')))));
-		driver_list.forEach(driver => {
-			o.value(driver);
-		});
-		o.optional = false;
-
-		o = s.option(form.Flag, 'enable_usb_serial', _('Set USB serial port permissions'),
-			_('Enables a hotplug script that makes all ttyUSB devices (e.g. serial USB) group read-write as user %s'.format('<code>nut</code>')));
-		o.optional = true;
-		o.default = false;
 
 		o = s.option(form.Flag, 'ignorelb', _('Ignore Low Battery'));
 		o.optional = true;
@@ -236,17 +226,11 @@ return view.extend({
 		o = s.option(form.Value, 'product', _('Product (regex)'));
 		o.optional = true;
 
-		o = s.option(form.Value, 'productid', _('USB Product Id'));
-		o.optional = true;
-
 		o = s.option(form.Value, 'sdorder', _('Driver Shutdown Order'));
 		o.optional = true;
 		o.datatype = 'uinteger';
 
 		o = s.option(form.Value, 'sdtime', _('Additional Shutdown Time(s)'));
-		o.optional = true;
-
-		o = s.option(form.Value, 'serial', _('Serial Number'),  _('This is passed through to the driver, so make sure your driver supports this option'));
 		o.optional = true;
 
 		o = s.option(form.Value, 'snmp_retries', _('SNMP retries'));
@@ -266,9 +250,6 @@ return view.extend({
 		o.placeholder = ''
 
 		o = s.option(form.Value, 'vendor', _('Vendor (regex)'));
-		o.optional = true;
-
-		o = s.option(form.Value, 'vendorid', _('USB Vendor Id'));
 		o.optional = true;
 
 		o = s.option(form.Flag, 'synchronous', _('Synchronous Communication'), _('Driver waits for data to be consumed by upsd before publishing more.'));

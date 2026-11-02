@@ -184,7 +184,7 @@ const CBIMultiIOSelect = form.MultiValue.extend({
 
 	renderWidget(section_id, option_index, cfgvalue) {
 		const value = (cfgvalue != null) ? cfgvalue : this.default ? this.default : '';
-		const choices = this.transformChoices() ? this.transformChoices() : '';
+		const choices = this.transformChoices() || '';
 
 		const widget = new ui.Dropdown(L.toArray(value), choices, {
 			id:				this.cbid(section_id),

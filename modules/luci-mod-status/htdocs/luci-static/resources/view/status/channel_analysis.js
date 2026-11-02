@@ -237,6 +237,7 @@ return view.extend({
 
 					local_wifi.signal = -10;
 					local_wifi.ssid = 'Local Interface';
+					q = Math.min((local_wifi.signal + 110) / 70 * 100, 100);
 
 					this.add_wifi_to_graph(chan_analysis, local_wifi, scanCache, center_channels, chan_width);
 					rows.push([
@@ -258,8 +259,8 @@ return view.extend({
 					results.push(scanCache[k].data);
 
 			results.sort(function(a, b) {
-				if (a.channel - b.channel)
-					return 1;
+				if (a.channel !== b.channel)
+					return a.channel - b.channel;
 
 				if (a.ssid < b.ssid)
 					return -1;
@@ -270,6 +271,8 @@ return view.extend({
 					return -1;
 				else if (a.bssid > b.bssid)
 					return 1;
+
+				return 0;
 			});
 
 			for (let res of results) {

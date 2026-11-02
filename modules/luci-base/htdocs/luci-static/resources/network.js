@@ -468,7 +468,7 @@ function initNetworkState(refresh) {
 
 								if (port.device != null) {
 									spec.device = port.device;
-									spec.tagged = spec.need_tag;
+									spec.tagged = port.need_tag;
 									netdevs[port.num] = port.device;
 								}
 

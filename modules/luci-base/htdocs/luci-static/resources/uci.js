@@ -988,32 +988,33 @@ return baseclass.extend(/** @lends LuCI.uci.prototype */ {
 	 * @returns {Promise<number>}
 	 * Returns a promise resolving/rejecting with the `ubus` RPC status code.
 	 */
-	apply(timeout) {
+	apply(timeout = 10) {
 		const self = this;
-		const date = new Date();
 
-		if (typeof(timeout) != 'number' || timeout < 1)
+		if (typeof timeout !== 'number' || timeout < 1)
 			timeout = 10;
 
 		return self.callApply(timeout, true).then(rv => {
 			if (rv != 0)
 				return Promise.reject(rv);
 
-			const try_deadline = date.getTime() + 1000 * timeout;
-			const try_confirm = () => {
-				return self.callConfirm().then(rv => {
-					if (rv != 0) {
-						if (date.getTime() < try_deadline)
+			const try_deadline = Date.now() + timeout * 1000;
+
+			return new Promise((resolve, reject) => {
+				const try_confirm = () => {
+					self.callConfirm().then(rv => {
+						if (rv === 0)
+							return resolve(rv);
+
+						if (Date.now() < try_deadline)
 							window.setTimeout(try_confirm, 250);
 						else
-							return Promise.reject(rv);
-					}
+							reject(rv);
+					}).catch(reject);
+				};
 
-					return rv;
-				});
-			};
-
-			window.setTimeout(try_confirm, 1000);
+				window.setTimeout(try_confirm, 1000);
+			});
 		});
 	},
 

@@ -146,6 +146,8 @@ return view.extend({
 			_('Another channel for WeChat push, the configuration is relatively simple, and only supports official accounts'));
 		o.value('/usr/share/wechatpush/api/pushplus.json', _('pushplus'),
 			_('Another channel for WeChat push, the configuration is relatively simple, and it supports multiple push methods'));
+		o.value('/usr/share/wechatpush/api/wpush.json', _('WPUSH'),
+			_('Multi-channel push via WPUSH (WeChat, App, Feishu, DingTalk, and more). Success when response code===0'));
 		o.value('/usr/share/wechatpush/api/telegram.json', _('Telegram'),
 			_('Telegram Bot Push'));
 		o.value('/usr/share/wechatpush/api/msmtp.json', _('msmtp'),
@@ -222,6 +224,11 @@ return view.extend({
 		o.rmempty = false;
 		o.depends('jsonpath', '/usr/share/wechatpush/api/pushplus.json');
 
+		o = s.taboption('basic', form.Value, 'wpush_apikey', _('WPUSH apikey'));
+		o.description = _('Get Instructions') + ' <a href="https://wpush.cn/" target="_blank">' + _('Click here') + '</a>' + _('<br />API docs: https://docs.wpush.cn/docs/api/message.html — success when code===0');
+		o.rmempty = false;
+		o.depends('jsonpath', '/usr/share/wechatpush/api/wpush.json');
+
 		o = s.taboption('basic', form.Value, 'tg_token', _('Bot Token'));
 		o.description = _('Get Bot') + ' <a href="https://t.me/BotFather" target="_blank">' + _('Click here') + '</a>' + _('<br />Send a message to the created bot to initiate a conversation.');
 		o.rmempty = false;
@@ -256,11 +263,21 @@ return view.extend({
 		o.depends('jsonpath', '/usr/share/wechatpush/api/msmtp.json');
 		o.placeholder = "25";
 
-		o = s.taboption('basic', form.Flag, 'smtp_tls', _('Enable TLS'));
+		o = s.taboption('basic', form.ListValue, 'smtp_tls', _('Enable/Disable TLS'));
 		o.depends('jsonpath', '/usr/share/wechatpush/api/msmtp.json');
+		o.widget = 'radio';
+		o.value('on', _('Enable'));
+		o.value('off', _('Disable'));
+		o.value('', _('Ignore'));
+		o.default = '';
 
-		o = s.taboption('basic', form.Flag, 'smtp_starttls', _('Enable STARTTLS'));
+		o = s.taboption('basic', form.ListValue, 'smtp_starttls', _('Enable/Disable STARTTLS'));
 		o.depends('jsonpath', '/usr/share/wechatpush/api/msmtp.json');
+		o.widget = 'radio';
+		o.value('on', _('Enable'));
+		o.value('off', _('Disable'));
+		o.value('', _('Ignore'));
+		o.default = '';
 
 		o = s.taboption('basic', form.Value, 'smtp_user', _('User'));
 		o.depends('jsonpath', '/usr/share/wechatpush/api/msmtp.json');
@@ -301,6 +318,7 @@ return view.extend({
 		o.depends('jsonpath', '/usr/share/wechatpush/api/qywx_mpnews.json');
 		o.depends('jsonpath', '/usr/share/wechatpush/api/wxpusher.json');
 		o.depends('jsonpath', '/usr/share/wechatpush/api/pushplus.json');
+		o.depends('jsonpath', '/usr/share/wechatpush/api/wpush.json');
 		o.depends('jsonpath', '/usr/share/wechatpush/api/telegram.json');
 		o.depends('jsonpath', '/usr/share/wechatpush/api/diy.json');
 
@@ -326,6 +344,7 @@ return view.extend({
 		o.depends('jsonpath', '/usr/share/wechatpush/api/qywx_mpnews.json');
 		o.depends('jsonpath', '/usr/share/wechatpush/api/wxpusher.json');
 		o.depends('jsonpath', '/usr/share/wechatpush/api/pushplus.json');
+		o.depends('jsonpath', '/usr/share/wechatpush/api/wpush.json');
 		o.depends('jsonpath', '/usr/share/wechatpush/api/telegram.json');
 		o.depends('jsonpath', '/usr/share/wechatpush/api/diy.json');
 

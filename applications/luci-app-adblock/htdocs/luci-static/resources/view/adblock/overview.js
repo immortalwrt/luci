@@ -13,6 +13,11 @@
 	button handling
 */
 function handleAction(ev) {
+	/* drop the rendered runtime marker to force a refresh */
+	const statusNode = document.getElementById('status');
+	if (statusNode) {
+		statusNode._adbRuntime = null;
+	}
 	const status = document.getElementById('status');
 	const map = document.querySelector('.cbi-map');
 	if (ev === 'restart' || ev === 'reload') {
@@ -26,17 +31,131 @@ function handleAction(ev) {
 				return fs.exec_direct('/etc/init.d/adblock', [ev]);
 			});
 	} else {
-		if (ev !== 'stop') {
-			document.querySelectorAll('.cbi-page-actions button').forEach(function (btn) {
-				btn.disabled = true;
-				btn.blur();
-			});
-			if (status && status.textContent.startsWith('paused')) {
-				ev = 'resume';
+		if (ev === 'stop') {
+			/* a resume after a stop makes no sense, reset the toggle right away */
+			const btnSuspend = document.getElementById('btn_suspend');
+			if (btnSuspend) {
+				btnSuspend.textContent = _('Suspend');
 			}
+		} else if (status && status.getAttribute('data-state') === 'paused') {
+			ev = 'resume';
 		}
+		document.querySelectorAll('.cbi-page-actions button').forEach(function (btn) {
+			btn.disabled = true;
+			btn.blur();
+		});
 		return fs.exec_direct('/etc/init.d/adblock', [ev]);
 	}
+}
+
+/*
+	runtime string helpers
+
+	f_jsnup() packs several runtime fields into display strings of the form
+	"key: value, key: value, ...". Split them up again so they can be rendered
+	as chips and key/value rows instead of one long line.
+*/
+function parsePairs(text) {
+	const pairs = [];
+	(text || '').split(', ').forEach(function (item) {
+		const idx = item.indexOf(': ');
+		if (idx > 0) {
+			pairs.push([item.substring(0, idx), item.substring(idx + 2)]);
+		} else if (item.trim()) {
+			pairs.push([null, item.trim()]);
+		}
+	});
+	return pairs;
+}
+
+function pickValue(pairs, key) {
+	for (let i = 0; i < pairs.length; i++) {
+		if (pairs[i][0] === key) {
+			return pairs[i][1];
+		}
+	}
+	return '-';
+}
+
+/* expand grouped flags, e.g. "ext. DNS (std/prot/remote/bridge): ✘/✔/✘/✘" */
+function expandFlags(pairs) {
+	const flags = [];
+	pairs.forEach(function (pair) {
+		if (!pair[0]) {
+			return;
+		}
+		const group = pair[0].match(/^(.*?)\s*\(([^()]*\/[^()]*)\)$/);
+		if (group) {
+			const names = group[2].split('/');
+			const values = pair[1].split('/');
+			if (names.length === values.length) {
+				for (let i = 0; i < names.length; i++) {
+					flags.push([group[1] + ' ' + names[i], values[i]]);
+				}
+				return;
+			}
+		}
+		flags.push(pair);
+	});
+	return flags;
+}
+
+function flagChips(text) {
+	return expandFlags(parsePairs(text)).sort(function (a, b) {
+		return a[0].localeCompare(b[0]);
+	}).map(function (flag) {
+		const on = flag[1] === '\u2714';
+		return E('span', { 'class': 'adb-chip ' + (on ? 'adb-chip-on' : 'adb-chip-off') }, [
+			E('span', { 'class': 'adb-mark' }, [on ? '\u2714' : '\u2718']),
+			flag[0]
+		]);
+	});
+}
+
+function activeFeeds(feeds) {
+	return (Array.isArray(feeds) ? feeds : []).filter(function (feed) {
+		return feed && feed !== '-';
+	});
+}
+
+function feedChips(feeds) {
+	const chips = feeds.map(function (feed) {
+		return E('span', { 'class': 'adb-chip adb-chip-feed' }, [feed]);
+	});
+	return chips.length ? chips : ['-'];
+}
+
+/*
+	system_info is "cores: n, fetch: cmd, model, target, distribution version".
+	Keep the named entries and the board model, drop target and release. The
+	model is the only unnamed entry, it gets the 'system' key for display.
+*/
+function sysPairs(text) {
+	let plain = 0;
+	return parsePairs(text).filter(function (pair) {
+		return pair[0] || ++plain === 1;
+	}).map(function (pair) {
+		return pair[0] ? pair : ['system', pair[1]];
+	});
+}
+
+/*
+	The container is a two column grid, so the nodes are emitted flat rather
+	than wrapped per row - that is what keeps the values aligned across rows.
+	Entries without a key span both columns. The trailing space in the key is
+	invisible but keeps the text copyable as "key value".
+*/
+function stackNodes(pairs, mono) {
+	const nodes = [];
+	pairs.forEach(function (pair) {
+		if (pair[0]) {
+			nodes.push(E('span', { 'class': 'adb-key' }, [pair[0], ' ']));
+			nodes.push(E('span', { 'class': mono ? 'adb-mono' : '' }, [pair[1]]));
+		} else {
+			nodes.push(E('span', { 'class': mono ? 'adb-full adb-mono' : 'adb-full' }, [pair[1]]));
+		}
+	});
+	return nodes.length ? nodes : ['-'];
 }
 
 return view.extend({
@@ -63,7 +182,7 @@ return view.extend({
 		*/
 		let m, s, o;
 		m = new form.Map('adblock', 'Adblock', _('Configuration of the adblock package to block ad/abuse domains by using DNS. \
-			For further information please check the %s.'.format(`<a style="color:#37c;font-weight:bold;" href="https://github.com/openwrt/packages/blob/master/net/adblock/files/README.md" target="_blank" rel="noreferrer noopener" >${_('online documentation')}</a>`)));
+			For further information please check the %s.'.format(`<a style="color:#37c;font-weight:bold;" href="https://github.com/openwrt/packages/blob/master/net/adblock/README.md" target="_blank" rel="noreferrer noopener" >${_('online documentation')}</a>`)));
 
 		/*
 			set text content helper function
@@ -71,7 +190,17 @@ return view.extend({
 		const setText = (id, value) => {
 			const el = document.getElementById(id);
 			if (el) {
-				el.textContent = value || '-';
+				el.textContent = (value === 0 || value) ? value : '-';
+			}
+		};
+
+		/*
+			set element content helper function
+		*/
+		const setNodes = (id, nodes) => {
+			const el = document.getElementById(id);
+			if (el) {
+				dom.content(el, nodes);
 			}
 		};
 
@@ -80,72 +209,76 @@ return view.extend({
 		*/
 		let parseErrCount = 0;
 		poll.add(function () {
-			return L.resolveDefault(fs.stat('/var/run/adblock/adblock.runtime.json'), null).then(function (stat) {
-				if (!stat) {
+			return L.resolveDefault(fs.read_direct('/var/run/adblock/adblock.runtime.json'), null).then(function (res) {
+				const status = document.getElementById('status');
+				if (!res || (status && status._adbRuntime === res)) {
 					return;
 				}
-				return L.resolveDefault(fs.read_direct('/var/run/adblock/adblock.runtime.json'), null).then(function (res) {
-					const status = document.getElementById('status');
-					const buttons = document.querySelectorAll('.cbi-page-actions button');
-					let info = null;
-					try {
-						info = JSON.parse(res);
-						parseErrCount = 0;
-						if (!poll.active()) {
-							poll.start();
-						}
-					} catch (e) {
-						info = null;
-						parseErrCount++;
-						if (status) {
-							status.textContent = '-';
-							buttons.forEach(function (btn) {
-								btn.disabled = false;
-							});
-							status.classList.remove('spinning');
-							if (parseErrCount >= 5) {
-								ui.addNotification(null, E('p', _('Unable to parse the adblock runtime information!')), 'error');
-								poll.stop();
-							}
-						}
-						return;
+				const buttons = document.querySelectorAll('.cbi-page-actions button');
+				let info = null;
+				try {
+					info = JSON.parse(res);
+					parseErrCount = 0;
+					if (!poll.active()) {
+						poll.start();
 					}
-					if (status && info) {
-						status.textContent = `${info.adblock_status || '-'} (frontend: ${info.frontend_ver || '-'} / backend: ${info.backend_ver || '-'})`;
-						if (info.adblock_status === "processing") {
-							buttons.forEach(function (btn) {
-								btn.disabled = true;
-								btn.blur();
-							});
-							if (!status.classList.contains("spinning")) {
-								status.classList.add("spinning");
-							}
-						} else {
-							status.classList.remove("spinning");
-							if (document.getElementById('btn_suspend')) {
-								if (info.adblock_status === 'paused') {
-									document.querySelector('#btn_suspend').textContent = 'Resume';
-								}
-								if (info.adblock_status === 'enabled') {
-									document.querySelector('#btn_suspend').textContent = 'Suspend';
-								}
-							}
-							buttons.forEach(function (btn) {
-								btn.disabled = false;
-							});
+				} catch (e) {
+					info = null;
+					parseErrCount++;
+					if (parseErrCount >= 5) {
+						ui.addNotification(null, E('p', _('Unable to parse the adblock runtime information!')), 'error');
+						poll.stop();
+					}
+					if (status) {
+						status.setAttribute('data-state', '');
+						setText('state', '-');
+						buttons.forEach(btn => btn.disabled = false);
+						status.classList.remove('spinning');
+					}
+					return;
+				}
+				if (status && info) {
+					const state = info.adblock_status || '-';
+					status.setAttribute('data-state', state);
+					setText('state', state);
+					setText('versions', `${info.frontend_ver || '-'} / ${info.backend_ver || '-'}`);
+					if (state === "processing") {
+						buttons.forEach(function (btn) {
+							btn.disabled = true;
+							btn.blur();
+						});
+						if (!status.classList.contains("spinning")) {
+							status.classList.add("spinning");
 						}
+					} else {
+						status.classList.remove("spinning");
+						const btnSuspend = document.getElementById('btn_suspend');
+						if (btnSuspend) {
+							btnSuspend.textContent = (state === 'paused') ? _('Resume') : _('Suspend');
+						}
+						buttons.forEach(function (btn) {
+							btn.disabled = false;
+						});
 					}
-					if (info) {
-						setText('domains', info.blocked_domains);
-						setText('feeds', info.active_feeds?.join(' '));
-						setText('backend', info.dns_backend);
-						setText('ifaces', info.run_ifaces);
-						setText('run', info.run_information);
-						setText('flags', info.run_flags);
-						setText('last', info.last_run);
-						setText('sys', info.system_info);
-					}
-				});
+				}
+				if (info) {
+					const runPairs = parsePairs(info.last_run);
+					setText('domains', info.blocked_domains);
+					setText('backup', info.backup_cnt);
+					setText('last', pickValue(runPairs, 'date / time'));
+					setText('last_sub', [pickValue(runPairs, 'mode'), pickValue(runPairs, 'duration'),
+					pickValue(runPairs, 'memory')].filter(v => v !== '-').join(', '));
+					setNodes('feeds', feedChips(activeFeeds(info.active_feeds)));
+					setNodes('flags', flagChips(info.run_flags));
+					setNodes('backend', stackNodes(parsePairs(info.dns_backend), false));
+					setNodes('ifaces', stackNodes(parsePairs(info.run_ifaces), false));
+					setNodes('sys', stackNodes(sysPairs(info.system_info), false));
+					setNodes('run', stackNodes(parsePairs(info.run_information), true));
+				}
+				/* only remember the content once it has been rendered */
+				if (status) {
+					status._adbRuntime = res;
+				}
 			});
 		}, 2);
 
@@ -153,47 +286,113 @@ return view.extend({
 			runtime information and buttons
 		*/
 		s = m.section(form.NamedSection, 'global');
-		s.render = L.bind(function (view, section_id) {
-			return E('div', { 'class': 'cbi-section' }, [
-				E('h3', _('Information')),
-				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('Status / Version')),
-					E('div', { 'class': 'cbi-value-field spinning', 'id': 'status', 'style': 'margin-bottom:-5px;color:#37c;' }, '\xa0')
+		s.render = function (view, section_id) {
+			/*
+				scoped theme palette
+
+				Neutral surfaces are derived from translucent grey so they work on
+				top of any LuCI theme background. Only the semantic colors are
+				switched per color scheme, and both variants are chosen to stay
+				readable either way.
+			*/
+			const style = E('style', { 'type': 'text/css' }, [
+				'#adb-status {' +
+				'--adb-card-bg: rgba(128,128,128,.07);' +
+				'--adb-card-border: rgba(128,128,128,.28);' +
+				'--adb-muted: GrayText;' +
+				'--adb-ok: #1f8a5f;' +
+				'--adb-warn: #a8760a;' +
+				'--adb-err: #c0392b;' +
+				'--adb-info: #2f6fb0;' +
+				'--adb-ok-bg: rgba(31,138,95,.14);' +
+				'--adb-info-bg: rgba(47,111,176,.14);' +
+				'}' +
+				'@media (prefers-color-scheme: dark) {' +
+				'#adb-status {' +
+				'--adb-ok: #63c79b;' +
+				'--adb-warn: #d9ab4e;' +
+				'--adb-err: #e8897e;' +
+				'--adb-info: #7fb3e8;' +
+				'}}' +
+				'#adb-status .adb-grid { display: grid; gap: .75em; grid-template-columns: repeat(auto-fit, minmax(11em, 1fr)); margin-bottom: .75em; }' +
+				'#adb-status .adb-card { background: var(--adb-card-bg); border: 1px solid var(--adb-card-border); border-radius: 8px; padding: .7em .9em; min-width: 0; overflow-wrap: break-word; }' +
+				'#adb-status .adb-block { margin-bottom: .75em; }' +
+				'#adb-status .adb-label { font-size: .85em; color: var(--adb-muted); margin-bottom: .3em; }' +
+				'#adb-status .adb-sub { font-size: .8em; color: var(--adb-muted); margin-top: .3em; }' +
+				'#adb-status .adb-value { font-size: 1.5em; line-height: 1.3; font-variant-numeric: tabular-nums; }' +
+				'#adb-status .adb-state { display: flex; align-items: center; gap: .5em; }' +
+				'#adb-status .adb-dot { width: .6em; height: .6em; border-radius: 50%; background: var(--adb-muted); flex: 0 0 auto; }' +
+				'#adb-status .adb-state[data-state="enabled"] .adb-dot { background: var(--adb-ok); }' +
+				'#adb-status .adb-state[data-state="paused"] .adb-dot { background: var(--adb-warn); }' +
+				'#adb-status .adb-state[data-state="processing"] .adb-dot { background: var(--adb-info); }' +
+				'#adb-status .adb-state[data-state="error"] .adb-dot { background: var(--adb-err); }' +
+				'#adb-status .adb-title { font-weight: bold; margin-bottom: .6em; }' +
+				'#adb-status .adb-chips { display: flex; flex-wrap: wrap; gap: .35em; }' +
+				'#adb-status .adb-chip { font-size: .85em; padding: .15em .6em; border-radius: 6px; border: 1px solid transparent; }' +
+				'#adb-status .adb-chip-on { background: var(--adb-ok-bg); color: var(--adb-ok); }' +
+				'#adb-status .adb-chip-off { color: var(--adb-muted); border-color: var(--adb-card-border); }' +
+				'#adb-status .adb-chip-feed { background: var(--adb-info-bg); color: var(--adb-info); }' +
+				'#adb-status .adb-mark { margin-right: .35em; }' +
+				'#adb-status .adb-key { color: var(--adb-muted); }' +
+				'#adb-status .adb-mono { font-family: monospace; word-break: break-all; }' +
+				'#adb-status .adb-stack { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .25em .6em; }' +
+				'#adb-status .adb-stack .adb-full { grid-column: 1 / -1; }'
+			]);
+
+			return E('div', { 'class': 'cbi-section', 'id': 'adb-status' }, [
+				style,
+				E('div', { 'class': 'adb-grid' }, [
+					E('div', { 'class': 'adb-card' }, [
+						E('div', { 'class': 'adb-label' }, [_('Status')]),
+						E('div', { 'class': 'adb-state spinning', 'id': 'status', 'data-state': '' }, [
+							E('span', { 'class': 'adb-dot' }),
+							E('span', { 'class': 'adb-value', 'id': 'state' }, ['-'])
+						]),
+						E('div', { 'class': 'adb-sub' }, [
+							_('Version'), ': ', E('span', { 'id': 'versions' }, ['-'])
+						])
+					]),
+					E('div', { 'class': 'adb-card' }, [
+						E('div', { 'class': 'adb-label' }, [_('Blocked Domains')]),
+						E('div', { 'class': 'adb-value', 'id': 'domains' }, ['-']),
+						E('div', { 'class': 'adb-sub' }, [
+							_('Backup'), ': ', E('span', { 'id': 'backup' }, ['-'])
+						])
+					]),
+					E('div', { 'class': 'adb-card' }, [
+						E('div', { 'class': 'adb-label' }, [_('Last Run')]),
+						E('div', { 'class': 'adb-value', 'id': 'last' }, ['-']),
+						E('div', { 'class': 'adb-sub', 'id': 'last_sub' }, ['-'])
+					])
 				]),
-				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('Blocked Domains')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'domains', 'style': 'margin-bottom:-5px;color:#37c;' }, '-')
+				E('div', { 'class': 'adb-grid' }, [
+					E('div', { 'class': 'adb-card' }, [
+						E('div', { 'class': 'adb-title' }, [_('DNS Backend')]),
+						E('div', { 'class': 'adb-stack', 'id': 'backend' }, ['-'])
+					]),
+					E('div', { 'class': 'adb-card' }, [
+						E('div', { 'class': 'adb-title' }, [_('Run Interfaces')]),
+						E('div', { 'class': 'adb-stack', 'id': 'ifaces' }, ['-'])
+					]),
+					E('div', { 'class': 'adb-card' }, [
+						E('div', { 'class': 'adb-title' }, [_('System Info')]),
+						E('div', { 'class': 'adb-stack', 'id': 'sys' }, ['-'])
+					])
 				]),
-				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('Active Feeds')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'feeds', 'style': 'margin-bottom:-5px;color:#37c;' }, '-')
+				E('div', { 'class': 'adb-card adb-block' }, [
+					E('div', { 'class': 'adb-title' }, [_('Active Feeds')]),
+					E('div', { 'class': 'adb-chips', 'id': 'feeds' }, ['-'])
 				]),
-				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('DNS Backend')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'backend', 'style': 'margin-bottom:-5px;color:#37c;' }, '-')
+				E('div', { 'class': 'adb-card adb-block' }, [
+					E('div', { 'class': 'adb-title' }, [_('Run Flags')]),
+					E('div', { 'class': 'adb-chips', 'id': 'flags' }, ['-'])
 				]),
-				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('Run Interfaces')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'ifaces', 'style': 'margin-bottom:-5px;color:#37c;' }, '-')
-				]),
-				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('Run Information')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'run', 'style': 'margin-bottom:-5px;color:#37c;' }, '-')
-				]),
-				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('Run Flags')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'flags', 'style': 'margin-bottom:-5px;color:#37c;' }, '-')
-				]),
-				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('Last Run')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'last', 'style': 'margin-bottom:-5px;color:#37c;' }, '-')
-				]),
-				E('div', { 'class': 'cbi-value' }, [
-					E('label', { 'class': 'cbi-value-title', 'style': 'margin-bottom:-5px;padding-top:0rem;' }, _('System Info')),
-					E('div', { 'class': 'cbi-value-field', 'id': 'sys', 'style': 'margin-bottom:-5px;color:#37c;' }, '-')
+				E('div', { 'class': 'adb-card adb-block' }, [
+					E('div', { 'class': 'adb-title' }, [_('Run Information')]),
+					E('div', { 'class': 'adb-stack', 'id': 'run' }, ['-'])
 				])
 			]);
-		}, o, this);
+		};
 
 		/*
 			tabbed config section
@@ -355,27 +554,72 @@ return view.extend({
 		o.optional = true;
 		o.rmempty = true;
 
+		/*
+			predefined external DNS resolvers
+		*/
+		const dnsUnfilteredV4 = [
+			['86.54.11.100', _('DNS4EU (unfiltered)')],
+			['94.140.14.140', _('AdGuard (unfiltered)')],
+			['76.76.2.0', _('Control D (unfiltered)')],
+			['1.1.1.1', _('Cloudflare (unfiltered)')],
+			['9.9.9.10', _('Quad9 (unfiltered)')],
+			['185.150.99.255', _('Digitale Gesellschaft (unfiltered)')]
+		];
+		const dnsUnfilteredV6 = [
+			['2a13:1001::86:54:11:100', _('DNS4EU (unfiltered)')],
+			['2a10:50c0::1:ff', _('AdGuard (unfiltered)')],
+			['2606:1a40::', _('Control D (unfiltered)')],
+			['2606:4700:4700::1111', _('Cloudflare (unfiltered)')],
+			['2620:fe::10', _('Quad9 (unfiltered)')],
+			['2a07:6b47:6b47::255', _('Digitale Gesellschaft (unfiltered)')]
+		];
+		const dnsFilteredV4 = [
+			['86.54.11.1', _('DNS4EU (protective)')],
+			['86.54.11.12', _('DNS4EU (protective+family)')],
+			['86.54.11.13', _('DNS4EU (protective+adblock)')],
+			['86.54.11.11', _('DNS4EU (protective+family+adblock)')],
+			['176.9.93.198', _('dnsforge (normal)')],
+			['49.12.43.208', _('dnsforge (clean)')],
+			['49.12.222.213', _('dnsforge (hard)')],
+			['94.140.14.14', _('AdGuard (default)')],
+			['94.140.14.15', _('AdGuard (family)')],
+			['76.76.10.0', _('Control D (security)')],
+			['76.76.10.10', _('Control D (family)')],
+			['76.76.10.11', _('Control D (adblock)')],
+			['1.1.1.2', _('Cloudflare (malware)')],
+			['1.1.1.3', _('Cloudflare (malware+family)')],
+			['9.9.9.9', _('Quad9 (malware)')]
+		];
+		const dnsFilteredV6 = [
+			['2a13:1001::86:54:11:1', _('DNS4EU (protective)')],
+			['2a13:1001::86:54:11:12', _('DNS4EU (protective+family)')],
+			['2a13:1001::86:54:11:13', _('DNS4EU (protective+adblock)')],
+			['2a13:1001::86:54:11:11', _('DNS4EU (protective+family+adblock)')],
+			['2a01:4f8:151:34aa::198', _('dnsforge (normal)')],
+			['2a01:4f8:c012:ed89::208', _('dnsforge (clean)')],
+			['2a01:4f8:c17:2c61::213', _('dnsforge (hard)')],
+			['2a10:50c0::ad1:ff', _('AdGuard (default)')],
+			['2a10:50c0::bad1:ff', _('AdGuard (family)')],
+			['2606:1a40:1::', _('Control D (security)')],
+			['2606:1a40:1::1', _('Control D (family)')],
+			['2606:1a40:1::2', _('Control D (adblock)')],
+			['2606:4700:4700::1112', _('Cloudflare (malware)')],
+			['2606:4700:4700::1113', _('Cloudflare (malware+family)')],
+			['2620:fe::fe', _('Quad9 (malware)')]
+		];
+		const addResolvers = (option, list) => list.forEach(r => option.value(r[0], r[1]));
+
 		o = s.taboption('firewall', form.Value, 'adb_allowdnsv4', _('IPv4 DNS Resolver'), _('External IPv4 DNS resolver applied to MACs and interfaces using the unfiltered DNS policy.'));
 		o.depends('adb_nftallow', '1');
 		o.datatype = 'ip4addr("nomask")';
-		o.value('86.54.11.100', _('DNS4EU (unfiltered)'));
-		o.value('94.140.14.140', _('AdGuard (unfiltered)'));
-		o.value('76.76.2.0', _('Control D (unfiltered)'));
-		o.value('1.1.1.1', _('Cloudflare (unfiltered)'));
-		o.value('9.9.9.10', _('Quad9 (unfiltered)'));
-		o.value('185.150.99.255', _('Digitale Gesellschaft (unfiltered)'));
+		addResolvers(o, dnsUnfilteredV4);
 		o.default = '86.54.11.100';
 		o.rmempty = true;
 
 		o = s.taboption('firewall', form.Value, 'adb_allowdnsv6', _('IPv6 DNS Resolver'), _('External IPv6 DNS resolver applied to MACs and interfaces using the unfiltered DNS policy.'));
 		o.depends('adb_nftallow', '1');
 		o.datatype = 'ip6addr("nomask")';
-		o.value('2a13:1001::86:54:11:100', _('DNS4EU (unfiltered)'));
-		o.value('2a10:50c0::1:ff', _('AdGuard (unfiltered)'));
-		o.value('2606:1a40::', _('Control D (unfiltered)'));
-		o.value('2606:4700:4700::1111', _('Cloudflare (unfiltered)'));
-		o.value('2620:fe::10', _('Quad9 (unfiltered)'));
-		o.value('2a07:6b47:6b47::255', _('Digitale Gesellschaft (unfiltered)'));
+		addResolvers(o, dnsUnfilteredV6);
 		o.default = '2a13:1001::86:54:11:100';
 		o.rmempty = true;
 
@@ -404,42 +648,14 @@ return view.extend({
 		o = s.taboption('firewall', form.Value, 'adb_blockdnsv4', _('IPv4 DNS Resolver'), _('External IPv4 DNS resolver applied to MACs and interfaces using the filtered DNS policy.'));
 		o.depends('adb_nftblock', '1');
 		o.datatype = 'ip4addr("nomask")';
-		o.value('86.54.11.1', _('DNS4EU (protective)'));
-		o.value('86.54.11.12', _('DNS4EU (protective+family)'));
-		o.value('86.54.11.13', _('DNS4EU (protective+adblock)'));
-		o.value('86.54.11.11', _('DNS4EU (protective+family+adblock)'));
-		o.value('176.9.93.198', _('dnsforge (normal)'));
-		o.value('49.12.43.208', _('dnsforge (clean)'));
-		o.value('49.12.222.213', _('dnsforge (hard)'));
-		o.value('94.140.14.14', _('AdGuard (default)'));
-		o.value('94.140.14.15', _('AdGuard (family)'));
-		o.value('76.76.10.0', _('Control D (security)'));
-		o.value('76.76.10.10', _('Control D (family)'));
-		o.value('76.76.10.11', _('Control D (adblock)'));
-		o.value('1.1.1.2', _('Cloudflare (malware)'));
-		o.value('1.1.1.3', _('Cloudflare (malware+family)'));
-		o.value('9.9.9.9', _('Quad9 (malware)'));
+		addResolvers(o, dnsFilteredV4);
 		o.default = '86.54.11.13';
 		o.rmempty = true;
 
 		o = s.taboption('firewall', form.Value, 'adb_blockdnsv6', _('IPv6 DNS Resolver'), _('External IPv6 DNS resolver applied to MACs and interfaces using the filtered DNS policy.'));
 		o.depends('adb_nftblock', '1');
 		o.datatype = 'ip6addr("nomask")';
-		o.value('2a13:1001::86:54:11:1', _('DNS4EU (protective)'));
-		o.value('2a13:1001::86:54:11:12', _('DNS4EU (protective+family)'));
-		o.value('2a13:1001::86:54:11:13', _('DNS4EU (protective+adblock)'));
-		o.value('2a13:1001::86:54:11:11', _('DNS4EU (protective+family+adblock)'));
-		o.value('2a01:4f8:151:34aa::198', _('dnsforge (normal)'));
-		o.value('2a01:4f8:c012:ed89::208', _('dnsforge (clean)'));
-		o.value('2a01:4f8:c17:2c61::213', _('dnsforge (hard)'));
-		o.value('2a10:50c0::ad1:ff', _('AdGuard (default)'));
-		o.value('2a10:50c0::bad1:ff', _('AdGuard (family)'));
-		o.value('2606:1a40:1::', _('Control D (security)'));
-		o.value('2606:1a40:1::1', _('Control D (family)'));
-		o.value('2606:1a40:1::2', _('Control D (adblock)'));
-		o.value('2606:4700:4700::1112', _('Cloudflare (malware)'));
-		o.value('2606:4700:4700::1113', _('Cloudflare (malware+family)'));
-		o.value('2620:fe::fe', _('Quad9 (malware)'));
+		addResolvers(o, dnsFilteredV6);
 		o.default = '2a13:1001::86:54:11:13';
 		o.rmempty = true;
 
@@ -472,28 +688,18 @@ return view.extend({
 		o = s.taboption('firewall', form.Value, 'adb_remotednsv4', _('IPv4 Remote DNS Resolver'), _('External IPv4 DNS resolver applied to MACs using the unfiltered remote DNS policy.'));
 		o.depends('adb_nftremote', '1');
 		o.datatype = 'ip4addr("nomask")';
-		o.value('86.54.11.100', _('DNS4EU (unfiltered)'));
-		o.value('94.140.14.140', _('AdGuard (unfiltered)'));
-		o.value('76.76.2.0', _('Control D (unfiltered)'));
-		o.value('1.1.1.1', _('Cloudflare (unfiltered)'));
-		o.value('9.9.9.10', _('Quad9 (unfiltered)'));
-		o.value('185.150.99.255', _('Digitale Gesellschaft (unfiltered)'));
+		addResolvers(o, dnsUnfilteredV4);
 		o.default = '86.54.11.100';
 		o.rmempty = true;
 
 		o = s.taboption('firewall', form.Value, 'adb_remotednsv6', _('IPv6 Remote DNS Resolver'), _('External IPv6 DNS resolver applied to MACs using the unfiltered remote DNS policy.'));
 		o.depends('adb_nftremote', '1');
 		o.datatype = 'ip6addr("nomask")';
-		o.value('2a13:1001::86:54:11:100', _('DNS4EU (unfiltered)'));
-		o.value('2a10:50c0::1:ff', _('AdGuard (unfiltered)'));
-		o.value('2606:1a40::', _('Control D (unfiltered)'));
-		o.value('2606:4700:4700::1111', _('Cloudflare (unfiltered)'));
-		o.value('2620:fe::10', _('Quad9 (unfiltered)'));
-		o.value('2a07:6b47:6b47::255', _('Digitale Gesellschaft (unfiltered)'));
+		addResolvers(o, dnsUnfilteredV6);
 		o.default = '2a13:1001::86:54:11:100';
 		o.rmempty = true;
 
-		const url = `${window.location.protocol}//${window.location.hostname}/cgi-bin/adblock`;
+		const url = `${window.location.protocol}//${window.location.host}/cgi-bin/adblock`;
 		const options = {
 			pixelSize: 3,
 			margin: 1,
@@ -516,54 +722,14 @@ return view.extend({
 		o = s.taboption('firewall', form.Value, 'adb_bridgednsv4', _('IPv4 DNS Resolver'), _('External IPv4 DNS resolver used during bridging.'));
 		o.depends('adb_nftbridge', '1');
 		o.datatype = 'ip4addr("nomask")';
-		o.value('86.54.11.1', _('DNS4EU (protective)'));
-		o.value('86.54.11.12', _('DNS4EU (protective+family)'));
-		o.value('86.54.11.13', _('DNS4EU (protective+adblock)'));
-		o.value('86.54.11.11', _('DNS4EU (protective+family+adblock)'));
-		o.value('176.9.93.198', _('dnsforge (normal)'));
-		o.value('49.12.43.208', _('dnsforge (clean)'));
-		o.value('49.12.222.213', _('dnsforge (hard)'));
-		o.value('94.140.14.14', _('AdGuard (default)'));
-		o.value('94.140.14.15', _('AdGuard (family)'));
-		o.value('76.76.10.0', _('Control D (security)'));
-		o.value('76.76.10.10', _('Control D (family)'));
-		o.value('76.76.10.11', _('Control D (adblock)'));
-		o.value('1.1.1.2', _('Cloudflare (malware)'));
-		o.value('1.1.1.3', _('Cloudflare (malware+family)'));
-		o.value('9.9.9.9', _('Quad9 (malware)'));
-		o.value('86.54.11.100', _('DNS4EU (unfiltered)'));
-		o.value('94.140.14.140', _('AdGuard (unfiltered)'));
-		o.value('76.76.2.0', _('Control D (unfiltered)'));
-		o.value('1.1.1.1', _('Cloudflare (unfiltered)'));
-		o.value('9.9.9.10', _('Quad9 (unfiltered)'));
-		o.value('185.150.99.255', _('Digitale Gesellschaft (unfiltered)'));
+		addResolvers(o, dnsFilteredV4.concat(dnsUnfilteredV4));
 		o.default = '86.54.11.13';
 		o.rmempty = true;
 
 		o = s.taboption('firewall', form.Value, 'adb_bridgednsv6', _('IPv6 DNS Resolver'), _('External IPv6 DNS resolver used during bridging.'));
 		o.depends('adb_nftbridge', '1');
 		o.datatype = 'ip6addr("nomask")';
-		o.value('2a13:1001::86:54:11:1', _('DNS4EU (protective)'));
-		o.value('2a13:1001::86:54:11:12', _('DNS4EU (protective+family)'));
-		o.value('2a13:1001::86:54:11:13', _('DNS4EU (protective+adblock)'));
-		o.value('2a13:1001::86:54:11:11', _('DNS4EU (protective+family+adblock)'));
-		o.value('2a01:4f8:151:34aa::198', _('dnsforge (normal)'));
-		o.value('2a01:4f8:c012:ed89::208', _('dnsforge (clean)'));
-		o.value('2a01:4f8:c17:2c61::213', _('dnsforge (hard)'));
-		o.value('2a10:50c0::ad1:ff', _('AdGuard (default)'));
-		o.value('2a10:50c0::bad1:ff', _('AdGuard (family)'));
-		o.value('2606:1a40:1::', _('Control D (security)'));
-		o.value('2606:1a40:1::1', _('Control D (family)'));
-		o.value('2606:1a40:1::2', _('Control D (adblock)'));
-		o.value('2606:4700:4700::1112', _('Cloudflare (malware)'));
-		o.value('2606:4700:4700::1113', _('Cloudflare (malware+family)'));
-		o.value('2620:fe::fe', _('Quad9 (malware)'));
-		o.value('2a13:1001::86:54:11:100', _('DNS4EU (unfiltered)'));
-		o.value('2a10:50c0::1:ff', _('AdGuard (unfiltered)'));
-		o.value('2606:1a40::', _('Control D (unfiltered)'));
-		o.value('2606:4700:4700::1111', _('Cloudflare (unfiltered)'));
-		o.value('2620:fe::10', _('Quad9 (unfiltered)'));
-		o.value('2a07:6b47:6b47::255', _('Digitale Gesellschaft (unfiltered)'));
+		addResolvers(o, dnsFilteredV6.concat(dnsUnfilteredV6));
 		o.default = '2a13:1001::86:54:11:13';
 		o.rmempty = true;
 
@@ -673,6 +839,17 @@ return view.extend({
 		o.optional = true;
 		o.rmempty = true;
 
+		o = s.taboption('adv_report', form.Value, 'adb_repfilter', _('Report Filter'), _('Optional tcpdump filter expression, logically ANDed to the internal port filter.'));
+		o.placeholder = 'not net 10.0.0.0/24';
+		o.optional = true;
+		o.rmempty = true;
+		o.validate = function (section_id, value) {
+			if (!value || /^[a-zA-Z0-9 \t.:/()[\]!&|<>=+*%\\-]+$/.test(value)) {
+				return true;
+			}
+			return _('Invalid characters in the tcpdump filter expression!');
+		};
+
 		o = s.taboption('adv_report', form.Flag, 'adb_represolve', _('Resolve IPs'), _('Resolve reporting IP addresses by using reverse DNS (PTR) lookups.'));
 		o.rmempty = true;
 
@@ -703,7 +880,7 @@ return view.extend({
 		/*
 			feed selection tab
 		*/
-		let chain, descr;
+		let size, descr;
 		let feeds = null;
 
 		if (result[0] && result[0].trim() !== "") {
@@ -731,9 +908,9 @@ return view.extend({
 			o = s.taboption('feeds', form.MultiValue, 'adb_feed', _('Blocklist Feed'));
 			const feedKeys = Object.keys(feeds);
 			for (const feed of feedKeys) {
-				chain = feeds[feed].size?.trim() || 'in';
-				descr = feeds[feed].descr?.trim() || '-';
-				o.value(feed.trim(), feed.trim() + ' (' + chain + ', ' + descr + ')');
+				size = String(feeds[feed].size ?? '').trim() || '-';
+				descr = String(feeds[feed].descr ?? '').trim() || '-';
+				o.value(feed.trim(), feed.trim() + ' (' + size + ', ' + descr + ')');
 			}
 			o.optional = true;
 			o.rmempty = true;
@@ -803,7 +980,7 @@ return view.extend({
 			action buttons
 		*/
 		s = m.section(form.NamedSection, 'global');
-		s.render = L.bind(function () {
+		s.render = function () {
 			return E('div', { 'class': 'cbi-page-actions' }, [
 				E('button', {
 					'class': 'btn cbi-button cbi-button-negative important',
@@ -839,7 +1016,7 @@ return view.extend({
 					}
 				}, [_('Save & Restart')])
 			]);
-		});
+		};
 		return m.render();
 	},
 	handleSaveApply: null,

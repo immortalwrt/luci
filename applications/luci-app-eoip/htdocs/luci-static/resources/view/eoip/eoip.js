@@ -5,7 +5,7 @@
 
 return view.extend({
 	render: function() {
-		var m, s, n, id, d, o, v;
+		let m, s, n, id, d, o, v;
 		
 		m = new form.Map("eoip", _("EoIP - Tunneling"), _("Here you can configure EoIP tunnel. At current moment it is easiest way to create stateless tunnel with Mikrotik."));
 
@@ -15,22 +15,21 @@ return view.extend({
 		
 		o = s.option(form.Flag, "enabled", _("Enable tunnel"));
 
-		n = s.option(form.Value, "name", _("Name interface [zeoip"), _("If you input 0 interface name zeoip0"));
+		n = s.option(form.Value, "name", _("Interface name [zeoip]"), _("If you input 0 interface name zeoip0"));
 		n.rmempty = false;
 		n.datatype = "uinteger";
 		n.default = 0;
 		n.validate = function(section_id, value) {
-                        var sections = uci.sections('eoip');
-                        for (var i = 0; i < sections.length; i++) {
-                                if (uci.get('eoip', sections[i]['.name'], 'name') == value && section_id != sections[i]['.name'])
-                                {return _('Name interface already in used');}
-
-                        }
-                return true;
-                };
-
+			let sections = uci.sections('eoip');
+			for (let i = 0; i < sections.length; i++) {
+			if (uci.get('eoip', sections[i]['.name'], 'name') == value && section_id != sections[i]['.name'])
+			{
+				return _('interface name already in use');}
+			}
+			return true;
+		};
 		
-		id = s.option(form.Value, "idtun", _("ID tunnel"), _("Indeficator id tunnel"));
+		id = s.option(form.Value, "idtun", _("ID tunnel"), _("Unique tunnel identifier"));
 		id.rmempty = false;
 		id.datatype = "and(min(1), integer)";
 		id.default = 1;
