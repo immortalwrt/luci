@@ -1068,14 +1068,14 @@ select {
   background-repeat: no-repeat;
   appearance: none;
 }
-input:not(.cbi-button) {
+input:not(.cbi-button, [type="button"], [type="submit"], [type="reset"]) {
   background-color: var(--input-bg);
 }
 .cbi-dropdown:not(.btn):not(.cbi-button) {
   background-color: var(--dropdown-control-bg);
 }
 select:not([multiple="multiple"]):focus,
-input:not(.cbi-button):focus,
+input:not(.cbi-button, [type="button"], [type="submit"], [type="reset"]):focus,
 textarea:focus,
 .cbi-dropdown:focus {
   --control-border: var(--control-focus);
@@ -2107,7 +2107,6 @@ span.spinning {
 #cbi-wireless > .cbi-section-node,
 #cbi-wireless > #wifi_assoclist_table,
 [data-tab-title],
-[data-page^="admin-system-admin"]:not(.node-main-login) .cbi-map:not(#cbi-dropbear),
 [data-page="admin-system-opkg"] #maincontent > .container {
   font-family: inherit;
   font-weight: normal;
@@ -2128,7 +2127,6 @@ span.spinning {
 #cbi-wireless > .cbi-section-node:last-child,
 #cbi-wireless > #wifi_assoclist_table:last-child,
 [data-tab-title]:last-child,
-[data-page^="admin-system-admin"]:not(.node-main-login) .cbi-map:not(#cbi-dropbear):last-child,
 [data-page="admin-system-opkg"] #maincontent > .container:last-child {
   margin: 0;
   border: 0;
@@ -2494,6 +2492,7 @@ td > table > tbody > tr > td,
 }
 .btn,
 .cbi-button,
+input:where([type="button"], [type="submit"], [type="reset"]),
 .item::after {
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -2525,36 +2524,42 @@ td > table > tbody > tr > td,
 .btn:not(button) ul:not(.dropdown) li {
   padding: 0;
 }
-.cbi-button:not(select) {
+.cbi-button:not(select),
+input:where([type="button"], [type="submit"], [type="reset"]) {
   appearance: none !important;
 }
 @media (hover: hover) {
   :is(.btn, .cbi-button):not(:disabled):not([disabled]):not([aria-disabled="true"]):not([disabled] *, [aria-disabled="true"] *):hover,
+  input:where([type="button"], [type="submit"], [type="reset"]):not(:disabled):not([disabled]):not([aria-disabled="true"]):not([disabled] *, [aria-disabled="true"] *):hover,
   .cbi-dynlist:not([disabled]):not([aria-disabled="true"]) > .item:hover::after {
     box-shadow: var(--button-hover-shadow);
   }
 }
 .btn:disabled,
-.cbi-button:disabled {
+.cbi-button:disabled,
+input:where([type="button"], [type="submit"], [type="reset"]):disabled {
   cursor: not-allowed;
   pointer-events: none;
   opacity: 0.5;
   box-shadow: none;
 }
 .btn:focus-visible,
-.cbi-button:focus-visible {
+.cbi-button:focus-visible,
+input:where([type="button"], [type="submit"], [type="reset"]):focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 @media (prefers-reduced-motion: no-preference) {
   button.btn,
   button.cbi-button,
-  input.cbi-button {
+  input.cbi-button,
+  input:where([type="button"], [type="submit"], [type="reset"]) {
     transition: scale 0.15s ease-out, box-shadow 0.15s ease-out;
   }
   button.btn:not(:disabled):not([aria-disabled="true"]):not([data-static]):active,
   button.cbi-button:not(:disabled):not([aria-disabled="true"]):not([data-static]):active,
-  input.cbi-button:not(:disabled):not([aria-disabled="true"]):not([data-static]):active {
+  input.cbi-button:not(:disabled):not([aria-disabled="true"]):not([data-static]):active,
+  input:where([type="button"], [type="submit"], [type="reset"]):not(:disabled):not([aria-disabled="true"]):not([data-static]):active {
     scale: 0.96;
   }
 }
@@ -4131,6 +4136,23 @@ td > .ifacebadge,
 .ifacebadge > img + img {
   margin: 0 0.2rem 0 0;
 }
+.ifacebadge[data-signal] {
+  min-width: min-content;
+  padding-inline: 0.5rem;
+  white-space: nowrap;
+}
+.ifacebadge[data-signal] > img {
+  flex: none;
+  margin: 0;
+}
+.ifacebadge[data-signal] > span {
+  flex-shrink: 0;
+  max-width: none;
+  direction: ltr;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
 .network-status-table {
   display: flex;
   flex-wrap: wrap;
@@ -4744,6 +4766,10 @@ pre.command-output {
 [data-page="admin-system-system"] .cbi-dynlist {
   margin: 0.25rem 0;
 }
+[data-page="admin-system-system"] [data-name="notes"] .cbi-value-field > div:has(> .cbi-input-textarea) {
+  width: var(--form-control-min-width) !important;
+  max-width: 100%;
+}
 [data-page="admin-system-system"] #localtime,
 [data-page="admin-system-system"] [data-name="hostname"] input,
 [data-page="admin-system-system"] [data-name="log_size"] input,
@@ -4777,6 +4803,57 @@ pre.command-output {
   gap: var(--control-gap);
   padding: 0 var(--section-inset) var(--field-gap);
 }
+[data-page="admin-system-admin"] .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed):where(:has(> .cbi-value, > [id] > .cbi-value)),
+[data-page="admin-system-admin-password"] .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed):where(:has(> .cbi-value, > [id] > .cbi-value)),
+[data-page="admin-system-admin-pwpolicy"] .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed):where(:has(> .cbi-value, > [id] > .cbi-value)),
+[data-page="admin-system-admin-uhttpd"] .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed):where(:has(> .cbi-value, > [id] > .cbi-value)) {
+  padding-block: var(--field-gap);
+}
+[data-page="admin-system-admin"] .cbi-section > .cbi-section-descr:not(:empty) ~ .cbi-section-node:not(.cbi-section-node-tabbed),
+[data-page="admin-system-admin-password"] .cbi-section > .cbi-section-descr:not(:empty) ~ .cbi-section-node:not(.cbi-section-node-tabbed),
+[data-page="admin-system-admin-pwpolicy"] .cbi-section > .cbi-section-descr:not(:empty) ~ .cbi-section-node:not(.cbi-section-node-tabbed),
+[data-page="admin-system-admin-uhttpd"] .cbi-section > .cbi-section-descr:not(:empty) ~ .cbi-section-node:not(.cbi-section-node-tabbed) {
+  padding-block-start: 0;
+}
+[data-page="admin-system-admin"] .cbi-section > .cbi-value,
+[data-page="admin-system-admin-password"] .cbi-section > .cbi-value,
+[data-page="admin-system-admin-pwpolicy"] .cbi-section > .cbi-value,
+[data-page="admin-system-admin-uhttpd"] .cbi-section > .cbi-value {
+  padding-block: var(--field-gap);
+}
+[data-page="admin-system-admin"] .cbi-section > .cbi-value ~ .cbi-value,
+[data-page="admin-system-admin-password"] .cbi-section > .cbi-value ~ .cbi-value,
+[data-page="admin-system-admin-pwpolicy"] .cbi-section > .cbi-value ~ .cbi-value,
+[data-page="admin-system-admin-uhttpd"] .cbi-section > .cbi-value ~ .cbi-value,
+[data-page="admin-system-admin"] .cbi-section > .cbi-section-descr:not(:empty) ~ .cbi-value,
+[data-page="admin-system-admin-password"] .cbi-section > .cbi-section-descr:not(:empty) ~ .cbi-value,
+[data-page="admin-system-admin-pwpolicy"] .cbi-section > .cbi-section-descr:not(:empty) ~ .cbi-value,
+[data-page="admin-system-admin-uhttpd"] .cbi-section > .cbi-section-descr:not(:empty) ~ .cbi-value {
+  padding-block-start: 0;
+}
+[data-page="admin-system-admin"] .cbi-section > .cbi-section-create,
+[data-page="admin-system-admin-password"] .cbi-section > .cbi-section-create,
+[data-page="admin-system-admin-pwpolicy"] .cbi-section > .cbi-section-create,
+[data-page="admin-system-admin-uhttpd"] .cbi-section > .cbi-section-create {
+  padding: var(--field-gap) var(--section-inset);
+}
+[data-page="admin-system-admin-pwpolicy"] #view > .cbi-map {
+  min-width: 0;
+  border-radius: var(--radius-card);
+  background-color: var(--surface-color);
+  box-shadow: var(--section-shadow);
+  gap: 0;
+}
+[data-page="admin-system-admin-pwpolicy"] #view > .cbi-map > h2 {
+  margin: 0;
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+  box-shadow: none;
+}
+[data-page="admin-system-admin-pwpolicy"] #view > .cbi-map > .cbi-section {
+  background: none;
+  box-shadow: none;
+}
 [data-page="admin-system-admin"] .cbi-map h2,
 [data-page="admin-system-admin-password"] .cbi-map h2,
 [data-page="admin-system-admin"] .cbi-map .cbi-map-descr,
@@ -4800,10 +4877,17 @@ pre.command-output {
 [data-page="admin-system-admin-password"] [data-name="pw2"] .cbi-value-description span[style="color:green"] {
   color: var(--strength-strong-text) !important;
 }
+[data-page="admin-system-admin-sshkeys"] #view > div:has(> .cbi-section-node > .cbi-dynlist) > .cbi-section-node {
+  min-width: 0;
+  border-radius: var(--radius-card);
+  background-color: var(--surface-color);
+  box-shadow: var(--section-shadow);
+  padding: var(--field-gap) var(--section-inset);
+}
 [data-page="admin-system-admin-sshkeys"] .cbi-dynlist {
   width: 100%;
-  margin-inline: var(--section-inset);
-  max-width: min(48rem, calc(100% - 2 * var(--section-inset)));
+  margin: 0;
+  max-width: min(48rem, 100%);
   gap: var(--field-gap);
 }
 [data-page="admin-system-admin-sshkeys"] .cbi-dynlist > .item {
@@ -4926,6 +5010,23 @@ pre.command-output {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   user-select: text;
+}
+[data-page="admin-system-admin-repokeys"] .cbi-section-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: inherit;
+}
+[data-page="admin-system-admin-repokeys"] .cbi-section-table > .thead,
+[data-page="admin-system-admin-repokeys"] .cbi-section-table > .thead > .tr {
+  border-start-start-radius: inherit;
+  border-start-end-radius: inherit;
+  background: var(--surface-muted);
+}
+[data-page="admin-system-admin-repokeys"] .cbi-section-table > .thead > .tr > .th:first-child {
+  border-start-start-radius: inherit;
+}
+[data-page="admin-system-admin-repokeys"] .cbi-section-table .cbi-section-table-row {
+  margin-block: 0;
 }
 [data-page="admin-system-admin-repokeys"] textarea {
   width: 100%;
@@ -5111,6 +5212,44 @@ pre.command-output {
   object-fit: contain;
   flex-shrink: 0;
 }
+[data-page="admin-system-package-manager"] #view > #packages,
+[data-page="admin-system-opkg"] #view > #packages {
+  min-width: 0;
+  border-radius: var(--radius-card);
+  background-color: var(--surface-color);
+  box-shadow: var(--section-shadow);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: visible;
+}
+[data-page="admin-system-package-manager"] #view > #packages > :is(thead, tbody, .thead, .tbody):first-child,
+[data-page="admin-system-opkg"] #view > #packages > :is(thead, tbody, .thead, .tbody):first-child,
+[data-page="admin-system-package-manager"] #view > #packages > :is(thead, tbody, .thead, .tbody):first-child > :is(tr, .tr):first-child,
+[data-page="admin-system-opkg"] #view > #packages > :is(thead, tbody, .thead, .tbody):first-child > :is(tr, .tr):first-child,
+[data-page="admin-system-package-manager"] #view > #packages > :is(tr, .tr):first-child,
+[data-page="admin-system-opkg"] #view > #packages > :is(tr, .tr):first-child {
+  border-start-start-radius: inherit;
+  border-start-end-radius: inherit;
+}
+[data-page="admin-system-package-manager"] #view > #packages > :is(thead, tbody, .thead, .tbody):first-child > :is(tr, .tr):first-child > :is(td, th, .td, .th):first-child,
+[data-page="admin-system-opkg"] #view > #packages > :is(thead, tbody, .thead, .tbody):first-child > :is(tr, .tr):first-child > :is(td, th, .td, .th):first-child,
+[data-page="admin-system-package-manager"] #view > #packages > :is(tr, .tr):first-child > :is(td, th, .td, .th):first-child,
+[data-page="admin-system-opkg"] #view > #packages > :is(tr, .tr):first-child > :is(td, th, .td, .th):first-child {
+  border-start-start-radius: inherit;
+}
+[data-page="admin-system-package-manager"] #view > #packages > :is(thead, tbody, .thead, .tbody):first-child > :is(tr, .tr):first-child > :is(td, th, .td, .th):last-child,
+[data-page="admin-system-opkg"] #view > #packages > :is(thead, tbody, .thead, .tbody):first-child > :is(tr, .tr):first-child > :is(td, th, .td, .th):last-child,
+[data-page="admin-system-package-manager"] #view > #packages > :is(tr, .tr):first-child > :is(td, th, .td, .th):last-child,
+[data-page="admin-system-opkg"] #view > #packages > :is(tr, .tr):first-child > :is(td, th, .td, .th):last-child {
+  border-start-end-radius: inherit;
+}
+@media screen and (max-width: 1152px) {
+  [data-page="admin-system-package-manager"] #view > #packages :is(.table-titles, .cbi-section-table-titles) + .tr,
+  [data-page="admin-system-opkg"] #view > #packages :is(.table-titles, .cbi-section-table-titles) + .tr {
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+  }
+}
 [data-page="admin-system-package-manager"] .controls,
 [data-page="admin-system-opkg"] .controls {
   min-width: 0;
@@ -5235,7 +5374,17 @@ pre.command-output {
     flex-basis: 50%;
   }
 }
+[data-page="admin-system-crontab"] #view > p:has(> textarea) {
+  min-width: 0;
+  border-radius: var(--radius-card);
+  background-color: var(--surface-color);
+  box-shadow: var(--section-shadow);
+  margin: 0;
+  padding: var(--field-gap) var(--section-inset);
+  line-height: 0;
+}
 [data-page="admin-system-crontab"] #view p textarea {
+  display: block;
   direction: ltr;
   unicode-bidi: plaintext;
   text-align: start;
@@ -5944,6 +6093,9 @@ pre.command-output {
   top: 0.1rem;
   left: 1rem;
 }
+[data-page="admin-system-reboot"] #view > hr {
+  display: none;
+}
 [data-page="admin-system-reboot"] .cbi-button {
   background: var(--warning-action-bg) !important;
   border-color: var(--warning-action-bg) !important;
@@ -6214,6 +6366,14 @@ pre.command-output {
   direction: ltr;
   unicode-bidi: isolate;
 }
+[data-page="admin-network-diagnostics"] #view > .cbi-map > .table {
+  min-width: 0;
+  border-radius: var(--radius-card);
+  background-color: var(--surface-color);
+  box-shadow: var(--section-shadow);
+  padding: var(--control-gap);
+  border-collapse: separate;
+}
 [data-page="admin-network-diagnostics"] .table {
   overflow: visible;
   box-shadow: none;
@@ -6240,7 +6400,7 @@ pre.command-output {
 }
 [data-page="admin-network-diagnostics"] .tr .td {
   background-color: var(--surface-color) !important;
-  border-bottom: 1px solid var(--border-color) !important;
+  border-bottom: 0 !important;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -6369,6 +6529,35 @@ pre.command-output {
 #view > .Dashboard [data-tab="layout"] .cbi-page-actions {
   padding: var(--field-gap) var(--section-inset);
 }
+[data-page="admin-status-processes"] #view > .table {
+  min-width: 0;
+  border-radius: var(--radius-card);
+  background-color: var(--surface-color);
+  box-shadow: var(--section-shadow);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: visible;
+}
+[data-page="admin-status-processes"] #view > .table > :is(thead, tbody, .thead, .tbody):first-child,
+[data-page="admin-status-processes"] #view > .table > :is(thead, tbody, .thead, .tbody):first-child > :is(tr, .tr):first-child,
+[data-page="admin-status-processes"] #view > .table > :is(tr, .tr):first-child {
+  border-start-start-radius: inherit;
+  border-start-end-radius: inherit;
+}
+[data-page="admin-status-processes"] #view > .table > :is(thead, tbody, .thead, .tbody):first-child > :is(tr, .tr):first-child > :is(td, th, .td, .th):first-child,
+[data-page="admin-status-processes"] #view > .table > :is(tr, .tr):first-child > :is(td, th, .td, .th):first-child {
+  border-start-start-radius: inherit;
+}
+[data-page="admin-status-processes"] #view > .table > :is(thead, tbody, .thead, .tbody):first-child > :is(tr, .tr):first-child > :is(td, th, .td, .th):last-child,
+[data-page="admin-status-processes"] #view > .table > :is(tr, .tr):first-child > :is(td, th, .td, .th):last-child {
+  border-start-end-radius: inherit;
+}
+@media screen and (max-width: 1152px) {
+  [data-page="admin-status-processes"] #view > .table :is(.table-titles, .cbi-section-table-titles) + .tr {
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+  }
+}
 [data-page="admin-status-processes"] .th:nth-child(3),
 [data-page="admin-status-processes"] .td:nth-child(3) {
   text-align: start;
@@ -6453,12 +6642,15 @@ pre.command-output {
 [data-page="admin-status-overview"] #view div:has(> .ifacebox > .ifacebox-body > img[src*="/icons/port_"]) {
   display: grid !important;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr)) !important;
+  align-items: stretch !important;
+  justify-items: stretch !important;
   gap: var(--field-gap);
   margin: 0 !important;
   padding: var(--field-gap) var(--section-inset);
 }
 [data-page="admin-status"] #view div:has(> .ifacebox > .ifacebox-body > img[src*="/icons/port_"]) > .ifacebox,
 [data-page="admin-status-overview"] #view div:has(> .ifacebox > .ifacebox-body > img[src*="/icons/port_"]) > .ifacebox {
+  width: auto !important;
   min-width: 0 !important;
   max-width: 100% !important;
   margin: 0 !important;
@@ -6502,6 +6694,7 @@ pre.command-output {
 [data-page="admin-status"] .argon-port-traffic > div,
 [data-page="admin-status-overview"] .argon-port-traffic > div {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
@@ -6510,6 +6703,7 @@ pre.command-output {
 [data-page="admin-status"] .argon-port-traffic dt,
 [data-page="admin-status-overview"] .argon-port-traffic dt {
   display: inline-flex;
+  flex: none;
   align-items: center;
   gap: 0.25rem;
   color: var(--muted-text);
@@ -6531,11 +6725,14 @@ pre.command-output {
 [data-page="admin-status"] .argon-port-traffic dd,
 [data-page="admin-status-overview"] .argon-port-traffic dd {
   margin: 0;
+  margin-inline-start: auto;
+  max-width: 100%;
   color: var(--text-strong);
   font-size: 0.75rem;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 [data-page="admin-status-realtime"] .cbi-section > div:has(> svg),
 [data-page="admin-status-realtime-load"] .cbi-section > div:has(> svg),
@@ -6914,9 +7111,35 @@ pre.command-output {
 [data-page="admin-status-nftables"] .alert-message.fade-out {
   opacity: 0;
 }
+[data-page="admin-status-logs"] #content_syslog,
+[data-page="admin-status-logs-syslog"] #content_syslog,
+[data-page="admin-status-logs-dmesg"] #content_syslog {
+  min-width: 0;
+  border-radius: var(--radius-card);
+  background-color: var(--surface-color);
+  box-shadow: var(--section-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--field-gap);
+  padding: var(--field-gap) var(--section-inset);
+}
+[data-page="admin-status-logs"] #content_syslog > div,
+[data-page="admin-status-logs-syslog"] #content_syslog > div,
+[data-page="admin-status-logs-dmesg"] #content_syslog > div {
+  margin-block: 0 !important;
+}
+[data-page="admin-status-logs"] #content_syslog > div:has(> .cbi-button),
+[data-page="admin-status-logs-syslog"] #content_syslog > div:has(> .cbi-button),
+[data-page="admin-status-logs-dmesg"] #content_syslog > div:has(> .cbi-button) {
+  padding-block: 0 !important;
+}
 [data-page="admin-status-logs"] #syslog,
 [data-page="admin-status-logs-syslog"] #syslog,
 [data-page="admin-status-logs-dmesg"] #syslog {
+  display: block;
+  margin: 0;
+  border: 1px solid var(--control-border);
+  background-color: var(--input-bg);
   direction: ltr;
   unicode-bidi: plaintext;
   text-align: start;
@@ -6928,7 +7151,7 @@ pre.command-output {
 [data-page="admin-status-logs-syslog"] #content_syslog > div:has(> input, > select),
 [data-page="admin-status-logs-dmesg"] #content_syslog > div:has(> input, > select) {
   line-height: 2.5rem;
-  margin-block-end: var(--control-gap) !important;
+  margin-block-end: 0 !important;
 }
 [data-page="admin-status-logs"] #content_syslog > div:has(> input, > select) > label,
 [data-page="admin-status-logs-syslog"] #content_syslog > div:has(> input, > select) > label,
@@ -7020,6 +7243,29 @@ pre.command-output {
 [data-page="admin-services-nlbw-display"] .cbi-section > .right {
   margin: 15px 15px 0px 0px;
 }
+[data-page="admin-services-wol"] #cbi-luci-wol-defaults-_info {
+  padding-bottom: var(--field-gap);
+  line-height: 1.5;
+}
+[data-page="admin-services-wol"] #cbi-luci-wol-defaults-_info > output {
+  width: 100%;
+  min-width: 0;
+}
+[data-page="admin-services-wol"] #cbi-luci-wol-defaults-_info output p {
+  padding: 0;
+}
+[data-page="admin-services-wol"] #cbi-luci-wol-defaults-_info .control-group {
+  margin-block-start: var(--control-gap);
+}
+[data-page="admin-services-wol"] .cbi-section:has(> #wol-output-text) {
+  padding-bottom: var(--field-gap);
+}
+[data-page="admin-services-wol"] #wol-output-text {
+  display: block;
+  width: calc(100% - var(--section-inset) - var(--section-inset)) !important;
+  margin-inline: var(--section-inset);
+  resize: vertical;
+}
 [data-page="admin-services-ddns"] #syslog {
   overflow: auto;
   font-size: 12px !important;
@@ -7037,19 +7283,52 @@ pre.command-output {
 [data-page="admin-services-ttyd-ttyd"] #view iframe {
   height: 100%;
 }
-[data-page="admin-docker-overview"] .cbi-section-table {
+[data-page="admin-docker-overview"] .cbi-section-table,
+[data-page="admin-services-dockerman-overview"] .cbi-section-table {
   table-layout: fixed;
 }
 [data-page="admin-docker-overview"] .cbi-section-table .th,
-[data-page="admin-docker-overview"] .cbi-section-table .td {
+[data-page="admin-services-dockerman-overview"] .cbi-section-table .th,
+[data-page="admin-docker-overview"] .cbi-section-table .td,
+[data-page="admin-services-dockerman-overview"] .cbi-section-table .td {
   min-width: 0;
   white-space: normal;
   overflow-wrap: anywhere;
-  text-align: left !important;
+  text-align: start !important;
   vertical-align: top;
 }
-[data-page="admin-docker-overview"] .cbi-section-table .th:first-child {
+[data-page="admin-docker-overview"] .cbi-section-table .th:first-child,
+[data-page="admin-services-dockerman-overview"] .cbi-section-table .th:first-child {
   width: 30% !important;
+}
+[data-page="admin-services-dockerman-containers"] .td:last-child:has(> div > .cbi-button + .cbi-button) {
+  width: 16rem;
+  min-width: 16rem;
+  white-space: normal;
+  text-align: end;
+}
+[data-page="admin-services-dockerman-containers"] .td:last-child:has(> div > .cbi-button + .cbi-button) > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  max-width: 16rem;
+  margin-inline-start: auto;
+  gap: var(--control-gap);
+}
+[data-page="admin-services-dockerman-containers"] .td:last-child:has(> div > .cbi-button + .cbi-button) > div > * {
+  flex: 0 0 auto;
+}
+@media screen and (max-width: 1152px) {
+  [data-page="admin-services-dockerman-containers"] .td:last-child:has(> div > .cbi-button + .cbi-button) {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+  [data-page="admin-services-dockerman-containers"] .td:last-child:has(> div > .cbi-button + .cbi-button) > div {
+    max-width: 100%;
+  }
 }
 #cbi-dockerd .cbi-section {
   box-sizing: border-box;
@@ -7057,6 +7336,39 @@ pre.command-output {
 }
 #cbi-dockerd .cbi-section.cbi-tblsection {
   padding: 0;
+}
+[data-page="admin-docker"] #docker_apply_overlay,
+[data-page^="admin-docker-"] #docker_apply_overlay {
+  position: fixed;
+  inset: 0;
+  padding: var(--page-gutter);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+[data-page="admin-docker"] #docker_apply_overlay > .alert-message,
+[data-page^="admin-docker-"] #docker_apply_overlay > .alert-message {
+  position: static;
+  inset: auto;
+  transform: none;
+  width: 100%;
+  max-width: 60rem;
+  max-height: calc(100vh - 2 * var(--page-gutter));
+  max-height: calc(100dvh - 2 * var(--page-gutter));
+  min-width: 0;
+  margin: auto;
+  overflow: auto;
+}
+[data-page="admin-docker"] #docker_apply_overlay > .alert-message > span,
+[data-page^="admin-docker-"] #docker_apply_overlay > .alert-message > span {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+}
+[data-page="admin-docker"].apply-overlay-active #docker_apply_overlay,
+[data-page^="admin-docker-"].apply-overlay-active #docker_apply_overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 #cbi-smartdns #service_status {
   padding: 16px;
@@ -7106,7 +7418,7 @@ pre.command-output {
   --oc-text: var(--text-color);
   --oc-text-muted: var(--plugin-text-muted);
   --oc-neutral: var(--plugin-neutral);
-  --oc-scrollbar: var(--plugin-scrollbar);
+  --oc-scrollbar: var(--oc-accent);
 }
 [data-page^="admin-services-openclash"] img[src$="arrow-clockwise-light.svg"],
 [data-page^="admin-services-openclash"] img[src$="wrench-light.svg"],
@@ -7157,8 +7469,8 @@ pre.command-output {
   --primary-a60: var(--oc-accent-a60) !important;
   --radio-hover-bg: var(--oc-accent-a10) !important;
   --tab-hover-dark-bg: var(--oc-accent-a10) !important;
-  --scrollbar-thumb: var(--oc-neutral) !important;
-  --scrollbar-thumb-hover: var(--oc-text-muted) !important;
+  --scrollbar-thumb: var(--oc-scrollbar) !important;
+  --scrollbar-thumb-hover: var(--oc-accent-hover) !important;
   border-radius: var(--radius-card);
 }
 [data-page^="admin-services-openclash"] .oc .developer-container,
@@ -7171,6 +7483,22 @@ pre.command-output {
 }
 [data-page^="admin-services-openclash"] .oc .config-upload-content {
   background: var(--oc-surface) !important;
+}
+[data-page^="admin-services-openclash"] textarea::-webkit-scrollbar-thumb,
+[data-page^="admin-services-openclash"] .oc::-webkit-scrollbar-thumb,
+[data-page^="admin-services-openclash"] .oc *::-webkit-scrollbar-thumb,
+[data-page^="admin-services-openclash"] .oc .cm-editor .cm-scroller::-webkit-scrollbar-thumb,
+[data-page^="admin-services-openclash"] .oc #debug-rendered::-webkit-scrollbar-thumb,
+[data-page^="admin-services-openclash"] .oc #debug-rendered pre::-webkit-scrollbar-thumb {
+  background-color: var(--oc-scrollbar) !important;
+}
+[data-page^="admin-services-openclash"] textarea::-webkit-scrollbar-thumb:hover,
+[data-page^="admin-services-openclash"] .oc::-webkit-scrollbar-thumb:hover,
+[data-page^="admin-services-openclash"] .oc *::-webkit-scrollbar-thumb:hover,
+[data-page^="admin-services-openclash"] .oc .cm-editor .cm-scroller::-webkit-scrollbar-thumb:hover,
+[data-page^="admin-services-openclash"] .oc #debug-rendered::-webkit-scrollbar-thumb:hover,
+[data-page^="admin-services-openclash"] .oc #debug-rendered pre::-webkit-scrollbar-thumb:hover {
+  background-color: var(--oc-accent-hover) !important;
 }
 [data-page^="admin-services-openclash"] .cbi-button.cbi-button-add,
 [data-page^="admin-services-openclash"] .cbi-button.cbi-button-apply,
@@ -7336,6 +7664,7 @@ pre.command-output {
 [data-page^="admin-services-openclash"] .oc .config-upload-btn-large:hover {
   transform: none !important;
 }
+[data-page^="admin-services-openclash"] b.oc-txt-good,
 [data-page^="admin-services-openclash"] b[style*="color:green"],
 [data-page^="admin-services-openclash"] b[style*="color: green"],
 [data-page^="admin-services-openclash"] b[color="green"] {
@@ -7369,6 +7698,19 @@ pre.command-output {
 [data-page^="admin-services-openclash"] .cbi-section-node-tabbed > .cbi-tabcontainer > .cbi-value {
   padding-top: 0.4375rem;
   padding-bottom: 0.4375rem;
+}
+[data-page^="admin-services-openclash"][data-page="admin-services-openclash-settings"] [id="container.openclash.config.version_update"] {
+  padding-inline: var(--section-inset);
+}
+[data-page^="admin-services-openclash"][data-page="admin-services-openclash-settings"] [id="container.openclash.config.version_update"] > .oc {
+  border-radius: 0;
+  overflow: visible;
+}
+[data-page^="admin-services-openclash"][data-page="admin-services-openclash-settings"] [id="container.openclash.config.version_update"] #selectPopup.select-popup-tab {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
 }
 [data-page^="admin-services-openclash"][data-page="admin-services-openclash-config"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
 [data-page^="admin-services-openclash"][data-page="admin-services-openclash-config-subscribe"] .cbi-map > .cbi-section > .cbi-section-node:not(.cbi-section-node-tabbed),
@@ -7435,10 +7777,6 @@ pre.command-output {
 [data-page^="admin-services-openclash"] .oc .plugin-toggle-container {
   margin-left: inherit !important;
 }
-[data-page^="admin-services-openclash"] .oc .core-status-toggle {
-  flex: 0 !important;
-  min-width: auto !important;
-}
 [data-page^="admin-services-openclash"] .cbi-tabmenu > li {
   border-right: none !important;
   margin: 0 0.4rem 0 0 !important;
@@ -7492,6 +7830,35 @@ pre.command-output {
 }
 [data-page^="admin-services-openclash"] #tab-content .dom {
   padding: 0 1rem 1rem 1rem;
+}
+[data-page^="admin-services-openclash"][data-page="admin-services-openclash-log"] #tab.oc {
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+[data-page^="admin-services-openclash"][data-page="admin-services-openclash-log"] #tab.oc > #tab-header {
+  padding: var(--field-gap) 0;
+  border: 0;
+  background: transparent;
+}
+[data-page^="admin-services-openclash"][data-page="admin-services-openclash-log"] #tab.oc > #tab-header > ul.oc-tabmenu {
+  background: transparent;
+}
+[data-page^="admin-services-openclash"][data-page="admin-services-openclash-log"] #tab.oc + .oc {
+  border-radius: 0;
+}
+[data-page^="admin-services-openclash"][data-page="admin-services-openclash-log"] #tab-content > .dom {
+  padding: 0;
+}
+[data-page^="admin-services-openclash"][data-page="admin-services-openclash-log"] .oc .select-popup-footer.log-footer {
+  margin: 0;
+  padding: var(--field-gap) 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 [data-page^="admin-services-openclash"] #cbi-openclash-dns_servers .cbi-section-table-row > .cbi-section-table-cell:last-child {
   min-width: 7.25rem;
@@ -7556,6 +7923,87 @@ pre.command-output {
     min-width: 0;
     max-width: 100%;
   }
+}
+[data-page="admin-services-tailscale"] #service_status_display,
+[data-page="admin-vpn-tailscale"] #service_status_display {
+  display: block;
+  padding: var(--field-gap) var(--section-inset);
+  border-radius: var(--radius-card);
+  background-color: var(--surface-color);
+  box-shadow: var(--section-shadow);
+  overflow-x: auto;
+}
+[data-page="admin-services-tailscale"] #tailscale_devices_display,
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display {
+  display: block;
+}
+[data-page="admin-services-tailscale"] #tailscale_devices_display:has(> table),
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display:has(> table) {
+  overflow-x: auto;
+}
+[data-page="admin-services-tailscale"] #service_status_display table,
+[data-page="admin-vpn-tailscale"] #service_status_display table,
+[data-page="admin-services-tailscale"] #tailscale_devices_display table,
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display table {
+  display: table;
+  line-height: normal;
+}
+[data-page="admin-services-tailscale"] #service_status_display table > thead,
+[data-page="admin-vpn-tailscale"] #service_status_display table > thead,
+[data-page="admin-services-tailscale"] #tailscale_devices_display table > thead,
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display table > thead {
+  display: table-header-group;
+}
+[data-page="admin-services-tailscale"] #service_status_display table > tbody,
+[data-page="admin-vpn-tailscale"] #service_status_display table > tbody,
+[data-page="admin-services-tailscale"] #tailscale_devices_display table > tbody,
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display table > tbody {
+  display: table-row-group;
+}
+[data-page="admin-services-tailscale"] #service_status_display table tr,
+[data-page="admin-vpn-tailscale"] #service_status_display table tr,
+[data-page="admin-services-tailscale"] #tailscale_devices_display table tr,
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display table tr {
+  display: table-row;
+}
+[data-page="admin-services-tailscale"] #service_status_display table th,
+[data-page="admin-vpn-tailscale"] #service_status_display table th,
+[data-page="admin-services-tailscale"] #tailscale_devices_display table th,
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display table th,
+[data-page="admin-services-tailscale"] #service_status_display table td,
+[data-page="admin-vpn-tailscale"] #service_status_display table td,
+[data-page="admin-services-tailscale"] #tailscale_devices_display table td,
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display table td {
+  display: table-cell;
+  padding: 1.1em 1.25rem;
+  border-top: var(--table-border);
+  line-height: normal;
+  text-align: center;
+  white-space: nowrap;
+}
+[data-page="admin-services-tailscale"] #service_status_display table th,
+[data-page="admin-vpn-tailscale"] #service_status_display table th,
+[data-page="admin-services-tailscale"] #tailscale_devices_display table th,
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display table th {
+  text-align: center !important;
+}
+[data-page="admin-services-tailscale"] #service_status_display tr + tr,
+[data-page="admin-vpn-tailscale"] #service_status_display tr + tr,
+[data-page="admin-services-tailscale"] #tailscale_devices_display tr:has(> td),
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display tr:has(> td) {
+  background-color: var(--row-color);
+}
+[data-page="admin-services-tailscale"] #tailscale_devices_display tr:nth-child(2n of :has(> td)),
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display tr:nth-child(2n of :has(> td)) {
+  background-color: var(--row-alt);
+}
+[data-page="admin-services-tailscale"] #service_status_display tr:first-child > td,
+[data-page="admin-vpn-tailscale"] #service_status_display tr:first-child > td,
+[data-page="admin-services-tailscale"] #tailscale_devices_display :is(.cbi-table-header, .cbi-section-table-titles) > th,
+[data-page="admin-vpn-tailscale"] #tailscale_devices_display :is(.cbi-table-header, .cbi-section-table-titles) > th {
+  border-top: 0;
+  background-color: var(--surface-muted);
+  line-height: 1.3rem;
 }
 [data-page="admin-vpn-passwall"] h4 {
   background: transparent;
@@ -7835,20 +8283,20 @@ pre.command-output {
   flex-direction: column;
   gap: var(--field-gap);
 }
-[data-page="admin-vpn-passwall"] #app_version > .cbi-value > .cbi-value-field,
-[data-page^="admin-vpn-passwall-"] #app_version > .cbi-value > .cbi-value-field,
-[data-page="admin-services-passwall"] #app_version > .cbi-value > .cbi-value-field,
-[data-page^="admin-services-passwall-"] #app_version > .cbi-value > .cbi-value-field {
+[data-page="admin-vpn-passwall"] .cbi-value-field:has(> input[data-update-app]),
+[data-page^="admin-vpn-passwall-"] .cbi-value-field:has(> input[data-update-app]),
+[data-page="admin-services-passwall"] .cbi-value-field:has(> input[data-update-app]),
+[data-page^="admin-services-passwall-"] .cbi-value-field:has(> input[data-update-app]) {
   display: grid;
-  grid-template-columns: minmax(0, 10rem) auto;
+  grid-template-columns: minmax(0, 10rem) max-content max-content minmax(0, 1fr);
   align-items: center;
   justify-content: start;
   gap: var(--control-gap) var(--action-gap);
 }
-[data-page="admin-vpn-passwall"] #app_version > .cbi-value > .cbi-value-field > span:first-child,
-[data-page^="admin-vpn-passwall-"] #app_version > .cbi-value > .cbi-value-field > span:first-child,
-[data-page="admin-services-passwall"] #app_version > .cbi-value > .cbi-value-field > span:first-child,
-[data-page^="admin-services-passwall-"] #app_version > .cbi-value > .cbi-value-field > span:first-child {
+[data-page="admin-vpn-passwall"] .cbi-value-field:has(> input[data-update-app]) > span:first-child,
+[data-page^="admin-vpn-passwall-"] .cbi-value-field:has(> input[data-update-app]) > span:first-child,
+[data-page="admin-services-passwall"] .cbi-value-field:has(> input[data-update-app]) > span:first-child,
+[data-page^="admin-services-passwall-"] .cbi-value-field:has(> input[data-update-app]) > span:first-child {
   grid-column: 1;
   grid-row: 1;
   min-width: 0;
@@ -7856,30 +8304,77 @@ pre.command-output {
   overflow-wrap: anywhere;
   unicode-bidi: plaintext;
 }
-[data-page="admin-vpn-passwall"] #app_version > .cbi-value > .cbi-value-field > input[data-update-app],
-[data-page^="admin-vpn-passwall-"] #app_version > .cbi-value > .cbi-value-field > input[data-update-app],
-[data-page="admin-services-passwall"] #app_version > .cbi-value > .cbi-value-field > input[data-update-app],
-[data-page^="admin-services-passwall-"] #app_version > .cbi-value > .cbi-value-field > input[data-update-app] {
+[data-page="admin-vpn-passwall"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app],
+[data-page^="admin-vpn-passwall-"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app],
+[data-page="admin-services-passwall"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app],
+[data-page^="admin-services-passwall-"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app] {
   grid-column: 2;
+  grid-row: 1;
   justify-self: start;
+  min-width: 0;
   max-width: 100%;
 }
-[data-page="admin-vpn-passwall"] #app_version > .cbi-value > .cbi-value-field > span[id$="-detail"],
-[data-page^="admin-vpn-passwall-"] #app_version > .cbi-value > .cbi-value-field > span[id$="-detail"],
-[data-page="admin-services-passwall"] #app_version > .cbi-value > .cbi-value-field > span[id$="-detail"],
-[data-page^="admin-services-passwall-"] #app_version > .cbi-value > .cbi-value-field > span[id$="-detail"] {
-  grid-column: 1 / -1;
+[data-page="admin-vpn-passwall"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app][id$="-force_btn"],
+[data-page^="admin-vpn-passwall-"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app][id$="-force_btn"],
+[data-page="admin-services-passwall"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app][id$="-force_btn"],
+[data-page^="admin-services-passwall-"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app][id$="-force_btn"] {
+  grid-column: 3;
+}
+[data-page="admin-vpn-passwall"] .cbi-value-field:has(> input[data-update-app]) > span[id$="-detail"],
+[data-page^="admin-vpn-passwall-"] .cbi-value-field:has(> input[data-update-app]) > span[id$="-detail"],
+[data-page="admin-services-passwall"] .cbi-value-field:has(> input[data-update-app]) > span[id$="-detail"],
+[data-page^="admin-services-passwall-"] .cbi-value-field:has(> input[data-update-app]) > span[id$="-detail"] {
+  grid-column: 4;
+  grid-row: 1;
   min-width: 0;
+  max-width: 100%;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
-[data-page="admin-vpn-passwall"] #app_version > .cbi-value > .cbi-value-field > span[id$="-detail"]:empty,
-[data-page^="admin-vpn-passwall-"] #app_version > .cbi-value > .cbi-value-field > span[id$="-detail"]:empty,
-[data-page="admin-services-passwall"] #app_version > .cbi-value > .cbi-value-field > span[id$="-detail"]:empty,
-[data-page^="admin-services-passwall-"] #app_version > .cbi-value > .cbi-value-field > span[id$="-detail"]:empty {
-  display: none;
-}
 @container (max-width: 40rem) {
+  [data-page="admin-vpn-passwall"] .cbi-value-field:has(> input[data-update-app]),
+  [data-page^="admin-vpn-passwall-"] .cbi-value-field:has(> input[data-update-app]),
+  [data-page="admin-services-passwall"] .cbi-value-field:has(> input[data-update-app]),
+  [data-page^="admin-services-passwall-"] .cbi-value-field:has(> input[data-update-app]) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--control-gap) var(--action-gap);
+  }
+  [data-page="admin-vpn-passwall"] .cbi-value-field:has(> input[data-update-app]) > span:first-child,
+  [data-page^="admin-vpn-passwall-"] .cbi-value-field:has(> input[data-update-app]) > span:first-child,
+  [data-page="admin-services-passwall"] .cbi-value-field:has(> input[data-update-app]) > span:first-child,
+  [data-page^="admin-services-passwall-"] .cbi-value-field:has(> input[data-update-app]) > span:first-child {
+    flex: 0 0 100%;
+    min-width: 0;
+  }
+  [data-page="admin-vpn-passwall"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app],
+  [data-page^="admin-vpn-passwall-"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app],
+  [data-page="admin-services-passwall"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app],
+  [data-page^="admin-services-passwall-"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app] {
+    flex: 0 0 auto;
+    min-width: max-content;
+    max-width: 100%;
+    grid-column: auto;
+    grid-row: auto;
+  }
+  [data-page="admin-vpn-passwall"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app][id$="-force_btn"],
+  [data-page^="admin-vpn-passwall-"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app][id$="-force_btn"],
+  [data-page="admin-services-passwall"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app][id$="-force_btn"],
+  [data-page^="admin-services-passwall-"] .cbi-value-field:has(> input[data-update-app]) > input[data-update-app][id$="-force_btn"] {
+    grid-column: auto;
+  }
+  [data-page="admin-vpn-passwall"] .cbi-value-field:has(> input[data-update-app]) > span[id$="-detail"],
+  [data-page^="admin-vpn-passwall-"] .cbi-value-field:has(> input[data-update-app]) > span[id$="-detail"],
+  [data-page="admin-services-passwall"] .cbi-value-field:has(> input[data-update-app]) > span[id$="-detail"],
+  [data-page^="admin-services-passwall-"] .cbi-value-field:has(> input[data-update-app]) > span[id$="-detail"] {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
+    grid-column: auto;
+    grid-row: auto;
+  }
   [data-page="admin-vpn-passwall"] .cbi-value:has(> .cbi-value-field > .share-toolbar) > .cbi-value-title,
   [data-page^="admin-vpn-passwall-"] .cbi-value:has(> .cbi-value-field > .share-toolbar) > .cbi-value-title,
   [data-page="admin-services-passwall"] .cbi-value:has(> .cbi-value-field > .share-toolbar) > .cbi-value-title,
@@ -8029,8 +8524,51 @@ pre.command-output {
   border-bottom: thin solid var(--border-subtle);
   box-shadow: 0 -1px 0 0 var(--border-subtle);
 }
-#wifi_assoclist_table > .tr > .td[data-title="RX Rate / TX Rate"] {
-  width: 23rem;
+#wifi_assoclist_table .ifacebadge[data-ssid] {
+  display: flex;
+  width: 100%;
+  gap: var(--control-gap);
+  padding: var(--control-gap);
+}
+#wifi_assoclist_table .ifacebadge[data-ssid] > img {
+  flex: none;
+  margin: 0;
+}
+#wifi_assoclist_table .ifacebadge[data-ssid] > span {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: start;
+}
+#wifi_assoclist_table .ifacebadge[data-ssid] small {
+  display: block;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+@media screen and (min-width: 1153px) {
+  #wifi_assoclist_table .td > .cbi-dropdown:is(.btn, .cbi-button):not([multiple]) {
+    min-width: max-content;
+  }
+  #wifi_assoclist_table .td > .cbi-dropdown:is(.btn, .cbi-button):not([multiple]) > ul:not(.dropdown) > li {
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+  #wifi_assoclist_table > .tr > :is(.th, .td) {
+    padding-inline: var(--action-gap);
+    overflow-wrap: break-word;
+  }
+  #wifi_assoclist_table > .tr > :is(.th, .td):first-child {
+    width: 22%;
+    min-width: 10rem;
+  }
+}
+#wifi_assoclist_table > .tr > .td > span.hide-xs {
+  display: block;
+}
+@media screen and (max-width: 600px) {
+  #wifi_assoclist_table .td:has(> .ifacebadge[data-ssid]) {
+    flex-basis: 100%;
+    padding-inline: var(--control-gap);
+  }
 }
 #cbi-wireless,
 #cbi-wireless *,
@@ -8295,6 +8833,11 @@ pre.command-output {
     max-width: 100%;
     flex-wrap: wrap;
     justify-content: center;
+  }
+  .table .td:has(.ifacebadge[data-signal]),
+  #cbi-wireless .td:has(.ifacebadge[data-signal]) {
+    min-width: min-content;
+    padding-inline: var(--control-gap);
   }
   .td select,
   .td input[type="text"] {
