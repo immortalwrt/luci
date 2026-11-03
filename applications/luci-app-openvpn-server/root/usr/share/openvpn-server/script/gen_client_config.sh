@@ -2,6 +2,12 @@
 
 CONFIG="luci-app-openvpn-server"
 
+auth_method=$(uci -q get ${CONFIG}.server.auth_method || echo "password")
+case "${auth_method}" in
+	password|cert_password|certificate) ;;
+	*) echo "Invalid OpenVPN authentication method: ${auth_method}" >&2; exit 1 ;;
+esac
+
 port=$(uci -q get ${CONFIG}.server.port || echo "1194")
 proto=$(uci -q get ${CONFIG}.server.proto || echo "udp")
 ddns=$(uci -q get ${CONFIG}.server.ddns || echo "example.com")
@@ -27,7 +33,7 @@ cat <<-EOF > /tmp/openvpn.ovpn
 	nobind
 	persist-key
 	persist-tun
-	auth-user-pass
+	$([ "${auth_method}" != "certificate" ] && echo "auth-user-pass")
 	$([ "${cipher}" != "none" ] && echo "data-ciphers ${cipher}:AES-256-GCM:AES-128-GCM")
 	$([ "${cipher}" != "none" ] && echo "cipher ${cipher}")
 	$([ "${auth}" != "none" ] && echo "auth ${auth}")
@@ -55,3 +61,5 @@ EOF
 		</tls-auth>
 	EOF
 }
+
+exit 0

@@ -13,11 +13,12 @@ o.rmempty = false
 
 o = s:option(Value, "username", translate("Username"))
 o.placeholder = translate("Username")
+o.description = translate("In certificate-only mode, use the client certificate common name for per-client settings.")
 o.rmempty = false
 
 o = s:option(Value, "password", translate("Password"))
 o.placeholder = translate("Password")
-o.rmempty = false
+o.rmempty = m.uci:get("luci-app-openvpn-server", "server", "auth_method") == "certificate"
 
 o = s:option(Value, "remark", translate("Remark"))
 o.rmempty = true

@@ -28,6 +28,7 @@ EOF
 echo "${TIME}: ${common_name}/${REMOTE_IP} online." >> ${LOG_FILE}
 
 cfgid=$(uci show ${CONFIG} | grep "@users" | grep "\.username='${common_name}'" | cut -d '.' -sf 2)
+[ "$(uci -q get ${CONFIG}.server.auth_method)" = "certificate" ] && [ -n "${cfgid}" ] && [ "$(uci -q get ${CONFIG}.${cfgid}.enabled)" != "1" ] && cfgid=""
 [ -n "$cfgid" ] && {
 	routes=$(uci -q get ${CONFIG}.${cfgid}.routes)
 	[ -n "$routes" ] && {

@@ -13,7 +13,7 @@ CORRECT_PASSWORD=$(echo "${USER_INFO}" | awk '{print $1}')
 EXPIRE_TIME=$(echo "${USER_INFO}" | awk '{print $2}')
 ACCESS_TIME=$(echo "${USER_INFO}" | awk '{print $3}')
 if [ "${CORRECT_PASSWORD}" = "" ]; then 
-	echo "${TIME}: ${username}/${IP} Fail authentication. input password=\"${password}\"." >> ${LOG_FILE}
+	echo "${TIME}: ${username}/${IP} Fail authentication. unknown user." >> ${LOG_FILE}
 	exit 1
 fi
 
@@ -69,5 +69,5 @@ if [ "${password}" = "${CORRECT_PASSWORD}" ]; then
 	exit 0
 fi
 
-echo "${TIME}: ${username}/${IP} Fail authentication. input password=\"${password}\"." >> ${LOG_FILE}
+echo "${TIME}: ${username}/${IP} Fail authentication. incorrect password." >> ${LOG_FILE}
 exit 1

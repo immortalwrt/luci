@@ -85,6 +85,10 @@ start_service() {
 	local enabled=$(uci -q get ${CONFIG}.server.enabled)
 	[ "${enabled}" -eq 1 ] || return 1
 	local auth_method=$(uci -q get ${CONFIG}.server.auth_method || echo "password")
+	case "${auth_method}" in
+		password|cert_password|certificate) ;;
+		*) echo "Invalid OpenVPN authentication method: ${auth_method}" >&2; return 1 ;;
+	esac
 	local cipher=$(uci -q get ${CONFIG}.server.cipher || echo "AES-256-GCM")
 	local auth=$(uci -q get ${CONFIG}.server.auth || echo "SHA256")
 	local tls_crypt=$(uci -q get ${CONFIG}.server.tls_crypt || echo "0")
@@ -109,10 +113,11 @@ start_service() {
 	_tls_crypt_key=${OVPN_PATH}/tls-crypt.key
 	_tls_auth_key=${OVPN_PATH}/tls-auth.key
 	
+	rm -rf ${TMP_OVPN_PATH}/ccd
 	mkdir -p ${TMP_OVPN_PATH}/ccd
 	
 	_auth_path=${TMP_OVPN_PATH}/auth
-	touch ${_auth_path}
+	: > ${_auth_path}
 	local _users=$(uci -q show ${CONFIG} | grep "=users" | cut -d '.' -sf2 | cut -d '=' -sf 1)
 	[ -n "${_users}" ] && {
 		for _user in ${_users}; do
@@ -123,11 +128,11 @@ start_service() {
 			[ -n "${u_username}" ] || continue
 			
 			local u_password=$(uci -q get ${CONFIG}.${_user}.password)
-			[ -n "${u_password}" ] || continue
+			[ "${auth_method}" = "certificate" ] || [ -n "${u_password}" ] || continue
 			
 			local u_expire_time=$(uci -q get ${CONFIG}.${_user}.expire_time)
 			local u_access_time=$(uci -q get ${CONFIG}.${_user}.access_time)
-			echo "${u_username} ${u_password} ${u_expire_time:-0} ${u_access_time:-0}" >> ${_auth_path}
+			[ "${auth_method}" = "certificate" ] || echo "${u_username} ${u_password} ${u_expire_time:-0} ${u_access_time:-0}" >> ${_auth_path}
 			
 			local u_ipaddress=$(uci -q get ${CONFIG}.${_user}.ipaddress)
 			[ -n "${u_ipaddress}" ] && echo "ifconfig-push ${u_ipaddress} ${subnet_mask}" >> ${TMP_OVPN_PATH}/ccd/${u_username}
@@ -154,6 +159,12 @@ start_service() {
 verify-client-cert none"
 	[ "${auth_method}" = "cert_password" ] && server_extra="${server_extra}
 remote-cert-tls client"
+	[ "${auth_method}" = "certificate" ] && server_extra="${server_extra}
+verify-client-cert require
+remote-cert-tls client"
+	[ "${auth_method}" != "certificate" ] && server_extra="${server_extra}
+auth-user-pass-verify ${SCRIPT_PATH}/auth_verify.sh via-env
+username-as-common-name"
 	[ "${cipher}" != "none" ] && server_extra="${server_extra}
 data-ciphers ${cipher}:AES-256-GCM:AES-128-GCM
 cipher ${cipher}"
@@ -184,7 +195,7 @@ push \"dhcp-option DOMAIN ${dns_search}\""
 push \"route ${IP} ${NETMASK}\""
 	done
 	
-	cat <<-EOF >> ${TMP_OVPN_PATH}/server.conf
+	cat <<-EOF > ${TMP_OVPN_PATH}/server.conf
 		management 127.0.0.1 17777
 		port ${port}
 		proto ${proto}$([ "${ipv6}" -eq 1 ] && echo "6")
@@ -195,8 +206,6 @@ push \"route ${IP} ${NETMASK}\""
 		key ${_key}
 		dh ${_dh}
 		topology subnet
-		auth-user-pass-verify ${SCRIPT_PATH}/auth_verify.sh via-env
-		username-as-common-name
 		client-config-dir ${TMP_OVPN_PATH}/ccd
 		server ${ip_segment} ${subnet_mask}
 		ifconfig-pool-persist ipp.txt

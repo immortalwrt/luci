@@ -36,7 +36,7 @@ f.reset = false
 f.submit = false
 
 t = f:section(Table, sessions, translate("Online Users"))
-t:option(DummyValue, "common_name", translate("Username"))
+t:option(DummyValue, "common_name", translate("Username or certificate common name"))
 t:option(DummyValue, "ifconfig_pool_remote_ip", translate("Client IP"))
 t:option(DummyValue, "remote_ip", translate("IP address"))
 t:option(DummyValue, "login_time", translate("Login Time"))

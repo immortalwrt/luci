@@ -118,6 +118,8 @@ o = s:taboption("security", ListValue, "auth_method", translate("Authentication 
 o.default = "password"
 o:value("password", translate("Username and password"))
 o:value("cert_password", translate("Client certificate and password"))
+o:value("certificate", translate("Client certificate only"))
+o.description = translate("In certificate-only mode, any valid client certificate issued by the trusted CA can connect. User account status, expiry and login times do not restrict access; use the certificate common name for per-client settings.")
 o.rmempty = false
 
 o = s:taboption("security", ListValue, "cipher", translate("Cipher"))
@@ -181,8 +183,12 @@ o.wrap = "off"
 o = s:taboption("client", Button, "certificate", translate("OpenVPN Client config file"))
 o.inputtitle = translate("Download .ovpn file")
 o.inputstyle = "reload"
+o.description = translate("Certificate authentication requires a client certificate and private key supplied separately; the downloaded file contains neither.")
 o.write = function()
-	luci.sys.call("sh /usr/share/openvpn-server/script/gen_client_config.sh >/dev/null 2>&1")
+	if luci.sys.call("sh /usr/share/openvpn-server/script/gen_client_config.sh >/dev/null 2>&1") ~= 0 then
+		luci.http.status(500, "Failed to generate client configuration")
+		return
+	end
 	local filename = m.uci:get("luci-app-openvpn-server", "server", "ovpn_name") or "openvpn"
 	filename = filename:gsub("[^%w%._%-]", "_")
 	if filename == "" then filename = "openvpn" end
@@ -282,11 +288,12 @@ o.rmempty = false
 
 o = s:option(Value, "username", translate("Username"))
 o.placeholder = translate("Username")
+o.description = translate("In certificate-only mode, use the client certificate common name for per-client settings.")
 o.rmempty = false
 
 o = s:option(Value, "password", translate("Password"))
 o.placeholder = translate("Password")
-o.rmempty = false
+o.rmempty = m.uci:get("luci-app-openvpn-server", "server", "auth_method") == "certificate"
 
 o = s:option(Value, "ipaddress", translate("IP address"))
 o.placeholder = translate("Automatically")
