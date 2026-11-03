@@ -10,8 +10,8 @@ LUCI_TITLE:=Argon Theme
 LUCI_DEPENDS:=+wget-any +jsonfilter +ucode-mod-math
 LUCI_BASENAME:=argon-config
 
-PKG_VERSION:=3.1.0
-PKG_RELEASE:=20261022
+PKG_VERSION:=3.1.2
+PKG_RELEASE:=20261102
 PKG_PROVIDES:=luci-app-argon-config
 
 PKG_LICENSE:=Apache-2.0 MIT
