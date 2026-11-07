@@ -1,0 +1,17 @@
+{
+	"luci-app-hustNetworkLogin": {
+		"description": "Grant access to the HUST campus network auto login settings and status",
+		"read": {
+			"uci": [ "hust-network-login" ],
+			"ubus": {
+				"hust-network-login": [ "status" ]
+			}
+		},
+		"write": {
+			"uci": [ "hust-network-login" ],
+			"ubus": {
+				"hust-network-login": [ "reconnect" ]
+			}
+		}
+	}
+}
