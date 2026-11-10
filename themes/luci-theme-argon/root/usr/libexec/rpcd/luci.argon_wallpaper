@@ -4,8 +4,7 @@
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
 
-# the script will be excuted when `argon.@global[0].bing_background == '1'`
-# defaults to 'bing' to be compatible with old config
+# Default to Bing for the legacy bing_background configuration.
 WEB_PIC_SRC="$(uci -q get argon.@global[0].online_wallpaper || echo 'bing')"
 
 # API_KEY is used by Unsplash and Wallhaven when configured.
@@ -61,9 +60,9 @@ fetch_pic_url() {
 
 try_update() {
 	local lock="$WRLOCK"
-	exec 200>"$lock"
+	exec 9>"$lock"
 
-	if flock -n 200 >"/dev/null" 2>&1; then
+	if flock -n 9 >"/dev/null" 2>&1; then
 		local picurl="$(fetch_pic_url)"
 		if [ -n "$picurl" ]; then
 
@@ -82,7 +81,7 @@ try_update() {
 			# and let the login page select a local background instead.
 			: > "$CACHE"
 		fi
-		flock -u 200 >"/dev/null" 2>&1
+		flock -u 9 >"/dev/null" 2>&1
 	elif [ -s "$CACHE" ]; then
 		cat "$CACHE"
 	fi
