@@ -1,0 +1,19 @@
+{
+  "luci-app-jluNetworkLogin": {
+    "description": "Grant access to JLU DrCOM configuration and status",
+    "read": {
+      "uci": [ "jlu-network-login", "network", "dhcp" ],
+      "ubus": {
+        "jlu-network-login": [ "status" ]
+      }
+    },
+    "write": {
+      "uci": [ "jlu-network-login", "network", "dhcp" ],
+      "ubus": {
+        "jlu-network-login": [ "reconnect" ],
+        "network": [ "reload" ],
+        "rc": [ "init" ]
+      }
+    }
+  }
+}
