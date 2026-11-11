@@ -146,12 +146,22 @@ function updateCharts(container, chartNodes) {
 			scrollPositions[el.dataset.chart] = el.scrollLeft;
 	});
 
-	L.dom.content(container, fillRows(chartNodes, 'charts'));
+	updateNodes(container, fillRows(chartNodes, 'charts'));
 
 	container.querySelectorAll('[data-chart]').forEach(el => {
 		if (el.dataset.chart && scrollPositions[el.dataset.chart] != null)
 			el.scrollLeft = scrollPositions[el.dataset.chart];
 	});
+}
+
+// Retained widgets need no detach/attach cycle on unchanged samples.
+function updateNodes(container, nodes) {
+	nodes.forEach((node, i) => {
+		if (container.children[i] !== node)
+			container.insertBefore(node, container.children[i] || null);
+	});
+	while (container.children.length > nodes.length)
+		container.removeChild(container.lastChild);
 }
 
 function updateTabs(tabMap, tabGroup, items, form) {
@@ -248,12 +258,12 @@ function startPolling(includes, layout, root, form) {
 			const sections = collectSections(includes, results, layout);
 
 			if (form)
-				sections.tabs.push({ id: 'layout', title: _('Layout'), content: [] });
+				sections.tabs.push({ id: 'layout', title: _('Settings'), content: [] });
 
 			updateShell(root, sections, containers);
 
 			if (sections.cards.length)
-				L.dom.content(cardsContainer, fillRows(sections.cards, 'cards'));
+				updateNodes(cardsContainer, fillRows(sections.cards, 'cards'));
 
 			if (sections.charts.length)
 				updateCharts(chartsContainer, sections.charts);
@@ -295,7 +305,7 @@ return view.extend({
 
 		document.addEventListener('uci-applied', () => window.location.reload());
 
-		const form = L.hasViewPermission() ? E('div', { 'class': 'cbi-section', 'data-tab': 'layout', 'data-tab-title': _('Layout') }, [ E('em', { 'class': 'spinning' }, [ _('Loading view…') ]) ]) : null;
+		const form = L.hasViewPermission() ? E('div', { 'class': 'cbi-section', 'data-tab': 'layout', 'data-tab-title': _('Settings') }, [ E('em', { 'class': 'spinning' }, [ _('Loading view…') ]) ]) : null;
 
 		return startPolling(includes, layout, root, form).then(() => root);
 	},

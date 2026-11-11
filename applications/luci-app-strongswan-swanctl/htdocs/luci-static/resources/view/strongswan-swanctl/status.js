@@ -1,6 +1,7 @@
 'use strict';
 'require view';
 'require strongswan-swanctl.ikev1 as ikev1';
+'require strongswan-swanctl.service as service';
 'require dom';
 'require poll';
 'require fs';
@@ -61,20 +62,63 @@ function swanctlCommand(parameters) {
 		.catch(e => ui.addNotification(null, E('p', e.message)));
 }
 
-function handleConnectionUp(connectionName) {
-	return swanctlCommand(['--initiate', '--ike', connectionName]);
+function handleConnectionUp(connectionName, refresh) {
+	return swanctlCommand(['--initiate', '--ike', connectionName])
+		.then(() => refresh());
 }
 
-function handleConnectionDown(connectionName) {
-	return swanctlCommand(['--terminate', '--ike', connectionName]);
+function handleConnectionDown(connectionName, refresh) {
+	return swanctlCommand(['--terminate', '--ike', connectionName])
+		.then(() => refresh());
 }
 
-function handleChildUp(childName) {
-	return swanctlCommand(['--initiate', '--child', childName]);
+// The currently shown details modal, updated on every poll
+let openModal = null;
+
+function updateOpenModal(connections) {
+	if (!openModal)
+		return;
+
+	// ui.hideModal() keeps the content in the DOM, ui.showModal() replaces it
+	if (!document.body.classList.contains('modal-overlay-active') || !openModal.node.isConnected) {
+		openModal = null;
+		return;
+	}
+
+	const connection = connections.find(connection => connection.name === openModal.connectionName);
+	if (connection)
+		openModal.update(connection);
 }
 
-function handleChildDown(childName) {
-	return swanctlCommand(['--terminate', '--child', childName]);
+function fetchConnection(connectionName) {
+	return callMapConns().then(result => {
+		if (result.error)
+			throw new Error(result.error);
+		return (result.data || []).find(connection => connection.name === connectionName);
+	});
+}
+
+function refreshChildTable(container, connectionName) {
+	return fetchConnection(connectionName).then(connection => {
+		if (connection)
+			dom.content(container, renderChildTable(connection, container));
+	}).catch(e => ui.addNotification(null, E('p', e.message)));
+}
+
+function handleChildUp(childName, container, connectionName) {
+	return swanctlCommand(['--initiate', '--child', childName])
+		.then(() => refreshChildTable(container, connectionName));
+}
+
+function handleChildDown(childName, container, connectionName) {
+	return swanctlCommand(['--terminate', '--child', childName])
+		.then(() => refreshChildTable(container, connectionName));
+}
+
+function handleChildDetailsDismiss(connection) {
+	return fetchConnection(connection.name)
+		.catch(e => ui.addNotification(null, E('p', e.message)))
+		.then(freshConnection => handleConnectionDetails(freshConnection || connection));
 }
 
 function renderDetailsSection(connection) {
@@ -94,8 +138,10 @@ function renderDetailsSection(connection) {
 	]));
 }
 
-function handleChildDetails(connection, childName, child, childSa) {
-	const modal = buildSection(_('Details'), buildKeyValueTable([
+function renderChildDetailsSection(childName, child) {
+	const childSa = child.childSa;
+
+	return buildSection(_('Details'), buildKeyValueTable([
 		[_('Name'), childName],
 		[_('Mode'), child.mode],
 		[_('Protocol'), childSa ? childSa.protocol : ''],
@@ -111,16 +157,30 @@ function handleChildDetails(connection, childName, child, childSa) {
 		[_('SPI in'), childSa ? childSa['spi-in'] : ''],
 		[_('SPI out'), childSa ? childSa['spi-out'] : '']
 	]));
-
-	ui.showModal(_('Child Details'), [modal, E('div', { 'class': 'right' }, [
-		E('button', {
-			'class': 'btn cbi-button',
-			'click': ui.createHandlerFn(null, handleConnectionDetails, connection)
-		}, [_('Dismiss')])
-	])], 'cbi-modal');
 }
 
-function renderChildTable(connection) {
+function handleChildDetails(connection, childName, child) {
+	const container = E('div', {}, [renderChildDetailsSection(childName, child)]);
+
+	ui.showModal(_('Child Details'), [container, E('div', { 'class': 'right' }, [
+		E('button', {
+			'class': 'btn cbi-button',
+			'click': ui.createHandlerFn(null, handleChildDetailsDismiss, connection)
+		}, [_('Dismiss')])
+	])], 'cbi-modal');
+
+	openModal = {
+		connectionName: connection.name,
+		node: container,
+		update: freshConnection => {
+			const freshChild = freshConnection.children[childName];
+			if (freshChild)
+				dom.content(container, renderChildDetailsSection(childName, freshChild));
+		}
+	};
+}
+
+function renderChildTable(connection, container) {
 	const tableHeaders = [
 		[_('Name')],
 		[_('State')],
@@ -155,7 +215,7 @@ function renderChildTable(connection) {
 				E('button', {
 					'title': _('Details'),
 					'class': 'btn cbi-button cbi-button-primary',
-					'click': ui.createHandlerFn(null, handleChildDetails, connection, childName, child, childSa)
+					'click': ui.createHandlerFn(null, handleChildDetails, connection, childName, child)
 				}, [_('Details')])
 			],
 			[
@@ -163,13 +223,13 @@ function renderChildTable(connection) {
 					'title': _('Start'),
 					'class': 'btn cbi-button cbi-button-positive',
 					...(isDown ? {} : { 'disabled': 'disabled' }),
-					'click': ui.createHandlerFn(null, handleChildUp, childName)
+					'click': ui.createHandlerFn(null, handleChildUp, childName, container, connection.name)
 				}, [_('Start')]),
 				E('button', {
 					'title': _('Stop'),
 					'class': 'btn cbi-button cbi-button-negative',
 					...(isDown ? { 'disabled': 'disabled' } : {}),
-					'click': ui.createHandlerFn(null, handleChildDown, childName)
+					'click': ui.createHandlerFn(null, handleChildDown, childName, container, connection.name)
 				}, [_('Stop')])
 			]
 		];
@@ -205,23 +265,31 @@ function filterConnectionAuths(connection, prefix) {
 	return auths.map(([key, value]) => value);
 }
 
-function handleConnectionDetails(connection) {
-	const detailSection = renderDetailsSection(connection);
-	const childTable = renderChildTable(connection);
+function renderConnectionTab(connection) {
 	const localAuths = filterConnectionAuths(connection, 'local-');
 	const remoteAuths = filterConnectionAuths(connection, 'remote-');
-	const localAuthTable = renderAuthTable(localAuths);
-	const remoteAuthTable = renderAuthTable(remoteAuths);
+
+	return [
+		renderDetailsSection(connection),
+		E('h3', _('Local Auth')),
+		renderAuthTable(localAuths),
+		E('h3', _('Remote Auth')),
+		renderAuthTable(remoteAuths)
+	];
+}
+
+function handleConnectionDetails(connection) {
+	const connectionContainer = E('div', { 'class': 'cbi-section', 'data-tab': 'details', 'data-tab-title': _('Connection') });
+	const childContainer = E('div', { 'class': 'cbi-section', 'data-tab': 'children', 'data-tab-title': _('Children') });
+	const update = freshConnection => {
+		dom.content(connectionContainer, renderConnectionTab(freshConnection));
+		dom.content(childContainer, renderChildTable(freshConnection, childContainer));
+	};
+	update(connection);
 
 	const modal = E([], [E('div', {}, [
-		E('div', { 'class': 'cbi-section', 'data-tab': 'details', 'data-tab-title': _('Connection') }, [
-			detailSection,
-			E('h3', _('Local Auth')),
-			localAuthTable,
-			E('h3', _('Remote Auth')),
-			remoteAuthTable
-		]),
-		E('div', { 'class': 'cbi-section', 'data-tab': 'children', 'data-tab-title': _('Children') }, [childTable])
+		connectionContainer,
+		childContainer
 	])]);
 
 	ui.tabs.initTabGroup(modal.lastElementChild.childNodes);
@@ -231,6 +299,12 @@ function handleConnectionDetails(connection) {
 			'click': ui.hideModal
 		}, [_('Dismiss')])
 	])], 'cbi-modal');
+
+	openModal = {
+		connectionName: connection.name,
+		node: connectionContainer,
+		update: update
+	};
 }
 
 function collectSwanmonErrorMessages(results) {
@@ -249,22 +323,39 @@ return view.extend({
 		return Promise.all([
 			fs.exec_direct('/usr/sbin/swanmon', ['version'], 'json'),
 			fs.exec_direct('/usr/sbin/swanmon', ['stats'], 'json'),
-			callMapConns()
+			callMapConns(),
+			service.getState()
 		]);
 	},
 
-	pollData(container) {
-		poll.add(L.bind(function () {
-			return this.load().then(L.bind(function (results) {
-				dom.content(container, this.renderContent(results));
-			}, this));
+	refreshContent(container) {
+		return this.load().then(L.bind(function (results) {
+			const connectionResult = results[2];
+
+			dom.content(container, this.renderContent(results, container));
+			if (!connectionResult.error && connectionResult.data)
+				updateOpenModal(connectionResult.data);
 		}, this));
 	},
 
-	renderContent(results) {
-		const [versionResult, statsResult, connectionResult] = results;
+	pollData(container) {
+		poll.add(L.bind(this.refreshContent, this, container));
+	},
+
+	renderContent(results, container) {
+		const refresh = () => this.refreshContent(container)
+			.catch(e => ui.addNotification(null, E('p', e.message)));
+		const [versionResult, statsResult, connectionResult, serviceState] = results;
 		const node = E('div', [E('div')]);
 		const firstNode = node.firstElementChild;
+
+		const banner = service.banner(serviceState,
+			_('Enable the IPsec service to see the IPsec status.'));
+		if (banner) {
+			firstNode.appendChild(banner);
+
+			return node;
+		}
 
 		const errorMessages = collectSwanmonErrorMessages([versionResult, statsResult]);
 		if (connectionResult.error)
@@ -275,8 +366,10 @@ return view.extend({
 				return E('li', message);
 			});
 
-			firstNode.appendChild(E('h4', _('Querying strongSwan failed')));
-			firstNode.appendChild(E('ul', messageEls));
+			firstNode.appendChild(E('div', { 'class': 'alert-message error' }, [
+				E('h4', _('Querying strongSwan failed')),
+				E('ul', messageEls)
+			]));
 
 			return node;
 		}
@@ -320,13 +413,13 @@ return view.extend({
 						'title': _('Start'),
 						'class': 'btn cbi-button cbi-button-positive',
 						...(isDown ? {} : { 'disabled': 'disabled' }),
-						'click': ui.createHandlerFn(null, handleConnectionUp, connection.name)
+						'click': ui.createHandlerFn(null, handleConnectionUp, connection.name, refresh)
 					}, [_('Start')]),
 					E('button', {
 						'title': _('Stop'),
 						'class': 'btn cbi-button cbi-button-negative',
 						...(isDown ? { 'disabled': 'disabled' } : {}),
-						'click': ui.createHandlerFn(null, handleConnectionDown, connection.name)
+						'click': ui.createHandlerFn(null, handleConnectionDown, connection.name, refresh)
 					}, [_('Stop')])
 				])
 			]));
@@ -347,7 +440,7 @@ return view.extend({
 		]);
 		const container = content.lastElementChild;
 
-		dom.content(container, this.renderContent(results));
+		dom.content(container, this.renderContent(results, container));
 		this.pollData(container);
 
 		return ikev1.banner().then(function (banner) {
