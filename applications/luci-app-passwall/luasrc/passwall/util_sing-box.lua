@@ -324,14 +324,13 @@ function gen_outbound(flag, node, tag, proxy_table)
 
 		local v2ray_transport = nil
 
-		if node.transport == "tcp" and node.tcp_guise == "http" and (node.tcp_guise_http_host or "") ~= "" then  --模拟xray raw(tcp)传输
+		if node.transport == "tcp" and node.tcp_guise == "http" then  --模拟xray raw(tcp)传输
+			local path = node.tcp_guise_http_path
+			if type(path) == "table" then path = path[1] end
 			v2ray_transport = {
 				type = "http",
-				host = node.tcp_guise_http_host,
-				path = node.tcp_guise_http_path and (function()
-						local first = node.tcp_guise_http_path[1]
-						return (first == "" or not first) and "/" or first
-					end)() or "/",
+				host = (node.tcp_guise_http_host ~= "") and node.tcp_guise_http_host or nil,
+				path = (path and path ~= "") and path or "/",
 				headers = node.user_agent and {
 					["User-Agent"] = node.user_agent
 				} or nil,
@@ -1437,22 +1436,24 @@ function gen_config(var)
 			end
 
 			local valid_nodes = {}
+			local valid_node_tags = {}
 			for i = 1, #(ut_nodes or {}) do
 				local ut_node_id = ut_nodes[i]
 				local ut_node_tag = "ut-" .. ut_node_id
-				local is_new_ut_node = true
+				local outboundTag
 				for _, outbound in ipairs(outbounds) do
 					if string.sub(outbound.tag, 1, #ut_node_tag) == ut_node_tag then
-						is_new_ut_node = false
-						valid_nodes[#valid_nodes + 1] = outbound.tag
+						outboundTag = outbound.tag
 						break
 					end
 				end
-				if is_new_ut_node then
-					local outboundTag = gen_outbound_get_tag(flag, ut_node_id, ut_node_tag, { fragment = singbox_settings.fragment == "1" or nil, record_fragment = singbox_settings.record_fragment == "1" or nil })
-					if outboundTag then
-						valid_nodes[#valid_nodes + 1] = outboundTag
-					end
+				if not outboundTag then
+					outboundTag = gen_outbound_get_tag(flag, ut_node_id, ut_node_tag, { fragment = singbox_settings.fragment == "1" or nil, record_fragment = singbox_settings.record_fragment == "1" or nil })
+				end
+				-- URLTest 组内的成员标签必须唯一，复用已有出站时也需要去重。
+				if outboundTag and not valid_node_tags[outboundTag] then
+					valid_node_tags[outboundTag] = true
+					valid_nodes[#valid_nodes + 1] = outboundTag
 				end
 			end
 			if #valid_nodes == 0 then return nil end

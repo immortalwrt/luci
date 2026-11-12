@@ -386,6 +386,7 @@ function socks_status()
 	e.socks_status = luci.sys.call(string.format("/bin/busybox top -bn1 | grep -v -E 'grep|acl/|acl_' | grep '%s/bin/' | grep '/%s' > /dev/null", appname, id)) == 0
 	local use_http = uci_get(id, "http_port") or 0
 	e.use_http = 0
+	e.http_status = false
 	if tonumber(use_http) > 0 then
 		e.use_http = 1
 		e.http_status = luci.sys.call(string.format("/bin/busybox top -bn1 | grep -v -E 'grep|acl/|acl_' | grep '%s/bin/' | grep '/%s' | grep -E '\\+http|_http' > /dev/null", appname, id)) == 0
@@ -407,7 +408,7 @@ function connect_status()
 	local proxy_mode = uci_get("@global[0]", "tcp_proxy_mode") or "proxy"
 	local localhost_proxy = uci_get("@global[0]", "localhost_proxy") or "1"
 	local socks_server = (localhost_proxy == "0") and api.get_cache_var("GLOBAL_SOCKS_server") or ""
-	local curl_args = "-w '%{http_code}:%{time_pretransfer}:%{time_starttransfer}' " .. util.shellquote(url)
+	local curl_args = "-A 'Mozilla/5.0' -w '%{http_code}:%{time_pretransfer}:%{time_starttransfer}' " .. util.shellquote(url)
 	if socks_server and socks_server ~= "" then
 		if (chn_list == "proxy" and gfw_list == "0" and proxy_mode ~= "proxy" and aliyun ~= nil) or (chn_list == "0" and gfw_list == "0" and proxy_mode == "proxy") then
 		-- 中国列表+阿里 or 全局

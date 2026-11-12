@@ -210,10 +210,26 @@ function gen_outbound(flag, node, tag, proxy_table)
 									end
 									return r
 								end)() or {"/"},
-							headers = (node.tcp_guise_http_host or node.user_agent) and {
-								Host = node.tcp_guise_http_host,
-								["User-Agent"] = node.user_agent and {node.user_agent} or nil
-							} or nil
+							headers = (function()
+								local host = node.tcp_guise_http_host
+								if type(host) == "table" then
+									local hosts = {}
+									for _, value in ipairs(host) do
+										value = api.trim(value)
+										if value ~= "" then hosts[#hosts + 1] = value end
+									end
+									host = #hosts > 0 and hosts or nil
+								elseif host == "" then
+									host = nil
+								end
+								local user_agent = node.user_agent ~= "" and node.user_agent or nil
+								if not host and not user_agent then return nil end
+								-- Xray replaces its whole default header map when any header is set.
+								return {
+									Host = host or {"www.baidu.com", "www.bing.com"},
+									["User-Agent"] = user_agent and {user_agent} or nil
+								}
+							end)()
 						} or nil
 					}
 				} or nil,
@@ -262,6 +278,13 @@ function gen_outbound(flag, node, tag, proxy_table)
 							if ok and type(parsed) == "table" then
 								extra = parsed.extra or parsed
 							end
+						end
+						-- 下载通道不继承上行 sockopt，补齐域名解析策略和防回环标记。
+						if type(extra.downloadSettings) == "table" then
+							local sockopt = extra.downloadSettings.sockopt or {}
+							sockopt.domainStrategy = sockopt.domainStrategy or node.domain_strategy or "UseIP"
+							sockopt.mark = sockopt.mark or 255
+							extra.downloadSettings.sockopt = sockopt
 						end
 						-- 处理 User-Agent
 						if node.user_agent and node.user_agent ~= "" then
@@ -479,7 +502,12 @@ function gen_outbound(flag, node, tag, proxy_table)
 			end
 		end
 
-		if api.datatypes.hostname(node.address) and node.domain_resolver and (node.domain_resolver_dns or node.domain_resolver_dns_https) then
+		local node_domains = {}
+		for _, address in ipairs({node.address, node.transport == "xhttp" and node.download_address or nil}) do
+			address = address:lower()
+			if api.datatypes.hostname(address) then table.insert(node_domains, address) end
+		end
+		if #node_domains > 0 and node.domain_resolver and (node.domain_resolver_dns or node.domain_resolver_dns_https) then
 			local dns_proto = node.domain_resolver
 			local config_address
 			local config_port
@@ -518,13 +546,15 @@ function gen_outbound(flag, node, tag, proxy_table)
 					domains = {}
 				}
 			end
-			local exists
-			local domain = "full:" .. node.address
-			for _, d in ipairs(GLOBAL.DNS_SERVER[dns_key].domains) do
-				if d == domain then exists = true; break end
+			for _, address in ipairs(node_domains) do
+				local exists
+				local domain = "full:" .. address
+				for _, d in ipairs(GLOBAL.DNS_SERVER[dns_key].domains) do
+					if d == domain then exists = true; break end
+				end
+				if not exists then table.insert(GLOBAL.DNS_SERVER[dns_key].domains, domain) end
+				GLOBAL.VPS_EXCLUDE[address] = true
 			end
-			if not exists then table.insert(GLOBAL.DNS_SERVER[dns_key].domains, domain) end
-			GLOBAL.VPS_EXCLUDE[node.address] = true
 		end
 	end
 	return result
@@ -1156,22 +1186,24 @@ function gen_config(var)
 			end
 
 			local valid_nodes = {}
+			local valid_node_tags = {}
 			for i = 1, #(blc_nodes or {}) do
 				local blc_node_id = blc_nodes[i]
 				local blc_node_tag = "blc-" .. blc_node_id
-				local is_new_blc_node = true
+				local outboundTag
 				for _, outbound in ipairs(outbounds) do
 					if string.sub(outbound.tag, 1, #blc_node_tag) == blc_node_tag then
-						is_new_blc_node = false
-						valid_nodes[#valid_nodes + 1] = outbound.tag
+						outboundTag = outbound.tag
 						break
 					end
 				end
-				if is_new_blc_node then
-					local outboundTag = gen_outbound_get_tag(flag, blc_node_id, blc_node_tag, { fragment = xray_settings.fragment == "1" or nil, noise = xray_settings.noise == "1" or nil })
-					if outboundTag then
-						valid_nodes[#valid_nodes + 1] = outboundTag
-					end
+				if not outboundTag then
+					outboundTag = gen_outbound_get_tag(flag, blc_node_id, blc_node_tag, { fragment = xray_settings.fragment == "1" or nil, noise = xray_settings.noise == "1" or nil })
+				end
+				-- 每个成员标签只保留一次，复用已有出站时也需要去重。
+				if outboundTag and not valid_node_tags[outboundTag] then
+					valid_node_tags[outboundTag] = true
+					valid_nodes[#valid_nodes + 1] = outboundTag
 				end
 				-- Check if balancing node duplicates fallback node
 				if _node.fallback_node == blc_node_id then
