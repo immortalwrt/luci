@@ -111,7 +111,7 @@ return view.extend({
 		let m, s, o;
 
 		m = new form.Map('argon', _('Argon theme configuration'),
-			_('Here you can set the blur and transparency of the login page of argon theme, and manage the background pictures and videos. Chrome is recommended.'));
+			_('Here you can set the blur and transparency of the login page of argon theme, and manage the background pictures and videos.'));
 
 		s = m.section(form.TypedSection, 'global', _('Theme configuration'));
 		s.addremove = false;
