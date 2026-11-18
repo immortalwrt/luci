@@ -60,9 +60,20 @@ function count_changes(section_id) {
 	return n;
 }
 
+/* isUp() only reflects IFF_UP, which netifd sets on ifup regardless of the
+ * link state, so a carrier is required as well. Alias devices (@network)
+ * have no kernel state of their own; netifd binds them to the L3 device of
+ * the referenced network while that network is up, so check that device. */
+function has_link(dev) {
+	if (dev && dev.getType() == 'alias')
+		dev = network.instantiateNetwork(dev.getName().substring(1)).getL3Device();
+
+	return dev ? (dev.isUp() && dev.getCarrier()) : false;
+}
+
 function render_iface(dev, alias) {
 	var type = dev ? dev.getType() : 'ethernet',
-	    up   = dev ? dev.isUp() : false;
+	    up   = has_link(dev);
 
 	return E('span', { class: 'cbi-tooltip-container' }, [
 		E('img', { 'class' : 'middle', 'src': L.resource('icons/%s%s.svg').format(
@@ -83,6 +94,24 @@ function render_iface(dev, alias) {
 	]);
 }
 
+/* Device representing an interface: its L3 device while the interface is
+ * up, else its configured device. The L3 device comes first, as it can
+ * determine the device type of tunnel configs. PPPoE creates its own L3
+ * device on top of the configured one but, unlike the other PPP protocols,
+ * is not virtual, so getDevice() returns the configured device. Represent
+ * it by its PPP device instead, even while the session is down. */
+function iface_device(ifc) {
+	const l3dev = ifc.getL3Device();
+
+	if (l3dev)
+		return l3dev;
+
+	if (ifc.getProtocol() == 'pppoe')
+		return network.instantiateDevice(ifc.getIfname(), ifc);
+
+	return ifc.getDevice();
+}
+
 function render_status(node, ifc, with_device) {
 	let desc = null;
 
@@ -98,7 +127,7 @@ function render_status(node, ifc, with_device) {
 	desc = desc ? '%s (%s)'.format(desc, ifc.getI18n()) : ifc.getI18n();
 
 	const changecount = with_device ? 0 : count_changes(ifc.getName());
-	const maindev = ifc.getL3Device() ?? ifc.getDevice();
+	const maindev = iface_device(ifc);
 	const macaddr = maindev ? maindev.getMAC() : null;
 	const carrier = maindev ? maindev.getCarrier(): null;
 	const cond00 = !changecount && !ifc.isDynamic() && !ifc.isAlias();
@@ -131,8 +160,7 @@ function render_status(node, ifc, with_device) {
 }
 
 function render_modal_status(node, ifc) {
-	// order is important: ifc.getL3Device() can determine dev.getType for tunnel configs
-	const dev = ifc ? (ifc.getL3Device() ?? ifc.getDevice()) : null;
+	const dev = ifc ? iface_device(ifc) : null;
 
 	dom.content(node, [
 		E('img', {
@@ -146,8 +174,9 @@ function render_modal_status(node, ifc) {
 }
 
 function render_ifacebox_status(node, ifc) {
-	const dev = ifc.getL3Device() || ifc.getDevice();
-	const subdevs = dev ? dev.getPorts() : null;
+	const dev = iface_device(ifc);
+	/* list the configured device of PPPoE like a bridge port, e.g. for the DSL sync */
+	const subdevs = (ifc.getProtocol() == 'pppoe') ? L.toArray(ifc.getDevice()) : (dev ? dev.getPorts() : null);
 	const c = [ render_iface(dev, ifc.isAlias()) ];
 
 	if (subdevs && subdevs.length) {
@@ -328,7 +357,7 @@ return view.extend({
 			}
 
 			if (stat) {
-				const dev = ifc.getL3Device() ?? ifc.getDevice();
+				const dev = iface_device(ifc);
 				dom.content(stat, [
 					E('img', {
 						'src': L.resource('icons/%s%s.svg').format(dev ? dev.getType() : 'ethernet', ifc.isUp() ? '' : '_disabled'),
@@ -709,18 +738,24 @@ return view.extend({
 							E('button', {
 								'class': 'cbi-button cbi-button-add',
 								'title': _('Set up DHCP Server'),
-								'click': ui.createHandlerFn(this, function(section_id, ev) {
+								'click': ui.createHandlerFn(this, function(ifname, ev) {
 									this.map.save(function() {
-										uci.add('dhcp', 'dhcp', section_id);
-										uci.set('dhcp', section_id, 'interface', section_id);
+										/*
+										 * Name the section after the interface, unless that name is
+										 * already taken (e.g. by a dnsmasq instance), as uci add would
+										 * then change the type of that section.
+										 */
+										const sid = uci.add('dhcp', 'dhcp', uci.get('dhcp', ifname) ? null : ifname);
+
+										uci.set('dhcp', sid, 'interface', ifname);
 
 										if (protoval == 'static') {
-											uci.set('dhcp', section_id, 'start', 100);
-											uci.set('dhcp', section_id, 'limit', 150);
-											uci.set('dhcp', section_id, 'leasetime', '12h');
-											uci.set('dhcp', section_id, 'dhcpv4', 'server');
+											uci.set('dhcp', sid, 'start', 100);
+											uci.set('dhcp', sid, 'limit', 150);
+											uci.set('dhcp', sid, 'leasetime', '12h');
+											uci.set('dhcp', sid, 'dhcpv4', 'server');
 										} else {
-											uci.set('dhcp', section_id, 'ignore', 1);
+											uci.set('dhcp', sid, 'ignore', 1);
 										}
 									});
 								}, ifc.getName())
@@ -1118,13 +1153,17 @@ return view.extend({
 
 					so = ss.taboption('dhcpv6', form.Flag, 'dhcpv6_pd', _('DHCPv6-<abbr title="Prefix Delegation">PD</abbr>'),
 						_('Toggle IPv6 PD via DHCPv6.'));
+					so.default = so.enabled;
+					so.retain = true;
 					so.depends({ dhcpv6: 'server' });
+					so.depends({ dhcpv6: 'hybrid', master: '0' });
 
 					so = ss.taboption('dhcpv6', form.Value, 'dhcpv6_pd_min_len', _('<abbr title="Prefix Delegation">PD</abbr> minimum length'),
 						_('Configures the minimum delegated prefix length assigned to a requesting downstream router, potentially overriding a requested prefix length. If left unspecified, the device will assign the smallest available prefix greater than or equal to the requested prefix.'));
 					so.placeholder = '62';
 					so.datatype = 'range(1,64)';
 					so.depends({ dhcpv6: 'server', dhcpv6_pd: '1' });
+					so.depends({ dhcpv6: 'hybrid', master: '0', dhcpv6_pd: '1' });
 
 					/* This option is used by odhcpd. It can take IPv4/6 entries, although IPv4 DNS servers don't
 					always make sense in an IPv6 environment, they might in a dual stack environment. */
