@@ -1,0 +1,263 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2021-2025 Lienol <lawlienol@gmail.com>
+
+START=99
+STOP=10
+
+USE_PROCD=1
+PROG=/usr/sbin/openvpn
+
+CONFIG="luci-app-openvpn-server"
+OVPN_PATH=/usr/share/openvpn-server
+TMP_OVPN_PATH=/var/etc/openvpn-server
+
+port=$(uci -q get ${CONFIG}.server.port || echo "1194")
+proto=$(uci -q get ${CONFIG}.server.proto || echo "udp")
+dev=$(uci -q get ${CONFIG}.server.dev || echo "ovpn_server")
+ip_segment=$(uci -q get ${CONFIG}.server.ip_segment || echo "172.30.1.0")
+subnet_mask=$(uci -q get ${CONFIG}.server.subnet_mask || echo "255.255.255.0")
+ipv6=$(uci -q get ${CONFIG}.server.ipv6 || echo "0")
+[ "${ipv6}" -eq 1 ] && [ -z "$(command -v ip6tables)" ] && ipv6=0
+ip_prefix="$(ipcalc.sh ${ip_segment} ${subnet_mask} | grep "PREFIX" | awk -F '=' '{print $2}')"
+vpn_cidr="${ip_segment%.*}.0/${ip_prefix}"
+
+ipt_flag="OpenVPN Server"
+
+ipt_rule() {
+	if [ "$1" = "add" ]; then
+		local masquerade=$(uci -q get ${CONFIG}.server.masquerade || echo "1")
+		local allow_lan=$(uci -q get ${CONFIG}.server.allow_lan || echo "1")
+		[ "${masquerade}" -eq 1 ] && iptables -w -t nat -I POSTROUTING -s ${vpn_cidr} -m comment --comment "${ipt_flag}" -j MASQUERADE 2>/dev/null
+		[ "${allow_lan}" -eq 1 -o "${masquerade}" -eq 1 ] && iptables -w -I FORWARD -s ${vpn_cidr} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
+		iptables -w -I INPUT -p ${proto} --dport ${port} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
+		iptables -w -t mangle -I OUTPUT -p ${proto} --sport ${port} -m comment --comment "${ipt_flag}" -j RETURN 2>/dev/null
+		
+		[ "${ipv6}" -eq 1 ] && {
+			ip6tables -w -I INPUT -p ${proto} --dport ${port} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
+			ip6tables -w -t mangle -I OUTPUT -p ${proto} --sport ${port} -m comment --comment "${ipt_flag}" -j RETURN 2>/dev/null
+		}
+	else
+		ipt_del() {
+			for i in $(seq 1 $($1 -nL $2 | grep -c "${ipt_flag}")); do
+				local index=$($1 --line-number -nL $2 | grep "${ipt_flag}" | head -1 | awk '{print $1}')
+				$1 -w -D $2 $index 2>/dev/null
+			done
+		}
+		ipt_del "iptables" "FORWARD"
+		ipt_del "iptables" "INPUT"
+		ipt_del "iptables -t nat" "POSTROUTING"
+		ipt_del "iptables -t mangle" "OUTPUT"
+		ipt_del "ip6tables" "INPUT"
+		ipt_del "ip6tables -t mangle" "OUTPUT"
+	fi
+}
+
+gen_include() {
+	echo '#!/bin/sh' > /var/etc/${CONFIG}.include
+	extract_rules() {
+		local _ipt="iptables"
+		[ "$1" == "6" ] && _ipt="ip6tables"
+		
+		echo "*$2"
+		${_ipt}-save -t $2 | grep "${ipt_flag}" | sed -e "s#\-A#\-I#g"
+		echo 'COMMIT'
+	}
+	cat <<-EOF >> /var/etc/${CONFIG}.include
+		iptables-save -c | grep -v "${ipt_flag}" | iptables-restore -w -c
+		iptables-restore -w -n <<-EOT
+		$(extract_rules 4 filter)
+		$(extract_rules 4 nat)
+		$(extract_rules 4 mangle)
+		EOT
+		[ "${ipv6}" -eq 1 ] && {
+			ip6tables-save -c | grep -v "${ipt_flag}" | ip6tables-restore -w -c
+			ip6tables-restore -w -n <<-EOT
+			$(extract_rules 6 filter)
+			$(extract_rules 6 mangle)
+			EOT
+		}
+		exit 0
+	EOF
+	return 0
+}
+
+start_service() {
+	local enabled=$(uci -q get ${CONFIG}.server.enabled)
+	[ "${enabled}" -eq 1 ] || return 1
+	local auth_method=$(uci -q get ${CONFIG}.server.auth_method || echo "password")
+	case "${auth_method}" in
+		password|cert_password|certificate) ;;
+		*) echo "Invalid OpenVPN authentication method: ${auth_method}" >&2; return 1 ;;
+	esac
+	local cipher=$(uci -q get ${CONFIG}.server.cipher || echo "AES-256-GCM")
+	local auth=$(uci -q get ${CONFIG}.server.auth || echo "SHA256")
+	local tls_crypt=$(uci -q get ${CONFIG}.server.tls_crypt || echo "0")
+	local tls_auth=$(uci -q get ${CONFIG}.server.tls_auth || echo "0")
+	local duplicate_cn=$(uci -q get ${CONFIG}.server.duplicate_cn || echo "0")
+	local client_to_client=$(uci -q get ${CONFIG}.server.client_to_client || echo "1")
+	local redirect_gateway=$(uci -q get ${CONFIG}.server.redirect_gateway || echo "1")
+	local keepalive_interval=$(uci -q get ${CONFIG}.server.keepalive_interval || echo "10")
+	local keepalive_timeout=$(uci -q get ${CONFIG}.server.keepalive_timeout || echo "120")
+	local verb=$(uci -q get ${CONFIG}.server.verb || echo "3")
+	local max_clients=$(uci -q get ${CONFIG}.server.max_clients)
+	local dns=$(uci -q get ${CONFIG}.server.dns)
+	local dns2=$(uci -q get ${CONFIG}.server.dns2)
+	local dns_search=$(uci -q get ${CONFIG}.server.dns_search)
+	local push_routes=$(uci -q get ${CONFIG}.server.push_routes)
+	mkdir -p ${TMP_OVPN_PATH}
+	
+	_ca=${OVPN_PATH}/ca.crt
+	_cert=${OVPN_PATH}/server.crt
+	_key=${OVPN_PATH}/server.key
+	_dh=${OVPN_PATH}/dh.pem
+	_tls_crypt_key=${OVPN_PATH}/tls-crypt.key
+	_tls_auth_key=${OVPN_PATH}/tls-auth.key
+	
+	rm -rf ${TMP_OVPN_PATH}/ccd
+	mkdir -p ${TMP_OVPN_PATH}/ccd
+	
+	_auth_path=${TMP_OVPN_PATH}/auth
+	: > ${_auth_path}
+	local _users=$(uci -q show ${CONFIG} | grep "=users" | cut -d '.' -sf2 | cut -d '=' -sf 1)
+	[ -n "${_users}" ] && {
+		for _user in ${_users}; do
+			local u_enabled=$(uci -q get ${CONFIG}.${_user}.enabled)
+			[ "${u_enabled}" -eq 1 ] || continue
+			
+			local u_username=$(uci -q get ${CONFIG}.${_user}.username)
+			[ -n "${u_username}" ] || continue
+			
+			local u_password=$(uci -q get ${CONFIG}.${_user}.password)
+			[ "${auth_method}" = "certificate" ] || [ -n "${u_password}" ] || continue
+			
+			local u_expire_time=$(uci -q get ${CONFIG}.${_user}.expire_time)
+			local u_access_time=$(uci -q get ${CONFIG}.${_user}.access_time)
+			[ "${auth_method}" = "certificate" ] || echo "${u_username} ${u_password} ${u_expire_time:-0} ${u_access_time:-0}" >> ${_auth_path}
+			
+			local u_ipaddress=$(uci -q get ${CONFIG}.${_user}.ipaddress)
+			[ -n "${u_ipaddress}" ] && echo "ifconfig-push ${u_ipaddress} ${subnet_mask}" >> ${TMP_OVPN_PATH}/ccd/${u_username}
+			
+			local u_routes=$(uci -q get ${CONFIG}.${_user}.routes)
+			for u_route in ${u_routes}; do
+				eval "$(ipcalc.sh ${u_route})"
+				echo "iroute ${IP} ${NETMASK}" >> ${TMP_OVPN_PATH}/ccd/${u_username}
+			done
+			local u_download_limit=$(uci -q get ${CONFIG}.${_user}.download_limit)
+			[ -n "${u_download_limit}" ] && echo "shaper ${u_download_limit}" >> ${TMP_OVPN_PATH}/ccd/${u_username}
+			local u_upload_limit=$(uci -q get ${CONFIG}.${_user}.upload_limit)
+			[ -n "${u_upload_limit}" ] && echo "push \"shaper ${u_upload_limit}\"" >> ${TMP_OVPN_PATH}/ccd/${u_username}
+			unset u_enabled u_username u_password u_ipaddress u_routes u_expire_time u_access_time u_download_limit u_upload_limit
+		done
+	}
+	
+	SCRIPT_PATH=${OVPN_PATH}/script
+	chmod 0755 ${SCRIPT_PATH}/*
+	
+	local extra_config=$(uci -q get ${CONFIG}.server.extra_config)
+	local server_extra=""
+	[ "${auth_method}" = "password" ] && server_extra="${server_extra}
+verify-client-cert none"
+	[ "${auth_method}" = "cert_password" ] && server_extra="${server_extra}
+remote-cert-tls client"
+	[ "${auth_method}" = "certificate" ] && server_extra="${server_extra}
+verify-client-cert require
+remote-cert-tls client"
+	[ "${auth_method}" != "certificate" ] && server_extra="${server_extra}
+auth-user-pass-verify ${SCRIPT_PATH}/auth_verify.sh via-env
+username-as-common-name"
+	[ "${cipher}" != "none" ] && server_extra="${server_extra}
+data-ciphers ${cipher}:AES-256-GCM:AES-128-GCM
+cipher ${cipher}"
+	[ "${auth}" != "none" ] && server_extra="${server_extra}
+auth ${auth}"
+	[ "${tls_crypt}" -eq 1 ] && [ -s "${_tls_crypt_key}" ] && server_extra="${server_extra}
+tls-crypt ${_tls_crypt_key}"
+	[ "${tls_crypt}" -ne 1 ] && [ "${tls_auth}" -eq 1 ] && [ -s "${_tls_auth_key}" ] && server_extra="${server_extra}
+tls-auth ${_tls_auth_key} 0"
+	[ "${duplicate_cn}" -eq 1 ] && server_extra="${server_extra}
+duplicate-cn"
+	[ "${client_to_client}" -eq 1 ] && server_extra="${server_extra}
+client-to-client"
+	[ -n "${max_clients}" ] && server_extra="${server_extra}
+max-clients ${max_clients}"
+	[ "${redirect_gateway}" -eq 1 ] && server_extra="${server_extra}
+push \"redirect-gateway def1 bypass-dhcp\""
+	[ -n "${dns}" ] || dns="${ip_segment%.*}.1"
+	[ -n "${dns}" ] && server_extra="${server_extra}
+push \"dhcp-option DNS ${dns}\""
+	[ -n "${dns2}" ] && server_extra="${server_extra}
+push \"dhcp-option DNS ${dns2}\""
+	[ -n "${dns_search}" ] && server_extra="${server_extra}
+push \"dhcp-option DOMAIN ${dns_search}\""
+	for push_route in ${push_routes}; do
+		eval "$(ipcalc.sh ${push_route})"
+		[ -n "${IP}" ] && [ -n "${NETMASK}" ] && server_extra="${server_extra}
+push \"route ${IP} ${NETMASK}\""
+	done
+	
+	cat <<-EOF > ${TMP_OVPN_PATH}/server.conf
+		management 127.0.0.1 17777
+		port ${port}
+		proto ${proto}$([ "${ipv6}" -eq 1 ] && echo "6")
+		dev ${dev}
+		dev-type tun
+		ca ${_ca}
+		cert ${_cert}
+		key ${_key}
+		dh ${_dh}
+		topology subnet
+		client-config-dir ${TMP_OVPN_PATH}/ccd
+		server ${ip_segment} ${subnet_mask}
+		ifconfig-pool-persist ipp.txt
+		client-connect ${SCRIPT_PATH}/client_connect.sh
+		client-disconnect ${SCRIPT_PATH}/client_disconnect.sh
+		up ${SCRIPT_PATH}/up.sh
+		down ${SCRIPT_PATH}/down.sh
+		keepalive ${keepalive_interval} ${keepalive_timeout}
+		persist-key
+		persist-tun
+		script-security 3
+		status openvpn-status.log
+		log         openvpn.log
+		log-append  openvpn.log
+		verb ${verb}
+		push "topology subnet"
+		${server_extra}
+		${extra_config}
+	EOF
+	
+	procd_open_instance "$CONFIG"
+	procd_set_param command "$PROG"	\
+		--cd "${TMP_OVPN_PATH}" \
+		--config "server.conf"
+	procd_set_param file "${TMP_OVPN_PATH}/server.conf"
+	procd_set_param file "${_ca}"
+	procd_set_param file "${_cert}"
+	procd_set_param file "${_key}"
+	procd_set_param file "${_dh}"
+	[ -s "${_tls_crypt_key}" ] && procd_set_param file "${_tls_crypt_key}"
+	[ -s "${_tls_auth_key}" ] && procd_set_param file "${_tls_auth_key}"
+	procd_set_param term_timeout 15
+	procd_set_param respawn
+	procd_append_param respawn 3600
+	procd_append_param respawn 5
+	procd_append_param respawn -1
+	procd_close_instance
+	
+	ipt_rule add
+	gen_include
+}
+
+stop_service() {
+	ipt_rule del
+	rm -rf /var/etc/${CONFIG}.include
+	rm -rf ${TMP_OVPN_PATH}
+}
+
+reload_service() {
+	restart
+}
+
+service_triggers() {
+	procd_add_reload_trigger "${CONFIG}"
+}
