@@ -1,0 +1,120 @@
+#!/bin/sh /etc/rc.common
+# Static HTML portal, published as a sub-path of the router's existing uhttpd.
+# shellcheck disable=SC2034  # START/STOP are read by /etc/rc.common, not by this script
+# shellcheck disable=SC3043  # /bin/sh on OpenWrt is busybox ash, which does have `local`
+
+USE_PROCD=1
+START=95
+STOP=10
+
+# The package's own template, installed read-only under /usr/share.
+LITEPORTAL_SRC=/usr/share/liteportal/www
+
+# Where the page is served from. It has to sit inside the document root of the
+# main uhttpd instance - its `option home`, /www by default - because that is the
+# only tree the running server hands out. The uploaded icons and backgrounds
+# live here too, next to links.json.
+LITEPORTAL_WWW=/www/liteportal
+
+# Refresh the template files and re-bake links.json.
+#
+# The missing files are ours, not the user's, so a package upgrade has to
+# replace them. An index.html or liteportal.js left behind from an older package
+# would keep talking to a layout the new backend no longer writes. links.json
+# and anything under the two asset directories belong to the user; the
+# directories themselves are recreated here because unpublish() removes them
+# when they are empty, LITEPORTAL_WWW included - mkdir -p brings the whole chain
+# back whether or not it is still there.
+publish() {
+	mkdir -p "$LITEPORTAL_WWW/icons" "$LITEPORTAL_WWW/bg"
+	cp -f "$LITEPORTAL_SRC/index.html" "$LITEPORTAL_SRC/liteportal.js" "$LITEPORTAL_SRC/liteportal.css" "$LITEPORTAL_WWW/"
+	generate_links
+}
+
+# Take the page off the main uhttpd again.
+#
+# Nothing is stopped here - there is no daemon of ours - so withdrawing the page
+# means removing the two things that make the sub-path resolve: the entry point
+# and the baked data. No uploaded file is ever touched, so switching the portal
+# back on brings it back with the user's icons and background intact.
+#
+# The directories are then dropped too, outermost last. This is not tidiness:
+# uhttpd answers a directory that holds no index.html with an auto-generated
+# "Index of ..." listing and a 200, so leaving /www/liteportal behind means a portal
+# that is switched off still answers on its own URL and still tells the world
+# what it kept there. uhttpd does have a switch for that (-D, do not allow
+# directory listings), but it is global - it would take LuCI's own listings with
+# it - and the uhttpd config in LuCI does not expose it, so there is no
+# per-directory way out. Removing the directories is the only way to make the
+# sub-path stop resolving without touching the server or the user's files.
+#
+# rmdir, not rm -rf, and the outermost one last: rmdir refuses a directory that
+# still holds something and leaves it exactly as it was, so the deepest empty
+# shell goes first and a directory the user has put files in stops the removal
+# right there. An upload is never deleted, and publish() recreates whatever is
+# missing with mkdir -p on the way back up.
+unpublish() {
+	rm -f "$LITEPORTAL_WWW/index.html" "$LITEPORTAL_WWW/liteportal.js" \
+		"$LITEPORTAL_WWW/liteportal.css" "$LITEPORTAL_WWW/links.json"
+	rmdir "$LITEPORTAL_WWW/icons" "$LITEPORTAL_WWW/bg" 2>/dev/null
+	rmdir "$LITEPORTAL_WWW" 2>/dev/null
+}
+
+# Re-bake links.json from uci. The generator is the `luci.liteportal` ubus object
+# provided by the rpcd plugin, so there is exactly one loader of that script and
+# no second code path to keep in sync.
+#
+# The outcome is reported rather than discarded. Sending it to /dev/null hid
+# every way this can fail - the object not being registered yet, a ucode
+# exception, a denied call - and the only symptom was a portal page with no
+# bookmarks on it. A failure here is not fatal: the server is better off with the
+# links.json it already had than with none at all.
+generate_links() {
+	local out rc
+
+	out=$(ubus call luci.liteportal generate 2>&1)
+	rc=$?
+
+	# A failed method is a normal reply, { "ok": false, ... }, so the exit
+	# status alone is not enough - the payload has to be read too.
+	if [ "$rc" -ne 0 ] || ! printf '%s' "$out" | grep -q '"ok"[[:space:]]*:[[:space:]]*true'; then
+		logger -t liteportal "links.json not regenerated (rc=$rc): $out"
+		return 1
+	fi
+
+	return 0
+}
+
+# There is no daemon to start any more, and this deliberately opens no procd
+# instance: the page is handed out by the main uhttpd, so there is nothing of
+# ours to supervise, respawn or ask for a port. The service exists for the two
+# jobs that are still ours - publishing or withdrawing the page, and registering
+# the reload trigger below.
+start_service() {
+	local enabled
+
+	# The configuration switch. Absent - a configuration written before the
+	# switch existed - counts as enabled; only an explicit '0' stops the portal.
+	# Not config_get_bool: `config portal` is an anonymous section, so config_get
+	# would look up CONFIG_portal_enabled, which never exists, and silently
+	# return its default.
+	enabled=$(uci -q get liteportal.@liteportal[0].enabled)
+
+	if [ "$enabled" = "0" ]; then
+		unpublish
+		return 0
+	fi
+
+	publish
+}
+
+# A configuration change runs `/etc/init.d/liteportal reload`. Under USE_PROCD the
+# rc.common default reload() calls start_service() when no reload_service() is
+# defined, so "Save & Apply" is what republishes the page and re-bakes
+# links.json.
+#
+# The trigger is registered on every service set, including the early return in
+# start_service(), so the switch keeps working after the portal was turned off.
+service_triggers() {
+	procd_add_reload_trigger "liteportal"
+}

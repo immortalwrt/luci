@@ -1,0 +1,30 @@
+{
+	"luci-app-liteportal": {
+		"description": "Grant access to the Portal configuration",
+		"read": {
+			"file": {
+				"/www/liteportal": [ "list" ],
+				"/www/liteportal/*": [ "list" ],
+				"/www/liteportal/bg": [ "list" ],
+				"/www/liteportal/bg/*": [ "list" ],
+				"/www/liteportal/icons": [ "list" ],
+				"/www/liteportal/icons/*": [ "list" ]
+			},
+			"ubus": {
+				"file": [ "list" ],
+				"luci.liteportal": [ "scan", "status" ]
+			},
+			"uci": [ "liteportal" ]
+		},
+		"write": {
+			"cgi-io": [ "upload" ],
+			"file": {
+				"/tmp/liteportal_upload.tmp": [ "read", "write" ]
+			},
+			"ubus": {
+				"luci.liteportal": [ "generate", "upload", "rename", "remove" ]
+			},
+			"uci": [ "liteportal" ]
+		}
+	}
+}

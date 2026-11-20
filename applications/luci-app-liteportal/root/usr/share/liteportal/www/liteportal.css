@@ -1,0 +1,148 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #0e1116 center / cover no-repeat;
+  color: #e6e6e6;
+  min-height: 100vh;
+}
+/*
+ * The page is painted in three layers, all of them below the content:
+ *
+ *   body         - the CSS background colour (solid, and the fallback if a photo fails)
+ *   body::before - the background photo, optionally frosted
+ *   body::after  - a scrim dimming whatever sits underneath
+ *
+ * The scrim is what keeps light grey text and translucent cards readable over an
+ * arbitrary photo: the palette below assumes a dark surface, and a bright picture
+ * swallows the content without it. Giving the photo a layer of its own is also
+ * what makes --bg-blur possible at all - blurring body would take the text along.
+ *
+ * Every appearance value is a custom property set by liteportal.js from links.json.
+ * The fallbacks are the values that used to be hard-coded (a 78% scrim, no blur,
+ * cards at 55% alpha), so a portal whose uci predates the new options renders
+ * exactly as it did before they existed.
+ */
+body::before {
+  content: "";
+  position: fixed;
+
+  /*
+   * Blur bleeds transparent pixels at the edges of a layer, which would show up
+   * as a soft frame inside the viewport. Growing the layer by the blur radius
+   * pushes that frame off-screen; at 0px this is simply inset: 0.
+   */
+  inset: calc(-1 * var(--bg-blur, 0px));
+  z-index: -2;
+  pointer-events: none;
+  background-image: var(--bg-image, none);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  filter: blur(var(--bg-blur, 0px));
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  /*
+   * Two stops out of one number: lighter at the top, where the heading sits,
+   * denser at the bottom. 0% is fully transparent, 100% hides the photo.
+   */
+  background: linear-gradient(180deg,
+    rgba(10, 12, 16, calc(var(--bg-veil, .78) * .6)),
+    rgba(10, 12, 16, var(--bg-veil, .78)));
+}
+.wrap { max-width: 960px; margin: 0 auto; padding: 48px 24px; }
+h1 { font-weight: 600; letter-spacing: .5px; margin: 0 0 4px; text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+  margin-top: 28px;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 12px;
+  border-radius: 14px;
+  /*
+   * A translucent dark surface instead of the old 6% white: on a bright photo
+   * the latter is effectively invisible. Together with backdrop-filter the card
+   * stays legible over any background. The alpha comes from the transparency
+   * slider, inverted - 0% transparency means a solid card.
+   */
+  background: rgba(16, 19, 25, var(--card-alpha, .55));
+  border: 1px solid rgba(255,255,255,.14);
+  text-decoration: none;
+  color: inherit;
+  backdrop-filter: blur(10px);
+  transition: .15s;
+}
+.card:hover {
+  /* More opaque on hover, but never past solid. */
+  background: rgba(16, 19, 25, min(1, calc(var(--card-alpha, .55) + .2)));
+  transform: translateY(-2px);
+}
+.card .ico {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+}
+.card .ico img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+.card .name {
+  font-size: 13px;
+  text-align: center;
+  word-break: break-word;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+}
+/*
+ * The search box, between the heading and the grid. It is created by liteportal.js
+ * only when links.json carries a template, so a portal without the feature has
+ * no such element at all. The surface borrows the card recipe (translucent dark
+ * plus frosted glass) so it stays legible over any background image.
+ *
+ * Hidden until the space bar calls it up - the .open class is the whole
+ * difference between the two states.
+ */
+.search {
+  display: none;
+  margin: 20px auto 0;
+  max-width: 460px;
+}
+.search.open {
+  display: flex;
+}
+.search input {
+  width: 100%;
+  padding: 12px 18px;
+  font-family: inherit;
+  font-size: 15px;
+  color: #e6e6e6;
+  background: rgba(16, 19, 25, var(--card-alpha, .55));
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 999px;
+  outline: none;
+  backdrop-filter: blur(10px);
+}
+.search input::placeholder {
+  color: rgba(230, 230, 230, .5);
+}
+.search input:focus {
+  border-color: rgba(255, 255, 255, .4);
+}
