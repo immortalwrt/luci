@@ -55,9 +55,6 @@ return view.extend({
 		o.datatype = 'and(uinteger, range(1,64))';
 		o.placeholder = '1';
 
-		o = s.taboption('general', form.Flag, 'zerocopy_on_send', _('Zero-copy on send'),
-			_('Enable zero-copy send with <code>MSG_ZEROCOPY</code> for better performance.'));
-
 		s.tab('web', _('Web settings'));
 
 		o = s.taboption('web', form.Value, 'hostname', _('Hostname'),
