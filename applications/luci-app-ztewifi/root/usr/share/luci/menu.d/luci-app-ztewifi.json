@@ -1,0 +1,31 @@
+{
+	"admin/services/ztewifi": {
+		"title": "ZTE Portable WiFi",
+		"order": 45,
+		"action": {
+			"type": "firstchild"
+		},
+		"depends": {
+			"acl": [ "luci-app-ztewifi" ],
+			"uci": { "ztewifi": true }
+		}
+	},
+
+	"admin/services/ztewifi/status": {
+		"title": "Status",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "ztewifi/status"
+		}
+	},
+
+	"admin/services/ztewifi/settings": {
+		"title": "Settings",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "ztewifi/settings"
+		}
+	}
+}
